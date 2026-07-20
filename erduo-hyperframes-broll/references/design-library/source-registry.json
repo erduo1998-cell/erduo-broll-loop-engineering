@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "source_id": "CASE-001",
+      "content_hash": "f7ab01216ce8a6c6b1a4ba77fcbb588f8edb2fee26d79b50c2020892b6b54e3e",
+      "authority": "B",
+      "allowed_evidence_roles": ["primary-production", "production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-002",
+      "content_hash": "790d309d2482b579822f29eb1e094e4f32bd9292304b52c27676067c9fee036b",
+      "authority": "B",
+      "allowed_evidence_roles": ["primary-production", "production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-003",
+      "content_hash": "a6b680c4521646688702956bcefae51eea040a564010bc3e88804436f457779e",
+      "authority": "B",
+      "allowed_evidence_roles": ["primary-production", "production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-004",
+      "content_hash": "79f080e4a9d2c48b220a7ce5debd7031872668a5370750d25dfb1390615a264a",
+      "authority": "B",
+      "allowed_evidence_roles": ["pipeline-reference"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-005",
+      "content_hash": "1bb764b648d1aa9bf253ecbe4f9fa6cffd1beb3f42c4d081cfd0f49a75cb020b",
+      "authority": "B",
+      "allowed_evidence_roles": ["primary-production", "production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-006",
+      "content_hash": "3acabbf8cd543aa07ec017f28c1ca4e97140e3afd69d5cb85380713c9e9b9ad4",
+      "authority": "B",
+      "allowed_evidence_roles": ["production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-007",
+      "content_hash": "c2bbaf66ee54bba2f567107cb2489e5a325bf2aab6b408a3d1f2a246d4dc996a",
+      "authority": "B",
+      "allowed_evidence_roles": ["primary-production", "production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-008",
+      "content_hash": "62df7a9bd2fe51e651d554a543f216e367e30eba50a85a7f77a1793b1f08a434",
+      "authority": "B",
+      "allowed_evidence_roles": ["production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "CASE-009",
+      "content_hash": "3acabbf8cd543aa07ec017f28c1ca4e97140e3afd69d5cb85380713c9e9b9ad4",
+      "authority": "B",
+      "allowed_evidence_roles": ["production-derived"],
+      "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+    },
+    {
+      "source_id": "BRAND-001",
+      "content_hash": "6b2f26c5c15905337759aacafe5fa3ee94b208b33c8772080407d325019ab7f1",
+      "authority": "C",
+      "allowed_evidence_roles": ["inspiration-only"],
+      "evidence_ref": "handoff/SRC-004-BRAND-INSPIRATION-INDEX.md"
+    }
+  ],
+  "duplicate_groups": [
+    {
+      "content_hash": "3acabbf8cd543aa07ec017f28c1ca4e97140e3afd69d5cb85380713c9e9b9ad4",
+      "source_ids": ["CASE-006", "CASE-009"]
+    }
+  ]
+}

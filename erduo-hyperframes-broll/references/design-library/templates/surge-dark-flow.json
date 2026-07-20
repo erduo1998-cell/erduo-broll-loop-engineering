@@ -1,0 +1,422 @@
+{
+  "schema_version": "1.0.0",
+  "id": "surge-dark-flow",
+  "version": 1,
+  "status": "draft",
+  "status_history": [
+    {
+      "state": "draft",
+      "changed_at": "2026-07-20T00:00:00.000Z",
+      "reason": "Extracted from CASE-005 production evidence. Awaiting current HyperFrames rendering, three-mode compositing, and cross-aspect-ratio frame inspection before promotion.",
+      "evidence_refs": ["handoff/SRC-003-DESIGN-EXTRACTION.md"]
+    }
+  ],
+  "title": "Surge Dark Flow",
+  "summary": "A dark brand-manifesto visual world with high energy restrained by strict quotas. Near-black canvas, cool white text, restricted four-color surge gradients, metallic gray giant titles, and three-voice typography. One sentence per frame, one hero per shot.",
+  "tags": ["dark", "brand-manifesto", "high-energy", "ai", "data-reveal", "trends"],
+  "best_for": [
+    "AI and technology brand statements",
+    "business judgment and trend analysis",
+    "key-phrase punch-in openings and closings",
+    "real data reveals with source attribution",
+    "high-impact single-sentence declarations"
+  ],
+  "avoid_for": [
+    "lifestyle and children content",
+    "soft tutorial walkthroughs",
+    "content requiring large real-footage segments",
+    "multi-source multimedia collage"
+  ],
+  "visual_system": {
+    "canvas": {
+      "tone": "near-black restrained intensity with cool white signal",
+      "dimensionality": "layered",
+      "background_policy": "Use near-black (not pure #000) as the dominant field so the restricted surge accents and metallic type read as intentional contrast rather than default dark mode."
+    },
+    "palette": {
+      "strategy": "One near-black field plus one cool white text role plus a restricted four-color surge accent set with a per-shot budget. No brand hex values are copied.",
+      "roles": [
+        {
+          "role": "near-black-field",
+          "semantic": "dominant quiet canvas",
+          "value_policy": "near-black with subtle depth, never pure #000",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "cool-white-text",
+          "semantic": "primary readable signal",
+          "value_policy": "cool white, the strongest contrast against the field",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "surge-accent",
+          "semantic": "restricted four-color flow for emphasis and motion",
+          "value_policy": "at most one surge accent active per shot; the four colors form a family and are never used all at once outside the ribbon motif",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "metallic-gray-title",
+          "semantic": "weight and permanence for headlines",
+          "value_policy": "metallic gray with subtle gradient, heavier than cool white but subordinate to the surge accent when both are present",
+          "source_constraint": "generic-role"
+        }
+      ]
+    },
+    "typography": {
+      "roles": [
+        {
+          "role": "display",
+          "purpose": "carry the single headline or giant number per frame",
+          "style_relation": "largest weight, metallic or cool white, Kanit or equivalent wide geometric display"
+        },
+        {
+          "role": "body",
+          "purpose": "source attribution, metadata, and secondary labels",
+          "style_relation": "smaller, quieter, Noto Sans SC or equivalent readable sans"
+        },
+        {
+          "role": "mono",
+          "purpose": "data, progress values, and technical annotations",
+          "style_relation": "smallest, monospaced, for HUD-like precision without dominating"
+        }
+      ],
+      "local_fallback_policy": "Select installed fonts by role and verify actual rendered glyph coverage. Do not assume Kanit, Noto Sans SC, or any specific Mono font is available."
+    },
+    "materials": ["near-black depth field", "metallic gray surface", "cool white signal plane", "thin structural divider"],
+    "spatial_hierarchy": ["hero text or giant number", "source attribution HUD", "progress or divider annotation", "surge accent ribbon"],
+    "whitespace_policy": "Reserve negative space around the single hero element. Offset composition is preferred over dead-center symmetry. The surge accent and ribbon occupy the periphery.",
+    "focus_policy": {
+      "max_primary_foci": 1,
+      "rule": "One sentence or one giant number owns the frame. All other elements are subordinate annotation, HUD, or structural dividers."
+    }
+  },
+  "scene_grammar": [
+    {
+      "id": "single-sentence-hero",
+      "purposes": ["declare a key phrase or judgment", "open or close a section with impact"],
+      "composition": "One cool white or metallic gray headline centered or offset, with quiet source annotation and optional thin divider. No competing text.",
+      "required_semantics": ["a single declarative sentence or phrase", "a clear focal point"],
+      "forbidden_uses": ["multiple competing headlines", "paragraphs of body text", "decorative text without semantic weight"],
+      "compatible_modes": ["fullscreen", "hard-alpha"]
+    },
+    {
+      "id": "big-number-reveal",
+      "purposes": ["present a single key metric", "anchor a data claim with visual weight"],
+      "composition": "One giant number in metallic gray or cool white, with a compact source HUD line below. The number is the hero; the source is quiet verification.",
+      "required_semantics": ["a real numeric value", "a verifiable source or context label"],
+      "forbidden_uses": ["invented or placeholder numbers", "multiple competing metrics in one frame", "using big-number styling for non-numeric keywords"],
+      "compatible_modes": ["fullscreen", "hard-alpha"]
+    },
+    {
+      "id": "progress-divider",
+      "purposes": ["mark structural transitions", "show a quantified stage or ratio"],
+      "composition": "A thin horizontal divider line with a compact mono progress label. Occupies a narrow band; the rest of the frame belongs to the current hero.",
+      "required_semantics": ["a real stage, ratio, or structural marker"],
+      "forbidden_uses": ["empty decorative dividers without semantic meaning", "progress bars that imply false precision"],
+      "compatible_modes": ["fullscreen", "hard-alpha"]
+    },
+    {
+      "id": "brand-ribbon-accent",
+      "purposes": ["add a restrained brand energy signature", "frame a section without competing with the hero"],
+      "composition": "A thin ribbon stroke or partial outline in the surge accent colors, placed at the periphery. Never occupies the hero region.",
+      "required_semantics": ["a section boundary or energy accent that does not carry content meaning"],
+      "forbidden_uses": ["ribbon as the primary subject", "full four-color surge on every frame", "using the ribbon to carry text or data"],
+      "compatible_modes": ["fullscreen", "hard-alpha"]
+    }
+  ],
+  "motion_grammar": {
+    "entries": [
+      {
+        "id": "count-up",
+        "semantic_trigger": "A real numeric value is revealed.",
+        "action": "Animate the number from zero or a base value to its target, with a brief settle at the end.",
+        "result_state": "The final number is static and readable as the confirmed value.",
+        "hold_policy": "Reserve a content-dependent result hold after the count-up completes without extending the SRT window.",
+        "energy_level": 4,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen", "hard-alpha"]
+      },
+      {
+        "id": "gradient-surge",
+        "semantic_trigger": "The narration reaches a high-energy claim or transition.",
+        "action": "Move a restricted subset of the four-color surge across a text or structural element, completing within the shot window.",
+        "result_state": "The element returns to its base cool white or metallic gray; the surge recedes.",
+        "hold_policy": "The surge is a transient event. Hold the base state after the surge completes.",
+        "energy_level": 5,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen"]
+      },
+      {
+        "id": "ribbon-draw",
+        "semantic_trigger": "A section boundary or structural marker is introduced.",
+        "action": "Draw a thin ribbon stroke along a peripheral path using the surge accent colors, completing within the shot.",
+        "result_state": "The completed ribbon remains as a quiet structural frame for the section.",
+        "hold_policy": "The ribbon persists as ambient structure for the section duration, then exits cleanly.",
+        "energy_level": 3,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen", "hard-alpha"]
+      },
+      {
+        "id": "punch-in",
+        "semantic_trigger": "A key phrase or title demands maximum impact.",
+        "action": "Scale and land the metallic gray headline from a slight push with a fast deceleration, giving a physical weight sensation.",
+        "result_state": "The headline is fully readable at its target size with no residual motion.",
+        "hold_policy": "Reserve a reading hold after the punch-in lands. Do not chain two punch-in events without an intervening quiet shot.",
+        "energy_level": 5,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen"]
+      }
+    ],
+    "transitions": [],
+    "continuous_motion": [],
+    "global_rules": [
+      "Derive all motion from deterministic local time.",
+      "At most one high-energy entry (energy 4-5) per shot; do not stack count-up, gradient-surge, and punch-in in the same frame.",
+      "Simplify the choreography when the fixed SRT window cannot contain the full action.",
+      "Energy must vary across adjacent shots; never back-to-back punch-in or back-to-back gradient-surge."
+    ]
+  },
+  "compositing": {
+    "default_mode": "fullscreen",
+    "modes": [
+      {
+        "mode": "fullscreen",
+        "support": "allowed",
+        "usage": "Primary presentation with the near-black field filling the frame.",
+        "constraints": ["Do not add burned-in subtitles or BGM.", "The near-black field must extend to all edges."],
+        "verification_requirements": ["Decode and duration pass", "Rendered frame inspection"]
+      },
+      {
+        "mode": "hard-alpha",
+        "support": "conditional",
+        "usage": "Isolate individual text elements, dividers, and ribbon strokes for overlay composition.",
+        "constraints": ["Only opaque elements are isolated.", "Move any soft glow or blur to a separate black-background light layer.", "Verify premultiplication at edges."],
+        "verification_requirements": ["Alpha edge inspection", "Premultiplication check"]
+      },
+      {
+        "mode": "black-background-light",
+        "support": "prohibited",
+        "usage": "This draft has no validated glow-only or particle-only expression.",
+        "constraints": ["Do not relabel an opaque full-frame render as a light layer."],
+        "verification_requirements": ["A future version must add blend-mode and black-level evidence before enabling this mode."]
+      }
+    ]
+  },
+  "hard_rules": [
+    "Choose the scene from the sentence meaning before selecting a visual component.",
+    "Keep the SRT timeline fixed; never stretch a shot to fit motion.",
+    "One hero per frame; the surge accent and ribbon are never the hero.",
+    "Use real data and verifiable sources; never invent numbers to fill a big-number scene."
+  ],
+  "do": [
+    "Make the hero readable without subtitles.",
+    "Use offset composition over dead-center symmetry.",
+    "Vary energy level and scene grammar across adjacent shots.",
+    "Keep the surge accent restrained — one gradient event per shot maximum."
+  ],
+  "dont": [
+    "Copy the original brand ∞ logo or any brand identifier.",
+    "Use all four surge colors simultaneously outside the ribbon motif.",
+    "Chain punch-in events back-to-back without a quiet intervening shot.",
+    "Use the metallic gray title treatment for body text or source annotations.",
+    "Place decorative gradients behind paragraphs of text."
+  ],
+  "adaptation_knobs": [
+    {
+      "id": "surge-frequency",
+      "layer": "motion_grammar",
+      "value_type": "integer",
+      "default": 2,
+      "safe_range": { "min": 1, "max": 4 },
+      "adaptation_goal": "Control how many gradient-surge events appear per section without exhausting the effect.",
+      "constraints": ["Never exceed one surge event per shot.", "A section with zero surge events is valid when the content is quiet."]
+    },
+    {
+      "id": "metallic-type-ratio",
+      "layer": "visual_system",
+      "value_type": "enum",
+      "default": "headlines-only",
+      "options": ["headlines-only", "headlines-and-key-numbers", "none"],
+      "adaptation_goal": "Adjust how much metallic gray treatment is used without turning every text element into a title.",
+      "constraints": ["Never apply metallic treatment to body text or source annotations."]
+    },
+    {
+      "id": "composition-bias",
+      "layer": "scene_grammar",
+      "value_type": "enum",
+      "default": "offset",
+      "options": ["offset", "centered", "alternating"],
+      "adaptation_goal": "Shift between offset and centered hero placement to vary rhythm across a section.",
+      "constraints": ["Do not use the same bias for more than two consecutive shots."]
+    },
+    {
+      "id": "motion-impact",
+      "layer": "motion_grammar",
+      "value_type": "integer",
+      "default": 3,
+      "safe_range": { "min": 1, "max": 5 },
+      "adaptation_goal": "Scale the overall motion energy ceiling per section while preserving the per-shot single-high-energy rule.",
+      "constraints": ["A section-level ceiling of 5 is reserved for openings and closings.", "Never assign energy 5 to two adjacent shots."]
+    }
+  ],
+  "inspiration_atoms": [],
+  "reuse_policy": {
+    "max_borrowed_patterns": 2,
+    "signature_motifs": [
+      {
+        "motif_id": "MOTIF-SURGE-RIBBON",
+        "description": "Restricted four-color gradient surge flowing across a thin peripheral ribbon or structural stroke, paired with near-black field and metallic gray type.",
+        "signature_combination": ["near-black depth field", "restricted four-color surge gradient", "thin peripheral ribbon stroke", "metallic gray giant type"],
+        "portable": false
+      },
+      {
+        "motif_id": "MOTIF-METAL-BIGTYPE",
+        "description": "Metallic gray giant headline punch-in as the single hero of a frame, with quiet source annotation below.",
+        "signature_combination": ["metallic gray gradient headline", "punch-in scale landing", "near-black field", "subordinate mono source HUD"],
+        "portable": false
+      }
+    ],
+    "exhausted_motifs": [
+      {
+        "motif_id": "MOTIF-AI-ORB",
+        "policy": "avoid",
+        "reason": "It replaces the actual surge energy and data claim with an overused generic symbol."
+      },
+      {
+        "motif_id": "MOTIF-CODE-TERMINAL",
+        "policy": "avoid",
+        "reason": "Code rain or terminal刷屏 replaces real content with decorative tech filler."
+      },
+      {
+        "motif_id": "MOTIF-2X2-STAGGER",
+        "policy": "avoid",
+        "reason": "Four-card 2x2 stagger competes with the single-hero rule and flattens the surge energy into templated repetition."
+      },
+      {
+        "motif_id": "MOTIF-GRADIENT-PROGRESS",
+        "policy": "avoid",
+        "reason": "Background gradient drift plus bottom progress bar scaleX is a semantically empty rhythm filler incompatible with the surge-dark-flow constraint that every frame carries a real claim."
+      }
+    ],
+    "conflicts_with": [
+      {
+        "template_id": "neon-cyber-overlay",
+        "layers": ["visual_system", "motion_grammar", "compositing"],
+        "reason": "Both are dark-background technology visual worlds, but surge-dark-flow is a fullscreen brand manifesto with restricted four-color surge and metallic type, while neon-cyber-overlay is a transparent functional HUD with cyan/pink/purple tricolor coding. Applying surge gradients to transparent code cards destroys both identities.",
+        "resolution": "Borrow at most the offset composition or single-sentence-hero scene grammar; do not borrow the tricolor, transparent cards, or code blocks."
+      }
+    ],
+    "borrowable_patterns": [
+      {
+        "pattern_id": "single-sentence-hero",
+        "layer": "scene_grammar",
+        "description": "A portable one-sentence-one-hero frame structure without the near-black field or surge ribbon signature.",
+        "conditions": ["The borrowing template provides its own field and accent system.", "The narration contains a real declarative sentence."],
+        "forbidden_with": ["MOTIF-AI-ORB", "MOTIF-CODE-TERMINAL"]
+      },
+      {
+        "pattern_id": "big-number-reveal",
+        "layer": "scene_grammar",
+        "description": "A portable giant-number-with-source-HUD layout without the metallic gray treatment or surge accent.",
+        "conditions": ["A real numeric value with a verifiable source exists.", "The borrowing template restyles the number and source label with its own palette."],
+        "forbidden_with": ["MOTIF-AI-ORB"]
+      }
+    ]
+  },
+  "provenance": {
+    "source_ids": ["CASE-005"],
+    "content_hashes": [
+      "1bb764b648d1aa9bf253ecbe4f9fa6cffd1beb3f42c4d081cfd0f49a75cb020b"
+    ],
+    "evidence_role": "production-derived",
+    "records": [
+      {
+        "source_id": "CASE-005",
+        "content_hash": "1bb764b648d1aa9bf253ecbe4f9fa6cffd1beb3f42c4d081cfd0f49a75cb020b",
+        "authority": "B",
+        "evidence_role": "production-derived",
+        "contribution_layers": ["visual_system", "scene_grammar", "motion_grammar", "compositing"],
+        "license": {
+          "identifier": "owned",
+          "scope": "owned-project-abstraction",
+          "notice_required": false,
+          "asset_rights": "excluded",
+          "redistribution": "abstract-rules-only",
+          "restrictions": ["Do not distribute source media, private copy, or local paths.", "Do not include the original brand ∞ logo or business copy."]
+        },
+        "included_material": "abstract-rules-only",
+        "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+      }
+    ],
+    "dedupe": {
+      "method": "sha256-content",
+      "duplicate_groups": []
+    }
+  },
+  "distribution": {
+    "public_package_allowed": true,
+    "includes_source_documents": false,
+    "includes_third_party_assets": false,
+    "included_license_notices": [],
+    "forbidden_materials": [
+      "API keys and cookies",
+      "absolute local paths",
+      "private source media and business copy",
+      "brand logos, proprietary fonts, product interfaces, and the original ∞ mark"
+    ]
+  },
+  "sanitization": {
+    "private_fields_removed": true,
+    "removed_categories": ["absolute paths", "private copy", "source media", "logos", "business data", "brand identifiers"],
+    "scan": {
+      "performed": true,
+      "result": "pass",
+      "checked_at": "2026-07-20T00:00:00.000Z",
+      "evidence_ref": "scripts/validate-template.mjs"
+    }
+  },
+  "stale_rules": [
+    {
+      "rule_id": "STALE-007",
+      "source_ids": ["CASE-005"],
+      "original_claim": "Scene animations must use only fromTo, never bare from or gsap.to(), to guarantee deterministic seek behavior.",
+      "disposition": "revalidate",
+      "isolation_reason": "The intent of seek-safe animation is preserved, but the specific API constraint must be verified against current HyperFrames core, keyframes, and animation skills.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-009",
+      "source_ids": ["CASE-005"],
+      "original_claim": "Ambient motion must be attached to a timeline and must never use bare looping.",
+      "disposition": "revalidate",
+      "isolation_reason": "The deterministic and seekable intent is preserved, but the exact adapter contract for loops, local time, and seek must be verified against the current HyperFrames version.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-016",
+      "source_ids": ["CASE-005"],
+      "original_claim": "Fixed 4K resolution, pixel-level type scale, and 30fps are universal production defaults.",
+      "disposition": "revalidate",
+      "isolation_reason": "Pixel values, type scales, and frame rates from the original project are only valid for that specific canvas and output mode. Cross-aspect-ratio and cross-output-mode adaptation must derive values from the current target canvas.",
+      "runtime_allowed": false
+    }
+  ],
+  "verification": {
+    "schema_validation": {
+      "status": "pass",
+      "validator": "scripts/validate-template.mjs"
+    },
+    "hyperframes": {
+      "status": "not-run",
+      "checks": []
+    },
+    "declared_aspect_ratios": ["16:9"],
+    "declared_output_modes": ["fullscreen"],
+    "renders": [],
+    "frame_inspections": [],
+    "promotion": {
+      "decision": "pending",
+      "gate_results": []
+    }
+  }
+}

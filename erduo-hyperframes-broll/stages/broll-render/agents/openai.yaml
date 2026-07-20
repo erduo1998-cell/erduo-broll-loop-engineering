@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Render"
+  short_description: "Build and render approved B-roll scenes."
+  default_prompt: "Render approved B-roll scenes."

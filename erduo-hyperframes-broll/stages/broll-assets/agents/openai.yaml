@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Assets"
+  short_description: "Route assets for approved B-roll scenes."
+  default_prompt: "Route B-roll assets for my approved scenes."

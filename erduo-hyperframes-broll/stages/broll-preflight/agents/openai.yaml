@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Preflight"
+  short_description: "Validate B-roll inputs and host capabilities."
+  default_prompt: "Run B-roll preflight for my project."

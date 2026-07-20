@@ -1,0 +1,417 @@
+{
+  "schema_version": "1.0.0",
+  "id": "neon-cyber-overlay",
+  "version": 1,
+  "status": "draft",
+  "status_history": [
+    {
+      "state": "draft",
+      "changed_at": "2026-07-20T00:00:00.000Z",
+      "reason": "Extracted from CASE-007 production design; not yet validated against current HyperFrames rendering, three-mode compositing, or cross-aspect-ratio frame inspection.",
+      "evidence_refs": ["handoff/SRC-003-DESIGN-EXTRACTION.md"]
+    }
+  ],
+  "title": "Neon Cyber Overlay",
+  "summary": "A transparent technical information layer designed to sit over talking-head footage. Functional coding over atmospheric immersion — API blocks, status colors, registration marks, and semi-transparent dark cards with hard-alpha delivery.",
+  "tags": ["cyber", "overlay", "api", "code", "technical", "transparent"],
+  "best_for": ["developer tools", "API explanations", "code walkthroughs", "technical comparisons", "success and constraint states"],
+  "avoid_for": ["non-technical humanities content", "classical or warm-toned narratives", "segments requiring a full-screen immersive background"],
+  "visual_system": {
+    "canvas": {
+      "tone": "transparent cyber-functional — white body text over a clear base, with cyan, pink, and purple as functional coding colors on semi-transparent dark cards and thin luminous registration marks.",
+      "dimensionality": "layered",
+      "background_policy": "The canvas is transparent by default so the overlay composites over talking-head footage. Opaque elements are confined to semi-transparent dark cards and functional HUD lines; the background itself must not block the host."
+    },
+    "palette": {
+      "strategy": "One white body role plus three functional signal roles (cyan, pink, purple). Each signal color encodes a distinct semantic category; all three must not flood the frame simultaneously.",
+      "roles": [
+        {
+          "role": "body",
+          "semantic": "primary readable text on transparent ground",
+          "value_policy": "white with sufficient contrast against the semi-transparent dark card backing",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "signal-api",
+          "semantic": "API endpoints, method names, code identifiers",
+          "value_policy": "cyan accent, used sparingly as a functional label color",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "signal-success",
+          "semantic": "success states, confirmed results, passing checks",
+          "value_policy": "green-cyan or bright green accent, applied only when a real success condition is shown",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "signal-constraint",
+          "semantic": "errors, limits, restrictions, failure modes",
+          "value_policy": "pink or purple accent, applied only when a real constraint or error is shown",
+          "source_constraint": "generic-role"
+        }
+      ]
+    },
+    "typography": {
+      "roles": [
+        {
+          "role": "display",
+          "purpose": "single-message headline or API route label",
+          "style_relation": "largest weight on screen, white, short and punchy"
+        },
+        {
+          "role": "code",
+          "purpose": "code blocks, terminal output, technical identifiers",
+          "style_relation": "monospace, smaller than display, cyan or white depending on semantic role"
+        },
+        {
+          "role": "metadata",
+          "purpose": "registration marks, timestamps, HUD annotations",
+          "style_relation": "smallest, thinnest, mono, low opacity white or functional color"
+        }
+      ],
+      "local_fallback_policy": "Select installed monospace and sans-serif fonts by role; verify actual rendered glyph coverage for code points and CJK if mixed-language content is present."
+    },
+    "materials": ["transparent base", "semi-transparent dark card", "thin luminous line", "registration mark", "code block surface"],
+    "spatial_hierarchy": ["primary code or message block", "status indicator or functional label", "registration mark and HUD annotation"],
+    "whitespace_policy": "Left-align or two-column split; reserve empty transparent space around the hero block so the host remains visible behind the overlay.",
+    "focus_policy": {
+      "max_primary_foci": 1,
+      "rule": "One code block, API label, or status message owns each shot; registration marks and HUD lines remain subordinate."
+    }
+  },
+  "scene_grammar": [
+    {
+      "id": "api-code-block",
+      "purposes": ["present an API endpoint or code snippet", "label a technical identifier"],
+      "composition": "Left-aligned code block on a semi-transparent dark card with a cyan functional label above or beside it. Registration marks frame the block corners.",
+      "required_semantics": ["a real API endpoint, method, or code identifier", "a functional category that justifies the color choice"],
+      "forbidden_uses": ["fake code that serves only as decoration", "code rain or scrolling terminal without readable content"],
+      "compatible_modes": ["hard-alpha", "fullscreen"]
+    },
+    {
+      "id": "status-result",
+      "purposes": ["show a success confirmation", "surface a constraint or error"],
+      "composition": "A single status message with its semantic color (green for success, pink/purple for constraint) on a dark card, accompanied by a thin luminous indicator line.",
+      "required_semantics": ["a real success or constraint condition from the content", "a distinct result state the narration names"],
+      "forbidden_uses": ["decorative status badges without a real condition", "mixing success and constraint colors in the same shot without clear hierarchy"],
+      "compatible_modes": ["hard-alpha", "fullscreen"]
+    },
+    {
+      "id": "technical-comparison",
+      "purposes": ["compare two technical options", "show before-and-after or side-by-side states"],
+      "composition": "Two-column split with left and right dark cards. Each column carries its own functional label color; the comparison direction is reinforced by a thin luminous divider.",
+      "required_semantics": ["two real, distinct technical states or options", "a comparison axis the narration names"],
+      "forbidden_uses": ["fake comparisons with invented data", "three or more columns that fragment focus"],
+      "compatible_modes": ["hard-alpha", "fullscreen"]
+    },
+    {
+      "id": "structure-diagram",
+      "purposes": ["show system architecture", "illustrate a data flow or pipeline"],
+      "composition": "Left-aligned or centered structural diagram with labeled nodes connected by thin luminous lines. Each node uses its semantic color; the flow direction is readable at a glance.",
+      "required_semantics": ["a real system structure or data flow", "nodes that correspond to named entities in the narration"],
+      "forbidden_uses": ["generic three-box arrow diagrams without real entities", "overly complex graphs that cannot be read within the shot duration"],
+      "compatible_modes": ["hard-alpha", "fullscreen"]
+    }
+  ],
+  "motion_grammar": {
+    "entries": [
+      {
+        "id": "fast-code-entry",
+        "semantic_trigger": "The narration introduces an API, endpoint, or code concept.",
+        "action": "The code block card scales in rapidly with a brief blur-crossfade that resolves to sharp focus as the block lands.",
+        "result_state": "The code block is fully readable with its functional label visible; registration marks are steady.",
+        "hold_policy": "Hold the readable result state for the duration of the code explanation; do not animate out until the next semantic beat.",
+        "energy_level": 3,
+        "seek_safe_required": true,
+        "compatible_modes": ["hard-alpha", "fullscreen"]
+      },
+      {
+        "id": "status-reveal",
+        "semantic_trigger": "The narration names a success, error, or constraint outcome.",
+        "action": "A thin luminous indicator line draws on horizontally, then the status text fades in beside it with the semantic color.",
+        "result_state": "The status line and text are steady; the semantic color is the only accent in the frame.",
+        "hold_policy": "Reserve a content-dependent result hold; the status must remain readable until the next beat or cut.",
+        "energy_level": 2,
+        "seek_safe_required": true,
+        "compatible_modes": ["hard-alpha", "fullscreen"]
+      },
+      {
+        "id": "ambient-registration-breathe",
+        "semantic_trigger": "Continuous during any shot that uses registration marks or HUD lines.",
+        "action": "Registration marks and thin HUD lines breathe subtly — a slow opacity pulse or sub-pixel drift that maintains spatial reference without drawing focus.",
+        "result_state": "The marks remain visible but subordinate; the primary content block holds focus.",
+        "hold_policy": "Continuous ambient motion that does not compete with the active semantic action. Must be seek-safe and deterministic.",
+        "energy_level": 1,
+        "seek_safe_required": true,
+        "compatible_modes": ["hard-alpha", "fullscreen"]
+      }
+    ],
+    "transitions": [
+      {
+        "id": "blur-speed-match",
+        "semantic_trigger": "Transition between two technical shots when the pacing accelerates.",
+        "action": "Apply a brief directional blur that matches the incoming motion vector, then resolve to sharp focus as the next shot lands.",
+        "result_state": "The next shot is sharp and readable; the blur is fully resolved within the first frames of the new shot.",
+        "hold_policy": "No hold — the transition is the action. The result state is the beginning of the next semantic entry.",
+        "energy_level": 3,
+        "seek_safe_required": true,
+        "compatible_modes": ["hard-alpha", "fullscreen"]
+      }
+    ],
+    "continuous_motion": [],
+    "global_rules": [
+      "Derive all motion from deterministic local time; every entry must be seek-safe.",
+      "Fast entries and blur transitions must not overshoot or leave residual motion blur in the hold state.",
+      "Ambient breathing must never compete with the active semantic entry; reduce ambient intensity when a primary action is running.",
+      "Simplify the choreography when the fixed SRT window cannot contain the full entry-plus-hold sequence."
+    ]
+  },
+  "compositing": {
+    "default_mode": "hard-alpha",
+    "modes": [
+      {
+        "mode": "hard-alpha",
+        "support": "allowed",
+        "usage": "Default delivery mode. Opaque semantic objects (code blocks, status text, dark cards, registration marks) are isolated on a transparent background with crisp alpha edges. No soft glow, blur, or semi-transparent fringing in the alpha channel.",
+        "constraints": [
+          "Move all soft glow and luminous bloom to a separate black-background-light layer.",
+          "Verify alpha edges are hard and free of premultiplication artifacts.",
+          "Semi-transparent dark cards must use straight alpha, not additive blend."
+        ],
+        "verification_requirements": ["Alpha edge inspection", "Premultiplication check", "Composite test over talking-head footage"]
+      },
+      {
+        "mode": "black-background-light",
+        "support": "conditional",
+        "usage": "Optional companion layer for soft glow, luminous bloom, and thin-line light effects that cannot be expressed as hard-alpha. Rendered as black-background MP4 for screen or add blend in post.",
+        "constraints": [
+          "Only the glow and luminous elements appear on black; never include opaque cards or text in this layer.",
+          "Verify black level is true zero so the blend mode works correctly in the editing timeline.",
+          "This mode is optional — a shot with no glow effects does not need a black-background-light companion."
+        ],
+        "verification_requirements": ["Black level inspection", "Blend-mode test in editing timeline", "Glow-only content verification"]
+      },
+      {
+        "mode": "fullscreen",
+        "support": "conditional",
+        "usage": "Fallback when the overlay must stand alone without host footage (e.g., standalone preview or sections with no talking-head). Uses a near-black opaque background instead of transparency.",
+        "constraints": [
+          "Do not use fullscreen mode when the shot is intended as an overlay over host footage.",
+          "The opaque background must match the dark card tone so the visual system remains coherent."
+        ],
+        "verification_requirements": ["Decode and duration pass", "Rendered frame inspection"]
+      }
+    ]
+  },
+  "hard_rules": [
+    "Choose the scene grammar from the sentence meaning before selecting a color or component.",
+    "Keep the SRT timeline fixed; motion must fit within the given window.",
+    "Each shot has exactly one primary code block, status message, or diagram node as the hero focus.",
+    "Cyan, pink, and purple are functional coding colors only; do not use all three as大面积 decoration in one shot.",
+    "Never fabricate code, API output, or status results to fill a layout."
+  ],
+  "do": [
+    "Make code blocks and status messages readable without subtitles.",
+    "Use the host's talking-head footage as the ground layer; let the overlay supplement, not replace.",
+    "Apply only one functional color dominance per shot.",
+    "Leave transparent space around the hero block so the host remains visible."
+  ],
+  "dont": [
+    "Copy the OculOS brand signature, logo, or product name.",
+    "Use WebM Alpha as a production delivery format.",
+    "Flood the frame with all three functional colors simultaneously.",
+    "Use code rain, scrolling terminal, or AI orbs as filler.",
+    "Treat the overlay as a full-screen immersive background."
+  ],
+  "adaptation_knobs": [
+    {
+      "id": "color-ratio",
+      "layer": "visual_system",
+      "value_type": "enum",
+      "default": "cyan-dominant",
+      "options": ["cyan-dominant", "balanced", "constraint-heavy"],
+      "adaptation_goal": "Shift the functional color balance based on whether the content is API-heavy, evenly mixed, or focused on errors and limits.",
+      "constraints": ["Never use all three colors at equal dominance in one shot."]
+    },
+    {
+      "id": "card-opacity",
+      "layer": "visual_system",
+      "value_type": "number",
+      "default": 0.75,
+      "safe_range": { "min": 0.5, "max": 0.9 },
+      "adaptation_goal": "Adjust dark card transparency to balance code readability against host visibility.",
+      "constraints": ["Never drop below 0.5 — the card must remain readable.", "Never exceed 0.9 — the host must remain visible behind the card."]
+    },
+    {
+      "id": "code-to-body-ratio",
+      "layer": "scene_grammar",
+      "value_type": "enum",
+      "default": "code-forward",
+      "options": ["code-forward", "balanced", "label-forward"],
+      "adaptation_goal": "Control whether code blocks, labels, or a mix dominate the frame based on content density.",
+      "constraints": ["A label-forward shot must still contain a real technical identifier.", "A code-forward shot must still have a readable functional label."]
+    },
+    {
+      "id": "glow-intensity",
+      "layer": "visual_system",
+      "value_type": "number",
+      "default": 0.3,
+      "safe_range": { "min": 0, "max": 0.6 },
+      "adaptation_goal": "Scale luminous glow intensity from none to moderate; higher values push more content into the black-background-light companion layer.",
+      "constraints": ["At 0, no black-background-light companion is needed.", "Glow must never bleed into the hard-alpha channel."]
+    },
+    {
+      "id": "overlay-coverage",
+      "layer": "scene_grammar",
+      "value_type": "enum",
+      "default": "contained",
+      "options": ["contained", "split", "edge"],
+      "adaptation_goal": "Control how much of the frame the overlay occupies — a contained block, a half-frame split, or edge-anchored HUD elements.",
+      "constraints": ["Edge mode must still leave the host's face unobstructed.", "Split mode must not exceed 50 percent frame coverage."]
+    },
+    {
+      "id": "tempo",
+      "layer": "motion_grammar",
+      "value_type": "enum",
+      "default": "fast",
+      "options": ["fast", "measured"],
+      "adaptation_goal": "Match entry speed to the narration pace — fast for dense technical walkthroughs, measured for explanations with pauses.",
+      "constraints": ["Fast entries must still resolve to a readable hold state.", "Measured entries must not feel sluggish against spoken content."]
+    }
+  ],
+  "inspiration_atoms": [],
+  "reuse_policy": {
+    "max_borrowed_patterns": 2,
+    "signature_motifs": [
+      {
+        "motif_id": "MOTIF-CYBER-TRICOLOR",
+        "description": "Transparent ground, white body text, and three functional coding colors (cyan for API/identifiers, green for success, pink/purple for constraints) applied to semi-transparent dark cards with registration marks.",
+        "signature_combination": ["transparent base", "white body text", "cyan pink purple functional colors", "semi-transparent dark card", "registration marks", "code block"],
+        "portable": false
+      }
+    ],
+    "exhausted_motifs": [
+      {
+        "motif_id": "MOTIF-CODE-TERMINAL",
+        "policy": "avoid",
+        "reason": "Scrolling terminal or code-rain animations replace actual technical content with a generic cyber symbol. Only show real, readable code when the code itself is evidence."
+      },
+      {
+        "motif_id": "MOTIF-CYBER-TRICOLOR",
+        "policy": "semantic-proof",
+        "reason": "The three functional colors are already the signature motif of this template. When borrowing into another template, each color use must be justified by a real semantic category in the content — never use all three as decoration."
+      }
+    ],
+    "conflicts_with": [
+      {
+        "template_id": "forbidden-red-gold",
+        "layers": ["visual_system", "scene_grammar"],
+        "reason": "Warm red-gold serif presentation competes with cool cyan-pink-purple transparent cyber functional coding. The palettes, type roles, and spatial hierarchies are incompatible.",
+        "resolution": "If overlay is required over red-gold content, reduce to a single warm-white-plus-gold monochrome adaptation; do not mix the cyber tricolor with the forbidden-red palette."
+      },
+      {
+        "template_id": "surge-dark-flow",
+        "layers": ["visual_system", "motion_grammar"],
+        "reason": "Surge is a full-screen brand manifesto with four-color gradients and metal big-type punch-ins. Cyber is a transparent functional information layer. Their background policies and motion energies collide.",
+        "resolution": "Borrow at most the off-center composition or a short punchy label from Surge; do not bring the four-color ribbon gradient, metal big-type, or full-screen dark background into the transparent overlay."
+      }
+    ],
+    "borrowable_patterns": [
+      {
+        "pattern_id": "status-reveal",
+        "layer": "scene_grammar",
+        "description": "A portable status-indicator pattern: thin line draws on, then text fades in with a semantic color. Usable by any template that needs to show success or constraint states.",
+        "conditions": ["The content names a real success or constraint.", "The borrowing template restyles the line weight and color to its own palette."],
+        "forbidden_with": ["MOTIF-CYBER-TRICOLOR"]
+      },
+      {
+        "pattern_id": "blur-speed-match",
+        "layer": "motion_grammar",
+        "description": "A directional blur transition that matches incoming motion and resolves to sharp focus. Portable across technical templates.",
+        "conditions": ["The transition connects two shots with clear motion direction.", "The borrowing template verifies seek-safe behavior with its own timeline."],
+        "forbidden_with": []
+      }
+    ]
+  },
+  "provenance": {
+    "source_ids": ["CASE-007"],
+    "content_hashes": [
+      "c2bbaf66ee54bba2f567107cb2489e5a325bf2aab6b408a3d1f2a246d4dc996a"
+    ],
+    "evidence_role": "production-derived",
+    "records": [
+      {
+        "source_id": "CASE-007",
+        "content_hash": "c2bbaf66ee54bba2f567107cb2489e5a325bf2aab6b408a3d1f2a246d4dc996a",
+        "authority": "B",
+        "evidence_role": "production-derived",
+        "contribution_layers": ["visual_system", "scene_grammar", "motion_grammar", "compositing"],
+        "license": {
+          "identifier": "owned",
+          "scope": "owned-project-abstraction",
+          "notice_required": false,
+          "asset_rights": "excluded",
+          "redistribution": "abstract-rules-only",
+          "restrictions": ["Do not distribute source media, private copy, local paths, or OculOS brand identifiers."]
+        },
+        "included_material": "abstract-rules-only",
+        "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+      }
+    ],
+    "dedupe": {
+      "method": "sha256-content",
+      "duplicate_groups": []
+    }
+  },
+  "distribution": {
+    "public_package_allowed": true,
+    "includes_source_documents": false,
+    "includes_third_party_assets": false,
+    "included_license_notices": [],
+    "forbidden_materials": [
+      "API keys and cookies",
+      "absolute local paths",
+      "private source media and business copy",
+      "OculOS brand name, logo, product UI, and fixed copy",
+      "source code from the original CASE-007 project"
+    ]
+  },
+  "sanitization": {
+    "private_fields_removed": true,
+    "removed_categories": ["absolute paths", "private copy", "source media", "brand identifiers", "business data", "original project code"],
+    "scan": {
+      "performed": true,
+      "result": "pass",
+      "checked_at": "2026-07-20T00:00:00.000Z",
+      "evidence_ref": "scripts/validate-template.mjs"
+    }
+  },
+  "stale_rules": [
+    {
+      "rule_id": "STALE-001",
+      "source_ids": ["CASE-007"],
+      "original_claim": "CASE-007 used WebM Alpha as the default transparent overlay delivery format.",
+      "disposition": "revalidate",
+      "isolation_reason": "Current product contract mandates hard-alpha default as ProRes 4444 MOV; glow and particles default to black-background MP4. WebM Alpha is experimental only and must not be used as a production delivery format.",
+      "runtime_allowed": false
+    }
+  ],
+  "verification": {
+    "schema_validation": {
+      "status": "pass",
+      "validator": "scripts/validate-template.mjs"
+    },
+    "hyperframes": {
+      "status": "not-run",
+      "checks": []
+    },
+    "declared_aspect_ratios": ["16:9"],
+    "declared_output_modes": ["hard-alpha"],
+    "renders": [],
+    "frame_inspections": [],
+    "promotion": {
+      "decision": "pending",
+      "gate_results": []
+    }
+  }
+}

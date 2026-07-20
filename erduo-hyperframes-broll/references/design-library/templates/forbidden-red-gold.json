@@ -1,0 +1,549 @@
+{
+  "schema_version": "1.0.0",
+  "id": "forbidden-red-gold",
+  "version": 1,
+  "status": "draft",
+  "status_history": [
+    {
+      "state": "draft",
+      "changed_at": "2026-07-20T00:00:00.000Z",
+      "reason": "First structured draft from CASE-002 visual design manual and CASE-004 pipeline snapshot. Forbidden City red-gold visual system, vertical information graphic grammar, and frosted glass material system extracted. CASE-004 contributes schema classification and stale engineering boundaries only. No current HyperFrames rendering verification has been performed.",
+      "evidence_refs": ["handoff/SRC-003-DESIGN-EXTRACTION.md", "design-library/template.schema.json"]
+    }
+  ],
+  "title": "Forbidden Red Gold",
+  "summary": "A premium Chinese narrative system using Forbidden City vermillion red as a stage, warm white frosted glass as the information carrier, and restrained gold as the singular accent. Designed for vertical knowledge content, historical storytelling, and launch-style data presentations.",
+  "tags": ["chinese-narrative", "premium", "data-storytelling", "vertical", "frosted-glass", "historical", "vermillion-red", "gold-accent"],
+  "best_for": [
+    "Chinese knowledge and cultural content",
+    "historical narrative and timeline storytelling",
+    "business data stories with visual prestige",
+    "brand-level narrative and launch-style presentations",
+    "vertical short-form video with information density"
+  ],
+  "avoid_for": [
+    "light children content and playful themes",
+    "pure code terminal and developer tool interfaces",
+    "cold deep-sea data center aesthetics",
+    "shots requiring transparent backgrounds without the red stage",
+    "western corporate flat-enterprise layouts"
+  ],
+  "visual_system": {
+    "canvas": {
+      "tone": "deep vermillion red stage with warm white glass planes floating above",
+      "dimensionality": "layered",
+      "background_policy": "A deep vermillion red field serves as the unified stage. Warm white frosted glass cards and information planes float above it with restrained gold edge accents. No competing background colors or gradients are introduced."
+    },
+    "palette": {
+      "strategy": "Three-role system: vermillion red stage carries emotion, warm white glass carries information, and restrained gold encodes singular importance. No additional accent colors compete with the gold budget.",
+      "roles": [
+        {
+          "role": "stage-red",
+          "semantic": "emotional stage and cultural identity",
+          "value_policy": "deep vermillion red, the darkest and most saturated field in frame",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "glass-white",
+          "semantic": "information carrier and reading surface",
+          "value_policy": "warm white with slight translucency, highest readability contrast against the red stage",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "gold-signal",
+          "semantic": "singular importance marker for key data, titles, or conclusions",
+          "value_policy": "restrained metallic gold used on at most two elements per shot",
+          "source_constraint": "generic-role"
+        },
+        {
+          "role": "ink-annotation",
+          "semantic": "secondary labels, footnotes, and supporting data",
+          "value_policy": "dark ink tone on glass, subordinate to gold and white",
+          "source_constraint": "generic-role"
+        }
+      ]
+    },
+    "typography": {
+      "roles": [
+        {
+          "role": "display-song",
+          "purpose": "carry the primary title, key quote, or definitive statement",
+          "style_relation": "Song or Ming style serif display, largest weight, carries cultural authority"
+        },
+        {
+          "role": "body-sans",
+          "purpose": "present data labels, annotations, and supporting explanation",
+          "style_relation": "clean geometric sans-serif, smaller weight, subordinate to the display voice"
+        },
+        {
+          "role": "data-mono",
+          "purpose": "render numbers, timelines, and structured data points",
+          "style_relation": "monospaced for alignment, medium weight, bridges the display and body voices"
+        }
+      ],
+      "local_fallback_policy": "Detect available Song/Ming style serif, geometric sans-serif, and monospace fonts locally. Verify Chinese glyph coverage for all three roles before render. Fall back to system serif, system sans, and system mono in that order."
+    },
+    "materials": [
+      "vermillion red seamless stage background",
+      "warm white frosted glass information cards",
+      "metallic gold edge light and data accents",
+      "ink-dark annotation and footnote layer",
+      "soft glass blur and subtle backdrop separation"
+    ],
+    "spatial_hierarchy": [
+      "vermillion red stage as deepest plane",
+      "gold-anchored primary title or big number as first read",
+      "warm white glass card as information container",
+      "ink annotation and footnote as tertiary layer"
+    ],
+    "whitespace_policy": "The red stage is continuous and unbroken; glass cards float within it with generous margins. Vertical scrolling rhythm replaces horizontal sprawl. Never crowd the red stage with too many glass cards.",
+    "focus_policy": {
+      "max_primary_foci": 1,
+      "rule": "One gold-anchored element (big number, title, or key quote) owns the first read. The glass card carries supporting information without competing for initial attention."
+    }
+  },
+  "scene_grammar": [
+    {
+      "id": "gold-big-number",
+      "purposes": ["anchor a key data point as the singular visual revelation", "give a metric weight and authority"],
+      "composition": "A single large number in metallic gold dominates the upper-center frame. A warm white glass card below carries the label and context. The red stage fills the background. The number appears with a staggered gold edge reveal.",
+      "required_semantics": ["a real, verifiable key number", "sufficient context to interpret the number"],
+      "forbidden_uses": ["disguising non-numeric keywords as dashboard digits", "inventing numbers for visual impact", "stacking multiple competing big numbers in one shot"],
+      "compatible_modes": ["fullscreen", "hard-alpha"]
+    },
+    {
+      "id": "vertical-timeline",
+      "purposes": ["show a chronological sequence or historical progression", "build a narrative arc through time"],
+      "composition": "A vertical gold line runs down the left or center of the frame. Events, dates, or phases appear as glass cards along the line, revealed top to bottom. The current event is gold-highlighted; past events dim to ink tone.",
+      "required_semantics": ["a real chronological sequence", "distinct events with actual dates or ordering"],
+      "forbidden_uses": ["inventing a timeline for non-sequential content", "using the timeline as a generic list decoration"],
+      "compatible_modes": ["fullscreen"]
+    },
+    {
+      "id": "quote-stage",
+      "purposes": ["elevate a definitive statement or citation", "give a key insight ceremonial weight"],
+      "composition": "A single quote in Song display type occupies the center of the frame on a warm white glass plaque. Gold quotation marks or brackets frame it. The red stage recedes slightly in brightness to let the glass glow.",
+      "required_semantics": ["a real, attributable quote or definitive conclusion", "content that warrants ceremonial visual treatment"],
+      "forbidden_uses": ["treating every sentence as a quote", "using gold brackets without actual quoted material", "applying the quote treatment to invented or generic statements"],
+      "compatible_modes": ["fullscreen", "hard-alpha"]
+    },
+    {
+      "id": "data-comparison",
+      "purposes": ["contrast two states, periods, or options", "reveal a gap, change, or trade-off"],
+      "composition": "Two glass cards sit side by side or stacked vertically on the red stage. The left or top shows the baseline; the right or bottom reveals the comparison. Gold edge light marks the delta or conclusion.",
+      "required_semantics": ["two real, comparable data points or states", "a meaningful difference or relationship between them"],
+      "forbidden_uses": ["forcing comparison structure on content with no actual contrast", "using fake data to create visual drama"],
+      "compatible_modes": ["fullscreen"]
+    }
+  ],
+  "motion_grammar": {
+    "entries": [
+      {
+        "id": "gold-edge-reveal",
+        "semantic_trigger": "A key number, title, or data point is introduced as the shot anchor.",
+        "action": "A metallic gold edge light traces the perimeter of the primary element, resolving into a soft steady glow.",
+        "result_state": "The element is fully legible with a restrained gold accent that does not pulse or animate further.",
+        "hold_policy": "Gold edge remains static for the remaining SRT window; no looping or breathing.",
+        "energy_level": 3,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen", "hard-alpha"]
+      },
+      {
+        "id": "glass-float-up",
+        "semantic_trigger": "A new information card or data point enters the vertical flow.",
+        "action": "The glass card floats upward from below the frame with slight stagger, settling into its vertical position.",
+        "result_state": "The card is fully opaque and readable; surrounding cards maintain their positions.",
+        "hold_policy": "Card settles before the reading phase begins; no residual drift during hold.",
+        "energy_level": 2,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen", "hard-alpha"]
+      },
+      {
+        "id": "chart-unfold",
+        "semantic_trigger": "A data relationship or trend is being explained.",
+        "action": "Chart elements (bars, lines, areas) draw themselves in sequence with a gold accent leading the reveal.",
+        "result_state": "The complete chart is readable with gold highlighting the key insight point.",
+        "hold_policy": "Chart completes its draw before the midpoint of the SRT window; result state holds for reading.",
+        "energy_level": 3,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen"]
+      },
+      {
+        "id": "density-rotate",
+        "semantic_trigger": "The narration shifts from high-density data to a reflective or concluding moment.",
+        "action": "Multiple glass cards dissolve or slide away, leaving a single centered element on an emptier red stage.",
+        "result_state": "The composition is sparse and calm; the red stage has more visible breathing room.",
+        "hold_policy": "The sparse state holds for the full remaining duration of this shot and potentially the next.",
+        "energy_level": 2,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen"]
+      }
+    ],
+    "transitions": [
+      {
+        "id": "hard-cut",
+        "semantic_trigger": "Standard shot boundary.",
+        "action": "Immediate cut to the next composition.",
+        "result_state": "The next shot is instantly established.",
+        "hold_policy": "No transition hold.",
+        "energy_level": 1,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen", "hard-alpha"]
+      },
+      {
+        "id": "gold-wipe",
+        "semantic_trigger": "Chapter or major section boundary within a long-form narrative.",
+        "action": "A thin gold horizontal line wipes across the frame, revealing the next composition.",
+        "result_state": "The new chapter composition is fully established; the gold line is gone.",
+        "hold_policy": "No hold on the transition itself.",
+        "energy_level": 3,
+        "seek_safe_required": true,
+        "compatible_modes": ["fullscreen"]
+      }
+    ],
+    "continuous_motion": [],
+    "global_rules": [
+      "All motion derives from deterministic local time.",
+      "Gold accent motion is budgeted: at most two gold-animated elements per shot.",
+      "Card float-up stagger interval scales with card count; never rush overlapping reveals.",
+      "Density rotation between card-heavy and card-sparse layouts must happen at least every three shots."
+    ]
+  },
+  "compositing": {
+    "default_mode": "fullscreen",
+    "modes": [
+      {
+        "mode": "fullscreen",
+        "support": "allowed",
+        "usage": "Primary vertical presentation with the complete red stage, glass cards, and gold accents as an opaque frame.",
+        "constraints": ["The red stage must be an opaque full-frame background.", "Do not add burned-in subtitles or BGM."],
+        "verification_requirements": ["Decode and duration pass", "Rendered frame inspection", "Vertical aspect ratio composition check"]
+      },
+      {
+        "mode": "hard-alpha",
+        "support": "conditional",
+        "usage": "Individual glass cards, gold-edged titles, and chart elements may be isolated as overlays on non-red backgrounds.",
+        "constraints": ["Isolate only opaque glass card bodies and crisp gold edges.", "Frosted glass blur and backdrop effects must be baked into opaque pixels or moved to a separate layer.", "Verify alpha edges do not carry red stage bleed."],
+        "verification_requirements": ["Alpha edge inspection on glass card boundaries", "Premultiplication check", "No red stage color leakage into alpha channel"]
+      },
+      {
+        "mode": "black-background-light",
+        "support": "prohibited",
+        "usage": "Gold glow and glass light effects have not been validated as standalone light layers.",
+        "constraints": ["Do not relabel an opaque full-frame render as a light layer.", "Gold edge light requires blend-mode verification before enabling."],
+        "verification_requirements": ["Blend-mode verification against target NLE", "Black-level consistency check"]
+      }
+    ]
+  },
+  "hard_rules": [
+    "The red stage is continuous and must not be replaced by another background color within the same video.",
+    "Gold is a singular accent with a hard budget of two gold-touched elements per shot.",
+    "Screen text is a distilled visual anchor distilled from the narration, never a mechanical copy of SRT.",
+    "At least every third shot must reduce card density to zero or one card to maintain rhythmic variation."
+  ],
+  "do": [
+    "Use real, verifiable data and attributable quotes as the foundation for gold-anchored visuals.",
+    "Let the red stage breathe by alternating between dense glass card layouts and sparse single-element compositions.",
+    "Maintain the Song/Ming display voice for titles and quotes to preserve cultural texture."
+  ],
+  "dont": [
+    "Introduce cyan, purple, or cool-tone accents that compete with the warm red-gold system.",
+    "Use frosted glass without the red stage; the glass derives its identity from the vermillion backdrop.",
+    "Apply gold treatment to more than two elements per shot.",
+    "Force a vertical timeline structure on content with no chronological dimension.",
+    "Borrow neon-cyber functional colors or deep-current particle systems into the red-gold world."
+  ],
+  "adaptation_knobs": [
+    {
+      "id": "glass-opacity",
+      "layer": "visual_system",
+      "value_type": "number",
+      "default": 0.85,
+      "safe_range": { "min": 0.7, "max": 0.95 },
+      "adaptation_goal": "Adjust glass card translucency to balance red stage visibility with text legibility.",
+      "constraints": ["Never drop below 0.7 to preserve text readability.", "Increase for data-heavy shots, decrease for quote-stage shots."]
+    },
+    {
+      "id": "gold-budget",
+      "layer": "visual_system",
+      "value_type": "integer",
+      "default": 2,
+      "safe_range": { "min": 1, "max": 3 },
+      "adaptation_goal": "Control the number of gold-accented elements per shot to match content prestige level.",
+      "constraints": ["Never exceed 3 gold-touched elements in one shot.", "Reduce to 1 for quiet or reflective segments."]
+    },
+    {
+      "id": "card-density",
+      "layer": "scene_grammar",
+      "value_type": "integer",
+      "default": 2,
+      "safe_range": { "min": 0, "max": 4 },
+      "adaptation_goal": "Control the number of simultaneous glass information cards on the red stage.",
+      "constraints": ["Must hit 0 or 1 at least every third shot for rhythmic variation.", "Max 4 cards in data-comparison or dense information shots."]
+    },
+    {
+      "id": "song-weight-contrast",
+      "layer": "visual_system",
+      "value_type": "enum",
+      "default": "high",
+      "options": ["high", "medium", "low"],
+      "adaptation_goal": "Adjust the contrast between Song display and sans-serif body voices based on content formality.",
+      "constraints": ["High contrast pairs heavy Song titles with light body text for formal historical content.", "Low contrast narrows the gap for modern business data stories."]
+    }
+  ],
+  "inspiration_atoms": [
+    {
+      "atom_id": "ATOM-SINGLE-SIGNAL",
+      "source_ids": ["BRAND-001"],
+      "adaptation": "Apply the single-accent budget principle from ClickHouse, Coinbase, and Wise: gold is the only signal color. Semantic state colors are limited to ink-annotation roles and never expand into competing accents.",
+      "excluded_brand_expression": ["ClickHouse electric yellow", "Coinbase blue", "Wise green", "any brand-specific hex values"]
+    },
+    {
+      "atom_id": "ATOM-FLAT-ENGINEERING",
+      "source_ids": ["BRAND-001"],
+      "adaptation": "Borrow the 0-4px corner radius, hairline grid separators, and shadow-free card treatment from IBM Carbon and NVIDIA for data-dense comparison layouts. Apply only to the data-mono and annotation layer, not to the Song display or gold edges.",
+      "excluded_brand_expression": ["IBM Carbon design system components", "NVIDIA green-black signature", "8pt grid system"]
+    },
+    {
+      "atom_id": "ATOM-COLOR-CHAPTER",
+      "source_ids": ["BRAND-001"],
+      "adaptation": "When the red-gold system needs a secondary categorization layer (e.g., for multi-topic breakdowns), borrow the Airtable and Figma principle of assigning one category color per whole-card surface while keeping the red stage dominant.",
+      "excluded_brand_expression": ["Airtable coral and forest colors", "Figma five-color logo palette", "Webflow category card colors"]
+    }
+  ],
+  "reuse_policy": {
+    "max_borrowed_patterns": 2,
+    "signature_motifs": [
+      {
+        "motif_id": "MOTIF-RED-GOLD-GLASS",
+        "description": "The complete Forbidden City red stage with warm white frosted glass cards and restrained gold edge accents as a unified visual identity system.",
+        "signature_combination": ["vermillion red stage background", "warm white frosted glass information cards", "gold edge light on key elements", "Song/Ming display typography"],
+        "portable": false
+      },
+      {
+        "motif_id": "MOTIF-GOLD-BIGNUM",
+        "description": "A single oversized metallic gold number as the sole visual anchor, with a glass annotation card below and the red stage behind.",
+        "signature_combination": ["metallic gold large number", "three-layer gold edge light", "warm white glass context card", "vermillion red stage"],
+        "portable": false
+      }
+    ],
+    "exhausted_motifs": [
+      {
+        "motif_id": "MOTIF-2X2-STAGGER",
+        "policy": "avoid",
+        "reason": "Four identical cards in a 2x2 stagger grid contradicts the asymmetric, hierarchical gold-anchored spatial system."
+      },
+      {
+        "motif_id": "MOTIF-BAR-OVERSHOOT",
+        "policy": "avoid",
+        "reason": "Bar chart overshoot and bounce-back implies incorrect data values, violating the truth and authority aesthetic."
+      },
+      {
+        "motif_id": "MOTIF-RING-DASH",
+        "policy": "avoid",
+        "reason": "Stroke-dashoffset progress rings are a generic SaaS pattern that undermines the ceremonial data prestige."
+      },
+      {
+        "motif_id": "MOTIF-AI-ORB",
+        "policy": "avoid",
+        "reason": "A glowing AI orb has no place in a cultural-historical narrative system."
+      },
+      {
+        "motif_id": "MOTIF-GRADIENT-PROGRESS",
+        "policy": "avoid",
+        "reason": "Background gradient drift and progress bars are meaningless filler that dilutes the red stage's intentionality."
+      }
+    ],
+    "conflicts_with": [
+      {
+        "template_id": "neon-cyber-overlay",
+        "layers": ["visual_system", "scene_grammar"],
+        "reason": "Warm red Song-display launch visuals and cyan-pink-purple transparent cyber functional colors occupy opposite ends of the color-temperature and cultural-semantic spectrum.",
+        "resolution": "If an overlay is required on red-gold content, adapt the overlay to a monochrome warm-white-and-gold palette. Never mix cyber tricolor with the red stage."
+      },
+      {
+        "template_id": "soft-aurora-workbench",
+        "layers": ["visual_system", "scene_grammar"],
+        "reason": "Both use frosted glass cards as primary information carriers. Swapping colors alone would produce indistinguishable SaaS card layouts.",
+        "resolution": "Preserve each template's distinct scene grammar: vertical data narrative with gold anchors for red-gold, file-conveyor and module-assembly causal flows for aurora-workbench. Never borrow glass card styling without the corresponding scene logic."
+      }
+    ],
+    "borrowable_patterns": [
+      {
+        "pattern_id": "vertical-timeline",
+        "layer": "scene_grammar",
+        "description": "A portable vertical chronological sequence layout without the red stage or gold material signature.",
+        "conditions": ["The borrowing template restyles the timeline line, cards, and highlight color.", "The content contains a real chronological or sequential dimension."],
+        "forbidden_with": ["MOTIF-GOLD-BIGNUM", "MOTIF-RED-GOLD-GLASS"]
+      }
+    ]
+  },
+  "provenance": {
+    "source_ids": ["CASE-002", "CASE-004", "BRAND-001"],
+    "content_hashes": [
+      "790d309d2482b579822f29eb1e094e4f32bd9292304b52c27676067c9fee036b",
+      "79f080e4a9d2c48b220a7ce5debd7031872668a5370750d25dfb1390615a264a",
+      "6b2f26c5c15905337759aacafe5fa3ee94b208b33c8772080407d325019ab7f1"
+    ],
+    "evidence_role": "mixed",
+    "records": [
+      {
+        "source_id": "CASE-002",
+        "content_hash": "790d309d2482b579822f29eb1e094e4f32bd9292304b52c27676067c9fee036b",
+        "authority": "B",
+        "evidence_role": "production-derived",
+        "contribution_layers": ["visual_system", "scene_grammar", "motion_grammar", "compositing"],
+        "license": {
+          "identifier": "owned",
+          "scope": "owned-project-abstraction",
+          "notice_required": false,
+          "asset_rights": "excluded",
+          "redistribution": "abstract-rules-only",
+          "restrictions": ["Do not distribute source media, private copy, or local paths."]
+        },
+        "included_material": "abstract-rules-only",
+        "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+      },
+      {
+        "source_id": "CASE-004",
+        "content_hash": "79f080e4a9d2c48b220a7ce5debd7031872668a5370750d25dfb1390615a264a",
+        "authority": "B",
+        "evidence_role": "pipeline-reference",
+        "contribution_layers": ["scene_grammar", "compositing"],
+        "license": {
+          "identifier": "owned",
+          "scope": "owned-project-abstraction",
+          "notice_required": false,
+          "asset_rights": "excluded",
+          "redistribution": "abstract-rules-only",
+          "restrictions": ["Do not distribute source media, private copy, or local paths."]
+        },
+        "included_material": "abstract-rules-only",
+        "evidence_ref": "handoff/SRC-003-DESIGN-EXTRACTION.md"
+      },
+      {
+        "source_id": "BRAND-001",
+        "content_hash": "6b2f26c5c15905337759aacafe5fa3ee94b208b33c8772080407d325019ab7f1",
+        "authority": "C",
+        "evidence_role": "inspiration-only",
+        "contribution_layers": ["visual_system", "adaptation_knobs", "inspiration_atoms"],
+        "license": {
+          "identifier": "MIT",
+          "scope": "document-reference",
+          "notice_required": true,
+          "notice_ref": "assets/licenses/awesome-design-md-LICENSE.txt",
+          "asset_rights": "excluded",
+          "redistribution": "abstract-rules-only",
+          "restrictions": ["Trademark, font, photo, product UI, and brand copy rights are not included."]
+        },
+        "included_material": "abstract-rules-only",
+        "evidence_ref": "handoff/SRC-004-BRAND-INSPIRATION-INDEX.md"
+      }
+    ],
+    "dedupe": {
+      "method": "sha256-content",
+      "duplicate_groups": []
+    }
+  },
+  "distribution": {
+    "public_package_allowed": true,
+    "includes_source_documents": false,
+    "includes_third_party_assets": false,
+    "included_license_notices": ["assets/licenses/awesome-design-md-LICENSE.txt"],
+    "forbidden_materials": [
+      "API keys and cookies",
+      "absolute local paths",
+      "private source media and business copy",
+      "brand logos, proprietary fonts, photos, product interfaces, and claims",
+      "original CASE-002 brand stories and screenshot compositing scripts",
+      "CASE-004 subtitle engine, BGM config, and fixed track assignments"
+    ]
+  },
+  "sanitization": {
+    "private_fields_removed": true,
+    "removed_categories": [
+      "absolute paths",
+      "private copy and business data",
+      "source media and brand-specific stories",
+      "original subtitle engine and BGM configuration",
+      "fixed track-index and data-volume assignments",
+      "keyboard navigation and localStorage page state"
+    ],
+    "scan": {
+      "performed": true,
+      "result": "pass",
+      "checked_at": "2026-07-20T00:00:00.000Z",
+      "evidence_ref": "scripts/validate-template.mjs"
+    }
+  },
+  "stale_rules": [
+    {
+      "rule_id": "STALE-002",
+      "source_ids": ["CASE-004"],
+      "original_claim": "A fixed pill-karaoke subtitle engine is burned into every composition.",
+      "disposition": "rejected",
+      "isolation_reason": "Current V1 contract: the Skill does not re-burn subtitles. SRT is the time truth source only.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-003",
+      "source_ids": ["CASE-004"],
+      "original_claim": "Built-in BGM track, ducking, fixed SFX slots, and volume levels are part of the design system.",
+      "disposition": "rejected",
+      "isolation_reason": "Current V1 contract: no automatic BGM or SFX. Audio effects cannot be inherited from old designs.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-004",
+      "source_ids": ["CASE-002"],
+      "original_claim": "Compositions are assembled via per-screen screenshots and screen recordings composited in an external video editor.",
+      "disposition": "rejected",
+      "isolation_reason": "Current V1 contract: delivery must be built and rendered directly by HyperFrames with verified master and per-shot outputs.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-006",
+      "source_ids": ["CASE-002", "CASE-004"],
+      "original_claim": "A fixed subtitle area is reserved at the bottom of every composition with a default subtitle position.",
+      "disposition": "rejected",
+      "isolation_reason": "External subtitles are a user post-production decision. Only target-platform safe-area awareness is preserved, not locked positions.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-008",
+      "source_ids": ["CASE-004"],
+      "original_claim": "Write final CSS first, then use gsap.from() to animate into the final state.",
+      "disposition": "revalidate",
+      "isolation_reason": "Conflicts directly with CASE-005's fromTo-only rule. Neither position is adopted; current HyperFrames seek-safe rules and actual snapshot/seek tests will determine the correct approach.",
+      "runtime_allowed": false
+    },
+    {
+      "rule_id": "STALE-016",
+      "source_ids": ["CASE-002", "CASE-004"],
+      "original_claim": "Fixed 1080x1920 pixel dimensions, font sizes, safe areas, and 30fps from the original vertical projects.",
+      "disposition": "template-specific",
+      "isolation_reason": "Pixel values only apply to the original 9:16 aspect ratio. Schema stores relative roles and a reference canvas; actual dimensions must be derived per target aspect ratio.",
+      "runtime_allowed": false
+    }
+  ],
+  "verification": {
+    "schema_validation": {
+      "status": "pass",
+      "validator": "scripts/validate-template.mjs",
+      "checked_at": "2026-07-20T00:00:00.000Z",
+      "evidence_ref": "scripts/validate-template.mjs"
+    },
+    "hyperframes": {
+      "status": "not-run",
+      "checks": []
+    },
+    "declared_aspect_ratios": ["9:16"],
+    "declared_output_modes": ["fullscreen"],
+    "renders": [],
+    "frame_inspections": [],
+    "promotion": {
+      "decision": "pending",
+      "gate_results": []
+    }
+  }
+}

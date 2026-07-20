@@ -1,0 +1,102 @@
+{
+  "policy_version": "1.0.0",
+  "selection": {
+    "default_eligible_statuses": ["production"],
+    "development_eligible_statuses": ["draft", "production"],
+    "base_template_count": 1,
+    "max_borrowed_patterns": 2,
+    "conditional_compositing_requires_opt_in": true,
+    "no_candidate_fallback": "hyperframes-native",
+    "weights": {
+      "topic": 24,
+      "semantic_type": 28,
+      "mood": 14,
+      "media_type": 12,
+      "density_fit": 10,
+      "aspect_ratio_verified": 8,
+      "allowed_compositing": 20,
+      "conditional_compositing": 4,
+      "recent_template_penalty": 32,
+      "used_signature_motif_penalty": 36
+    }
+  },
+  "dedupe": {
+    "weights": {
+      "scene_grammar": 0.35,
+      "motion_grammar": 0.35,
+      "signature_motifs": 0.2,
+      "compositing": 0.1
+    },
+    "adaptation_scene_threshold": 0.72,
+    "adaptation_motion_threshold": 0.72,
+    "review_threshold": 0.72,
+    "ignored_as_identity": ["palette values", "font family names", "corner radius", "spacing tokens"]
+  },
+  "state_machine": {
+    "draft": ["production", "deprecated"],
+    "production": ["deprecated"],
+    "deprecated": []
+  },
+  "profiles": [
+    {
+      "template_id": "greenroom-writing",
+      "topic_tags": ["writing", "methodology", "experience", "human-motivation", "education"],
+      "semantic_types": ["concrete-metaphor", "case", "explanation", "reorganization"],
+      "moods": ["human", "editorial", "tactile", "warm-cool"],
+      "media_types": ["photo", "objects", "paper", "native-graphics"],
+      "avoid_topic_tags": ["api", "game", "cybersecurity", "monitoring"],
+      "avoid_moods": ["cold", "cyber", "ceremonial"],
+      "density_range": [1, 3]
+    },
+    {
+      "template_id": "forbidden-red-gold",
+      "topic_tags": ["chinese-knowledge", "history", "business-data", "brand-story"],
+      "semantic_types": ["big-number", "quote", "timeline", "comparison"],
+      "moods": ["ceremonial", "premium", "warm", "editorial"],
+      "media_types": ["data", "text", "native-graphics"],
+      "avoid_topic_tags": ["children", "code-terminal", "deep-sea-infrastructure"],
+      "avoid_moods": ["playful", "cold", "cyber"],
+      "density_range": [2, 4]
+    },
+    {
+      "template_id": "deep-current-hud",
+      "topic_tags": ["data", "acquisition", "systems", "network", "pipeline", "infrastructure"],
+      "semantic_types": ["data-flow", "network", "process", "scale"],
+      "moods": ["cold", "technical", "immersive", "dense"],
+      "media_types": ["data", "native-graphics", "diagram"],
+      "avoid_topic_tags": ["lifestyle", "children", "history", "writing"],
+      "avoid_moods": ["warm", "human", "playful"],
+      "density_range": [3, 5]
+    },
+    {
+      "template_id": "surge-dark-flow",
+      "topic_tags": ["ai", "business", "trend", "judgment", "brand"],
+      "semantic_types": ["key-quote", "big-number", "reveal", "opening", "closing"],
+      "moods": ["high-energy", "premium", "assertive", "dark-editorial"],
+      "media_types": ["text", "data", "photo", "native-graphics"],
+      "avoid_topic_tags": ["lifestyle", "children", "soft-tutorial"],
+      "avoid_moods": ["soft", "playful", "domestic"],
+      "density_range": [1, 3]
+    },
+    {
+      "template_id": "soft-aurora-workbench",
+      "topic_tags": ["ai-tools", "tutorial", "file-conversion", "workflow", "modules"],
+      "semantic_types": ["process", "assembly", "input-output", "safety-gate"],
+      "moods": ["calm", "technical", "soft", "explanatory"],
+      "media_types": ["files", "ui", "native-graphics", "diagram"],
+      "avoid_topic_tags": ["history", "lifestyle", "brand-manifesto"],
+      "avoid_moods": ["ceremonial", "assertive", "gritty"],
+      "density_range": [2, 4]
+    },
+    {
+      "template_id": "neon-cyber-overlay",
+      "topic_tags": ["developer-tools", "api", "code", "technical-comparison"],
+      "semantic_types": ["code", "status", "comparison", "structure"],
+      "moods": ["functional", "technical", "fast", "precise"],
+      "media_types": ["code", "text", "ui", "overlay"],
+      "avoid_topic_tags": ["history", "lifestyle", "humanities", "children"],
+      "avoid_moods": ["warm", "ceremonial", "tactile"],
+      "density_range": [2, 4]
+    }
+  ]
+}

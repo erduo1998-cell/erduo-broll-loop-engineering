@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Director"
+  short_description: "Create SRT-anchored B-roll direction with SURGE."
+  default_prompt: "Direct B-roll scenes from my SRT."

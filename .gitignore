@@ -1,0 +1,5 @@
+.DS_Store
+.tmp-hf-fixture/
+**/node_modules/
+**/renders/
+**/.erduo-hyperframes-broll/
