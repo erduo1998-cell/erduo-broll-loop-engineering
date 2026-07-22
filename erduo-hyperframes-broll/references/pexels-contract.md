@@ -1,6 +1,6 @@
 # Pexels search contract
 
-Search only after user-media routing returns `next_route: "pexels"`. Each abstract brief supplies one or more concrete English subject phrases; the selector expands the first phrase into three queries: documentary (`phrase`), emotional (`phrase cinematic natural light`), and visual-metaphor (`phrase conceptual composition`). It never treats Chinese narration as a deterministic English translation.
+Search only after user-media routing and image generation have both failed, been unavailable, or been marked unsuitable for the approved design/shot purpose. Each abstract brief supplies one or more concrete English subject phrases; the selector expands the first phrase into three queries: documentary (`phrase`), emotional (`phrase cinematic natural light`), and visual-metaphor (`phrase conceptual composition`). It never treats Chinese narration as a deterministic English translation.
 
 The client sends the Pexels key only in an `Authorization` header to `https://api.pexels.com/v1/search` and `https://api.pexels.com/v1/videos/search`. Query/cache/report JSON never contains the key. Both APIs are requested for every query. Candidate records keep only public Pexels ID, kind, dimensions, duration when present, page URL, creator attribution URL, and one HTTPS download URL; raw API payloads are discarded.
 

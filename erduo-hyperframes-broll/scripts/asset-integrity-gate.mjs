@@ -9,7 +9,7 @@ import { probeMedia } from './probe-media.mjs';
 const SHA256 = /^[0-9a-f]{64}$/u;
 const ASSET_ID = /^UA-[0-9a-f]{16}$/u;
 const PATH_OR_URL = /^(?:https?:|file:|\/|[A-Za-z]:[\\/]|\\\\)/u;
-const ROUTES = new Set(['user-media', 'pexels', 'image-generation']);
+const ROUTES = new Set(['user-media', 'image-generation', 'pexels']);
 const EXIT_INVALID = 2;
 const EXIT_READ = 3;
 const EXIT_USAGE = 64;

@@ -41,14 +41,14 @@ test('ties are deterministic by stable asset ID', () => {
   const doc = briefs(); const tied = index([asset('UA-ffffffffffffffff', ['gate', 'red', 'signal']), asset('UA-0000000000000000', ['gate', 'red', 'signal']), asset('UA-2222222222222222', ['documented', 'result'])]);
   assert.equal(routeUserMedia(doc, tied, context(doc)).routes[0].asset_id, 'UA-0000000000000000');
 });
-test('missing semantic match falls through to Pexels instead of forcing media', () => {
+test('missing semantic match falls through to image generation instead of forcing media', () => {
   const doc = briefs(); const result = routeUserMedia(doc, index([asset('UA-1111111111111111', ['tree']), asset('UA-2222222222222222', ['documented', 'result'])]), context(doc));
-  assert.deepEqual(result.routes[0], { shot_id: 'S001', route: 'fallback', next_route: 'pexels', reason_codes: ['NO_SEMANTIC_USER_MEDIA_MATCH'] });
+  assert.deepEqual(result.routes[0], { shot_id: 'S001', route: 'fallback', next_route: 'image-generation', reason_codes: ['NO_SEMANTIC_USER_MEDIA_MATCH'] });
 });
 test('crop, resolution, and video duration reject otherwise semantic candidates', () => {
   const doc = briefs();
   for (const candidate of [asset('UA-1111111111111111', ['gate'], { width: 800, height: 450 }), asset('UA-1111111111111111', ['gate'], { width: 1920, height: 300 }), asset('UA-1111111111111111', ['gate'], { duration_ms: 2000 })]) {
-    const result = routeUserMedia(doc, index([candidate, asset('UA-2222222222222222', ['documented', 'result'])]), context(doc)); assert.equal(result.routes[0].next_route, 'pexels');
+    const result = routeUserMedia(doc, index([candidate, asset('UA-2222222222222222', ['documented', 'result'])]), context(doc)); assert.equal(result.routes[0].next_route, 'image-generation');
   }
 });
 test('an image may hold for the shot when crop and resolution are sufficient', () => {

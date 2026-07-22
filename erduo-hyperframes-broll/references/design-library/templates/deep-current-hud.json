@@ -7,7 +7,7 @@
     {
       "state": "draft",
       "changed_at": "2026-07-20T00:00:00.000Z",
-      "reason": "First structured draft from CASE-003 production evidence. Deep-sea particle HUD system, single-cyan accent strategy, glass data panels, and flowing light-dot networks extracted from real ReachSurge data-visualization project. Includes historically documented exhausted motif list from the original project. No current HyperFrames rendering verification has been performed.",
+      "reason": "First structured draft from CASE-003 production evidence. Deep-sea particle HUD system, single-cyan accent strategy, glass data panels, and flowing light-dot networks extracted from a real historical data-visualization project. Includes the documented exhausted motif list from that project. No current HyperFrames rendering verification has been performed.",
       "evidence_refs": ["handoff/SRC-003-DESIGN-EXTRACTION.md", "design-library/template.schema.json"]
     }
   ],

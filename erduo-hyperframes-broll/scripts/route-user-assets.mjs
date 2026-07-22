@@ -119,7 +119,7 @@ export function routeUserMedia(briefs, assetIndex, context) {
       return selection(brief, usable[0].asset, usable[0].evaluated, indexHash, true);
     }
     const usable = assetIndex.assets.map((asset) => ({ asset, evaluated: evaluate(asset, brief, context.target_width, context.target_height) })).filter((item) => item.evaluated.eligible).sort((left, right) => right.evaluated.score - left.evaluated.score || left.asset.asset_id.localeCompare(right.asset.asset_id));
-    if (!usable.length) return { shot_id: brief.shot_id, route: 'fallback', next_route: 'pexels', reason_codes: ['NO_SEMANTIC_USER_MEDIA_MATCH'] };
+    if (!usable.length) return { shot_id: brief.shot_id, route: 'fallback', next_route: 'image-generation', reason_codes: ['NO_SEMANTIC_USER_MEDIA_MATCH'] };
     return selection(brief, usable[0].asset, usable[0].evaluated, indexHash);
   });
   const core = { schema_version: 1, briefs_sha256: briefs.briefs_sha256, asset_index_sha256: indexHash, target: { width: context.target_width, height: context.target_height }, route_count: routes.length, routes };

@@ -69,7 +69,7 @@
       "density_range": [3, 5]
     },
     {
-      "template_id": "surge-dark-flow",
+      "template_id": "restrained-gradient-flow",
       "topic_tags": ["ai", "business", "trend", "judgment", "brand"],
       "semantic_types": ["key-quote", "big-number", "reveal", "opening", "closing"],
       "moods": ["high-energy", "premium", "assertive", "dark-editorial"],

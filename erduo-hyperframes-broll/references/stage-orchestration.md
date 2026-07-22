@@ -1,21 +1,28 @@
 # Stage orchestration contract
 
-The public product has one parent Skill and five installed stage Skills. They are not subagents. The parent dispatches them in this exact order only after verifying the preceding receipt:
+## Active stages
 
-`preflight → director → assets → render → verify`
+The default runtime has four producer stages: `director`, `assets`, `master-build`, `render`. Input preflight and final verification are deterministic parent/render operations. Historical plan/asset/source/visual reviewer Skills are not dispatched by a new run.
 
-Every receipt is private project state at `.erduo-hyperframes-broll/receipts/`, contains no path, credential, raw prompt, or source transcript, and is integrity-hashed. The product-stage to existing implementation-state mapping is:
+Each producer receives one signed narrow packet: goal, brief hash, allowed upstream artifact IDs, required contracts and expected compact output. Full artifacts are resolved privately. The parent receives only a manifest envelope plus that gate's bounded fact/contact-sheet packet.
 
-| Product stage | Existing state |
-| --- | --- |
-| `preflight` | `preflight` |
-| `director` | `directing` |
-| `assets` | `assets` |
-| `render` | `build` then `render` |
-| `verify` | `verify` |
+## Parent gates
 
-An upstream receipt is immutable for matching input fingerprints. If it changes, invalidate only the matching downstream state: input/time changes start at preflight; design changes start at director; user assets start at assets; frame rate or aspect ratio start at render. Never redo a receipt that remains valid.
+| Producer | Parent decision | Required packet |
+| --- | --- | --- |
+| director | `shot_plan_review` | compact shot table, visual direction, prohibited directions, route/font facts |
+| assets | `asset_fact_review` | candidate/selected contact sheet, geometry, reasons, route counts |
+| master-build | `html_preview_review` | official-authoring evidence, source/pixel report, all-shot pre-master contact sheet |
+| render | `final_frame_review` | final result-frame contact sheet, media/verify facts |
 
-The director receipt must name `video-script-builder`, state `time_source: srt`, prohibit `video-spec-hf.md`, word-estimated timing, and asset-route override, and include hashed host-call evidence. In Claude Code the evidence comes from its `Skill(video-script-builder, args)` event. In Codex it comes from an explicit `$video-script-builder` invocation. No callable Skill means director failure, not a silent fallback.
+The parent decision binds the current manifest hash. No producer can create it. A deterministic gate failure cannot be waived by prose.
 
-Use `scripts/stage-receipt.mjs` to validate receipt shape and privacy; use `scripts/orchestrate-stages.mjs` for the deterministic public fixture harness. The harness is an integration test of the handoff chain, not a replacement for host-side SURGE invocation evidence.
+## Claude Code dispatch
+
+Use one fresh `Agent(subagent_type: "general-purpose")` per producer. A successful run therefore has exactly four Agent calls. One failed creative gate may create one replacement producer context; cap the run at two total replacement contexts and never retry the same gate twice.
+
+Reject a runtime whose root Skill and active stage Skills do not share one source fingerprint. In development, link them to the same project source rather than copying snapshots.
+
+## Invalidation
+
+Brief changes invalidate everything. Plan changes invalidate assets onward. Asset changes invalidate build onward. Source changes invalidate pre-master, render and final review. Master changes invalidate verify/final review. Resume only exact matches.

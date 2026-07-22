@@ -6,7 +6,7 @@ const REPRESENTATIONS = new Set(['physical-object', 'spatial-relation', 'process
 const ACTIONS = new Set(['route', 'filter', 'transform', 'accumulate', 'compare', 'reveal', 'connect', 'sort', 'switch', 'scan', 'grow', 'separate', 'compress', 'assemble', 'observe', 'hold']);
 const HOLD_INTENTS = new Set(['brief', 'normal', 'extended']);
 const EVIDENCE_MODES = new Set(['user-material', 'verified-source', 'abstract-relationship', 'not-required']);
-const ROUTES = new Set(['user-media', 'pexels', 'image-generation', 'hyperframes-native', 'mixed']);
+const ROUTES = new Set(['user-media', 'image-generation', 'pexels', 'hyperframes-native', 'mixed']);
 const PRIMARY_COMPOSITING = new Set(['fullscreen', 'hard-alpha-over-source', 'native-base-with-overlay']);
 const VARIATION_DIMENSIONS = new Set(['layout', 'entrance', 'primary-action', 'focus']);
 

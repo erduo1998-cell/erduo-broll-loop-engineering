@@ -1,3 +1,14 @@
+# This repository has a public release boundary. Ignore every root-level
+# development/governance artifact unless it is explicitly allowlisted below.
+/*
+!/.gitignore
+!/LICENSE
+!/README.md
+!/RELEASE-CHECKLIST.md
+!/release-allowlist.txt
+!/erduo-hyperframes-broll/
+!/erduo-hyperframes-broll/**
+
 .DS_Store
 .tmp-hf-fixture/
 **/node_modules/

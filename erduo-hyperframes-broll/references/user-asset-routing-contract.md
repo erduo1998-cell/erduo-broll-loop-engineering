@@ -31,7 +31,7 @@ Score only eligible assets by subject-token overlap, then action/relationship ov
 ## Evidence and fallback
 
 - Literal evidence (`user-material` or `verified-source`) requires the registry mapping above. Mapped assets must still pass crop/readability/duration checks. Missing, stale, duplicate, or unsuitable mappings produce `evidence_unresolved`, not a fabricated Pexels/image result.
-- Abstract and `not-required` briefs with no eligible user asset return `next_route: "pexels"`; they do not force a weak filename match merely to consume user media.
+- Abstract and `not-required` briefs with no eligible user asset return `next_route: "image-generation"`; they do not force a weak filename match merely to consume user media.
 - The result contains only `asset_id`, shot metadata, public reason codes, score/crop metrics, and the next route. It must never include `relative_path`, a source directory, subtitle body, claim text, credentials, or raw probe output.
 
 ## Determinism and failure

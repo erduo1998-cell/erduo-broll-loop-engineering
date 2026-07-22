@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Shot Export"
+  short_description: "Optionally cut per-shot files after verified master and main final-frame review."
+  default_prompt: "Use $broll-shot-export only after an explicit user request and a verified render manifest with main html_preview_review and final_frame_review."

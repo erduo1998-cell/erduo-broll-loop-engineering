@@ -1,4 +1,0 @@
-interface:
-  display_name: "B-roll Verify"
-  short_description: "Verify B-roll media and delivery."
-  default_prompt: "Verify my B-roll delivery."

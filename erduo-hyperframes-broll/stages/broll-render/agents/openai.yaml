@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Render"
-  short_description: "Build and render approved B-roll scenes."
-  default_prompt: "Render approved B-roll scenes."
+  short_description: "Render and deterministically verify one approved HyperFrames master."
+  default_prompt: "Use $broll-render only after source/pixel hard gates, main html_preview_review and official HyperFrames authoring evidence bind the exact source; render once, verify, and return final-frame facts."

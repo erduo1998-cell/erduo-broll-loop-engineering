@@ -1,10 +1,14 @@
 # Support matrix
 
-| Surface | Status | Evidence / limit |
-| --- | --- | --- |
-| macOS + Codex | verified (single-entry baseline); M9 orchestration unverified | Current HyperFrames 0.7.64 check and high-quality 4s native fixture render; media and frame gates pass. The current Codex CLI could discover but could not execute the new SURGE dependency because its global Skill context exceeded the host budget; do not claim M9 Codex orchestration verification. |
-| macOS + Claude Code | verified | Claude Code 2.1.215 discovered all five M9 stage Skills, invoked `video-script-builder` through its Skill tool, ran the five-receipt fixture, current HyperFrames check, and a high-quality 4s 1920×1080/30fps H.264 render. Its broken SessionEnd hook is host-side noise, not product evidence. |
-| Windows | unverified | Path/config/command contracts are deterministic, but no Windows host has run this fixture. |
-| 剪映专业版桌面端 | unverified | Outputs use MP4/ProRes 4444 MOV/black-light MP4 contracts, but no GUI import test exists. |
+`baseline verified` means a small deterministic fixture proved installation, HyperFrames checks, rendering and media validation. It does **not** mean the current re-architected production pipeline has passed a real-input visual-quality gate.
 
-No `unverified` row may be described as supported in user reports, package metadata, or release notes.
+| Surface | Baseline | Current production pipeline | Evidence / limit |
+| --- | --- | --- | --- |
+| macOS + Codex | baseline verified | pending final real-input E2E | The older 4-second fixture passed HyperFrames 0.7.64 check, render, decode and frame visibility. It did not exercise the complete current artifact-first pipeline and self-contained director method. |
+| macOS + Claude Code | baseline verified | two real-input runs failed; short-pipeline re-test required | The 2026-07-22 latest run used a stale copied Skill set and `deepseek-v4-pro`, created 20 child contexts over about 2h04m, rendered literal `\\uXXXX`, black spans and bright low-information frames, then falsely reported zero visual findings. It is failure evidence, not production verification. `deepseek-v4-pro` is not accepted for main visual gates. |
+| Windows | unverified | unverified | Path/config/command contracts have deterministic tests, but no Windows host has run the current pipeline. |
+| Jianying/CapCut desktop GUI | unverified | unverified | Outputs target MP4, ProRes 4444 MOV and black-background light-pass contracts, but no current GUI import test exists. |
+
+The current production status may become `verified` only after the re-architected pipeline completes the same real-input gate on the named host and the actual rendered result passes the documented visual and media review. No `pending`, `failed`, or `unverified` row may be described as supported in package metadata, user reports or release notes.
+
+The public package has no required third-party director Skill. Its director method is bundled. Optional enhancers are accepted only with public source, pinned version and license evidence, and never affect baseline support.

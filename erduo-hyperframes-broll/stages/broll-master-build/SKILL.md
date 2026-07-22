@@ -1,0 +1,16 @@
+---
+name: broll-master-build
+description: Use the official HyperFrames authoring skills to build one complete HTML project from main-accepted plan and inventory manifests, run deterministic source/pixel gates, and return target-raster pre-master evidence for direct main-agent review.
+---
+
+# B-roll master build producer
+
+1. Require main `shot_plan_review` and `asset_fact_review` bound to current manifests, including the exact approved `display_selection`. Resolve full artifacts privately; never ask the parent to relay plan rows, source material or atom bodies.
+2. Before writing HTML, load and follow the official HyperFrames authoring skills: `hyperframes:hyperframes` for composition authoring plus relevant official CLI/registry/animation skills. Record bounded official-authoring evidence in the source manifest. Project scripts may scaffold, package, lint/check, inspect, capture frames and verify; they must not be the creative HTML compiler.
+3. Implement every frozen shot once with its SRT window, hero relation, material roles, route and checksum, active media consumer, motion behavior and readable result state. The official HyperFrames skill should solve final layout, hierarchy and motion within the approved design/shot constraints; do not mechanically pour the plan into a generic template.
+4. Pass the exact frozen `displaySelection` into the production font preparation/build call; when the host command accepts optional `library` or `skillRoot` locations, pass them only as catalog locators. Do not recompute, omit, substitute or silently default the selection. Build the deterministic glyph set. If a validated subsetter is callable, create and validate a font subset; otherwise copy the already verified complete font into the project. Package the exact font bytes and license evidence, bind their hashes, and load every family offline through local `@font-face`. Do not use remote CSS, network imports, system stacks or generic fallback.
+5. Implement generated/Pexels/user material through visible type-correct consumers and the approved crop/layer/treatment. Preserve the native ceiling. Make exact `entry`, `result`, and `exit` evidence timestamps addressable at the confirmed final raster.
+6. Use deterministic seek-safe HyperFrames motion and actual animation behavior, not metadata claiming compliance.
+7. Before capturing frames, run `scripts/validate-render-source.mjs` plus the font/asset/HyperFrames checks. Visible literal `\\uXXXX`, duplicate/orphan IDs, a `fromTo` terminal `scale:0`, below-minimum type, wrong display font, fallback fonts or invalid consumers are hard failures.
+8. Capture target-raster `entry/result/exit` for every shot and run `scripts/visual-preflight-pixels.mjs`. Freeze all findings together. Return a bounded preview packet containing the contact-sheet hash, per-shot result hashes, official-authoring evidence hash and hard metrics. This is private operational evidence, not a user preview or storyboard.
+9. Do not self-approve or render the final master. On main-preview rejection, accept one aggregate revision packet, make one batch repair and regenerate the affected evidence plus adjacent comparisons. A second rejection stops the run.

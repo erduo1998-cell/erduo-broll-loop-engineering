@@ -63,9 +63,9 @@ test('literal user media evidence can enter selection', () => {
 
 test('required compositing rejects an explicit incompatible template', () => {
   const doc = document({ primary: 'hard-alpha-over-source' });
-  const result = selectDirectorDesign(doc, context(doc, { user_template_id: 'surge-dark-flow' }), library, { allowDraft: true });
+  const result = selectDirectorDesign(doc, context(doc, { user_template_id: 'restrained-gradient-flow' }), library, { allowDraft: true });
   assert.equal(result.base_template, null);
-  assert.ok(result.candidate_rejections.find((item) => item.template_id === 'surge-dark-flow').reason_codes.some((reason) => reason.code === 'COMPOSITING_OPT_IN_REQUIRED'));
+  assert.ok(result.candidate_rejections.find((item) => item.template_id === 'restrained-gradient-flow').reason_codes.some((reason) => reason.code === 'COMPOSITING_OPT_IN_REQUIRED'));
 });
 
 test('motif and recent-base cooldown change the policy winner', () => {

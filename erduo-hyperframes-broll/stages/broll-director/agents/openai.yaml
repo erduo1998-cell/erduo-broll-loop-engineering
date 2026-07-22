@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Director"
-  short_description: "Create SRT-anchored B-roll direction with SURGE."
-  default_prompt: "Direct B-roll scenes from my SRT."
+  short_description: "Create a creative SRT-anchored B-roll shot plan fact packet."
+  default_prompt: "Use $broll-director to turn the confirmed SRT/design brief into a creative shot plan with intent, material needs, prohibited directions and a bounded fact packet for main-agent review."

@@ -1,48 +1,39 @@
 ---
 name: erduo-hyperframes-broll
-description: Create complete, editable HyperFrames B-roll from an edited talking-head video plus SRT, or from an SRT-only faceless script. Use when Codex or Claude Code must segment subtitles by meaning, route user/Pexels/generated/native visuals, build a candidate master covering 100% of the SRT timeline, export per-shot media for desktop editing, resume an interrupted B-roll run, or verify its delivery.
+description: Create editable, SRT-anchored HyperFrames B-roll from an edited talking-head video or an SRT-only faceless script. Use when Codex or Claude Code must direct, source, author HTML with the official HyperFrames skills, visually approve and render a complete B-roll master through a short isolated pipeline.
 ---
 
 # Erduo HyperFrames B-roll
 
-Orchestrate five installed stage Skills to create candidate B-roll that explains the narration rather than decorating it. Deliver a complete master plus removable per-shot media; let the user decide final adoption in the editor.
+Act as the main producer and visual decision-maker. Keep full SRT, plans, inventories, source and frame bundles in the private artifact store; accept only bounded fact/contact-sheet packets in the parent context.
 
-## Start safely
+Read [workflow](references/workflow.md) before a new or resumed run. Read a linked contract only when its gate is active; do not preload the reference library or all contracts.
 
-1. Require local file read/write access, shell execution, and a callable HyperFrames installation. Stop with a concrete missing-capability report when any is absent.
-2. Read [references/workflow.md](references/workflow.md) and [references/stage-orchestration.md](references/stage-orchestration.md) completely before executing a new or resumed run.
-3. Require installed `broll-preflight`, `broll-director`, `broll-assets`, `broll-render`, and `broll-verify` Skills. Detect an existing `.erduo-hyperframes-broll/run.json` and resume only matching verified stages.
-4. Never expose secrets, private source paths, internal run state, provenance ledgers, or development-only sample content in the user report.
+## Start
 
-## Resolve the input mode
+1. Require local files, shell, HyperFrames, real subagents and actual image viewing. On Claude Code, every producer uses a fresh `Agent(subagent_type: "general-purpose")`; parent-side `Skill(broll-*)` is invalid.
+2. Verify that the root and active stage Skills come from one source fingerprint. Stop on a copied/stale mixed installation.
+3. Ask in order for SRT, safe Pexels configuration and one style/material reference. Then show one complete brief and wait for explicit confirmation of its hash.
+4. The brief fixes SRT time truth, mode, raster/fps/audio/delivery, one visual direction, prohibited directions, native-primary ceiling, the material order `user-media → image-generation → Pexels → native auxiliary`, and local font roles.
+5. Run deterministic preflight in the parent. Do not spend a child context on parsing, probing or configuration checks.
+6. A main model with a proven image-judgment failure cannot approve pixels. Current evidence disqualifies `deepseek-v4-pro`; stop or hand visual gates to a verified image-capable main agent.
 
-- For talking-head mode, require one edited source video and its matching SRT. Preserve source audio in the candidate master.
-- For faceless mode, require an SRT. Keep the B-roll master silent unless the user explicitly supplies an audio track to preserve.
-- Treat SRT timestamps as the time truth source. Do not extend the timeline to let an animation finish.
-- Ask once whether the user has local images, clips, or a design reference. After the answer, run unattended except for the first missing Pexels credential or an actual blocking input error.
+## Run four producer contexts
 
-## Dispatch the pipeline
+1. Dispatch `broll-director`. Inspect its bounded shot-plan packet and issue `shot_plan_review`. Reject generic templates, weak image purpose, repeated grammar, native overage or a missing single display-font selection.
+2. Dispatch `broll-assets` from that accepted plan. Inspect the candidate/contact sheet and issue `asset_fact_review`. Reject weak relevance, grey-mask/background-only treatment, invalid geometry or a route that skips suitable user/generated material.
+3. Dispatch `broll-master-build`. It must use `hyperframes:hyperframes` plus the necessary official CLI/animation skills to author the HTML. It runs the deterministic source/font/asset gates, captures target-raster `entry/result/exit` for every shot and returns one pre-master contact sheet. Inspect it and issue `html_preview_review` only when the actual pixels are readable, materially occupied and visually convincing.
+4. Dispatch `broll-render`. It renders exactly one final 4K master and runs deterministic manifest, coverage, font, contribution and media verification. Inspect the final-frame contact sheet and issue `final_frame_review`, then deliver.
 
-1. Ask the one material/design question once, perform capability detection, then dispatch `broll-preflight`.
-2. Verify its receipt and dispatch `broll-director`. Require it to invoke `video-script-builder` for directing judgment; reject word-estimated timing, `video-spec-hf.md`, and any override of the asset order.
-3. Verify each receipt before dispatching `broll-assets`, `broll-render`, and `broll-verify`, in that order. A failed stage resumes from itself; no later stage may run.
-4. Only after the `verify` receipt passes, report delivery. Stage Skills must never separately announce completion.
+A successful run uses four children. If a creative gate fails, send one aggregated revision packet to that producer and retry once. If it still fails, stop with the evidence; never open a chain of micro-review agents. Dispatch `broll-shot-export` only after an explicit request.
 
-## Preserve fixed product behavior
+## Hard failures
 
-- Produce candidate visuals for 100% of the SRT timeline in both modes.
-- Do not burn subtitles, add BGM, create a low-bitrate preview, show a thumbnail storyboard, emit `edit-manifest.json`, or create a separate three-format test clip.
-- Prefer the user's design over the visual quality of talking-head footage; use footage stills only as blending constraints.
-- Keep one hero motif per shot, vary at least two of layout, entrance direction, primary action, and focus position across adjacent shots, and do not replay a complete causal metaphor.
-- Keep glow and particles out of ordinary Alpha output. Split soft light into black-background light media when required.
+- Visible literal `\uXXXX`, duplicate/orphan DOM IDs, a `fromTo` end state with `scale:0`, below-minimum visible type, missing selected display font or any system/generic font fallback.
+- Black/empty results, bright low-information or dominant-flat-color frames, huge dead zones, adjacent pixel repetition, hidden material or an unreadable result state.
+- Pexels/generated assets without a visible type-correct consumer and measured result-region contribution.
+- Missing official HyperFrames authoring evidence, stale hashes, final render before `html_preview_review`, or any producer claiming visual approval.
 
-## Recover or fail honestly
+## Report
 
-- Retry only the failed shot or stage after classifying the error as input, credential, search, download, generation, build, render, or verification failure.
-- Fall back from unavailable generation to HyperFrames-native visuals without leaving a timeline gap.
-- Do not mark a template production, a render successful, or a platform supported from configuration or lint alone. Require the evidence gates recorded by the library and delivery validators.
-- Report Windows and desktop-editor GUI behavior as `unverified` until real evidence exists; do not block a verified macOS delivery solely for that reason.
-
-## Report the result
-
-Return only the master path, per-shot directory, shot count, duration, asset routes used, verification result, and real remaining limitations. Do not require the user to read internal JSON or technical reports.
+Return only the master path, duration, route counts, four main review results, deterministic verify result and real limitations. Do not expose private artifacts, source, frames, prompts, logs or credentials. Mark Windows and desktop-editor GUI behavior `unverified` until real evidence exists.

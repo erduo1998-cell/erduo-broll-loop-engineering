@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Assets"
-  short_description: "Route assets for approved B-roll scenes."
-  default_prompt: "Route B-roll assets for my approved scenes."
+  short_description: "Route and freeze user, generated, then Pexels media for main-approved shots."
+  default_prompt: "Use $broll-assets to route and freeze media in order user assets, AI generation, then Pexels, and return an asset contact-sheet fact packet for main-agent review."

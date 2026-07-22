@@ -1,4 +1,4 @@
 interface:
   display_name: "Erduo HyperFrames B-roll"
-  short_description: "从口播视频或 SRT 生成完整 B-roll 与逐镜素材"
-  default_prompt: "Use $erduo-hyperframes-broll to create a complete B-roll master and per-shot media from my edited video plus SRT, or from an SRT-only faceless script."
+  short_description: "Run a short four-producer HyperFrames B-roll pipeline with real visual gates."
+  default_prompt: "Use $erduo-hyperframes-broll to run director, assets, official HyperFrames master-build and render contexts; review the plan, materials, pre-master pixels and final frames as the main agent; stop on version drift or failed hard gates."

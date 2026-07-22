@@ -1,0 +1,4482 @@
+[
+  {
+    "id": "STY-001",
+    "category": "styles",
+    "tags": [
+      "层级",
+      "留白",
+      "信息分离"
+    ],
+    "capabilities": [
+      "统一焦点",
+      "降低视觉噪音",
+      "增强可读性"
+    ],
+    "summary": "用于主句与次句之间建立稳定视觉主次，以便观众快速识别信息优先级。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/style-soft-hierarchy.md"
+  },
+  {
+    "id": "STY-002",
+    "category": "styles",
+    "tags": [
+      "静态对比",
+      "转场前后衔接"
+    ],
+    "capabilities": [
+      "降低装饰负担",
+      "增强镜头切换对齐",
+      "保留静态焦点"
+    ],
+    "summary": "用于节奏偏快场景，建议减少额外元素并保持单一方向焦点。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-quiet-emphasis.md"
+  },
+  {
+    "id": "SCN-001",
+    "category": "scene-logic",
+    "tags": [
+      "主张",
+      "对比",
+      "叙事转折"
+    ],
+    "capabilities": [
+      "抽象主张可视化",
+      "支持论点分段",
+      "支持转折解释"
+    ],
+    "summary": "对比类语义判断优先级模板，用于确认是否需要可见对象关系表达。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-002"
+    ],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-claim-contrast.md"
+  },
+  {
+    "id": "SCN-002",
+    "category": "scene-logic",
+    "tags": [
+      "过程",
+      "因果",
+      "可见状态"
+    ],
+    "capabilities": [
+      "过程闭环",
+      "状态迁移表达",
+      "关系变化可读"
+    ],
+    "summary": "将叙事步骤映射为可见状态变化，避免仅靠文字说明。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-process-step.md"
+  },
+  {
+    "id": "CPT-001",
+    "category": "components",
+    "tags": [
+      "关系",
+      "数据",
+      "局部解释"
+    ],
+    "capabilities": [
+      "关系可视化",
+      "支持流程说明",
+      "减少纯文字依赖"
+    ],
+    "summary": "关系带型组件的使用条件，优先做局部说明而非替代全画面。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-002"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-data-band.md"
+  },
+  {
+    "id": "CPT-002",
+    "category": "components",
+    "tags": [
+      "关系",
+      "因果",
+      "关系卡片"
+    ],
+    "capabilities": [
+      "双实体映射",
+      "关系闭环提示",
+      "主次信息分离"
+    ],
+    "summary": "关系卡对用于表达实体联系，限制为“关系一次一句话”。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-relational-pair.md"
+  },
+  {
+    "id": "MOT-001",
+    "category": "motion",
+    "tags": [
+      "节奏",
+      "轻动效",
+      "状态停留"
+    ],
+    "capabilities": [
+      "信息推进",
+      "状态变化强调",
+      "降低视觉抖动"
+    ],
+    "summary": "用于稳定推进的信息动作，仅在有明确状态变化时局部触发。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-002",
+      "CPT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-gentle-rise.md"
+  },
+  {
+    "id": "MOT-002",
+    "category": "motion",
+    "tags": [
+      "转向",
+      "强调",
+      "节奏节点"
+    ],
+    "capabilities": [
+      "转折视觉强化",
+      "避免重复惯性",
+      "增强结尾聚焦"
+    ],
+    "summary": "仅在明显转折点使用的强调动作，默认避免逐镜重复。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "MOT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-emphasis-shift.md"
+  },
+  {
+    "id": "CPS-001",
+    "category": "compositing",
+    "tags": [
+      "全屏",
+      "安全区",
+      "回退路径"
+    ],
+    "capabilities": [
+      "默认路径候选",
+      "静帧安全映射",
+      "支持快速回退"
+    ],
+    "summary": "在主体稳定且关系清晰时可直接全屏承载，不作为唯一默认路径。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "compositing/compositing-fullscreen-safe.md"
+  },
+  {
+    "id": "CPS-002",
+    "category": "compositing",
+    "tags": [
+      "局部叠加",
+      "遮挡控制",
+      "关系解释"
+    ],
+    "capabilities": [
+      "叠加条件判断",
+      "避免连续遮挡",
+      "关系说明增强"
+    ],
+    "summary": "仅在局部关系说明不足时触发叠加，连续镜头默认不复用同一叠加路径。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPS-001",
+      "MOT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "compositing/compositing-overlay-limitation.md"
+  },
+  {
+    "id": "STY-003",
+    "category": "styles",
+    "tags": [
+      "时长",
+      "令牌",
+      "节奏"
+    ],
+    "capabilities": [
+      "统一动效时长",
+      "减少裸数值",
+      "支持收据解析"
+    ],
+    "summary": "把入场、停留、强调和离场写成命名时长令牌，避免镜头内任意毫秒数。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-duration-token-scale.md"
+  },
+  {
+    "id": "STY-004",
+    "category": "styles",
+    "tags": [
+      "缓动",
+      "动作角色",
+      "曲线"
+    ],
+    "capabilities": [
+      "区分入出场",
+      "降低同质动效",
+      "支持令牌解析"
+    ],
+    "summary": "按动作角色选择缓动语义，防止所有元素使用同一种运动曲线。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-003"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-easing-mode-taxonomy.md"
+  },
+  {
+    "id": "STY-005",
+    "category": "styles",
+    "tags": [
+      "色阶",
+      "配色",
+      "对比"
+    ],
+    "capabilities": [
+      "生成语义色板",
+      "支持对比检查",
+      "避免单色堆叠"
+    ],
+    "summary": "从主题色生成背景、正文、弱信息和强调等语义色阶。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-color-scale-generator.md"
+  },
+  {
+    "id": "STY-006",
+    "category": "styles",
+    "tags": [
+      "字体",
+      "字号",
+      "阅读"
+    ],
+    "capabilities": [
+      "稳定文本层级",
+      "减少随机字号",
+      "支持可读性检查"
+    ],
+    "summary": "把标题、主句、注释、数字和标签映射到稳定字体阶梯。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-recursive-type-scale.md"
+  },
+  {
+    "id": "STY-007",
+    "category": "styles",
+    "tags": [
+      "主色",
+      "派生色板",
+      "语义角色"
+    ],
+    "capabilities": [
+      "从单色扩展色板",
+      "保持用户参考优先",
+      "降低装饰色污染"
+    ],
+    "summary": "当用户只提供主色或情绪参考时派生全片语义色板。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-005"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-palette-from-hero-color.md"
+  },
+  {
+    "id": "SCN-003",
+    "category": "scene-logic",
+    "tags": [
+      "状态机",
+      "镜头生命周期",
+      "转场"
+    ],
+    "capabilities": [
+      "声明 entry 状态",
+      "声明 result 状态",
+      "声明 exit 状态"
+    ],
+    "summary": "把每个镜头拆成 entry、result、exit 三个可取证状态。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-002",
+      "MOT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-shot-state-machine.md"
+  },
+  {
+    "id": "SCN-004",
+    "category": "scene-logic",
+    "tags": [
+      "单概念",
+      "焦点",
+      "反堆叠"
+    ],
+    "capabilities": [
+      "限制信息密度",
+      "强化主判断",
+      "减少纯文字堆叠"
+    ],
+    "summary": "每个镜头只承载一个主判断，辅助信息必须服务主判断。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-003"
+    ],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-one-concept-per-shot.md"
+  },
+  {
+    "id": "SCN-005",
+    "category": "scene-logic",
+    "tags": [
+      "语义契约",
+      "反装饰",
+      "可验证"
+    ],
+    "capabilities": [
+      "先定义可见关系",
+      "约束画面选择",
+      "支持抽帧核对"
+    ],
+    "summary": "先说明字幕语义需要被看见的关系，再选择素材和组件。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-semantic-visual-contract.md"
+  },
+  {
+    "id": "SCN-006",
+    "category": "scene-logic",
+    "tags": [
+      "相邻差异",
+      "节奏",
+      "反重复"
+    ],
+    "capabilities": [
+      "检查版式重复",
+      "检查运动重复",
+      "检查组件重复"
+    ],
+    "summary": "相邻镜头至少在布局、运动、色彩角色或组件类型中改变两项。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-005"
+    ],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-adjacent-shot-variety.md"
+  },
+  {
+    "id": "CPT-003",
+    "category": "components",
+    "tags": [
+      "身份",
+      "种子",
+      "实体"
+    ],
+    "capabilities": [
+      "稳定实体标记",
+      "支持无素材回退",
+      "避免伪造品牌"
+    ],
+    "summary": "没有真实素材时用稳定种子生成可重复的实体识别标记。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-005"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-procedural-identity-marker.md"
+  },
+  {
+    "id": "CPT-004",
+    "category": "components",
+    "tags": [
+      "数字",
+      "计数",
+      "数据"
+    ],
+    "capabilities": [
+      "表达数字主张",
+      "保留终值停留",
+      "支持单位声明"
+    ],
+    "summary": "将关键数字、比例、增长或排名做成可读的时间推进。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-006",
+      "MOT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-animated-number-sequence.md"
+  },
+  {
+    "id": "CPT-005",
+    "category": "components",
+    "tags": [
+      "图表",
+      "趋势",
+      "比较"
+    ],
+    "capabilities": [
+      "表达阶段推进",
+      "表达数量比较",
+      "支持高亮节点"
+    ],
+    "summary": "用条、线、节点或区间表达趋势、阶段和数量比较。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPT-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-timeline-chart-primitives.md"
+  },
+  {
+    "id": "CPT-006",
+    "category": "components",
+    "tags": [
+      "面板",
+      "叠加",
+      "局部解释"
+    ],
+    "capabilities": [
+      "补充语义说明",
+      "控制遮挡",
+      "支持层级声明"
+    ],
+    "summary": "在主画面上补充局部解释，同时保持核心视觉可见。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPS-002",
+      "STY-006"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-semantic-overlay-panel.md"
+  },
+  {
+    "id": "CPT-007",
+    "category": "components",
+    "tags": [
+      "文字",
+      "揭示",
+      "动态排版"
+    ],
+    "capabilities": [
+      "匹配文本动作",
+      "控制可读停留",
+      "避免高频闪烁"
+    ],
+    "summary": "为关键词、短句和标签选择符合语义的文字揭示方式。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-006",
+      "MOT-001"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-text-reveal-catalog.md"
+  },
+  {
+    "id": "MOT-003",
+    "category": "motion",
+    "tags": [
+      "弹簧",
+      "自然运动",
+      "可调整"
+    ],
+    "capabilities": [
+      "支持时长调整",
+      "表达状态靠近",
+      "降低机械感"
+    ],
+    "summary": "用可调整、可中断的运动表达自然进入或状态收敛。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-003",
+      "STY-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-spring-primitive.md"
+  },
+  {
+    "id": "MOT-004",
+    "category": "motion",
+    "tags": [
+      "转场",
+      "擦除",
+      "连续性"
+    ],
+    "capabilities": [
+      "连接相邻镜头",
+      "表达语义转移",
+      "检查首尾帧"
+    ],
+    "summary": "为相邻镜头选择有方向、有语义的过渡方式。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-006",
+      "MOT-002"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-transition-wipe-catalog.md"
+  },
+  {
+    "id": "MOT-005",
+    "category": "motion",
+    "tags": [
+      "方向",
+      "入场",
+      "出场"
+    ],
+    "capabilities": [
+      "维持空间连续",
+      "约束运动方向",
+      "支持相邻衔接"
+    ],
+    "summary": "用方向维持空间连续性，让信息来源和去向可读。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-003",
+      "MOT-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-directional-entrance-exit.md"
+  },
+  {
+    "id": "CPS-003",
+    "category": "compositing",
+    "tags": [
+      "透明",
+      "混合",
+      "光效"
+    ],
+    "capabilities": [
+      "声明透明模式",
+      "区分黑底光效",
+      "避免扩展名推断"
+    ],
+    "summary": "明确素材是透明、黑底光效还是全屏不透明，防止误合成。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPS-002"
+    ],
+    "validation_status": "draft",
+    "relative_path": "compositing/compositing-alpha-semantics.md"
+  },
+  {
+    "id": "CPS-004",
+    "category": "compositing",
+    "tags": [
+      "层级",
+      "遮挡",
+      "合成"
+    ],
+    "capabilities": [
+      "声明层级顺序",
+      "检查遮挡风险",
+      "支持关键帧核对"
+    ],
+    "summary": "把背景、素材、遮罩、面板、文字和光效顺序固定成可审核清单。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPS-003",
+      "CPT-006"
+    ],
+    "validation_status": "draft",
+    "relative_path": "compositing/compositing-layer-stack-contract.md"
+  },
+  {
+    "id": "QLT-001",
+    "category": "quality-gates",
+    "tags": [
+      "对比度",
+      "可读性",
+      "文本"
+    ],
+    "capabilities": [
+      "检查文本对比",
+      "拦截不可读画面",
+      "支持色彩修正"
+    ],
+    "summary": "拦截文字与背景对比不足、关键句不可读的镜头。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-005",
+      "STY-006"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-contrast-gate.md"
+  },
+  {
+    "id": "QLT-002",
+    "category": "quality-gates",
+    "tags": [
+      "运动预算",
+      "动效",
+      "可读停留"
+    ],
+    "capabilities": [
+      "限制并发动效",
+      "保护阅读区间",
+      "发现过度运动"
+    ],
+    "summary": "限制同一镜头内同时运动的元素数和动作种类。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "MOT-001",
+      "STY-003"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-motion-budget-gate.md"
+  },
+  {
+    "id": "QLT-003",
+    "category": "quality-gates",
+    "tags": [
+      "边界帧",
+      "黑帧",
+      "冻结"
+    ],
+    "capabilities": [
+      "检查首帧内容",
+      "检查中段内容",
+      "检查尾帧内容"
+    ],
+    "summary": "防止首帧黑屏、中段空画面、尾帧冻结或抽帧与 brief 不符。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-005"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-boundary-frame-content.md"
+  },
+  {
+    "id": "STY-008",
+    "category": "styles",
+    "tags": [
+      "产品提取",
+      "设计令牌",
+      "视觉一致性"
+    ],
+    "capabilities": [
+      "从产品视觉提取色彩字体",
+      "把品牌气质映射到动效",
+      "拒绝无来源视觉"
+    ],
+    "summary": "要求先从用户参考或产品截图提取设计令牌，再决定色彩、字体和运动气质。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-005",
+      "STY-006"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-product-design-token-extraction.md"
+  },
+  {
+    "id": "STY-009",
+    "category": "styles",
+    "tags": [
+      "文字停留",
+      "标题入场",
+      "阅读预算"
+    ],
+    "capabilities": [
+      "限制标题入场种类",
+      "声明文字停留帧",
+      "保护落字后呼吸"
+    ],
+    "summary": "为标题、短句和标签冻结入场方式、阅读停留和全片复用上限。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPT-007",
+      "QLT-002"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-text-hold-and-reveal-budget.md"
+  },
+  {
+    "id": "CPT-008",
+    "category": "components",
+    "tags": [
+      "页面相机",
+      "截图运镜",
+      "2.5D"
+    ],
+    "capabilities": [
+      "把页面截图转成运镜场景",
+      "支持布局坐标叠加",
+      "保留真实界面质感"
+    ],
+    "summary": "用截图、坐标和相机关键帧表达网页或产品界面，不手搓假 UI 冒充真实页面。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPS-005",
+      "MOT-007"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-page-camera-frame.md"
+  },
+  {
+    "id": "CPT-009",
+    "category": "components",
+    "tags": [
+      "数字滚动",
+      "计数器",
+      "数据强调"
+    ],
+    "capabilities": [
+      "逐位数字滚动",
+      "错峰落位",
+      "数据变化可读"
+    ],
+    "summary": "用于可量化结果的里程表式数字变化，必须在落位后留出读取帧。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPT-004",
+      "STY-009"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-digit-roll-counter.md"
+  },
+  {
+    "id": "CPT-010",
+    "category": "components",
+    "tags": [
+      "纵向滚动",
+      "列表墙",
+      "信息密度"
+    ],
+    "capabilities": [
+      "构建多列信息流",
+      "表达大量案例",
+      "保持主信息遮罩"
+    ],
+    "summary": "用纵向循环列表墙表达大量条目或证据背景，不能抢走主句阅读焦点。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "QLT-002",
+      "QLT-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "components/component-vertical-ticker-wall.md"
+  },
+  {
+    "id": "MOT-006",
+    "category": "motion",
+    "tags": [
+      "闪白转场",
+      "冲击",
+      "暖光"
+    ],
+    "capabilities": [
+      "短促转场强调",
+      "遮蔽硬切",
+      "控制峰值亮度"
+    ],
+    "summary": "用短帧暖白径向闪光连接强节奏节点，默认只服务明确转折或冲击。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "MOT-004",
+      "QLT-003"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-flash-cut-bloom.md"
+  },
+  {
+    "id": "MOT-007",
+    "category": "motion",
+    "tags": [
+      "相机关键帧",
+      "确定性抖动",
+      "页面运镜"
+    ],
+    "capabilities": [
+      "定义相机关键帧",
+      "使用固定种子漂移",
+      "避免随机不复现"
+    ],
+    "summary": "为页面、卡片或空间镜头声明可复现相机运动和手持感，不使用运行时随机。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "MOT-003"
+    ],
+    "validation_status": "draft",
+    "relative_path": "motion/motion-deterministic-camera-drift.md"
+  },
+  {
+    "id": "CPS-005",
+    "category": "compositing",
+    "tags": [
+      "截图布局",
+      "坐标系",
+      "界面素材"
+    ],
+    "capabilities": [
+      "冻结截图坐标",
+      "支持元素抠图",
+      "防止低清放大"
+    ],
+    "summary": "要求界面类镜头以真实截图、元素坐标和高倍率纹理为基础，再叠加说明组件。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-008",
+      "QLT-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "compositing/compositing-captured-page-layout.md"
+  },
+  {
+    "id": "QLT-004",
+    "category": "quality-gates",
+    "tags": [
+      "文字清晰",
+      "布局完整",
+      "3D可读"
+    ],
+    "capabilities": [
+      "检查运动中文字可读",
+      "检查页面缩放清晰",
+      "拦截漂浮假布局"
+    ],
+    "summary": "拦截文字被运动、缩放、透视或伪布局破坏的镜头。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-009",
+      "CPS-005"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-text-readability-layout.md"
+  },
+  {
+    "id": "QLT-005",
+    "category": "quality-gates",
+    "tags": [
+      "确定性",
+      "随机",
+      "复现"
+    ],
+    "capabilities": [
+      "禁止运行时随机",
+      "要求固定种子",
+      "复核帧级稳定"
+    ],
+    "summary": "要求所有抖动、粒子、列表乱序和相机漂移都来自可复现种子或确定性函数。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "MOT-007"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-deterministic-rendering.md"
+  },
+  {
+    "id": "STY-010",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Visual",
+      "Language",
+      "Grows",
+      "Product"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Extract product's font family/weights, type scale, line-height, letter-spacing, grid/spacing/alignment, border-radius, background/surface/text/emphasis/status colors, gradients, and materials from source code or computed styles BEFORE any styleframe",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-visual-language-grows-from-produc.md"
+  },
+  {
+    "id": "STY-011",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Real",
+      "Screenshots",
+      "for",
+      "Existing"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Any shot showing existing product pages MUST use real headless-browser screenshots (full-page 2x texture + per-element cutout + layout.json). Hand-built UI permitted ONLY for non-replica scenes (abstract openings, brand segments, standalone demo com",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-real-screenshots-for-existing-pag.md"
+  },
+  {
+    "id": "STY-012",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Cinematic",
+      "Feel",
+      "Not",
+      "Flashy"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Validated patterns: single-hero complete action arc (spotlight→push→hover→return), physics-metaphor acceleration (deck dealing), side-tilt camera orbit close-up, riser→impact→sparkle sound formula. Batch elements enter via motion, not per-element gl",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-cinematic-feel-from-camera-light-.md"
+  },
+  {
+    "id": "STY-013",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：One",
+      "Technique",
+      "Per",
+      "Shot"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "One animation technique (fly-in/stack/page-flip) is protagonist only ONCE per film. Duplicate shots/taglines deleted. Hold/rest budget: brand wordmark hold ≥1s (30f), batch-motion tail 0.5s stillness, opening subject action ≥3s. Historical feedback ",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-one-technique-per-shot-key-info-m.md"
+  },
+  {
+    "id": "STY-014",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Brand→Motion",
+      "Parameter",
+      "Derivation",
+      "Two-Axis"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Place brand on energy axis (low↔high — determines duration/overshoot/squash) and tone axis (serious↔playful — determines path curvature/secondary motion). Six presets from fintech (~21f no-bounce) to calm-caring (~42f symmetric). Self-check: describ",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-brand-motion-parameter-derivation.md"
+  },
+  {
+    "id": "STY-015",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Title",
+      "Entrance",
+      "—",
+      "Max"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "8 title entrance styles across two families (in-place transformation: scramble-decode, letter-drop-physics, split-flap-title, document-typewriter-reveal; assembly: split-text-stagger, drift-assembly, tracking-expand-reveal, text-on-path). Single fil",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-title-entrance-max-2-types-per-fi.md"
+  },
+  {
+    "id": "STY-016",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Typography",
+      "Card",
+      "Atomic",
+      "Rules"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Per-card extraction of typography shot parameter atoms. Each card has defined: intent, motion core, parameter table with typical values and tuning手感, known pitfalls, sound dependency, and reference implementation path.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-typography-card-atomic-rules.md"
+  },
+  {
+    "id": "STY-017",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Camera",
+      "Serves",
+      "Readability",
+      "—"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Stylized camera angles decided per-shot: narrative/emotional shots can tilt; list/stack/info-dense shots stay front-facing; text-containing card close-ups use side-horizontal angle;禁止全局一刀切.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-camera-serves-readability-no-glob.md"
+  },
+  {
+    "id": "STY-018",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Object",
+      "Close-Up",
+      "Formula",
+      "camera"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Object/asset close-up: side-tilt camera + stack to perceivable volume height + camera orbit around subject + contrast dark material background (e.g. brushed metal) + pull-back transition to main scene.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-object-close-up-formula.md"
+  },
+  {
+    "id": "STY-019",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Finale",
+      "=",
+      "Product",
+      "Launch"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Multi-feature product ending: every demonstrated feature contributes one representative element flying in from different directions →定格合影; energy pushed to全片峰值 (crane + stage light + particles). First draft always too conservative → default加码一档.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-finale-product-launch-group-photo.md"
+  },
+  {
+    "id": "STY-020",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Fly-In",
+      "Must",
+      "Land",
+      "in"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Elements flying in must embed into page layout (snap to real grid position, extend scroll flow). Floating above page = fake. Use layout.json coordinates as ground truth.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-fly-in-must-land-in-real-layout-s.md"
+  },
+  {
+    "id": "STY-021",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Document",
+      "Mock",
+      "=",
+      "Publication"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "Document/report shot mocks: native product typography filled with realistic-density fake content; sidebars, comment columns, headers complete in frame. Sticker+slogan grade = whole shot redo.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-document-mock-publication-grade.md"
+  },
+  {
+    "id": "STY-022",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "样式：Cheap",
+      "Confirmation",
+      "Artifacts",
+      "First"
+    ],
+    "capabilities": [
+      "提取产品设计令牌",
+      "约束风格生长来源",
+      "保护用户 design 优先"
+    ],
+    "summary": "One HTML/CSS comparison page + one screenshot locks全片色板/字体/光感. Shot list + design spec confirmed together in one document. Cheaper/earlier = cheaper rework.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-style-video-shotcraft-样式-cheap-confirmation-artifacts-firs.md"
+  },
+  {
+    "id": "QLT-006",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Still-Frame",
+      "Self-Check",
+      "Per",
+      "Shot"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "Every shot has 2 verification frame numbers in plan. On completion: `npx remotion still --frame=<N>`. Naked-eye check composition/穿帮/text sharpness. Archive by version in out/qa/.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-still-frame-self-check-per-shot.md"
+  },
+  {
+    "id": "QLT-009",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Aesthetic",
+      "Rules",
+      "Full",
+      "Checklist"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "All R1-R3 (rhythm), Q1-Q10 (quality), S1-S4 (sound), C1-C3 (copy), P1-P4 (process) rules must pass or have documented justified violations. Format: 'R1 ✓ / Q2 ✗(frame 340 text blurry)'.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-aesthetic-rules-full-checklist-p.md"
+  },
+  {
+    "id": "QLT-010",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Feature",
+      "Checklist",
+      "→",
+      "Shot"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "Before storyboarding: list all product features. Every feature must have a corresponding shot. Scan for duplicate techniques and duplicate information — dedup before implementation.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-feature-checklist-shot-1-1-mappi.md"
+  },
+  {
+    "id": "QLT-011",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Beat-Sync",
+      "Post-Render回测"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "Extract audio from rendered mp4, re-fit beat grid, compare designed vs measured cut frame numbers. All errors ≤3f (perceptual threshold), ideal ≤1.5f. Any >3f → fix and re-render.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-beat-sync-post-render回测.md"
+  },
+  {
+    "id": "QLT-012",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Deterministic",
+      "Rendering"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "No Date.now() / Math.random() / parameterless new Date(). All pseudo-randomness uses fixed seed (mulberry32/hash, seed from index). Frame-to-frame reproducible, zero render-to-render jitter.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-deterministic-rendering.md"
+  },
+  {
+    "id": "QLT-013",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Demo",
+      "Code",
+      "Must",
+      "Be"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "Shot cards = semantics + parameter tables. demos/<card>/ source code = tuned parameter truth (easing, timing ratios, mask timing, known-pitfall workarounds). Writing fresh = discarding all tuning. Card's命门 parameters不得降档.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-demo-source-code-must-be-read-be.md"
+  },
+  {
+    "id": "QLT-014",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：PageCam",
+      "Foundation",
+      "+",
+      "3D"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "All real-page shots use PageCam: 2x full-page texture + keyframed 2.5D camera + page-space overlay. 3D text: CSS zoom (layout-level) NOT transform:scale. Texture source ≥2x display size is floor; hero elements get separate 4x screenshots crossfaded ",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-pagecam-foundation-3d-text-resol.md"
+  },
+  {
+    "id": "QLT-015",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "质量门：Reference",
+      "Footage",
+      "→",
+      "Motion"
+    ],
+    "capabilities": [
+      "增加验收问题",
+      "拦截不可读画面",
+      "要求抽帧自检"
+    ],
+    "summary": "Reference footage: ffmpeg extract ~100 frames + contact sheet → break down every animation/transition/effect → 'technique｜reference｜adopt/decline' table in spec. Selective adaptation only. Image references = 'a type of shot' feel, NOT whole-film sty",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-quality-video-shotcraft-质量门-reference-footage-motion-breakdo.md"
+  },
+  {
+    "id": "CPT-011",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：page-cam-2d5"
+    ],
+    "capabilities": [
+      "3D mode requires CSS zoom rasterization path verification on target brows",
+      "3D mode: verify CSS zoom rasterization path on target browser (Chromium s",
+      "DOF band must not clip content at page boundaries"
+    ],
+    "summary": "2.5D camera over full-page screenshots with flat pan/zoom and 3D tilt (rotX/rotY/rotZ + perspective). Keyframe-based interpolation with easing and DOF approximation via gradient blur band.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-page-cam-2d5.md"
+  },
+  {
+    "id": "CPT-012",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：digit-roll"
+    ],
+    "capabilities": [
+      "fontVariantNumeric: tabular-nums mandatory — non-monospace fonts cause ho",
+      "tabular-nums enforced — non-monospace fonts cause horizontal jitter",
+      "Digit strip height = fontSize * 1.15 * 20 (10 digits × 2 copies)"
+    ],
+    "summary": "Odometer-style digit column roll for monospace numerals. Each digit column scrolls through 0-9 strip, landing on target with bezier easing. Non-digit characters pass through unchanged.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-digit-roll.md"
+  },
+  {
+    "id": "CPT-013",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：vertical-ticker"
+    ],
+    "capabilities": [
+      "No repeat: -1 — use finite repeat count with explicit total. Column items",
+      "Seamless loop: -50% translateY must exactly equal single-copy height",
+      "No repeat: -1 — use repeat: N where N covers composition duration"
+    ],
+    "summary": "Multi-column 3D perspective infinite vertical scroll wall. Each column scrolls independently with seamless looping (items doubled, translateY 0→-50% modulo). Configurable tilt, perspective, scale, column width, gap, and fade masks.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-vertical-ticker.md"
+  },
+  {
+    "id": "CPT-014",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：flash-cut"
+    ],
+    "capabilities": [
+      "Peak opacity 0.85 max — full white flash obscures too much. Duration 8-12",
+      "Peak opacity 0.85 max — full white flash obscures too much",
+      "Duration 8-12 frames — longer reads as fade-to-white"
+    ],
+    "summary": "Warm-white radial bloom that flashes over a hard cut. Single radial gradient with opacity ramp. Duration 8-12 frames, peak opacity 0.85.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-flash-cut.md"
+  },
+  {
+    "id": "CPT-015",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：caption-strip"
+    ],
+    "capabilities": [
+      "In duration 8f, out duration 8f — minimum readability window. Mono font s",
+      "In duration 8f, out duration 8f — minimum readability window",
+      "Mono font stack with fallback chain"
+    ],
+    "summary": "Bottom-screen mono caption strip with amber square bullet. Fade+rise in over 8 frames, fade out over last 8 frames.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-caption-strip.md"
+  },
+  {
+    "id": "CPT-016",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：flat-panel-3d"
+    ],
+    "capabilities": [
+      "Can be approximated with CSS rotateX(-90deg) + perspective for 2D texture",
+      "Flat panel can be approximated with CSS rotateX(-90deg) + perspective for",
+      "For true 3D scenes, HyperFrames needs a Three.js adapter contract"
+    ],
+    "summary": "Paper card lying flat on a desk surface using Three.js (MeshStandardMaterial, planeGeometry, CanvasTexture for shadow). Depends on three + @react-three/fiber + @remotion/three.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-flat-panel-3d.md"
+  },
+  {
+    "id": "CPT-017",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：whip-pan-real"
+    ],
+    "capabilities": [
+      "Peak velocity ≥300px/f — slower makes the whip read as a slow pan. Both s",
+      "Peak velocity ≥300px/f — slower makes the 'whip' read as a slow pan",
+      "Both scenes on same y-level in page space — vertical offset breaks contin"
+    ],
+    "summary": "Fast horizontal whip pan between two page sections. Uses CameraMotionBlur for motion blur during 8f swing. 2880px travel in 8f (~540px/f peak).",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-whip-pan-real.md"
+  },
+  {
+    "id": "CPT-018",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：whip-brake-real"
+    ],
+    "capabilities": [
+      "Speed ratio ≥4:1 (fast:slow) — less makes the brake imperceptible. Target",
+      "Speed ratio ≥4:1 (fast:slow) — less makes the brake imperceptible",
+      "Target card uses high-res texture (2x minimum)"
+    ],
+    "summary": "Horizontal card rail: 9 cards whip past, then brake into target card with long ease-out tail. Two-speed motion: 70% distance in 12f (blurred), 30% in 48f (sharp tail).",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-whip-brake-real.md"
+  },
+  {
+    "id": "CPT-019",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：mask-wipe-real"
+    ],
+    "capabilities": [
+      "Inner scale must exactly compensate outer expansion: innerScale = 1/outer",
+      "Card initial position must match pixel-exact texture coordinate from layo",
+      "Card face opacity must reach 0 before inner scene becomes fully readable"
+    ],
+    "summary": "Card on a page enlarges to full screen, revealing a new scene inside it. Card face fades out as it grows, exposing the detail view within. Reverse-scale compensation keeps inner content stable.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-mask-wipe-real.md"
+  },
+  {
+    "id": "CPT-020",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：portal-wipe-v2"
+    ],
+    "capabilities": [
+      "Max 2 parallax layers — 3+ layers with heavy spread was the v1 failure. N",
+      "Max 2 parallax layers — 3+ layers with heavy spread was the v1 failure",
+      "No blur on inner layers — blur killed readability in v1"
+    ],
+    "summary": "Card enlarges into a window revealing a new scene with parallax layers inside. Two depth layers (far background at 0.08 spread, near cards at 0.3 spread) create dimensional entry. No blur — readability was the key fix from v1.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-portal-wipe-v2.md"
+  },
+  {
+    "id": "CPT-021",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components"
+    ],
+    "capabilities": [
+      "pathLength={1} on all paths — no getTotalLength() needed. All letters sha",
+      "pathLength={1} on all paths — no getTotalLength() needed",
+      "All letters share same start/duration — per-character stagger was v2 mist"
+    ],
+    "summary": "Word drawn letter-by-letter via SVG strokeDasharray/strokeDashoffset. All letters start and finish simultaneously. Dark gradient background with horizon light band. Glow pulse on completion.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-letterspace-materialize.md"
+  },
+  {
+    "id": "CPT-022",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components"
+    ],
+    "capabilities": [
+      "Both versions must be same layout, same camera angle — different layout r",
+      "Before version: real old state, not artificially degraded",
+      "Slow scrub end at 40%, not 0% — keep some 'after' visible"
+    ],
+    "summary": "Two versions of same screen (before/after AI processing) stacked with vertical divider handle. Handle whips fast 8%→70%, rebounds to 70%, then slowly scrubs back to 40%. Speed contrast (~5:1) is the rhythm.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-before-after-slider-scrub.md"
+  },
+  {
+    "id": "CPT-023",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components"
+    ],
+    "capabilities": [
+      "Background dim must not go fully black — context must persist. Palette en",
+      "Background dim must not go fully black — context must persist",
+      "Palette entry must have overshoot — no bounce = no ritual"
+    ],
+    "summary": "⌘K palette ritual: background dims + blurs, palette drops from above with overshoot bounce, candidate rows stagger-enter, typing narrows the list. Collapse uses height→0 (not fade) for squeeze feel.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-command-palette-summon.md"
+  },
+  {
+    "id": "CPT-024",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：ai-stream-response"
+    ],
+    "capabilities": [
+      "Summary must be fully readable before first evidence row starts (≥12f gap",
+      "Summary must be fully readable before first evidence row starts (≥12f gap)",
+      "Row stagger intervals must tighten (11→5f), not remain uniform"
+    ],
+    "summary": "AI response panel: summary appears first (readable), then 6-8 evidence rows stream in from below with status icons lagging 2-4f behind. Completion pulse on panel, then ≥15f hold.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-ai-stream-response.md"
+  },
+  {
+    "id": "CPT-025",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：chart-live-moves"
+    ],
+    "capabilities": [
+      "Oscilloscope: waveform must be deterministic (pure function, no random). ",
+      "Oscilloscope: waveform must be deterministic (pure function, no random)",
+      "Oscilloscope: spike event must be singular — repeated spikes = cheap"
+    ],
+    "summary": "Three data visualization motion sub-components: (a) Oscilloscope Stream — real-time waveform with spike event; (b) Unit Dot Swarm Regroup — 320 dots scatter→cluster→bars→digit matrix; (c) Axis Rescale Shock — line chart burst above boundary triggers",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-chart-live-moves.md"
+  },
+  {
+    "id": "CPT-026",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：gauge-readout-moves"
+    ],
+    "capabilities": [
+      "Needle Sweep: full arc sweep required — stopping at real value = no self-",
+      "Needle: full arc sweep required — stopping at real value = no self-test r",
+      "Needle: overshoot 5-8° on return — no overshoot = digital readout, not me"
+    ],
+    "summary": "Two dashboard instrumentation sub-components: (a) Needle Sweep Self-Test — gauge needles sweep full 270° arc then fall back to real value with overshoot bounce; (b) Tape Scroll Fixed Pointer — aircraft airspeed tape scrolls past fixed pointer with s",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-gauge-readout-moves.md"
+  },
+  {
+    "id": "CPT-027",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：timeline-travel"
+    ],
+    "capabilities": [
+      "Velocity curve must have distinct acceleration phase — uniform = boring s",
+      "Marker density: 3-5 major markers + minor tick marks (tick marks = speed ",
+      "Card pop must start 6f before camera arrives — late pop = audience misses"
+    ],
+    "summary": "Horizontal timeline axis: camera accelerates across version markers (v1.0, v2.0, v3.0). Cards spring-pop from axis as camera passes each marker. Ends with emergency brake + push-in on 'today'.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-timeline-travel.md"
+  },
+  {
+    "id": "CPT-028",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：integration-hub-map"
+    ],
+    "capabilities": [
+      "Flip must be monotonic — no pause at 90° (was rejected). Side flash ≤4f t",
+      "Flip must be monotonic — no pause at 90° (was rejected)",
+      "Side flash ≤4f total — long glow platform was rejected"
+    ],
+    "summary": "Old page flips 180° (rotateY) to reveal new hub page. Five integration app icons appear simultaneously (beat 1), then five colored light pipes connect simultaneously (beat 2 — 10f after icons). Pulsing transport dashes flow through pipes continuousl",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-integration-hub-map.md"
+  },
+  {
+    "id": "CPT-029",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：paper-title-card"
+    ],
+    "capabilities": [
+      "Exactly ONE accent word per card — two accents = zero accents. Accent wor",
+      "Exactly ONE accent word per card — two accents = zero accents",
+      "Accent word must be function name or benefit word — not filler"
+    ],
+    "summary": "One-sentence chapter title: words appear sequentially with letterpress impression effect (scale 1.28→1 + blur→0 + opacity). Exactly one word gets italic + accent color + short underline that grows to close the card.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-paper-title-card.md"
+  },
+  {
+    "id": "CPT-030",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：voice-waveform-live"
+    ],
+    "capabilities": [
+      "Deterministic PRNG mandatory — Math.random() causes per-frame jitter. Spe",
+      "Deterministic PRNG mandatory — Math.random() causes per-frame jitter",
+      "Speaking and silence segments must be clearly distinct — silence must act"
+    ],
+    "summary": "64 vertical bars in a glassmorphism capsule respond to 'speaking' with waveform animation. Speaking = tall bars in center; silence = collapsed to 5px dot line. History scrolls left. Submit collapses waveform with spring.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-voice-waveform-live.md"
+  },
+  {
+    "id": "CPT-031",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：ui-strip-away-outro"
+    ],
+    "capabilities": [
+      "Layer order must be periphery→center — center first = crash, not evaporat",
+      "Each layer must be a semantically complete UI block — pixel-based slicing",
+      "Directional displacement required — pure fade = adjusting opacity, not ev"
+    ],
+    "summary": "Subtractive outro: 6 UI layers evaporate from periphery to center (4f stagger per layer), each with directional displacement. Only the clicked button survives, slides to screen center, scales 1.5×, then fades to black for wordmark takeover.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-ui-strip-away-outro.md"
+  },
+  {
+    "id": "CPT-032",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：ui-to-brand-morph"
+    ],
+    "capabilities": [
+      "Icon Flip: entity swap must occur at scaleX ≤ 0.05. Anticipation tilts mu",
+      "Icon Flip: entity swap must occur at scaleX ≤ 0.05 — earlier swap = ghost",
+      "Icon Flip: anticipation tilts must increase in amplitude — single tilt = "
+    ],
+    "summary": "Two brand/logo animation sub-components: (a) Icon Flip Bloom — product icon rocks in anticipation, flattens on Y-axis, entity-swaps at thinnest moment, blooms into 5-petal flower mark via spring; (b) Input Morph Assemble — cursor types in input, tex",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-ui-to-brand-morph.md"
+  },
+  {
+    "id": "CPT-033",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：card-flip-reveal"
+    ],
+    "capabilities": [
+      "Flip duration: 18f + 8f settle — <14f loses side-edge moment, >28f is a s",
+      "Overshoot 12° required — <8° imperceptible (was bumped from 8° to 12°)",
+      "Side highlight must peak exactly at 90° — offset = visual bug"
+    ],
+    "summary": "Function cards flip 180° on Y-axis: front = feature UI, back = big result number. 18f flip with 12° overshoot (192°→180°), 8f settle. Side-edge highlight sweeps with rotation angle, peaking at 90°. 3 cards staggered 10f apart.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-card-flip-reveal.md"
+  },
+  {
+    "id": "CPT-034",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components"
+    ],
+    "capabilities": [
+      "fontVariantNumeric: tabular-nums mandatory. Max 6 digits (including decim",
+      "fontVariantNumeric: tabular-nums mandatory — proportional digits jitter p",
+      "Max 6 digits (including decimal) — each extra digit adds 7f stagger"
+    ],
+    "summary": "Full-screen giant odometer: each digit is a vertical strip of 0-9, rolling independently left-to-right with staggered lock-in. Each digit overshoots +0.5 row then bounces back to integer. Two ghost copies create motion blur trails during roll. Final",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-odometer-digit-roll-fullscreen.md"
+  },
+  {
+    "id": "CPT-035",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：draw-svg-trace"
+    ],
+    "capabilities": [
+      "pathLength={1} — no getTotalLength() needed. Pen tip must be visibly thic",
+      "pathLength={1} — no getTotalLength() needed",
+      "Pen tip must be visibly thicker than trace line — otherwise disappears"
+    ],
+    "summary": "Visible pen tip traces an element's outline, 'drawing' it into existence. Uses SVG strokeDasharray/strokeDashoffset with pathLength={1}. Pen tip is a thicker short dash riding ahead of the main stroke. Closure flash (2f black+thick) then hands off t",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-draw-svg-trace.md"
+  },
+  {
+    "id": "CPT-036",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：typewriter-moves"
+    ],
+    "capabilities": [
+      "Terminal: character rate 2f/char, substring-based (frame-determinate). Cu",
+      "Terminal: character rate 2f/char, substring-based (frame-determinate, no ",
+      "Terminal: cursor block style, square-wave blink — fade cursor = webpage, "
+    ],
+    "summary": "Two narrative text entrance sub-components: (a) Terminal Typewriter — command typed 2f/char in dark terminal, camera slams into command line (scale 1→3.2) then hard cut to product dashboard; (b) Error Retype — three-act drama of type→pause→backspace",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-typewriter-moves.md"
+  },
+  {
+    "id": "CPT-037",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components"
+    ],
+    "capabilities": [
+      "Reveal mask: width 100%→0, bezier easing, caret 2px only on newest block.",
+      "Reveal mask: width 100%→0, bezier easing, caret 2px only on newest block",
+      "Block pairing: 20 blocks in pairs, cue = 6 + g*3.5, each wipe 8f"
+    ],
+    "summary": "Full-page real document 'writes itself' behind a caret: content blocks revealed in pairs by shrinking a right-anchored color mask. @-mentions grow accent backgrounds after reveal. Dual sidebar columns enter via top→bottom color patches with hairline",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-document-typewriter-reveal.md"
+  },
+  {
+    "id": "CPT-038",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：split-flap-title"
+    ],
+    "capabilities": [
+      "Easing.in(quad) on drop — gravity feel; linear = electronic, not mechanic",
+      "3 flips per cell minimum — <2 = no 'searching' feel",
+      "Stagger 4f — tighter = simultaneous wave lost, looser = tail characters w"
+    ],
+    "summary": "Airport split-flap display: each character in a dark mechanical cell flips through 2 random glyphs before landing on target. Upper half drops (rotateX 0→-90, brightness dims), lower half slaps down (90→0, brightness restores). 5f per flip, 3 flips p",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-split-flap-title.md"
+  },
+  {
+    "id": "CPT-039",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：transition-travel"
+    ],
+    "capabilities": [
+      "Shared Element: all properties (x, y, w, h, r) must share one progress cu",
+      "Shared Element: content must render at target slot dimensions, then scale",
+      "Shared Element: shadow must converge: from 0/36/110/0.32 to 0/2/8/0.06"
+    ],
+    "summary": "Two spatial navigation sub-components: (a) Shared Element Morph — detail card shrinks/translates/rounds corners to fly back into dashboard grid slot, single bezier drives all properties simultaneously; (b) Letterform Zoom — giant title with SVG mask",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-transition-travel.md"
+  },
+  {
+    "id": "CPT-040",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "组件：scroll-brake-moves"
+    ],
+    "capabilities": [
+      "Changelog: blur must be velocity-driven (|pos(f) - pos(f-1)| × coeff) — h",
+      "Changelog: deceleration out-exp curve — uniform = marquee text",
+      "Changelog: stop position — target row exactly at vertical center"
+    ],
+    "summary": "Two scroll/brake sub-components: (a) Changelog Scroll Brake — long list scrolls at high speed with velocity-driven blur, exponentially decelerates to stop on featured entry; (b) Brake Reticle Lock — same scroll brake with 4 L-shaped corner brackets ",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-component-video-shotcraft-组件-scroll-brake-moves.md"
+  },
+  {
+    "id": "CPS-006",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Blur amount = |position(frame) - position(frame-1)| × coefficient",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-frame-determinate-velocity-blur.md"
+  },
+  {
+    "id": "CPS-007",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Array of {frame, cx, cy, zoom, rotX?, rotY?, rotZ?, persp?} keyframes; find enclosing segment, interpolate with easing",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-keyframe-segment-interpolation.md"
+  },
+  {
+    "id": "CPS-008",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Double content, translateY(0 → -50%) modulo loop. marginBottom instead of flex gap to ensure exact -50% = one copy height.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-seamless-translate-y-loop.md"
+  },
+  {
+    "id": "CPS-009",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Outer container scales up → inner content scales down by reciprocal → net visual size of inner content stays stable",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-reverse-scale-compensation.md"
+  },
+  {
+    "id": "CPS-010",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Beat 1: all N elements appear same frame. Beat 2: +10f, all M elements appear same frame. No stagger within beats.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-two-beat-simultaneity-ritual.md"
+  },
+  {
+    "id": "CPS-011",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "N ghost copies of moving element, each offset by ±N×step, opacity decreasing. Visibility gated by velocity threshold — auto-remove when stopped.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-velocity-gated-ghost-trails.md"
+  },
+  {
+    "id": "CPS-012",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Target value → overshoot by 5-12° / 0.5row / 8px → spring/ease back to target",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-overshoot-settle-pattern.md"
+  },
+  {
+    "id": "CPS-013",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "2-3 layers at same origin, each with scale(1 + progress × coeff) where coeff differs (near=0.3, far=0.08). No blur on layers.",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-parallax-depth-layering.md"
+  },
+  {
+    "id": "CPS-014",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "N items, each starts base + i × stagger frames after previous. Stagger can tighten (11→5f) or stay uniform (4f).",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-staggered-cascade-timing.md"
+  },
+  {
+    "id": "CPS-015",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing"
+    ],
+    "capabilities": [
+      "提供合成约束",
+      "约束层级和时机",
+      "支持抽帧验收"
+    ],
+    "summary": "Source content fades 0→1 while destination fades 1→0, with a deliberate gap (no simultaneous visibility) or deliberate overlap (brief dual visibility)",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-compositing-video-shotcraft-合成-cross-fade-handoff-window.md"
+  },
+  {
+    "id": "MOT-008",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：axial-stretch",
+      "body-deformation"
+    ],
+    "capabilities": [
+      "拉伸量由速度差分驱动 v=posAt(f)-posAt(f-1)，非固定值",
+      "与 CameraMotionBlur 不叠加——拉伸是身体的事，blur 是相机的事",
+      "与 smear-multiples 不混用——那是离散残像，这是连续拉伸"
+    ],
+    "summary": "速度差分驱动轴向拉伸——高速入场元素沿运动轴拉长（糖稀拉丝），落点压扁回弹收正",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-axial-stretch.md"
+  },
+  {
+    "id": "MOT-009",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：smear-multiples",
+      "ghost-trail"
+    ],
+    "capabilities": [
+      "仅在本体速度 > 25px/f 时可见（speedGate）",
+      "分身 opacity 阶梯递减 [0.45, 0.30, 0.18, 0.09]",
+      "落位合拢期 delay 收缩到 0 + opacity 归零"
+    ],
+    "summary": "高速横移时身后拖 4 个可数的半透明完整分身，每个分身=本体在 frame-k*2 时刻的位置",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-smear-multiples.md"
+  },
+  {
+    "id": "MOT-010",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：sakuga-timing-shift",
+      "frame-rate-modulation"
+    ],
+    "capabilities": [
+      "一拍三驱动帧 q = floor(f/3)*3，位置在 3 帧内冻结",
+      "切换点后用原始 f 连续驱动 + out-poly(4) 高初速冲刺",
+      "切换瞬间角标弹一下 pop 1→1.35→1"
+    ],
+    "summary": "一拍三（10fps 顿挫）→ 一拍一（30fps 丝滑）的节奏切换，用帧率切换本身当叙事转折",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-sakuga-timing-shift.md"
+  },
+  {
+    "id": "MOT-011",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：speed-ramp",
+      "time-remapping"
+    ],
+    "capabilities": [
+      "remap 斜率 = 速度倍率",
+      "快段 2.2x → 慢段 0.2x → 快段 2.2x",
+      "慢速窗中目标卡用高清纹理"
+    ],
+    "summary": "帧号→源帧 remap 实现快→慢→快三段变速，慢速段 0.2x 当展示窗，快段包 blur 慢段不包",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-speed-ramp.md"
+  },
+  {
+    "id": "MOT-012",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：freeze-annotate",
+      "time-remapping"
+    ],
+    "capabilities": [
+      "remap 中段斜率严格=0（定格）",
+      "圈注用 SVG stroke-dasharray + stroke-dashoffset 生长",
+      "feTurbulence baseFrequency=0.02 scale=7 造手绘抖动"
+    ],
+    "summary": "运动中定格画面（remap 中段斜率=0），叠 feTurbulence 手绘圈注+箭头点题，解冻继续",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-freeze-annotate.md"
+  },
+  {
+    "id": "MOT-013",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "particle-system"
+    ],
+    "capabilities": [
+      "decay=0.9 闭式解，位移 = v0*(1-decay^age)/(1-decay)",
+      "初速 70–95 px/f，spread 55°",
+      "灰阶为主 + 1/3 琥珀点缀"
+    ],
+    "summary": "双侧炮口各射 50 颗矩形彩屑——闭式弹道（初速+spread+重力+decay），交叉喷洒过中央卡",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-particle-confetti-crossfire.md"
+  },
+  {
+    "id": "MOT-014",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：particle-sand-fill",
+      "particle-system"
+    ],
+    "capabilities": [
+      "堆积高度闭式预解析（第 k 层顶面 = 基线 - (k+1)*粒径），无真碰撞",
+      "各柱错峰 6f 启动",
+      "末颗落地后 solidOp 从 0→1 完成交接，solidOp=1 时粒子面条件卸载"
+    ],
+    "summary": "图表柱从上方下雨填满——方点错峰坠落（重力加速），触堆积面即停+15%回弹，逐层堆高",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-particle-sand-fill.md"
+  },
+  {
+    "id": "MOT-015",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：impact-burst-kit",
+      "impact-feedback"
+    ],
+    "capabilities": [
+      "四件事全部锁死同一落点帧 IMPACT=20",
+      "环前沿到达邻卡中心的帧（落点后 3f）才是邻卡被推开的触发帧",
+      "震屏 4f 6px 指数衰减"
+    ],
+    "summary": "主卡砸落瞬间同时触发冲击波环+14 粒子迸发+震屏+邻卡推开回弹——四件事同帧起爆",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-impact-burst-kit.md"
+  },
+  {
+    "id": "MOT-016",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：line-boil",
+      "texture"
+    ],
+    "capabilities": [
+      "寄生型——沸腾段随宿主 hold 长度",
+      "每 4 帧换一次 seed（阶梯跳变），位移幅度 7px/7px/3°",
+      "f=108 后冻结保证结尾真静止"
+    ],
+    "summary": "hold 期间文字/描边轮廓每 3-4 帧轻微扭动——手绘动画 hold 帧的百年惯例，静止画面保持活着",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-line-boil.md"
+  },
+  {
+    "id": "MOT-017",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "body-deformation"
+    ],
+    "capabilities": [
+      "squash 3f + stretch 3f 总共 6f 内收完",
+      "最长边缩放 ≤ 1.1",
+      "transformOrigin 在接触面（通常是 bottom center）"
+    ],
+    "summary": "元素落位瞬间 scaleX>1 + scaleY<1（压扁），6f 内回弹收正——给落位一个物理重量",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-squash-and-stretch-landing.md"
+  },
+  {
+    "id": "MOT-018",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：float-wrap-shadow",
+      "3d-spatial"
+    ],
+    "capabilities": [
+      "影子用真实 DOM 内容复制渲染（不是 box-shadow）",
+      "位移 h*0.24 水平 + h*0.46 垂直",
+      "缩放 1 + h*0.0009"
+    ],
+    "summary": "文字悬浮在 3D 界面上方时，向下方投射同形软影——位置/缩放/模糊/透明度随悬浮高度连续变化",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-float-wrap-shadow.md"
+  },
+  {
+    "id": "MOT-019",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "动作：damped-oscillation",
+      "physics"
+    ],
+    "capabilities": [
+      "包络 cos(t*0.5)*exp(-t/8)，40f 钳到 0",
+      "禁用弹簧库的迭代求解——闭式解保证帧确定",
+      "exp(-damping*t) 保证永不发散"
+    ],
+    "summary": "冲击后元素弹簧回弹——闭式阻尼正弦 exp(-damp*t)*sin(2π*freq*t)，帧确定且可控",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-motion-video-shotcraft-动作-damped-oscillation.md"
+  },
+  {
+    "id": "MOT-020",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：whip-pan",
+      "transition",
+      "shot-transition"
+    ],
+    "capabilities": [
+      "甩动 8f（峰值 ~540px/f），easing bezier(0.6, 0, 0.4, 1)",
+      "CameraMotionBlur shutterAngle=200 samples=20",
+      "前后 hold ≥35f 建立 + ≥77f 阅读"
+    ],
+    "summary": "相机 8f 甩 2880px——blur 包甩动段，A/B 两景横向并排，切点藏在模糊峰值",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-whip-pan.md"
+  },
+  {
+    "id": "MOT-021",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：whip-brake",
+      "transition",
+      "shot-transition"
+    ],
+    "capabilities": [
+      "三段关键帧 [30, 42, 90] → 位移 [0, END*0.7, END]",
+      "峰值 ~710px/f",
+      "目标卡单独高清纹理覆盖原位"
+    ],
+    "summary": "前 70% 路程 12f 全速甩→后 30% 路程 48f ease-out 长尾滑入，急刹停在目标卡正前方",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-whip-brake.md"
+  },
+  {
+    "id": "MOT-022",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：mask-wipe",
+      "transition",
+      "shot-transition"
+    ],
+    "capabilities": [
+      "卡片初始几何从 layout.json 取真实坐标",
+      "窗放大 45f bezier(0.5, 0, 0.2, 1)",
+      "窗内 innerScale 从 0.42 反向长到 1"
+    ],
+    "summary": "前景卡片放大成全屏窗口——卡片自身即转场遮罩，窗内新景反向补偿放大透视",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-mask-wipe.md"
+  },
+  {
+    "id": "MOT-023",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：portal-wipe",
+      "transition",
+      "shot-transition"
+    ],
+    "capabilities": [
+      "窗放大 easing bezier(0.7, 0, 0.3, 1) 先慢后快",
+      "散开系数 近景 0.3 / 远景 0.08",
+      "窗内只 2 层，不加 blur"
+    ],
+    "summary": "卡片放大成全屏窗——窗内新场景分远景/近景两层视差散开——穿窗入景",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-portal-wipe.md"
+  },
+  {
+    "id": "MOT-024",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：blinds-slice",
+      "transition",
+      "wipe"
+    ],
+    "capabilities": [
+      "条数=1920/160=12，错峰=列号×2f，翻换 10f in-cubic",
+      "A/B 宽度和恒等于条宽——数学上无露底",
+      "白底亮线必须叠加深色描边（三层结构）"
+    ],
+    "summary": "12 根竖条从左到右错峰翻换（A→B），缝上亮线三层（柔光+暗描边+白核）随波扫过",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-blinds-slice.md"
+  },
+  {
+    "id": "MOT-025",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：clock-wipe",
+      "transition",
+      "wipe"
+    ],
+    "capabilities": [
+      "72 段 polygon——顶点固定且够密防锯齿",
+      "扫描 linear 匀速（雷达感）",
+      "白底亮线同 T5 三层规则"
+    ],
+    "summary": "雷达指针从 12 点顺时针扫一圈（60f linear），B 页扇形 clip-path 逐帧张开",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-clock-wipe.md"
+  },
+  {
+    "id": "MOT-026",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：ink-bleed-reveal",
+      "transition",
+      "print-texture"
+    ],
+    "capabilities": [
+      "filter 只挂在 mask 的圆上——揉的是遮罩边，不是画面内容",
+      "半径 0→1450px out-quad 78f + ±8% 正弦扰动",
+      "displacement scale 60→160 增长（越洇越散）"
+    ],
+    "summary": "旧景被新景以水墨洇开方式吞没——feTurbulence+feDisplacementMap 造须状渗边，filter 只作用在 mask 形状上",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-ink-bleed-reveal.md"
+  },
+  {
+    "id": "MOT-027",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：barn-door-split",
+      "transition",
+      "page-turn"
+    ],
+    "capabilities": [
+      "右半内层 translateX(-960) 对位拼合保证无缝",
+      "滑出 0→980px 20f in-cubic 加速离场",
+      "裂前中缝细线两次闪现预告裂点"
+    ],
+    "summary": "旧景从正中垂直裂成左右两半各自加速滑出，底层新景从 scale 1.06 轻推迎上",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-barn-door-split.md"
+  },
+  {
+    "id": "MOT-028",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：glitch-displace",
+      "transition",
+      "tear-streak"
+    ],
+    "capabilities": [
+      "幅度包络：起势 out-cubic + 消散线性",
+      "底垫完整页防条带间露底色缝",
+      "重影用 brightness(0.45) 压暗 + invert(1) 反相代替 RGB 分离"
+    ],
+    "summary": "页面切 16 条水平条带 ±70px 抖动 + 2 份明暗错位重影（+12px 暗/-12px 反相），58f 抖动中硬切到新景",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-glitch-displace.md"
+  },
+  {
+    "id": "MOT-029",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：drop-blackout-slam",
+      "transition",
+      "montage-rhythm"
+    ],
+    "capabilities": [
+      "黑场=纯 #0c0c0c 12f 屏上完全无物",
+      "爆入 title scale 1.35→1.0 5f cubic out",
+      "震屏 10px τ≈2.5f 指数衰减"
+    ],
+    "summary": "正常播放→12f 纯黑死寂（蓄力）→大标题撞入+震屏+亮环扩散→全静止",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-drop-blackout-slam.md"
+  },
+  {
+    "id": "MOT-030",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：line-carry",
+      "transition",
+      "continuous-draw"
+    ],
+    "capabilities": [
+      "线的身份要有叙事逻辑（进度条走完了所以延伸）",
+      "线从 A 元素末端连续生长（不是新画一条）",
+      "横移距离 1920px（一屏）"
+    ],
+    "summary": "场景 A 的进度条延伸出画→镜头跟线横移→线在移动中拐角围出场景 B 的卡框——全程无剪切",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-line-carry.md"
+  },
+  {
+    "id": "MOT-031",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "转场：bubble-swarm-takeover",
+      "transition",
+      "swarm-curtain"
+    ],
+    "capabilities": [
+      "6 颗巨型气泡按网格钉落点兜底（保证峰值真遮满）",
+      "洗白层压在页面与气泡之间",
+      "峰值必须真遮满，不靠随机群碰运气"
+    ],
+    "summary": "一群品牌实体飘入涨大遮满全屏→页面同步洗白→遮蔽峰值藏硬切→散开后已是新场景",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-transition-video-shotcraft-转场-bubble-swarm-takeover.md"
+  },
+  {
+    "id": "MOT-032",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：crash-zoom",
+      "camera",
+      "punch-in"
+    ],
+    "capabilities": [
+      "easing bezier(0.55, 0, 0.7, 1) 中间快",
+      "对准点从屏心滑到目标卡中心",
+      "目标卡高清纹理覆盖原位"
+    ],
+    "summary": "全景 6f 急推 1→2.6x + 过冲回弹 2.45——blur 只包急推段",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-crash-zoom.md"
+  },
+  {
+    "id": "MOT-033",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：crash-impact",
+      "camera",
+      "punch-in"
+    ],
+    "capabilities": [
+      "zoom 1→2.5（无回弹段）",
+      "震屏 14*exp(-t/1.8)*sin(t*3.3)",
+      "blur 只包急推段，震屏段保持清晰"
+    ],
+    "summary": "同 crash zoom 急推但落位不回弹——撞停震屏 14px 指数衰减 6f",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-crash-impact.md"
+  },
+  {
+    "id": "MOT-034",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：crane-rise",
+      "camera",
+      "reveal"
+    ],
+    "capabilities": [
+      "相机联动公式 translate = 屏幕中心 - 对准点*scale",
+      "scale 3.2→1 out-quad 100f",
+      "视野上缘越过行顶边时该行深色脉冲一拍"
+    ],
+    "summary": "开场从底行数据特写（scale 3.2）沿 Y 轴减速升起后拉（scale→1），行行涌入直到整面铺满",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-crane-rise.md"
+  },
+  {
+    "id": "MOT-035",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：drone-dive-landing",
+      "camera",
+      "space"
+    ],
+    "capabilities": [
+      "主俯冲 25f in-cubic + 气垫 20f out-quint",
+      "三轴联动——rotateX/scale/translate 同一 p 驱动",
+      "hero 卡当 transformOrigin"
+    ],
+    "summary": "上帝视角俯视整页（rotateX 72°）猛扎下来——俯角抬平、页面放大立正，气垫式长尾减速",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-drone-dive-landing.md"
+  },
+  {
+    "id": "MOT-036",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "camera",
+      "overhead"
+    ],
+    "capabilities": [
+      "横滑 inOut-cubic 55f，骤降 out-cubic 30f+过冲回弹",
+      "卡片 FakeDashboard 缩到 INNER=0.5185 铺满卡内",
+      "骤降 scale 先冲到 2.04（+2% 过冲）再回 2.0"
+    ],
+    "summary": "三张页面卡 rotateX(62°) 平躺桌面上横滑，再骤降扎入——rotateX 62→0 + scale 1→2.04→2.0",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-overhead-tabletop-drop.md"
+  },
+  {
+    "id": "MOT-037",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：tilt-reveal",
+      "camera",
+      "overhead"
+    ],
+    "capabilities": [
+      "rotateX -80→+2.6→-0.9→0 四段，transformOrigin 上缘",
+      "perspective 600→1200 配合视距变化",
+      "scale 3.2→1 同步缩小"
+    ],
+    "summary": "开场俯视 rotateX -80°（只露顶栏），机位抬头回正——内容一排排从地平线升起",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-tilt-reveal.md"
+  },
+  {
+    "id": "MOT-038",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：snorricam-lock",
+      "camera",
+      "space"
+    ],
+    "capabilities": [
+      "分段关键帧插值每段独立 easing——衔接处速度不连续也无妨",
+      "背景 x 位移三段带过冲 bezier + 翻滚 -6°→8°→-3° + zoom 呼吸",
+      "狂奔期手持微颤 sin 哈希 + 包络首尾归零"
+    ],
+    "summary": "KPI 卡片焊死正中纹丝不动，背后整页 dashboard 做倾斜/平移/翻滚的复合运动——卡片扛着摄影机狂奔",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-snorricam-lock.md"
+  },
+  {
+    "id": "MOT-039",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "camera",
+      "tension"
+    ],
+    "capabilities": [
+      "effFrame 双态：正常=frame，冻结=常量值",
+      "冻结区间相机用真实 frame 驱动（相机动、世界静）",
+      "环绕 easing inOut-cubic，顶点悬停 10f"
+    ],
+    "summary": "柱子生长→时钟冻结→相机绕面板 rotateY 0→55°→0 + scale 呼吸→解冻→标签浮现",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-bullet-time-freeze-orbit.md"
+  },
+  {
+    "id": "MOT-040",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：slow-push-in",
+      "camera",
+      "tension"
+    ],
+    "capabilities": [
+      "scale easing in-quad（匀加速）",
+      "暗角同步 easing（同一曲线）",
+      "120f 后无过渡硬切到亮场新景"
+    ],
+    "summary": "深色底大数字 scale 1.0→1.14（4s 匀加速），四角暗角同步加深，前 2s 几乎不可察",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-slow-push-in.md"
+  },
+  {
+    "id": "MOT-041",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：dutch-roll-to-level",
+      "camera",
+      "tension"
+    ],
+    "capabilities": [
+      "斜置期漂移 ±0.8° 长周期正弦（防静态歪图）",
+      "滚正 14f out-cubic 冲过 0 到 +1.2° + 10f 收回 0",
+      "单次过冲不振荡"
+    ],
+    "summary": "痛点时整帧 -10° 斜角悬着（叠正弦漂移），解决方案一拍滚回水平——世界被扶正",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-dutch-roll-to-level.md"
+  },
+  {
+    "id": "MOT-042",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：pull-back-isolation",
+      "camera",
+      "tension"
+    ],
+    "capabilities": [
+      "8 张兄弟卡近的先灭（30f 起每 8f 一张）",
+      "相机 out-cubic 110f",
+      "背景灰度 236→20 inOut-quad"
+    ],
+    "summary": "相机 scale 2.2→0.62（怼脸→远景），兄弟卡按距离由近到远错峰熄灭，背景变暗，主卡发光孤悬",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-pull-back-isolation.md"
+  },
+  {
+    "id": "MOT-043",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "相机：exploded-view",
+      "camera",
+      "space"
+    ],
+    "capabilities": [
+      "8 层 z 深度 60–320",
+      "炸开 easing out-back(1.7) 14f，合体 easing in-cubic 12f 逆序",
+      "每层挂假投影（随 z 浮起而下移/变虚）"
+    ],
+    "summary": "整页 dashboard 带 3D 倾斜沿 Z 轴炸开——8 层各浮到不同深度，hold 后逆序合体+震屏收口",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-camera-video-shotcraft-相机-exploded-view.md"
+  },
+  {
+    "id": "CPT-041",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：3D",
+      "翻面揭示：卡片正反两面承载因果对",
+      "翻面动作本身即语义转换"
+    ],
+    "capabilities": [
+      "正反两面必须语义成对（界面→成果），翻出无关内容即花哨换图",
+      "过冲 12° 回落 180°，无过冲读作生硬停表",
+      "全片 ≤2 种翻面方向（入场 rotateX / 揭示 rotateY）"
+    ],
+    "summary": "3D 翻面揭示：卡片正反两面承载因果对，翻面动作本身即语义转换",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-3d-翻面揭示-卡片正反两面承载因果对-翻面动作本身即语义转换.md"
+  },
+  {
+    "id": "CPT-042",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：活体图表：数据不是插图是剧情",
+      "图表自身承载叙事推进"
+    ],
+    "capabilities": [
+      "必须真图表语境（真轴标/真数据/真文案），灰阶版全裁",
+      "每种活体动作（尖峰/重标/迁徙）全片 ≤1 次",
+      "数据结尾必须真静止 ≥36f"
+    ],
+    "summary": "活体图表：数据不是插图是剧情，图表自身承载叙事推进",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-活体图表-数据不是插图是剧情-图表自身承载叙事推进.md"
+  },
+  {
+    "id": "MOT-044",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "卡片族：几何擦除转场：新旧页不动",
+      "几何边界扫过完成交接",
+      "形状即语义"
+    ],
+    "capabilities": [
+      "擦除边界必须带亮线/高光，无亮线的 wipe 读作 PPT 转场",
+      "扇形顶点 ≥40 防锯齿跳变",
+      "亮线在浅色区靠黑描边、深色区靠白核，两侧可读"
+    ],
+    "summary": "几何擦除转场：新旧页不动，几何边界扫过完成交接，形状即语义",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-几何擦除转场-新旧页不动-几何边界扫过完成交接-形状即语义.md"
+  },
+  {
+    "id": "MOT-045",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion"
+    ],
+    "capabilities": [
+      "转场必须说明它连接的语义（因果/对比/推进/空间切换）",
+      "连续两次不得使用同一转场族",
+      "技法卡不占能量位，帧数从相邻镜头预算划"
+    ],
+    "summary": "转场选型决策树：按能量落差和语义关系从交棒六式+藏切三式+穿越两式中选用",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-转场选型决策树-按能量落差和语义关系从交棒六式-藏切三式-穿越两.md"
+  },
+  {
+    "id": "CPT-043",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：标题入场选型矩阵：按调性",
+      "理性",
+      "趣味",
+      "机械"
+    ],
+    "capabilities": [
+      "全片标题入场品类 ≤2 种",
+      "逐字动画需等宽字体或固定槽宽，比例字体逐跳整行抖动",
+      "字符集不混入与真字符太像的字形（O/0）"
+    ],
+    "summary": "标题入场选型矩阵：按调性（理性/趣味/机械/手工）和能量级选用文字揭示方式",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-标题入场选型矩阵-按调性-理性-趣味-机械-手工-和能量级选用文.md"
+  },
+  {
+    "id": "MOT-046",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "含命中帧、余波、波及邻卡"
+    ],
+    "capabilities": [
+      "同帧不得叠用两种爆发型手法（爆发×爆发=过载）",
+      "撞停后必须真静止 ≥45f",
+      "全片高能砸入 ≤2 次"
+    ],
+    "summary": "打击感层级体系：从轻反馈到重砸入的能量阶梯，含命中帧、余波、波及邻卡",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-打击感层级体系-从轻反馈到重砸入的能量阶梯-含命中帧-余波-波及.md"
+  },
+  {
+    "id": "CPS-016",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing",
+      "卡片族：闭式粒子与光效基元：帧确定的弹道",
+      "光扫",
+      "辉光",
+      "免物理引擎"
+    ],
+    "capabilities": [
+      "所有粒子使用闭式弹道公式（seed 伪随机），禁 Math.random",
+      "粒子寿命耗尽条件卸载，残留粒子=脏帧",
+      "光效角色分四类：扫/擦/晕/呼吸，不混用"
+    ],
+    "summary": "闭式粒子与光效基元：帧确定的弹道/光扫/辉光，免物理引擎",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-shot-family-video-shotcraft-卡片族-闭式粒子与光效基元-帧确定的弹道-光扫-辉光-免物理引擎.md"
+  },
+  {
+    "id": "SCN-007",
+    "category": "scene-logic",
+    "tags": [
+      "video-shotcraft",
+      "scene-logic",
+      "卡片族：段落节奏语法：蓄爆",
+      "连锁",
+      "打断",
+      "频闪"
+    ],
+    "capabilities": [
+      "每段落只用一个节奏主导模式",
+      "打断型（频闪/跳切）全片 ≤2 段",
+      "变速段慢速窗 ≥40f 确保可读"
+    ],
+    "summary": "段落节奏语法：蓄爆/连锁/打断/频闪/变速五族节奏设计模式",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/vsc-shot-family-video-shotcraft-卡片族-段落节奏语法-蓄爆-连锁-打断-频闪-变速五族节奏设计模式.md"
+  },
+  {
+    "id": "MOT-047",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "卡片族：3D",
+      "运镜情绪语义：把平面页面当实体拍摄",
+      "相机替观众感受"
+    ],
+    "capabilities": [
+      "大动作运镜（爆炸分解/无人机/锁定翻滚）全片合计 ≤2 次",
+      "情绪运镜（压迫/孤立/冻结）全片 ≤2 式各 ≤1 次",
+      "所有运镜使用确定性关键帧，禁运行时随机"
+    ],
+    "summary": "3D 运镜情绪语义：把平面页面当实体拍摄，相机替观众感受",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-3d-运镜情绪语义-把平面页面当实体拍摄-相机替观众感受.md"
+  },
+  {
+    "id": "CPT-044",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：框与光的",
+      "UI",
+      "包装语法：霓虹框",
+      "聚光灯"
+    ],
+    "capabilities": [
+      "框先于内容到达，营造登场仪式感",
+      "聚光灯三式（醒睡扫过/贴边泛光/角落扩张）按页面密度选型",
+      "品牌色画框全片驻场，翻色瞬间是唯一打击点"
+    ],
+    "summary": "框与光的 UI 包装语法：霓虹框/聚光灯/品牌色画框作为页面登场和品牌露出的包装层",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-框与光的-ui-包装语法-霓虹框-聚光灯-品牌色画框作为页面登场.md"
+  },
+  {
+    "id": "CPT-045",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：批量内容入场模式：列表",
+      "瀑布墙",
+      "发牌",
+      "整墙显影的规模化信息呈现"
+    ],
+    "capabilities": [
+      "入场模式与信息密度匹配：少条目逐张入、多条目整墙显",
+      "位移型入场（飞入）与显形型入场（原位点亮）按语义选不混用",
+      "批量入场期间主阅读焦点必须可辨"
+    ],
+    "summary": "批量内容入场模式：列表/瀑布墙/发牌/整墙显影的规模化信息呈现",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-批量内容入场模式-列表-瀑布墙-发牌-整墙显影的规模化信息呈现.md"
+  },
+  {
+    "id": "SCN-008",
+    "category": "scene-logic",
+    "tags": [
+      "video-shotcraft",
+      "scene-logic",
+      "卡片族：开场"
+    ],
+    "capabilities": [
+      "开场镜能量≤全片最低点，为后续留爬升空间",
+      "收束镜需干净收尾：所有元素明确离场或定格，无残留",
+      "开场-收束首尾品牌元素需呼应（不是重复）"
+    ],
+    "summary": "开场/收束叙事结构：品牌开场→内容→品牌收束的完整影片呼吸骨架",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/vsc-shot-family-video-shotcraft-卡片族-开场-收束叙事结构-品牌开场-内容-品牌收束的完整影片呼吸骨架.md"
+  },
+  {
+    "id": "CPT-046",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：微交互特写：把",
+      "UI",
+      "微交互放大成全镜主角的界面叙事语言"
+    ],
+    "capabilities": [
+      "每个微交互必须承载完整因果链（触发→动作→结果）",
+      "微交互特写全片 ≤2 镜，不与高能入场同段",
+      "操作类需显示真实交互反馈，不能只是装饰动画"
+    ],
+    "summary": "微交互特写：把 UI 微交互放大成全镜主角的界面叙事语言",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-微交互特写-把-ui-微交互放大成全镜主角的界面叙事语言.md"
+  },
+  {
+    "id": "STY-023",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "卡片族：质感与材质语言：手绘感",
+      "印刷感",
+      "纸墨感的视觉质感体系"
+    ],
+    "capabilities": [
+      "质感层是寄生型——永远附着在宿主镜头上，不独立成镜",
+      "同片质感语言 ≤2 种（如纸墨+套印错位），不同时出现",
+      "质感效果必须帧确定（seed 驱动），禁随机抖动"
+    ],
+    "summary": "质感与材质语言：手绘感/印刷感/纸墨感的视觉质感体系",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-shot-family-video-shotcraft-卡片族-质感与材质语言-手绘感-印刷感-纸墨感的视觉质感体系.md"
+  },
+  {
+    "id": "MOT-048",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "卡片族：声画同步语法：文字",
+      "UI",
+      "色彩随音轨节拍或语音同步变化"
+    ],
+    "capabilities": [
+      "字重脉冲绑节拍（鼓点），卡拉OK填色绑语音（旁白逐词），不混绑",
+      "频谱化 UI 只在有音轨段落使用",
+      "梯度扫光充能 ≤15–20f（要快），填满后稳态呼吸"
+    ],
+    "summary": "声画同步语法：文字/UI/色彩随音轨节拍或语音同步变化",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-声画同步语法-文字-ui-色彩随音轨节拍或语音同步变化.md"
+  },
+  {
+    "id": "CPT-047",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components"
+    ],
+    "capabilities": [
+      "每次物化必须有明确的「之前态」和「之后态」，硬切或变形讲清跃迁",
+      "骨架→内容显影的节奏：观众需要看到「变成真的」的两次跃迁",
+      "物化结果必须展示真实内容，不能是占位符"
+    ],
+    "summary": "内容物化与形态转换：输入→实体、草稿→成品、原语→容器的状态跃迁叙事",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-内容物化与形态转换-输入-实体-草稿-成品-原语-容器的状态跃迁.md"
+  },
+  {
+    "id": "SCN-009",
+    "category": "scene-logic",
+    "tags": [
+      "video-shotcraft",
+      "scene-logic",
+      "卡片族：隐喻实体转场：用气泡",
+      "纸飞机",
+      "线条",
+      "色块等具象载体执行抽象的场景切换"
+    ],
+    "capabilities": [
+      "隐喻实体必须是品牌世界里的合法居民（气泡/纸飞机/线条），不能是无来源的装饰",
+      "实体转场有完整三段式：遮蔽→藏切→散开",
+      "全片隐喻实体转场 ≤1 次（品牌签名位）"
+    ],
+    "summary": "隐喻实体转场：用气泡/纸飞机/线条/色块等具象载体执行抽象的场景切换",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/vsc-shot-family-video-shotcraft-卡片族-隐喻实体转场-用气泡-纸飞机-线条-色块等具象载体执行抽象的场景.md"
+  },
+  {
+    "id": "CPT-048",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：规模感与进度叙事：里程表",
+      "长卷急刹",
+      "时间轴",
+      "克隆纵队的数量级可视化"
+    ],
+    "capabilities": [
+      "里程表逐位锁定后必须整体加深脉冲，否则读不出「全部到位」",
+      "长卷急刹的速度对比（高速→急停）是戏眼，不能匀速",
+      "克隆/副本类语义一镜讲完「一个=很多」，不做多镜展开"
+    ],
+    "summary": "规模感与进度叙事：里程表/长卷急刹/时间轴/克隆纵队的数量级可视化",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-规模感与进度叙事-里程表-长卷急刹-时间轴-克隆纵队的数量级可视.md"
+  },
+  {
+    "id": "MOT-049",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "卡片族：元素身体感与物理隐喻：拉伸",
+      "脱离",
+      "贴落",
+      "弹射等赋予"
+    ],
+    "capabilities": [
+      "轴向拉伸给高速飞入配速度肉身，不单独使用",
+      "接触阴影离面抬升配 2.5D 运镜，不配纯平面",
+      "贴落语言（空中降下→着地即停零回弹）与弹跳入场互斥"
+    ],
+    "summary": "元素身体感与物理隐喻：拉伸/脱离/贴落/弹射等赋予 UI 元素物理肉身",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-元素身体感与物理隐喻-拉伸-脱离-贴落-弹射等赋予-ui-元素物.md"
+  },
+  {
+    "id": "CPT-049",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：标注与揭示性文字：描边",
+      "下划线",
+      "准星",
+      "遮罩"
+    ],
+    "capabilities": [
+      "标注类寄生在宿主元素上，不独立成镜",
+      "描边生长闭合瞬间闪黑交棒是标配——无交棒读作未完成",
+      "字腔穿越/文字遮罩需要超粗字体（≥800 weight）"
+    ],
+    "summary": "标注与揭示性文字：描边/下划线/准星/遮罩/词槽等辅助文字的语义可视化",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-标注与揭示性文字-描边-下划线-准星-遮罩-词槽等辅助文字的语义.md"
+  },
+  {
+    "id": "QLT-016",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates",
+      "卡片族：渲染质量扩展门：3D"
+    ],
+    "capabilities": [
+      "3D 透视下 UI 文字必须高分辨率栅格化+CSS zoom 向下采样",
+      "所有粒子/抖动/漂移必须来自可复现 seed 或确定性函数",
+      "粒子寿命耗尽必须条件卸载——残留=脏帧"
+    ],
+    "summary": "渲染质量扩展门：3D 文字清晰度、帧确定性验证、粒子卸载检查、慢速窗可读性",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-shot-family-video-shotcraft-卡片族-渲染质量扩展门-3d-文字清晰度-帧确定性验证-粒子卸载检查-慢.md"
+  },
+  {
+    "id": "STY-024",
+    "category": "styles",
+    "tags": [
+      "video-shotcraft",
+      "styles",
+      "卡片族：纸墨审美设计令牌：纸",
+      "墨",
+      "强调色的材质语言体系"
+    ],
+    "capabilities": [
+      "纸墨审美必须全片统一——不能用纸墨开场再切霓虹",
+      "强调色只从纸墨色板派生（模板为琥珀），不引入无关色",
+      "套印错位/墨渗是质感调味，全片各 ≤2 次"
+    ],
+    "summary": "纸墨审美设计令牌：纸/墨/强调色的材质语言体系",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "styles/vsc-shot-family-video-shotcraft-卡片族-纸墨审美设计令牌-纸-墨-强调色的材质语言体系.md"
+  },
+  {
+    "id": "SCN-010",
+    "category": "scene-logic",
+    "tags": [
+      "video-shotcraft",
+      "scene-logic",
+      "卡片族：页面身份转换语法：整页实体翻篇",
+      "撕裂",
+      "换肤",
+      "频谱化"
+    ],
+    "capabilities": [
+      "立方体翻转与对开门裂幕不同片混用（物理隐喻冲突）",
+      "撕裂/故障转场全片 ≤1 次（一次性高能标记）",
+      "主题切换是「就地换肤」不是切场景——观众必须感知到同一个页面变了色"
+    ],
+    "summary": "页面身份转换语法：整页实体翻篇/撕裂/换肤/频谱化，页面自己是实体",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/vsc-shot-family-video-shotcraft-卡片族-页面身份转换语法-整页实体翻篇-撕裂-换肤-频谱化-页面自己是实.md"
+  },
+  {
+    "id": "QLT-017",
+    "category": "quality-gates",
+    "tags": [
+      "video-shotcraft",
+      "quality-gates"
+    ],
+    "capabilities": [
+      "任何高能动作（砸入/撞停/闪白/爆炸）后必须真静止 ≥45f",
+      "同帧不得有两种爆发型手法同时触发",
+      "过冲/回弹参数必须在可读范围内（过冲 ≤12°、回弹 ≤2 次）"
+    ],
+    "summary": "高能安全门：爆发型镜头的事前约束和事后验证——过冲不毁阅读、叠爆不过载、定格不偷跑",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/vsc-shot-family-video-shotcraft-卡片族-高能安全门-爆发型镜头的事前约束和事后验证-过冲不毁阅读-叠爆不.md"
+  },
+  {
+    "id": "MOT-050",
+    "category": "motion",
+    "tags": [
+      "video-shotcraft",
+      "motion",
+      "卡片族：动画式运动夸张：残像分身",
+      "拉伸变形",
+      "帧率量化突变——用动画语法而非摄影语法表达速度"
+    ],
+    "capabilities": [
+      "残像分身与 CameraMotionBlur 二选一（动画式 vs 摄影式速度感）",
+      "一拍三转一拍一全片 ≤1 次（一次性技法）",
+      "拉伸变形寄生在高速位移上，不独立成镜"
+    ],
+    "summary": "动画式运动夸张：残像分身/拉伸变形/帧率量化突变——用动画语法而非摄影语法表达速度",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "motion/vsc-shot-family-video-shotcraft-卡片族-动画式运动夸张-残像分身-拉伸变形-帧率量化突变-用动画语法而非.md"
+  },
+  {
+    "id": "CPT-050",
+    "category": "components",
+    "tags": [
+      "video-shotcraft",
+      "components",
+      "卡片族：图标与控件表演：图标",
+      "控件作为镜头主角的微观叙事语言"
+    ],
+    "capabilities": [
+      "图标表演需要足够大（≥半屏级特写），太小读不出表演",
+      "图标点阵翻色必须错峰——同时翻读作 PPT 翻页",
+      "控件表演必须有完整交互因果链（触发→动作→结果）"
+    ],
+    "summary": "图标与控件表演：图标/控件作为镜头主角的微观叙事语言",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "components/vsc-shot-family-video-shotcraft-卡片族-图标与控件表演-图标-控件作为镜头主角的微观叙事语言.md"
+  },
+  {
+    "id": "CPS-017",
+    "category": "compositing",
+    "tags": [
+      "video-shotcraft",
+      "compositing",
+      "卡片族：3D",
+      "空间内",
+      "UI",
+      "合成：文字"
+    ],
+    "capabilities": [
+      "悬浮文字需要同形软影（不是普通 drop-shadow），否则读作漂浮 bug",
+      "贴落时机与相机运动同步——镜头到达位置时文字已贴好",
+      "3D 透视下的文字清晰度依赖 hires-rasterize 技法"
+    ],
+    "summary": "3D 空间内 UI 合成：文字/组件悬浮在 3D 空间带同形软影，随运镜贴落回界面",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/vsc-shot-family-video-shotcraft-卡片族-3d-空间内-ui-合成-文字-组件悬浮在-3d-空间带同形软影.md"
+  },
+  {
+    "id": "STY-025",
+    "category": "styles",
+    "tags": [
+      "字体",
+      "中文",
+      "本地字体",
+      "禁用默认栈"
+    ],
+    "capabilities": [
+      "为中文标题、正文、标签和数字选择本地可验证字体角色",
+      "禁止无来源 Inter 和浏览器/system sans 默认字体栈",
+      "要求 render 记录 actual font family、role、glyph coverage 和来源理由"
+    ],
+    "summary": "在没有用户字体参考时使用本地 CJK 字体角色，并禁止 AI 味默认字体栈。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-006"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-local-cjk-font-roles.md"
+  },
+  {
+    "id": "QLT-018",
+    "category": "quality-gates",
+    "tags": [
+      "字体来源",
+      "字形覆盖",
+      "可读性",
+      "禁用默认字体"
+    ],
+    "capabilities": [
+      "检查字体是否来自用户 design、产品证据或参考库字体角色",
+      "拒绝 Inter、system sans、Arial、Helvetica、Roboto、Poppins、Montserrat 等无来源默认",
+      "检查中文 glyph coverage、数字 tabular nums 和抽帧文字完整性"
+    ],
+    "summary": "交付前验证字体来源、禁用字体命中、中文字形覆盖和抽帧文字可读性。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-025",
+      "QLT-004"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-font-provenance-gate.md"
+  },
+  {
+    "id": "STY-026",
+    "category": "styles",
+    "tags": [
+      "taste-skill",
+      "设计读数",
+      "视觉密度",
+      "运动强度",
+      "反默认"
+    ],
+    "capabilities": [
+      "先写设计读数，再声明视觉差异、运动强度、视觉密度三档拨盘",
+      "排除默认紫蓝渐变、玻璃卡片、三等分卡片和居中标题模板感",
+      "把色彩、字体、组件数量和动效强弱映射到当期 SRT 语义"
+    ],
+    "summary": "用设计读数和三档拨盘控制风格、运动和密度，避免默认 AI 味画面。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-025"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-taste-design-read-dials.md"
+  },
+  {
+    "id": "STY-027",
+    "category": "styles",
+    "tags": [
+      "taste-skill",
+      "标题字体",
+      "关键文字",
+      "禁用默认字体",
+      "可读性"
+    ],
+    "capabilities": [
+      "为标题、金句、章节字和 UI 字段声明字体角色、行高、行宽和停留预算",
+      "禁止无来源 Inter/system sans/常见 AI 海报感字体默认",
+      "用抽帧和 glyph coverage 验证中文标题完整可读"
+    ],
+    "summary": "标题与关键文字必须有可验证字体来源、层级和读屏预算。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-025",
+      "QLT-018"
+    ],
+    "validation_status": "draft",
+    "relative_path": "styles/style-title-typography-taste-gate.md"
+  },
+  {
+    "id": "SCN-011",
+    "category": "scene-logic",
+    "tags": [
+      "director method",
+      "分镜密度",
+      "反疲劳",
+      "shot plan"
+    ],
+    "capabilities": [
+      "保留自包含导演方法的意图卡、视觉母题、语义地图、组件/素材计划和密度变化",
+      "记录 shot 数、合并理由、密度分布和高低密度差",
+      "低于内容需要的密度时回到 director 重拆"
+    ],
+    "summary": "防止导演方法生成的高密度分镜被压扁成稀疏重复的 B-roll。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "scene-logic/scene-logic-director-density-retention.md"
+  },
+  {
+    "id": "CPS-018",
+    "category": "compositing",
+    "tags": [
+      "Pexels",
+      "素材融合",
+      "安全区",
+      "构图",
+      "组件关系"
+    ],
+    "capabilities": [
+      "为 Pexels 素材记录主体、焦点、裁切、安全叠加区、亮度/色温/色彩和景深",
+      "组件、标题和光效必须与素材主体有空间关系，不能硬盖主体",
+      "素材只提供氛围或需要大面积遮挡时必须拒绝并继续路由"
+    ],
+    "summary": "Pexels 素材必须作为设计材料被裁切、调色和融合，而不是组件硬叠背景。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [],
+    "validation_status": "draft",
+    "relative_path": "compositing/compositing-pexels-media-integration.md"
+  },
+  {
+    "id": "QLT-019",
+    "category": "quality-gates",
+    "tags": [
+      "director review",
+      "main gate",
+      "分镜密度",
+      "director method"
+    ],
+    "capabilities": [
+      "director 后、assets 前由 main agent 审核限长分镜事实包的密度和方法完整性",
+      "检查 density range gap、dense shot ratio、全中密度和合并理由",
+      "失败时阻断进入素材阶段"
+    ],
+    "summary": "导演分镜必须经过 main shot-plan review，不能由原 director 自评放行。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "SCN-011"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-director-density-review-gate.md"
+  },
+  {
+    "id": "QLT-020",
+    "category": "quality-gates",
+    "tags": [
+      "Pexels",
+      "composition fit",
+      "素材融合",
+      "抽帧审核"
+    ],
+    "capabilities": [
+      "所有 Pexels selected route 必须有 composition review",
+      "检查 crop、focal box、safe zone、palette、component relation 和 motion treatment",
+      "抽帧发现组件压主体或调色冲突时失败"
+    ],
+    "summary": "Pexels 构图融合未通过时，媒体可解码也不能算内容质量合格。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "CPS-018"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-pexels-composition-fit-gate.md"
+  },
+  {
+    "id": "QLT-021",
+    "category": "quality-gates",
+    "tags": [
+      "taste-skill",
+      "taste preflight",
+      "AI 味",
+      "字体",
+      "视觉密度"
+    ],
+    "capabilities": [
+      "检查 design read、视觉差异、运动强度、视觉密度和字体/标题计划",
+      "清扫默认紫蓝渐变、三等分卡片、玻璃拟态、假 UI 和无来源默认字体",
+      "缺少 taste 预检时阻断 render"
+    ],
+    "summary": "render 前必须通过 taste 预检，证明设计方向、密度和字体不是默认生成感。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-026",
+      "STY-027",
+      "QLT-018"
+    ],
+    "validation_status": "draft",
+    "relative_path": "quality-gates/quality-taste-preflight-gate.md"
+  }
+]

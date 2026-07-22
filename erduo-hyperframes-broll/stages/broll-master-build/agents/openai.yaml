@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Master Build"
+  short_description: "Author one complete HyperFrames HTML project through official skills."
+  default_prompt: "Use $broll-master-build to load official HyperFrames authoring skills, create the approved HTML composition, freeze source/evidence, and return preview/contact-sheet facts without rendering the final master."

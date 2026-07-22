@@ -7,7 +7,7 @@ import { fingerprintValue } from './state.mjs';
 
 const MODES = new Set(['talking-head', 'faceless']);
 const COMPOSITING = new Set(['fullscreen', 'hard-alpha-over-source', 'native-base-with-overlay']);
-const ROUTES = new Set(['user-media', 'pexels', 'image-generation', 'hyperframes-native', 'mixed']);
+const ROUTES = new Set(['user-media', 'image-generation', 'pexels', 'hyperframes-native', 'mixed']);
 const SHA256 = /^[0-9a-f]{64}$/u;
 
 export class CoverageError extends Error {

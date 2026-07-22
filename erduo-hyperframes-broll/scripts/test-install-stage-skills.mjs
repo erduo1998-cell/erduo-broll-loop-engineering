@@ -3,14 +3,21 @@ import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, rm, symlink } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { installStageSkills, InstallStageSkillsError } from './install-stage-skills.mjs';
-const names = ['broll-preflight', 'broll-director', 'broll-assets', 'broll-render', 'broll-verify'];
-test('links all stage skills and is idempotent without replacing occupied targets', async (t) => {
+import { installStageSkills, InstallStageSkillsError, validateHostSkillLinks } from './install-stage-skills.mjs';
+const names = ['erduo-hyperframes-broll', 'broll-director', 'broll-assets', 'broll-master-build', 'broll-render', 'broll-shot-export'];
+test('links one root and the active short-pipeline Skills, remains idempotent, and refuses an occupied target', async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'broll-stage-install-')); t.after(() => rm(root, { recursive: true, force: true }));
   const skillRoot = path.join(root, 'skill'); const target = path.join(root, 'host');
-  for (const name of names) await mkdir(path.join(skillRoot, 'stages', name), { recursive: true });
-  assert.deepEqual((await installStageSkills(skillRoot, target)).map((entry) => entry.action), ['linked', 'linked', 'linked', 'linked', 'linked']);
-  assert.deepEqual((await installStageSkills(skillRoot, target)).map((entry) => entry.action), ['reused', 'reused', 'reused', 'reused', 'reused']);
-  await rm(path.join(target, 'broll-assets')); await symlink(path.join(root, 'other'), path.join(target, 'broll-assets'));
+  await mkdir(skillRoot, { recursive: true });
+  for (const name of names.filter((name) => name !== 'erduo-hyperframes-broll')) await mkdir(path.join(skillRoot, 'stages', name), { recursive: true });
+  const first = await installStageSkills(skillRoot, target);
+  assert.deepEqual(first.map((entry) => entry.name), names);
+  assert.deepEqual(first.map((entry) => entry.action), names.map(() => 'linked'));
+  const second = await installStageSkills(skillRoot, target);
+  assert.deepEqual(second.map((entry) => entry.name), names);
+  assert.deepEqual(second.map((entry) => entry.action), names.map(() => 'reused'));
+  assert.deepEqual(await validateHostSkillLinks(skillRoot, target), { status: 'approved', active_skill_count: names.length, mismatches: [] });
+  await rm(path.join(target, 'broll-master-build')); await symlink(path.join(root, 'other'), path.join(target, 'broll-master-build'));
+  assert.deepEqual((await validateHostSkillLinks(skillRoot, target)).mismatches, ['broll-master-build']);
   await assert.rejects(() => installStageSkills(skillRoot, target), (error) => error instanceof InstallStageSkillsError && error.code === 'target_occupied');
 });

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "font_binaries_in_public_package": false,
+    "acquisition": "first-production-run",
+    "network_rendering": false,
+    "hash_mismatch": "fail-closed",
+    "missing_subsetter": "copy-verified-full-font",
+    "subset_scope": "unique-codepoints-from-srt-and-approved-visible-text",
+    "project_embedding": "local-font-face-only"
+  },
+  "sources": [
+    {
+      "font_id": "noto-sans-cjk-sc-vf-2.004",
+      "family": "Noto Sans CJK SC",
+      "roles": ["information", "technical", "supporting"],
+      "version": "2.004",
+      "repository": "https://github.com/notofonts/noto-cjk",
+      "commit": "523d033d6cb47f4a80c58a35753646f5c3608a78",
+      "source_path": "Sans/Variable/TTF/NotoSansCJKsc-VF.ttf",
+      "download_url": "https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/Sans/Variable/TTF/NotoSansCJKsc-VF.ttf",
+      "bytes": 36144788,
+      "sha256": "990c807e79c25662a5a9ecf7f971baeb2bf2eab9a559e5ecf15cdfdb8561d21f",
+      "format": "ttf-variable",
+      "license_id": "OFL-1.1",
+      "license_path": "assets/licenses/noto-cjk-OFL-1.1.txt",
+      "license_sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "commercial_use": true,
+      "redistribution": true
+    },
+    {
+      "font_id": "noto-serif-cjk-sc-vf-2.003",
+      "family": "Noto Serif CJK SC",
+      "roles": ["display", "editorial", "emotional"],
+      "version": "2.003",
+      "repository": "https://github.com/notofonts/noto-cjk",
+      "commit": "9b0f1436e455d902de067a2501422e5dc71ad16b",
+      "source_path": "Serif/Variable/TTF/NotoSerifCJKsc-VF.ttf",
+      "download_url": "https://raw.githubusercontent.com/notofonts/noto-cjk/9b0f1436e455d902de067a2501422e5dc71ad16b/Serif/Variable/TTF/NotoSerifCJKsc-VF.ttf",
+      "bytes": 59899696,
+      "sha256": "dbf8ac0523dc19fa6294c52ce127a81c1b5b43ddc2e0915942bfd50aa58f4c53",
+      "format": "ttf-variable",
+      "license_id": "OFL-1.1",
+      "license_path": "assets/licenses/noto-cjk-OFL-1.1.txt",
+      "license_sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "commercial_use": true,
+      "redistribution": true
+    }
+  ]
+}

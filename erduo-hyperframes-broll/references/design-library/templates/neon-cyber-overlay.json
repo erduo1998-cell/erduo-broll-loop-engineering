@@ -310,10 +310,10 @@
         "resolution": "If overlay is required over red-gold content, reduce to a single warm-white-plus-gold monochrome adaptation; do not mix the cyber tricolor with the forbidden-red palette."
       },
       {
-        "template_id": "surge-dark-flow",
+        "template_id": "restrained-gradient-flow",
         "layers": ["visual_system", "motion_grammar"],
-        "reason": "Surge is a full-screen brand manifesto with four-color gradients and metal big-type punch-ins. Cyber is a transparent functional information layer. Their background policies and motion energies collide.",
-        "resolution": "Borrow at most the off-center composition or a short punchy label from Surge; do not bring the four-color ribbon gradient, metal big-type, or full-screen dark background into the transparent overlay."
+        "reason": "Restrained Gradient Flow is a full-screen brand manifesto with four-color gradients and metal big-type punch-ins. Cyber is a transparent functional information layer. Their background policies and motion energies collide.",
+        "resolution": "Borrow at most the off-center composition or a short punchy label from the manifesto style; do not bring the four-color ribbon gradient, metal big-type, or full-screen dark background into the transparent overlay."
       }
     ],
     "borrowable_patterns": [

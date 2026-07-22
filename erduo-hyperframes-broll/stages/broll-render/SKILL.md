@@ -1,14 +1,11 @@
 ---
 name: broll-render
-description: Build and render HyperFrames B-roll master and per-shot media from validated assets and director briefs. Use only after a valid broll-assets receipt, including when resuming a failed build or render stage.
+description: Render exactly one final 4K HyperFrames master from a source that passed deterministic source/pixel gates and main-agent HTML preview approval, then run deterministic delivery verification.
 ---
 
-# B-roll render
+# B-roll master render producer
 
-1. Reject missing or invalid `assets` receipts. Reuse the shared SRT-anchored timeline; do not create a second timing model.
-2. Build master and local-zero shot compositions. Preserve source audio for talking-head; keep faceless master silent by default; never burn subtitles or add BGM.
-3. Route full-screen output to MP4, hard-edge transparency to ProRes 4444 MOV, and soft light to black-background MP4. Run the current HyperFrames check before rendering.
-4. Retry only failed build/render work. Reuse matching upstream state and successful artifacts.
-5. Write a path-free `render` receipt linked to the assets receipt after both internal build and render states complete.
-
-Pass media and the validated receipt to `broll-verify`; do not report the project as complete.
+1. Require passing source/pixel/font/asset reports, main `html_preview_review` and official HyperFrames authoring evidence bound to the exact source and pre-master evidence manifest. Resolve the reviewed project privately; never redesign or amend it.
+2. Run current HyperFrames checks, disable network access, verify local fonts load, and render exactly one final 4K SRT-anchored master with the confirmed audio policy. A technical render failure is a failure, not permission to skip or weaken the pre-master visual gate.
+3. Run deterministic manifest-chain, SRT coverage, duration/raster/fps/decode/audio, local-font load, route/native-ceiling and generated/Pexels contribution verification in the same context. Freeze the final master, verify report, media facts and source/pre-master/main-preview bindings under one render manifest.
+4. Return a compact envelope plus final result-frame contact sheet and media facts for parent `final_frame_review`. Do not judge visual quality, create slices or dispatch another verify child.

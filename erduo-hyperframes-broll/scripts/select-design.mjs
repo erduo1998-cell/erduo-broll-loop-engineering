@@ -18,7 +18,7 @@ const REPRESENTATION_SIGNALS = {
   'quantitative-chart': ['comparison'], 'documentary-evidence': ['case'], 'emotional-atmosphere': ['reveal'],
 };
 const ROUTE_MEDIA = {
-  'user-media': ['photo'], pexels: ['photo'], 'image-generation': ['photo'],
+  'user-media': ['photo'], 'image-generation': ['photo'], pexels: ['photo'],
   'hyperframes-native': ['native-graphics'], mixed: ['photo', 'native-graphics'],
 };
 
