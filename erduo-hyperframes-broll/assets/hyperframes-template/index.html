@@ -1,82 +1,43 @@
 <!doctype html>
-<html lang="en" data-resolution="landscape">
+<html lang="und">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <style>
-      @font-face {
-        font-family: "Erduo Noto Sans Runtime";
-        src: url("./assets/fonts/noto-sans-cjk-sc-vf-2.004.ttf") format("truetype");
-        font-style: normal;
-        font-weight: 100 900;
-        font-display: block;
-      }
-      @font-face {
-        font-family: "AaJiJiaHei";
-        src: url("./assets/fonts/user-display/aa-ji-jia-hei.ttf") format("truetype");
-        font-style: normal;
-        font-weight: 100 900;
-        font-display: block;
-      }
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+
       html,
       body {
-        margin: 0;
         width: 1920px;
         height: 1080px;
         overflow: hidden;
-        background: #000;
+        background: transparent;
       }
-      body {
-        font-family: "Erduo Noto Sans Runtime";
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: transparent;
       }
-      code,
-      pre,
-      .monospace {
-        font-family: "Erduo Noto Sans Runtime";
-      }
-      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #090d18; }
-      .scene { position: absolute; inset: 0; display: grid; place-items: center; color: #f6f8ff; overflow: hidden; }
-      .scene-fill { position: absolute; inset: 0; }
-      .fill-one { background: radial-gradient(circle at 30% 30%, #2452a8 0%, #0d1730 48%, #090d18 100%); }
-      .fill-two { background: radial-gradient(circle at 70% 70%, #1a8a81 0%, #102827 48%, #090d18 100%); }
-      .scene-content { position: relative; width: 1160px; min-height: 420px; display: grid; place-items: center; gap: 38px; }
-      .eyebrow { font-size: 22px; letter-spacing: .22em; font-weight: 700; }
-      .orb { width: 180px; height: 180px; border-radius: 50%; background: #d9e9ff; box-shadow: 0 0 80px #6db2ff; }
-      [data-font-role] { font-family: "AaJiJiaHei"; }
-      .scene-content p { margin: 0; max-width: 900px; text-align: center; font-size: 48px; line-height: 1.15; font-weight: 700; }
     </style>
   </head>
   <body>
     <div
       id="root"
       data-composition-id="main"
+      data-no-timeline
+      data-scaffold-profile="structure-only-neutral-v1"
+      data-pipeline-contract-version="2"
       data-start="0"
-      data-duration="10"
+      data-duration="1"
       data-width="1920"
       data-height="1080"
-    >
-      <section id="scene-one" class="clip scene" data-start="0" data-duration="5" data-track-index="1">
-        <div class="scene-fill fill-one"></div><div class="scene-content"><span class="eyebrow" data-font-role="chapter-focus" data-display-font-id="aa-ji-jia-hei">NATIVE SCENE</span><div id="scene-one-orb" class="orb"></div><p id="scene-one-result" data-font-role="key-quote" data-display-font-id="aa-ji-jia-hei">A visible relationship resolves.</p></div>
-      </section>
-      <section id="scene-two" class="clip scene" data-start="5" data-duration="5" data-track-index="1">
-        <div class="scene-fill fill-two"></div><div class="scene-content"><span class="eyebrow" data-font-role="core-number" data-display-font-id="aa-ji-jia-hei">002</span><div id="scene-two-orb" class="orb"></div><p id="scene-two-result" data-font-role="emphasis" data-display-font-id="aa-ji-jia-hei">The result remains readable.</p></div>
-      </section>
-    </div>
-
-    <script>
-      window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true });
-      tl.from("#scene-one-orb", { opacity: 0, scale: 0.5, duration: 0.8, ease: "power3.out" }, 0.2);
-      tl.to("#scene-one-orb", { x: 180, duration: 2.8, ease: "power1.inOut" }, 1);
-      tl.from("#scene-two-orb", { opacity: 0, scale: 0.5, duration: 0.8, ease: "power3.out" }, 5.2);
-      tl.to("#scene-two-orb", { x: -180, duration: 2.8, ease: "power1.inOut" }, 6);
-      window.__timelines["main"] = tl;
-    </script>
+    ></div>
   </body>
 </html>

@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+// Legacy M10 regression-fixture builder only. Version-2 production
+// master-builds start from the neutral scaffold and use official HyperFrames
+// authoring; they must not use this opinionated generator as a compiler.
+
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -169,7 +173,7 @@ function escapeHtml(value) {
 }
 
 function runtimeFontPackage(document) {
-  if (!document || document.schema_version !== 2 || !document.display_selection || !Array.isArray(document.fonts) || !document.fonts.length) fail('display_font_selection_required', 'A prepared package with one selected bundled display font is required.');
+  if (!document || document.schema_version !== 2 || !document.display_selection || !Array.isArray(document.fonts) || !document.fonts.length) fail('display_font_selection_required', 'A prepared package with one selected user-provided display font is required.');
   required(document.display_selection, ['schema_version', 'primary_visual_dna', 'display_font_id', 'display_text'], 'font_package_invalid', 'Prepared display font selection is invalid.');
   if (document.display_selection.schema_version !== 1 || typeof document.display_selection.display_font_id !== 'string' || !document.display_selection.display_font_id || typeof document.display_selection.display_text !== 'string' || !document.display_selection.display_text.trim()) fail('font_package_invalid', 'Prepared display font selection is invalid.');
   const roles = new Set();
@@ -187,7 +191,7 @@ function runtimeFontPackage(document) {
   });
   const information = fonts.find((font) => font.role === 'information') ?? fonts[0];
   const display = fonts.find((font) => font.role === 'display');
-  if (!display || display.font_id !== document.display_selection.display_font_id || fonts.filter((font) => font.role === 'display').length !== 1) fail('display_font_selection_mismatch', 'Display role must match exactly one selected bundled display font.');
+  if (!display || display.font_id !== document.display_selection.display_font_id || fonts.filter((font) => font.role === 'display').length !== 1) fail('display_font_selection_mismatch', 'Display role must match exactly one selected user-provided display font.');
   return { fonts, information, display };
 }
 

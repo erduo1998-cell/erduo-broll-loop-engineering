@@ -30,7 +30,7 @@ test('audits mapped reference sources and pinned runtime font sources', async (t
   assert.equal(result.font_source_count, 1);
 });
 
-test('rejects a mapped license hash mismatch and an unlisted bundled font binary', async (t) => {
+test('rejects a mapped license hash mismatch, any public font binary, and a bundled display-font catalog', async (t) => {
   const root = await fixture(t, { distribution: { included_license_notices: [] }, provenance: { records: [record(false)] } });
   await writeFile(path.join(root, 'assets/licenses/NOTICE.txt'), 'MIT License\n');
   await mkdir(path.join(root, 'reference-library'), { recursive: true });
@@ -40,10 +40,14 @@ test('rejects a mapped license hash mismatch and an unlisted bundled font binary
   await writeFile(path.join(root, 'reference-library/source-map.json'), JSON.stringify({ schema_version: 1, sources: [{ source_id: 'bad', repository: 'https://github.com/example/bad', audited_commit: 'a'.repeat(40), license_id: 'MIT', license_path: 'assets/licenses/NOTICE.txt', license_sha256: 'f'.repeat(64), file_globs: ['assets/fonts/source-manifest.json'], excluded: [] }] }));
   await writeFile(path.join(root, 'assets/fonts/source-manifest.json'), JSON.stringify({ schema_version: 1, policy: { font_binaries_in_public_package: false }, sources: [] }));
   await writeFile(path.join(root, 'assets/fonts/full.ttf'), 'font');
+  await mkdir(path.join(root, 'assets/fonts/user-display'), { recursive: true });
+  await writeFile(path.join(root, 'assets/fonts/display-library.json'), '{}');
   const result = await auditLicenseNotices(root);
   assert.equal(result.ok, false);
   assert.equal(result.findings.some((item) => item.code === 'source_license_hash_mismatch'), true);
   assert.equal(result.findings.some((item) => item.code === 'public_font_binary'), true);
+  assert.equal(result.findings.some((item) => item.code === 'bundled_display_font_catalog'), true);
+  assert.equal(result.findings.some((item) => item.code === 'bundled_display_font_directory'), true);
 });
 
 test('rejects banned runtime fonts in production scripts and templates', async (t) => {

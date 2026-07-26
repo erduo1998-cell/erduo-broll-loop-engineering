@@ -43,19 +43,25 @@ function validateDisplaySelection(value) {
   return value;
 }
 
-export function auditDisplayFontRoleBindings(html, document) {
+export function auditDisplayFontRoleBindings(html, document, { requiredRoles = [...DISPLAY_ROLES] } = {}) {
   if (typeof html !== 'string') fail('display_font_runtime_invalid', 'Rendered runtime HTML is invalid.', 'display');
   if (!document || document.schema_version !== 2 || !document.display_selection) fail('display_font_selection_required', 'Rendered display binding requires a selected display font.', 'display');
   const selection = validateDisplaySelection(document.display_selection);
   const display = document.fonts?.find((font) => font.role === 'display');
-  if (!display || display.font_id !== selection.display_font_id) fail('display_font_selection_mismatch', 'Display role does not match the selected bundled display font.', 'display');
+  if (!display || display.font_id !== selection.display_font_id) fail('display_font_selection_mismatch', 'Display role does not match the selected user-provided display font.', 'display');
   const escapedFamily = display.family.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
   const escapedSource = display.css.src.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
   if (!new RegExp(`@font-face\\s*\\{[^}]*font-family:\\s*"${escapedFamily}"[^}]*src:\\s*url\\("${escapedSource}"\\)`, 'u').test(html)) fail('display_font_face_missing', 'Selected display font is not bound through a local @font-face.', 'display');
   if (!new RegExp(`\\[data-font-role\\][^}]*font-family:\\s*"${escapedFamily}"`, 'u').test(html)) fail('display_font_role_css_missing', 'Display role selector is not bound to the selected display family.', 'display');
+  if (!Array.isArray(requiredRoles) || !requiredRoles.length
+    || requiredRoles.some((role) => !DISPLAY_ROLES.has(role))
+    || new Set(requiredRoles).size !== requiredRoles.length) {
+    fail('display_font_runtime_invalid', 'Required display roles are invalid.', 'display');
+  }
   const bindings = {};
-  for (const role of DISPLAY_ROLES) {
-    const count = [...html.matchAll(new RegExp(`<[^>]*data-font-role="${role}"[^>]*data-display-font-id="${selection.display_font_id}"[^>]*>`, 'gu'))].length;
+  for (const role of requiredRoles) {
+    const nodes = [...html.matchAll(new RegExp(`<([A-Za-z][A-Za-z0-9:-]*)[^>]*data-font-role="${role}"[^>]*data-display-font-id="${selection.display_font_id}"[^>]*>([^]*?)<\\/\\1>`, 'gu'))];
+    const count = nodes.filter((match) => match[2].replace(/<[^>]*>/gu, '').trim().length > 0).length;
     if (!count) fail('display_font_role_unbound', `Display role ${role} is not explicitly bound to the selected display font.`, role);
     bindings[role] = count;
   }
@@ -74,20 +80,19 @@ export function validateFontPackage(document, { artifactManifest } = {}) {
   const seen = new Set();
   for (const entry of document.fonts) {
     const userDisplay = displayPackage && entry?.role === 'display';
-    exact(entry, userDisplay
-      ? ['font_id', 'role', 'family', 'weight', 'style', 'file_sha256', 'file_kind', 'official_source', 'source_status', 'cjk_coverage_sha256', 'css']
-      : ['font_id', 'role', 'family', 'weight', 'style', 'file_sha256', 'file_kind', 'official_source', 'license_id', 'license_file_sha256', 'commercial_scope', 'cjk_coverage_sha256', 'css'], entry?.role);
+    exact(entry, ['font_id', 'role', 'family', 'weight', 'style', 'file_sha256', 'file_kind', 'official_source', 'license_id', 'license_file_sha256', 'commercial_scope', 'cjk_coverage_sha256', ...(userDisplay ? ['source_status'] : []), 'css'], entry?.role);
     if (typeof entry.font_id !== 'string' || !entry.font_id || typeof entry.role !== 'string' || !entry.role || seen.has(entry.role)
       || typeof entry.family !== 'string' || !entry.family.trim() || typeof entry.style !== 'string' || !entry.style
       || !(typeof entry.weight === 'string' || Number.isSafeInteger(entry.weight)) || !['ttf', 'otf', 'woff2'].includes(entry.file_kind)
       || typeof entry.official_source !== 'string' || !entry.official_source || !SHA256.test(entry.file_sha256 ?? '')
       || !SHA256.test(entry.cjk_coverage_sha256 ?? '')
-      || (userDisplay ? (entry.font_id !== selection.display_font_id || entry.official_source !== 'user-provided-display-library' || entry.source_status !== 'user-provided') : (typeof entry.license_id !== 'string' || !entry.license_id || typeof entry.commercial_scope !== 'string' || !entry.commercial_scope || !SHA256.test(entry.license_file_sha256 ?? '')))) fail('font_package_invalid', 'Font role declaration is invalid.', entry?.role);
+      || typeof entry.license_id !== 'string' || !entry.license_id || typeof entry.commercial_scope !== 'string' || !entry.commercial_scope || !SHA256.test(entry.license_file_sha256 ?? '')
+      || (userDisplay && (entry.font_id !== selection.display_font_id || entry.official_source !== 'user-provided-local' || entry.source_status !== 'user-provided-local' || entry.commercial_scope !== 'user-confirmed-licensed'))) fail('font_package_invalid', 'Font role declaration is invalid.', entry?.role);
     seen.add(entry.role);
     if (BANNED.test(entry.family) || GENERIC.test(entry.family.trim())) fail('system_font_fallback', 'System, banned, or generic font family is forbidden.', entry.role);
     const font = fontArtifacts.find((item) => item.sha256 === entry.file_sha256 && item.media_type === `font/${entry.file_kind}`);
     if (!font) fail('font_asset_missing', 'Font bytes are not bound to the validated artifact manifest.', entry.role);
-    if (!userDisplay && !licenseArtifacts.find((item) => item.sha256 === entry.license_file_sha256)) fail('font_license_missing', 'Font license bytes are not bound to the validated artifact manifest.', entry.role);
+    if (!licenseArtifacts.find((item) => item.sha256 === entry.license_file_sha256)) fail('font_license_missing', 'Font license bytes are not bound to the validated artifact manifest.', entry.role);
     exact(entry.css, ['font_face', 'src', 'used', 'fallbacks'], entry.role);
     localFontSource(entry.css.src, entry.role);
     if (entry.css.font_face !== true || entry.css.used !== true) fail('font_face_unbound', 'Font is not actively bound through @font-face.', entry.role);

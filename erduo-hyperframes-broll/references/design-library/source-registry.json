@@ -70,6 +70,18 @@
       "authority": "C",
       "allowed_evidence_roles": ["inspiration-only"],
       "evidence_ref": "handoff/SRC-004-BRAND-INSPIRATION-INDEX.md"
+    },
+    {
+      "source_id": "GC-ZINE-001",
+      "content_hash": "d4e1199623ee4d98e948189308eedc601f83ab0ae923568c6e9240f89c783b8b",
+      "authority": "C",
+      "allowed_evidence_roles": ["inspiration-only"],
+      "evidence_ref": "reference-library/styles/style-quiet-editorial-print-compiler.md",
+      "repository": "https://github.com/LiamGvchi/gc-minimal-zine-poster",
+      "audited_commit": "d2768f2a3488856af08ae5b2a3f8970d59197fdd",
+      "license_id": "MIT",
+      "license_path": "assets/licenses/gc-minimal-zine-poster-MIT.txt",
+      "license_sha256": "d15c81ae8fa9a0b4b1db46c66e4490cc92e4898fb1f55e030559fbd2a2e2a232"
     }
   ],
   "duplicate_groups": [

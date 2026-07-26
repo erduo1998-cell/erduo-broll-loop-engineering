@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erduo.local/erduo-hyperframes-broll/component-registry.schema.json",
+  "title": "Script-only v3 component registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_id",
+    "components",
+    "component_registry_sha256"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "registry_id": { "$ref": "#/$defs/id" },
+    "components": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "component_registry_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600
+    },
+    "textList": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 24,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/text" }
+    },
+    "layoutContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layout_families", "focal_roles", "dominant_axes"],
+      "properties": {
+        "layout_families": { "$ref": "#/$defs/textList" },
+        "focal_roles": { "$ref": "#/$defs/textList" },
+        "dominant_axes": { "$ref": "#/$defs/textList" }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_id",
+        "semantic_roles",
+        "allowed_type_roles",
+        "layout_contract",
+        "motion_profile_ids",
+        "z_band_ids",
+        "stable_result_assertions",
+        "status_color_roles",
+        "allows_overshoot",
+        "allows_stroke_animation",
+        "allows_overflow"
+      ],
+      "properties": {
+        "component_id": { "$ref": "#/$defs/id" },
+        "semantic_roles": { "$ref": "#/$defs/textList" },
+        "allowed_type_roles": { "$ref": "#/$defs/textList" },
+        "layout_contract": { "$ref": "#/$defs/layoutContract" },
+        "motion_profile_ids": { "$ref": "#/$defs/textList" },
+        "z_band_ids": { "$ref": "#/$defs/textList" },
+        "stable_result_assertions": { "$ref": "#/$defs/textList" },
+        "status_color_roles": { "$ref": "#/$defs/textList" },
+        "allows_overshoot": { "type": "boolean" },
+        "allows_stroke_animation": { "type": "boolean" },
+        "allows_overflow": { "type": "boolean" }
+      }
+    }
+  }
+}

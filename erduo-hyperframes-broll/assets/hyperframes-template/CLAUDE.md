@@ -1,5 +1,55 @@
 # HyperFrames Composition Project
 
+This directory is a structure-only neutral scaffold. Copy it, then replace the
+empty root through the official HyperFrames authoring workflow. Do not treat
+its placeholder duration or raster as creative direction, and do not add CDN
+scripts, remote styles, remote media, sample copy, or a default visual skin.
+
+## Bounded authoring cluster
+
+When this scaffold is used by `erduo-hyperframes-broll`, the current identity
+is:
+
+```text
+pipeline_contract_version: 2
+authoring_topology_id: bounded-authoring-cluster-v1
+```
+
+Do not write a complete long film in one author context. Require the frozen
+global rules, deterministic authoring plan and exactly one assigned
+`C001…C999` chunk. Public planning defaults are no more than 8 contiguous shots
+and 45,000 ms per chunk; a shot longer than the duration bound stays one
+singleton and is never split.
+
+As a chunk author:
+
+- use the official HyperFrames skills for creative HTML authoring;
+- read only the allocated shots and their exact SRT/projection/design/kit/font
+  bindings;
+- write only the chunk's package-relative source and never change another
+  chunk, the shared rules or integration output;
+- freeze actual source bytes and immediately pass source, font, asset,
+  HyperFrames, seek, profile and pixel gates;
+- accept at most one aggregate retry for this chunk; do not rebuild unrelated
+  passing chunks;
+- do not claim visual approval from deterministic checks or stills.
+
+As the independent integrator, do not author or repair creative source. Call
+only deterministic integration. Preserve every chunk source byte and generate
+exactly `integration/wrapper.json` and `integration/map.json`; any formatting,
+normalization, omission, duplication or reorder of chunk source is failure.
+
+Before render, the main agent must read all hash-bound actual integrated source
+and issue `source_code_review` for positions, z-order, shot order, timing,
+five-phase lifecycle, selectors, cross-chunk seams and source errors. Stills
+may support only font, crop and material visibility, with animation approval
+explicitly false. After render, run technical verification only.
+
+The old fixed four-producer topology is inspection-only for new authoring. That
+does not make every pipeline-contract-version-2 artifact legacy. Do not
+introduce Scene Kit, layers, layered-hero quotas or host-specific creative
+paths.
+
 ## Skills — USE THESE FIRST
 
 **Always invoke the relevant skill before writing or modifying compositions.** Skills encode framework-specific patterns (e.g., `window.__timelines` registration, `data-*` attribute semantics, shader-compatible CSS rules) that are NOT in generic web docs. Skipping them produces broken compositions.

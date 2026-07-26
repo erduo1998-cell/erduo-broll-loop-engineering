@@ -16,6 +16,7 @@ import {
   fingerprintFile,
   fingerprintValue,
   loadRunState,
+  inspectRunState,
   saveRunState,
   transitionStage,
   validateRunState,
@@ -40,6 +41,12 @@ function manifest(overrides = {}) {
       frame_rate: overrides.frame_rate ?? { numerator: 30000, denominator: 1001 },
       ...(overrides.template_policy ? { template_policy_sha256: H(overrides.template_policy) } : {}),
       ...(overrides.production_library ? { production_library_sha256: H(overrides.production_library) } : {}),
+      ...(overrides.design_selection_options
+        ? {
+          design_selection_options_sha256:
+            H(overrides.design_selection_options),
+        }
+        : {}),
     },
   });
 }
@@ -124,16 +131,28 @@ test('manifest is deterministic and rejects unknown slots/settings or tampering'
 });
 
 test('each input and setting invalidates from its contracted earliest stage', () => {
-  const base = manifest({ design: 'c', user_assets: 'd', template_policy: 'e', production_library: 'f' });
+  const base = manifest({
+    design: 'c',
+    user_assets: 'd',
+    template_policy: 'e',
+    production_library: 'f',
+  });
   const cases = [
     [manifest({ srt: '9', design: 'c', user_assets: 'd', template_policy: 'e', production_library: 'f' }), 'preflight'],
     [manifest({ control_media: '9', design: 'c', user_assets: 'd', template_policy: 'e', production_library: 'f' }), 'preflight'],
     [manifest({ design: '9', user_assets: 'd', template_policy: 'e', production_library: 'f' }), 'directing'],
     [manifest({ design: 'c', user_assets: '9', template_policy: 'e', production_library: 'f' }), 'assets'],
-    [manifest({ design: 'c', user_assets: 'd', aspect_ratio: '9:16', template_policy: 'e', production_library: 'f' }), 'build'],
-    [manifest({ design: 'c', user_assets: 'd', frame_rate: { numerator: 24, denominator: 1 }, template_policy: 'e', production_library: 'f' }), 'build'],
+    [manifest({ design: 'c', user_assets: 'd', aspect_ratio: '9:16', template_policy: 'e', production_library: 'f' }), 'authoring'],
+    [manifest({ design: 'c', user_assets: 'd', frame_rate: { numerator: 24, denominator: 1 }, template_policy: 'e', production_library: 'f' }), 'authoring'],
     [manifest({ design: 'c', user_assets: 'd', template_policy: '9', production_library: 'f' }), 'directing'],
     [manifest({ design: 'c', user_assets: 'd', template_policy: 'e', production_library: '9' }), 'directing'],
+    [manifest({
+      design: 'c',
+      user_assets: 'd',
+      template_policy: 'e',
+      production_library: 'f',
+      design_selection_options: '9',
+    }), 'directing'],
   ];
   for (const [next, stage] of cases) assert.equal(diffManifests(base, next).invalidated_from, stage);
 });
@@ -157,9 +176,9 @@ test('invalidation preserves upstream completion and resets only downstream', ()
   const assets = applyInputManifest(original, manifest({ design: 'c', user_assets: '9' }), { now: NOW }).state;
   assert.equal(assets.stages.directing.status, 'complete');
   assert.equal(assets.stages.assets.status, 'pending');
-  const build = applyInputManifest(original, manifest({ design: 'c', user_assets: 'd', aspect_ratio: '9:16' }), { now: NOW }).state;
-  assert.equal(build.stages.assets.status, 'complete');
-  assert.equal(build.stages.build.status, 'pending');
+  const authoring = applyInputManifest(original, manifest({ design: 'c', user_assets: 'd', aspect_ratio: '9:16' }), { now: NOW }).state;
+  assert.equal(authoring.stages.assets.status, 'complete');
+  assert.equal(authoring.stages.authoring.status, 'pending');
 });
 
 test('stage transitions enforce upstream, state, and fingerprints', () => {
@@ -232,10 +251,25 @@ test('load rejects corrupt, tampered, symlink, and unknown-version state', async
   await fs.writeFile(file, 'not-json');
   await assert.rejects(loadRunState(root), (error) => error.code === 'state_invalid_json');
   await fs.writeFile(file, JSON.stringify({ ...newState(), schema_version: 2 }));
-  await assert.rejects(loadRunState(root), (error) => error.code === 'unsupported_state');
+  await assert.rejects(loadRunState(root), (error) => error.code === 'legacy_state_resign_forbidden');
   await fs.unlink(file);
   await fs.symlink(path.join(root, 'elsewhere'), file);
   await assert.rejects(loadRunState(root), (error) => error.code === 'unsafe_state_path');
+});
+
+test('legacy state remains inspectable but is never resumable or silently upgraded', () => {
+  const legacy = { ...newState(), schema_version: 1 };
+  delete legacy.pipeline_contract_version;
+  assert.deepEqual(inspectRunState(legacy), {
+    resume_eligible: false,
+    resign_eligible: false,
+    code: 'pipeline_upgrade_required',
+    schema_version: 1,
+    pipeline_contract_version: null,
+    run_id: 'run-001',
+    stages: Object.fromEntries(STAGES.map((stage) => [stage, 'pending'])),
+  });
+  assert.throws(() => validateRunState(legacy), (error) => error.code === 'pipeline_upgrade_required');
 });
 
 test('save write/rename cleanup failures are safe and old state is not path-leaked', async () => {

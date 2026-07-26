@@ -1,0 +1,12 @@
+{
+  "name": "erduo-hyperframes-broll-script-only-v3-runtime",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "acorn": "8.15.0",
+    "gsap": "^3.15.0",
+    "hyperframes": "0.7.70",
+    "parse5": "7.3.0",
+    "postcss": "8.5.6"
+  }
+}

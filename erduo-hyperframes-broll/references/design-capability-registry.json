@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "registry_version": "1.0.0",
+  "source": {
+    "source_id": "skill2-report-2026-07-23",
+    "evidence_class": "user-provided-synthesis",
+    "raw_evidence_available_in_project": false,
+    "author_calibrated": false,
+    "promotion_limit": "distilled-candidate-or-pattern-evidence-only"
+  },
+  "policy": {
+    "production_author_standard": false,
+    "default_selection_requires_author_calibration": true,
+    "default_eligibility_policy": "deny-until-author-calibrated-and-render-verified",
+    "scope_exclusions": [
+      "scene-kit",
+      "layered-hero",
+      "hero-shot-quota",
+      "clean-plate",
+      "matte",
+      "depth-map",
+      "alpha-layer-generation"
+    ]
+  },
+  "composition_families": [
+    {
+      "id": "F01",
+      "name": "轴心满版编辑海报",
+      "report_status": "pattern",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["单一主题", "活动", "自然或风味"],
+      "promotion_note": "Requires author positive/negative calibration and current HyperFrames render evidence."
+    },
+    {
+      "id": "F02",
+      "name": "透视字面与英雄穿插",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["发布", "突破", "人物或产品登场"],
+      "promotion_note": "Static examples do not establish a production motion or layering contract."
+    },
+    {
+      "id": "F03",
+      "name": "满版场景与超大字穿插",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["动作人物", "环境宣言", "品牌首屏"],
+      "promotion_note": "Requires author calibration, rights-safe material and target-raster verification."
+    },
+    {
+      "id": "F04",
+      "name": "横向编辑首屏与档案轨",
+      "report_status": "pattern",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["专题", "定义", "档案", "案例证据"],
+      "promotion_note": "Pattern evidence is advisory until calibrated against accepted and rejected outputs."
+    },
+    {
+      "id": "F05",
+      "name": "中央锁定 Vlog 或节目封面",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["人物节目", "旅行", "作者片名"],
+      "promotion_note": "Requires author calibration and proof that the family does not collapse into a title-card template."
+    },
+    {
+      "id": "F06",
+      "name": "诗性轴心与大负空间",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["情绪", "单字意象", "章节停顿"],
+      "promotion_note": "Negative space must have a declared reading, focus or emotional responsibility."
+    },
+    {
+      "id": "F07",
+      "name": "径向循环或 Hub-Spoke",
+      "report_status": "pattern",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["核心系统", "循环", "能力辐射"],
+      "promotion_note": "Requires legibility and motion-causality calibration at the delivery raster."
+    },
+    {
+      "id": "F08",
+      "name": "模块拓扑解释",
+      "report_status": "pattern",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["对比", "流程", "闸机", "网络", "规模"],
+      "promotion_note": "Must remain a content relationship, not a generic UI-dashboard skin."
+    },
+    {
+      "id": "F09",
+      "name": "实体近景或物件剧场",
+      "report_status": "pattern",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "semantic_uses": ["物化比喻", "真实材质", "现场感"],
+      "promotion_note": "Requires rights-safe material and measured visible contribution."
+    }
+  ],
+  "motion_grammars": [
+    {
+      "id": "G01",
+      "name": "SceneWindow Handoff",
+      "report_status": "animation-invariant",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "promotion_note": "Must pass integer-frame lifecycle and seek-equivalence verification."
+    },
+    {
+      "id": "G02",
+      "name": "Metric Resolve",
+      "report_status": "animation-grammar",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "promotion_note": "Requires a readable result and hold at target raster."
+    },
+    {
+      "id": "G03",
+      "name": "Route Draw and Gate Result",
+      "report_status": "animation-grammar",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "promotion_note": "Requires causal route-to-result behavior and seek-safe tests."
+    },
+    {
+      "id": "G04",
+      "name": "Poster Claim Evidence Assembly",
+      "report_status": "restricted-grammar",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "promotion_note": "Claims need registered evidence; assembly cannot manufacture proof."
+    },
+    {
+      "id": "G05",
+      "name": "Finite Reversible Ambient",
+      "report_status": "pattern-contract",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "promotion_note": "Ambient motion must be finite, subordinate and seek-equivalent."
+    },
+    {
+      "id": "G06",
+      "name": "Projective Type Settle",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "promotion_note": "The report explicitly lacks homologous HTML/video motion verification."
+    },
+    {
+      "id": "G07",
+      "name": "Brush or Ink Causal Reveal",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "promotion_note": "The report explicitly lacks homologous HTML/video motion verification."
+    },
+    {
+      "id": "G08",
+      "name": "Photo and Type Occlusion Assemble",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "promotion_note": "The report explicitly lacks homologous HTML/video motion verification."
+    },
+    {
+      "id": "G09",
+      "name": "Organic Plate Slow Push",
+      "report_status": "candidate",
+      "evidence_status": "distilled-candidate-evidence",
+      "default_eligible": false,
+      "promotion_note": "The report explicitly lacks homologous HTML/video motion verification."
+    },
+    {
+      "id": "G10",
+      "name": "CFR Raster Micro-Handoff",
+      "report_status": "narrow-domain-grammar",
+      "evidence_status": "distilled-pattern-evidence",
+      "default_eligible": false,
+      "promotion_note": "Only eligible after the exact CFR profile and use domain are verified."
+    }
+  ]
+}

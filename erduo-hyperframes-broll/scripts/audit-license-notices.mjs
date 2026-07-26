@@ -5,7 +5,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scanRuntimeFontText } from './validate-font-package.mjs';
-import { auditDisplayFontPackage, DisplayFontLibraryError } from './validate-display-font-selection.mjs';
 
 const SHA256 = /^[0-9a-f]{64}$/u;
 const GIT_COMMIT = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
@@ -95,16 +94,9 @@ export async function auditLicenseNotices(root) {
       const fontFiles = await listFiles(root, fontDir);
       const displayLibraryPath = path.join(fontDir, 'display-library.json');
       const displayDirectory = path.join(fontDir, 'user-display');
-      const allowedDisplayFonts = new Set();
-      if (await exists(displayLibraryPath) || await exists(displayDirectory)) {
-        try {
-          const displayAudit = await auditDisplayFontPackage({ skillRoot: root, libraryPath: displayLibraryPath });
-          for (const font of displayAudit.files) allowedDisplayFonts.add(font.relative_path);
-        } catch (error) {
-          findings.push({ code: error instanceof DisplayFontLibraryError ? error.code : 'display_font_package_invalid', file: 'assets/fonts/display-library.json' });
-        }
-      }
-      for (const file of fontFiles.filter((entry) => FONT_BINARY.test(entry) && !allowedDisplayFonts.has(entry))) findings.push({ code: 'public_font_binary', file });
+      if (await exists(displayLibraryPath)) findings.push({ code: 'bundled_display_font_catalog', file: 'assets/fonts/display-library.json' });
+      if (await exists(displayDirectory)) findings.push({ code: 'bundled_display_font_directory', file: 'assets/fonts/user-display' });
+      for (const file of fontFiles.filter((entry) => FONT_BINARY.test(entry))) findings.push({ code: 'public_font_binary', file });
       const manifestPath = path.join(fontDir, 'source-manifest.json');
       try {
         const manifest = await readJson(manifestPath);

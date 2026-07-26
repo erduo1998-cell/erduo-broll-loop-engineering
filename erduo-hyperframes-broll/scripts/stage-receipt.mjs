@@ -1,135 +1,624 @@
 import { createHash } from 'node:crypto';
-import { validateBoundedMetrics } from './artifact-manifest.mjs';
+import {
+  SCRIPT_ONLY_CONTEXT_POLICY,
+  validateContextBudget,
+} from './validate-context-budget.mjs';
+import {
+  AUTHORING_TOPOLOGY_ID,
+  GATE_NAMES,
+  PIPELINE_CONTRACT_VERSION,
+  VALIDATION_POLICY_ID,
+  fingerprintV3Value,
+  inspectV3Compatibility,
+  validateGateReceipt,
+  validateProductionContractShape,
+  validateValidationPolicy,
+} from './validate-production-contract.mjs';
+import { validateClaudeCodeExecutionIsolation } from './claude-code-dispatch.mjs';
 
-export const PRODUCT_STAGES = ['director', 'assets', 'master-build', 'render', 'shot-export'];
+export {
+  AUTHORING_TOPOLOGY_ID,
+  PIPELINE_CONTRACT_VERSION,
+  VALIDATION_POLICY_ID,
+};
+
+export const PRODUCT_STAGES = Object.freeze([
+  'director',
+  'assets',
+  'master-build',
+  'master-integrate',
+  'render',
+  'verify',
+  'shot-export',
+]);
+export const STAGE_OUTPUT_FIELDS = Object.freeze([
+  'envelopes',
+  'gate_receipts',
+]);
+export const RENDER_PREFLIGHT_REQUIRED_INPUTS = Object.freeze([
+  'block_receipts',
+  'integration_manifest',
+  'integration_receipt',
+  'no_rewrite_proof',
+  'production_contract',
+  'validation_policy',
+]);
+export const BLOCK_GATE_NAMES = Object.freeze([
+  'source-conformance-gate',
+  'runtime-seek-gate',
+  'pixel-signal-gate',
+]);
+export const SCRIPT_ONLY_GATE_NAMES = Object.freeze([
+  'policy-gate',
+  ...BLOCK_GATE_NAMES,
+  'integration-delivery-gate',
+]);
+
 const SHA256 = /^[0-9a-f]{64}$/u;
-const PRIVATE_PATH = /(?:^|\s)(?:\/(?!\/)[^\s]*|[A-Za-z]:[\\/][^\s]*|\\\\[^\s]*|file:[^\s]*)/u;
-const PRIVATE_KEY = /(?:api[_-]?key|token|secret|cookie|password|authorization|credential|locator|path)/iu;
-const MAIN_REVIEW_GATES = new Set(['shot_plan_review', 'asset_fact_review', 'html_preview_review', 'final_frame_review']);
-const MAIN_REVIEW_ROLE = 'erduo-hyperframes-broll-main-agent';
+const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$/u;
 
 export class StageReceiptError extends Error {
-  constructor(code, message) { super(message); this.name = 'StageReceiptError'; this.code = code; }
-}
-const fail = (code, message) => { throw new StageReceiptError(code, message); };
-const exact = (value, fields, code = 'invalid_receipt') => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)
-    || JSON.stringify(Object.keys(value).sort()) !== JSON.stringify([...fields].sort())) fail(code, 'Stage receipt has an invalid shape.');
-};
-function canonical(value) {
-  if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
-  if (typeof value === 'number') { if (!Number.isSafeInteger(value)) fail('invalid_receipt', 'Receipt numbers must be safe integers.'); return value; }
-  if (!value || typeof value !== 'object') fail('invalid_receipt', 'Receipt value is unsupported.');
-  if (Array.isArray(value)) return value.map(canonical);
-  return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
-}
-export const fingerprintReceiptValue = (value) => createHash('sha256').update(JSON.stringify(canonical(value)), 'utf8').digest('hex');
-const byteLength = (value) => Buffer.byteLength(JSON.stringify(canonical(value)), 'utf8');
-
-export function assertReceiptPrivacy(value) {
-  const visit = (item) => {
-    if (typeof item === 'string') { if (PRIVATE_PATH.test(item)) fail('receipt_privacy_violation', 'Stage receipt contains a private absolute path.'); return; }
-    if (!item || typeof item !== 'object') return;
-    for (const [key, child] of Object.entries(item)) { if (PRIVATE_KEY.test(key)) fail('receipt_privacy_violation', 'Stage receipt contains a private field.'); visit(child); }
-  };
-  visit(value); return true;
-}
-
-function validateIsolation(value) {
-  exact(value, ['dispatch_evidence_sha256', 'host', 'mechanism', 'stage_context_sha256'], 'invalid_execution_isolation');
-  if (!['claude-code', 'codex', 'fixture-test', 'other'].includes(value.host) || !['claude-agent', 'codex-subagent', 'narrow-packet', 'fixture'].includes(value.mechanism)
-    || !SHA256.test(value.dispatch_evidence_sha256) || !SHA256.test(value.stage_context_sha256)) fail('invalid_execution_isolation', 'Execution isolation is invalid.');
-  if (value.host === 'claude-code' && value.mechanism !== 'claude-agent') fail('inline_stage_execution', 'Claude stages require Agent isolation.');
-  if (value.host === 'fixture-test' && value.mechanism !== 'fixture') fail('invalid_execution_isolation', 'Fixture stages require fixture isolation.');
-}
-function validateEnvelope(value, producerIsolationSha256) {
-  exact(value, ['schema_version', 'stage', 'package_id', 'manifest_sha256', 'upstream_manifest_sha256', 'artifact_counts', 'metrics', 'producer_isolation_sha256'], 'invalid_receipt_output');
-  if (value.schema_version !== 1 || !PRODUCT_STAGES.includes(value.stage) || typeof value.package_id !== 'string' || !value.package_id
-    || !SHA256.test(value.manifest_sha256) || !SHA256.test(value.upstream_manifest_sha256) || value.producer_isolation_sha256 !== producerIsolationSha256
-    || !value.artifact_counts || typeof value.artifact_counts !== 'object' || Array.isArray(value.artifact_counts) || Object.keys(value.artifact_counts).length > 32
-    || Object.values(value.artifact_counts).some((count) => !Number.isSafeInteger(count) || count < 0)) fail('invalid_receipt_output', 'Artifact envelope is invalid or not producer-bound.');
-  validateBoundedMetrics(value.metrics);
-}
-function validateMainReviewRef(value, subjectManifestSha256, producerIsolationSha256) {
-  exact(value, ['approval_sha256', 'gate', 'review_packet_sha256', 'reviewer_isolation_sha256', 'reviewer_role', 'status', 'subject_manifest_sha256'], 'invalid_main_review');
-  if (!MAIN_REVIEW_GATES.has(value.gate) || value.status !== 'approved' || value.subject_manifest_sha256 !== subjectManifestSha256
-    || value.reviewer_role !== MAIN_REVIEW_ROLE || !SHA256.test(value.reviewer_isolation_sha256) || value.reviewer_isolation_sha256 === producerIsolationSha256
-    || !SHA256.test(value.review_packet_sha256) || !SHA256.test(value.approval_sha256)) {
-    fail(value.reviewer_isolation_sha256 === producerIsolationSha256 ? 'self_attested_review' : 'main_agent_review_missing', 'Main-agent review reference is missing or unbound.');
+  constructor(code, message) {
+    super(message);
+    this.name = 'StageReceiptError';
+    this.code = code;
   }
 }
-function normalizeOutput(output) {
-  if (output && typeof output === 'object' && !Array.isArray(output) && !('main_review_refs' in output)) return { ...output, main_review_refs: [] };
+
+const fail = (code, message) => {
+  throw new StageReceiptError(code, message);
+};
+
+function canonical(value, seen = new Set()) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) fail('receipt_value_invalid', 'Receipt contains a non-finite number.');
+    return value;
+  }
+  if (!value || typeof value !== 'object' || seen.has(value)) {
+    fail('receipt_value_invalid', 'Receipt contains an unsupported or cyclic value.');
+  }
+  seen.add(value);
+  const result = Array.isArray(value)
+    ? value.map((item) => canonical(item, seen))
+    : Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key], seen)]));
+  seen.delete(value);
+  return result;
+}
+
+export const fingerprintReceiptValue = (value) => createHash('sha256')
+  .update(JSON.stringify(canonical(value)), 'utf8')
+  .digest('hex');
+
+function exact(value, fields, code, message) {
+  if (
+    !value
+    || typeof value !== 'object'
+    || Array.isArray(value)
+    || JSON.stringify(Object.keys(value).sort()) !== JSON.stringify([...fields].sort())
+  ) fail(code, message);
+}
+
+function verifyIdentity(value, code = 'receipt_identity_invalid') {
+  if (
+    value?.pipeline_contract_version !== PIPELINE_CONTRACT_VERSION
+    || value?.authoring_topology_id !== AUTHORING_TOPOLOGY_ID
+    || value?.validation_policy_id !== VALIDATION_POLICY_ID
+  ) fail(code, 'Script-only v3 receipt identity is invalid.');
+}
+
+function ensureActive(value) {
+  const compatibility = inspectV3Compatibility(value);
+  if (compatibility.code === 'pipeline_upgrade_required') {
+    fail('pipeline_upgrade_required', 'Older receipts are inspection-only and cannot resume.');
+  }
+  if (compatibility.code === 'legacy_field_forbidden') {
+    fail('legacy_field_forbidden', 'Superseded authorization data cannot be re-signed into v3.');
+  }
+}
+
+function requireGateEvidence(productionContract, validationPolicy) {
+  if (!productionContract || !validationPolicy) {
+    fail(
+      'gate_receipt_inputs_required',
+      'Actual production contract and validation policy are required together.',
+    );
+  }
+  ensureActive(productionContract);
+  try {
+    validateProductionContractShape(productionContract);
+  } catch (error) {
+    fail(
+      'production_contract_invalid',
+      error?.message ?? 'Actual production contract shape is invalid.',
+    );
+  }
+  try {
+    validateValidationPolicy(validationPolicy);
+  } catch (error) {
+    if (error?.code) fail(error.code, error.message);
+    throw error;
+  }
+}
+
+export function assertReceiptPrivacy(value, { kind = 'stage-envelope' } = {}) {
+  try {
+    validateContextBudget(value, { kind, policy: SCRIPT_ONLY_CONTEXT_POLICY });
+  } catch (error) {
+    if (error?.code) fail(error.code, error.message);
+    throw error;
+  }
+  return true;
+}
+
+export function validateExecutionIsolation(value, stage) {
+  exact(
+    value,
+    ['host', 'mechanism', 'dispatch_evidence_sha256', 'stage_context_sha256'],
+    'execution_isolation_invalid',
+    'Execution isolation is invalid.',
+  );
+  if (
+    !SAFE_ID.test(value.host ?? '')
+    || !SAFE_ID.test(value.mechanism ?? '')
+    || !SHA256.test(value.dispatch_evidence_sha256 ?? '')
+    || !SHA256.test(value.stage_context_sha256 ?? '')
+  ) fail('execution_isolation_invalid', 'Execution isolation is invalid.');
+  try {
+    validateClaudeCodeExecutionIsolation(stage, value);
+  } catch (error) {
+    if (error?.code) fail(error.code, error.message);
+    throw error;
+  }
+}
+
+function validateArtifactEnvelope(value) {
+  exact(value, [
+    'schema_version',
+    'pipeline_contract_version',
+    'authoring_topology_id',
+    'validation_policy_id',
+    'stage',
+    'package_id',
+    'manifest_sha256',
+    'upstream_manifest_sha256',
+    'artifact_counts',
+    'metrics',
+    'producer_isolation_sha256',
+  ], 'artifact_envelope_invalid', 'Artifact envelope is invalid.');
+  verifyIdentity(value, 'artifact_envelope_invalid');
+  if (
+    value.schema_version !== 1
+    || !PRODUCT_STAGES.includes(value.stage)
+    || !SAFE_ID.test(value.package_id ?? '')
+    || !SHA256.test(value.manifest_sha256 ?? '')
+    || !SHA256.test(value.upstream_manifest_sha256 ?? '')
+    || !SHA256.test(value.producer_isolation_sha256 ?? '')
+    || !value.artifact_counts
+    || typeof value.artifact_counts !== 'object'
+    || Array.isArray(value.artifact_counts)
+    || Object.keys(value.artifact_counts).length > 32
+    || Object.entries(value.artifact_counts).some(
+      ([key, count]) => !SAFE_ID.test(key) || !Number.isSafeInteger(count) || count < 0,
+    )
+    || !value.metrics
+    || typeof value.metrics !== 'object'
+    || Array.isArray(value.metrics)
+  ) fail('artifact_envelope_invalid', 'Artifact envelope is invalid.');
+  assertReceiptPrivacy(value);
+}
+
+function validateCompactGateReceipt(value, {
+  productionContract,
+  validationPolicy,
+} = {}) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    fail('gate_receipt_invalid', 'Gate receipt is invalid.');
+  }
+  ensureActive(value);
+  verifyIdentity(value, 'gate_receipt_invalid');
+  if (
+    !GATE_NAMES.includes(value.gate)
+    || !['passed', 'failed'].includes(value.status)
+    || !SHA256.test(value.receipt_sha256 ?? '')
+    || !SHA256.test(value.production_contract_sha256 ?? '')
+  ) fail('gate_receipt_invalid', 'Gate receipt is invalid.');
+  assertReceiptPrivacy(value, { kind: 'block-receipt' });
+  const receiptCore = Object.fromEntries(
+    Object.entries(value).filter(([key]) => key !== 'receipt_sha256'),
+  );
+  if (value.receipt_sha256 !== fingerprintReceiptValue(receiptCore)) {
+    fail('gate_receipt_hash_mismatch', 'Gate receipt hash does not bind its exact content.');
+  }
+  if (productionContract || validationPolicy) {
+    if (!productionContract || !validationPolicy) {
+      fail('gate_receipt_inputs_required', 'Gate receipt validation requires contract and policy together.');
+    }
+    try {
+      validateGateReceipt(value, {
+        productionContract,
+        validationPolicy,
+      });
+    } catch (error) {
+      if (error?.code) fail(error.code, error.message);
+      throw error;
+    }
+  }
+}
+
+function validateStageOutput(output, options = {}) {
+  exact(
+    output,
+    STAGE_OUTPUT_FIELDS,
+    'invalid_receipt_output',
+    'Stage output must contain only envelopes and gate receipts.',
+  );
+  if (
+    !Array.isArray(output.envelopes)
+    || output.envelopes.length > 32
+    || !Array.isArray(output.gate_receipts)
+    || output.gate_receipts.length > 64
+  ) fail('invalid_receipt_output', 'Stage output arrays are invalid.');
+  output.envelopes.forEach(validateArtifactEnvelope);
+  output.gate_receipts.forEach((value) => validateCompactGateReceipt(value, options));
+  const receiptHashes = output.gate_receipts.map((value) => value.receipt_sha256);
+  if (new Set(receiptHashes).size !== receiptHashes.length) {
+    fail('invalid_receipt_output', 'Gate receipt hashes must be unique.');
+  }
+  assertReceiptPrivacy(output);
   return output;
 }
-function validateOutput(stage, output, producerIsolationSha256) {
-  exact(output, ['main_review_refs', 'manifest_envelope', 'review_refs'], 'invalid_receipt_output');
-  validateEnvelope(output.manifest_envelope, producerIsolationSha256);
-  if (output.manifest_envelope.stage !== stage || !Array.isArray(output.review_refs) || output.review_refs.length > 4
-    || !Array.isArray(output.main_review_refs) || output.main_review_refs.length > 4) fail('invalid_receipt_output', 'Stage output is invalid.');
-  const gates = new Set();
-  for (const review of output.review_refs) {
-    exact(review, ['gate', 'status', 'subject_manifest_sha256', 'reviewer_role', 'reviewer_isolation_sha256', 'receipt_sha256'], 'invalid_receipt_output');
-    if (typeof review.gate !== 'string' || !review.gate || gates.has(review.gate) || review.status !== 'approved'
-      || review.subject_manifest_sha256 !== output.manifest_envelope.manifest_sha256 || typeof review.reviewer_role !== 'string' || !review.reviewer_role
-      || !SHA256.test(review.reviewer_isolation_sha256) || review.reviewer_isolation_sha256 === producerIsolationSha256 || !SHA256.test(review.receipt_sha256)) {
-      fail(review.reviewer_isolation_sha256 === producerIsolationSha256 ? 'self_attested_review' : 'review_subject_mismatch', 'Review reference is unbound or not isolated.');
-    }
-    gates.add(review.gate);
-  }
-  const mainGates = new Set();
-  for (const review of output.main_review_refs) {
-    if (mainGates.has(review?.gate)) fail('invalid_main_review', 'Duplicate main-agent review gate.');
-    validateMainReviewRef(review, output.manifest_envelope.manifest_sha256, producerIsolationSha256);
-    mainGates.add(review.gate);
-  }
-}
 
-/** Final rendering requires deterministic source/pixel gates, official authoring
- * evidence and the main-agent preview decision for the exact source manifest. */
-export function assertFinalRenderPreflight(receipt) {
-  validateStageReceipt(receipt, { expectedStage: 'master-build', expectedReviewGates: [], expectedMainReviewGates: ['html_preview_review'] });
-  const manifestSha256 = receipt.output.manifest_envelope.manifest_sha256;
-  const metrics = receipt.output.manifest_envelope.metrics;
-  if (metrics.source_gate_passed !== true || metrics.pixel_gate_passed !== true) {
-    fail('pre_master_hard_gate_missing', 'Final render requires passing source and pre-master pixel gates for the exact source manifest.');
-  }
-  if (metrics.official_hyperframes_skill_used !== true || !SHA256.test(metrics.official_hyperframes_creation_sha256 ?? '')) {
-    fail('official_hyperframes_skill_missing', 'Final render requires evidence that the official HyperFrames skill authored the HTML composition.');
-  }
-  return { subject_manifest_sha256: manifestSha256, source_gate_passed: true, pixel_gate_passed: true };
-}
-
-export function createStageReceipt({ stage, run_id, input_sha256, upstream_receipt_sha256 = null, execution_isolation, output }) {
-  output = normalizeOutput(output);
-  if (!PRODUCT_STAGES.includes(stage) || typeof run_id !== 'string' || !run_id || !SHA256.test(input_sha256)
-    || (upstream_receipt_sha256 !== null && !SHA256.test(upstream_receipt_sha256))) fail('invalid_receipt', 'Stage receipt identity is invalid.');
-  validateIsolation(execution_isolation); validateOutput(stage, output, execution_isolation.stage_context_sha256);
-  const core = { schema_version: 2, stage, status: 'complete', run_id, input_sha256, upstream_receipt_sha256, execution_isolation, output };
-  assertReceiptPrivacy(core);
+export function createStageReceipt({
+  stage,
+  run_id,
+  input_sha256,
+  upstream_receipt_sha256 = null,
+  execution_isolation,
+  output,
+  productionContract,
+  validationPolicy,
+}) {
+  if (
+    !PRODUCT_STAGES.includes(stage)
+    || !SAFE_ID.test(run_id ?? '')
+    || !SHA256.test(input_sha256 ?? '')
+    || upstream_receipt_sha256 !== null && !SHA256.test(upstream_receipt_sha256 ?? '')
+  ) fail('receipt_identity_invalid', 'Stage receipt identity is invalid.');
+  requireGateEvidence(productionContract, validationPolicy);
+  validateExecutionIsolation(execution_isolation, stage);
+  validateStageOutput(output, { productionContract, validationPolicy });
+  const core = {
+    schema_version: 1,
+    pipeline_contract_version: PIPELINE_CONTRACT_VERSION,
+    authoring_topology_id: AUTHORING_TOPOLOGY_ID,
+    validation_policy_id: VALIDATION_POLICY_ID,
+    stage,
+    status: 'complete',
+    run_id,
+    input_sha256,
+    upstream_receipt_sha256,
+    execution_isolation,
+    output,
+  };
   const receipt = { ...core, receipt_sha256: fingerprintReceiptValue(core) };
-  if (byteLength(receipt) > 4096) fail('receipt_envelope_too_large', 'Compact stage receipt exceeds 4096 bytes.');
+  assertReceiptPrivacy(receipt);
   return receipt;
 }
 
-export function validateStageReceipt(receipt, { expectedStage, expectedInput, expectedUpstream, expectedManifestSha256, expectedReviewGates, expectedMainReviewGates } = {}) {
-  exact(receipt, ['execution_isolation', 'input_sha256', 'output', 'receipt_sha256', 'run_id', 'schema_version', 'stage', 'status', 'upstream_receipt_sha256']);
-  if (receipt.schema_version !== 2 || !PRODUCT_STAGES.includes(receipt.stage) || receipt.status !== 'complete' || typeof receipt.run_id !== 'string' || !receipt.run_id
-    || !SHA256.test(receipt.input_sha256) || !SHA256.test(receipt.receipt_sha256) || (receipt.upstream_receipt_sha256 !== null && !SHA256.test(receipt.upstream_receipt_sha256))) fail('invalid_receipt', 'Stage receipt identity is invalid.');
-  validateIsolation(receipt.execution_isolation); validateOutput(receipt.stage, receipt.output, receipt.execution_isolation.stage_context_sha256); assertReceiptPrivacy(receipt);
-  const core = { schema_version: 2, stage: receipt.stage, status: receipt.status, run_id: receipt.run_id, input_sha256: receipt.input_sha256, upstream_receipt_sha256: receipt.upstream_receipt_sha256, execution_isolation: receipt.execution_isolation, output: receipt.output };
-  if (receipt.receipt_sha256 !== fingerprintReceiptValue(core)) fail('receipt_tampered', 'Stage receipt hash does not match content.');
-  if (expectedStage && receipt.stage !== expectedStage) fail('receipt_stage_mismatch', 'Stage receipt belongs to another stage.');
-  if (expectedInput && receipt.input_sha256 !== expectedInput) fail('receipt_input_mismatch', 'Stage receipt input mismatch.');
-  if (expectedUpstream !== undefined && receipt.upstream_receipt_sha256 !== expectedUpstream) fail('receipt_upstream_mismatch', 'Stage receipt predecessor mismatch.');
-  if (expectedManifestSha256 && receipt.output.manifest_envelope.manifest_sha256 !== expectedManifestSha256) fail('artifact_set_unbound', 'Stage receipt manifest mismatch.');
-  if (expectedReviewGates) {
-    const actual = receipt.output.review_refs.map((item) => item.gate).sort();
-    if (JSON.stringify(actual) !== JSON.stringify([...expectedReviewGates].sort())) fail('review_subject_mismatch', 'Stage review gates mismatch.');
+export function validateStageReceipt(receipt, {
+  expectedStage,
+  expectedInput,
+  expectedUpstream,
+  expectedManifestSha256,
+  expectedGateNames,
+  productionContract,
+  validationPolicy,
+} = {}) {
+  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) {
+    fail('receipt_invalid', 'Stage receipt is invalid.');
   }
-  if (expectedMainReviewGates) {
-    const actual = receipt.output.main_review_refs.map((item) => item.gate).sort();
-    if (JSON.stringify(actual) !== JSON.stringify([...expectedMainReviewGates].sort())) fail('main_agent_review_missing', 'Stage main-agent review gates mismatch.');
+  ensureActive(receipt);
+  requireGateEvidence(productionContract, validationPolicy);
+  exact(receipt, [
+    'schema_version',
+    'pipeline_contract_version',
+    'authoring_topology_id',
+    'validation_policy_id',
+    'stage',
+    'status',
+    'run_id',
+    'input_sha256',
+    'upstream_receipt_sha256',
+    'execution_isolation',
+    'output',
+    'receipt_sha256',
+  ], 'receipt_invalid', 'Stage receipt shape is invalid.');
+  verifyIdentity(receipt);
+  if (
+    receipt.schema_version !== 1
+    || !PRODUCT_STAGES.includes(receipt.stage)
+    || receipt.status !== 'complete'
+    || !SAFE_ID.test(receipt.run_id ?? '')
+    || !SHA256.test(receipt.input_sha256 ?? '')
+    || receipt.upstream_receipt_sha256 !== null
+      && !SHA256.test(receipt.upstream_receipt_sha256 ?? '')
+  ) fail('receipt_invalid', 'Stage receipt identity is invalid.');
+  validateExecutionIsolation(receipt.execution_isolation, receipt.stage);
+  validateStageOutput(receipt.output, { productionContract, validationPolicy });
+  const core = Object.fromEntries(
+    Object.entries(receipt).filter(([key]) => key !== 'receipt_sha256'),
+  );
+  if (
+    !SHA256.test(receipt.receipt_sha256 ?? '')
+    || receipt.receipt_sha256 !== fingerprintReceiptValue(core)
+  ) fail('receipt_hash_mismatch', 'Stage receipt hash does not bind its exact content.');
+  if (expectedStage && receipt.stage !== expectedStage) {
+    fail('receipt_stage_mismatch', 'Stage receipt belongs to another stage.');
   }
+  if (expectedInput && receipt.input_sha256 !== expectedInput) {
+    fail('receipt_input_mismatch', 'Stage receipt does not bind the expected input.');
+  }
+  if (expectedUpstream !== undefined && receipt.upstream_receipt_sha256 !== expectedUpstream) {
+    fail('receipt_upstream_mismatch', 'Stage receipt does not bind the expected upstream.');
+  }
+  if (
+    expectedManifestSha256
+    && !receipt.output.envelopes.some(
+      (envelope) => envelope.manifest_sha256 === expectedManifestSha256,
+    )
+  ) fail('receipt_manifest_mismatch', 'Stage receipt does not bind the expected manifest.');
+  if (expectedGateNames) {
+    const actual = receipt.output.gate_receipts.map((value) => value.gate).sort();
+    if (JSON.stringify(actual) !== JSON.stringify([...expectedGateNames].sort())) {
+      fail('receipt_gate_set_mismatch', 'Stage receipt gate set is invalid.');
+    }
+  }
+  assertReceiptPrivacy(receipt);
   return receipt;
+}
+
+function validateBlockReceiptSet(blocks, productionContract, validationPolicy) {
+  if (!Array.isArray(blocks) || blocks.length < 1 || blocks.length > 256) {
+    fail('render_block_receipts_invalid', 'Render preflight requires a dynamic non-empty block set.');
+  }
+  const blockIds = [];
+  for (const [index, block] of blocks.entries()) {
+    exact(
+      block,
+      ['block_id', 'gate_receipts'],
+      'render_block_receipts_invalid',
+      'Block receipt set is invalid.',
+    );
+    if (
+      block.block_id !== `B${String(index + 1).padStart(3, '0')}`
+      || !Array.isArray(block.gate_receipts)
+      || block.gate_receipts.length !== BLOCK_GATE_NAMES.length
+    ) fail('render_block_sequence_invalid', 'Block IDs must be the continuous canonical B001…BN sequence.');
+    blockIds.push(block.block_id);
+    const gates = block.gate_receipts.map((value) => value.gate).sort();
+    if (JSON.stringify(gates) !== JSON.stringify([...BLOCK_GATE_NAMES].sort())) {
+      fail('render_block_gate_set_invalid', 'Each block must pass the exact three block gates.');
+    }
+    for (const gateReceipt of block.gate_receipts) {
+      validateCompactGateReceipt(gateReceipt, { productionContract, validationPolicy });
+      if (
+        gateReceipt.status !== 'passed'
+        || gateReceipt.phase !== 'block'
+        || gateReceipt.scope_id !== block.block_id
+      ) fail('render_block_gate_failed', 'A block gate is failed or bound to another block.');
+    }
+    const source = block.gate_receipts.find(
+      (receipt) => receipt.gate === 'source-conformance-gate',
+    );
+    const runtime = block.gate_receipts.find(
+      (receipt) => receipt.gate === 'runtime-seek-gate',
+    );
+    const pixel = block.gate_receipts.find(
+      (receipt) => receipt.gate === 'pixel-signal-gate',
+    );
+    if (
+      !SHA256.test(source.input_bindings?.block_manifest_sha256 ?? '')
+      || !SHA256.test(source.input_bindings?.source_sha256 ?? '')
+      || runtime.input_bindings.block_manifest_sha256
+        !== source.input_bindings.block_manifest_sha256
+      || pixel.input_bindings.block_manifest_sha256
+        !== source.input_bindings.block_manifest_sha256
+      || runtime.input_bindings.source_sha256 !== source.input_bindings.source_sha256
+      || pixel.input_bindings.source_sha256 !== source.input_bindings.source_sha256
+      || runtime.input_bindings.source_conformance_receipt_sha256
+        !== source.receipt_sha256
+      || pixel.input_bindings.source_conformance_receipt_sha256
+        !== source.receipt_sha256
+      || pixel.input_bindings.runtime_seek_receipt_sha256
+        !== runtime.receipt_sha256
+    ) fail('render_block_gate_lineage_invalid', 'Block gate receipt lineage is inconsistent.');
+  }
+  return blockIds;
+}
+
+function canonicalOrderedBlockReceiptSet(blocks) {
+  return blocks.map((block) => ({
+    block_id: block.block_id,
+    source_conformance_receipt_sha256: block.gate_receipts.find(
+      (receipt) => receipt.gate === 'source-conformance-gate',
+    ).receipt_sha256,
+    runtime_seek_receipt_sha256: block.gate_receipts.find(
+      (receipt) => receipt.gate === 'runtime-seek-gate',
+    ).receipt_sha256,
+    pixel_signal_receipt_sha256: block.gate_receipts.find(
+      (receipt) => receipt.gate === 'pixel-signal-gate',
+    ).receipt_sha256,
+  }));
+}
+
+export async function assertFinalRenderPreflight(input) {
+  exact(
+    input,
+    RENDER_PREFLIGHT_REQUIRED_INPUTS,
+    'render_preflight_invalid',
+    'Render preflight input set is invalid.',
+  );
+  ensureActive(input.production_contract);
+  verifyIdentity(input.production_contract, 'render_contract_invalid');
+  try {
+    validateValidationPolicy(input.validation_policy);
+  } catch (error) {
+    if (error?.code) fail(error.code, error.message);
+    throw error;
+  }
+  const blockIds = validateBlockReceiptSet(
+    input.block_receipts,
+    input.production_contract,
+    input.validation_policy,
+  );
+  validateCompactGateReceipt(input.integration_receipt, {
+    productionContract: input.production_contract,
+    validationPolicy: input.validation_policy,
+  });
+  if (
+    input.integration_receipt.gate !== 'integration-delivery-gate'
+    || input.integration_receipt.phase !== 'integration'
+    || input.integration_receipt.status !== 'passed'
+  ) fail('render_integration_gate_failed', 'Integration gate has not passed.');
+  const manifest = input.integration_manifest;
+  exact(manifest, [
+    'schema_version',
+    'pipeline_contract_version',
+    'authoring_topology_id',
+    'validation_policy_id',
+    'ordered_block_ids',
+    'integrated_source_sha256',
+    'integration_manifest_sha256',
+  ], 'render_integration_manifest_invalid', 'Integration manifest shape is invalid.');
+  const manifestCore = Object.fromEntries(
+    Object.entries(manifest).filter(([key]) => key !== 'integration_manifest_sha256'),
+  );
+  if (
+    manifest.schema_version !== 1
+    || manifest.pipeline_contract_version !== PIPELINE_CONTRACT_VERSION
+    || manifest.authoring_topology_id !== AUTHORING_TOPOLOGY_ID
+    || manifest.validation_policy_id !== VALIDATION_POLICY_ID
+    || JSON.stringify(manifest.ordered_block_ids) !== JSON.stringify(blockIds)
+    || !SHA256.test(manifest.integrated_source_sha256 ?? '')
+  ) fail('render_integration_manifest_invalid', 'Integration manifest does not bind ordered blocks.');
+  if (
+    !SHA256.test(manifest.integration_manifest_sha256 ?? '')
+    || manifest.integration_manifest_sha256 !== fingerprintV3Value(manifestCore)
+  ) fail('render_integration_manifest_hash_mismatch', 'Integration manifest self-hash is invalid.');
+  const proof = input.no_rewrite_proof;
+  exact(proof, [
+    'schema_version',
+    'pipeline_contract_version',
+    'authoring_topology_id',
+    'validation_policy_id',
+    'status',
+    'ordered_block_ids',
+    'blocks',
+    'integrated_source_sha256',
+    'no_rewrite_proof_sha256',
+  ], 'render_no_rewrite_proof_invalid', 'No-rewrite proof shape is invalid.');
+  if (
+    proof.schema_version !== 1
+    || proof.pipeline_contract_version !== PIPELINE_CONTRACT_VERSION
+    || proof.authoring_topology_id !== AUTHORING_TOPOLOGY_ID
+    || proof.validation_policy_id !== VALIDATION_POLICY_ID
+    || proof.status !== 'passed'
+    || JSON.stringify(proof.ordered_block_ids) !== JSON.stringify(blockIds)
+    || !Array.isArray(proof.blocks)
+    || proof.blocks.length !== blockIds.length
+    || proof.integrated_source_sha256 !== manifest.integrated_source_sha256
+  ) fail('render_no_rewrite_proof_invalid', 'No-rewrite proof is invalid or stale.');
+  for (const [index, record] of proof.blocks.entries()) {
+    exact(record, [
+      'block_id',
+      'before_source_sha256',
+      'after_source_sha256',
+    ], 'render_no_rewrite_proof_invalid', 'No-rewrite block proof is invalid.');
+    const sourceReceipt = input.block_receipts[index].gate_receipts.find(
+      (receipt) => receipt.gate === 'source-conformance-gate',
+    );
+    if (
+      record.block_id !== blockIds[index]
+      || !SHA256.test(record.before_source_sha256 ?? '')
+      || record.before_source_sha256 !== record.after_source_sha256
+      || record.before_source_sha256 !== sourceReceipt.input_bindings.source_sha256
+    ) fail('render_no_rewrite_detected', 'Integrated block bytes differ from authored source bytes.');
+  }
+  const proofCore = Object.fromEntries(
+    Object.entries(proof).filter(([key]) => key !== 'no_rewrite_proof_sha256'),
+  );
+  if (
+    !SHA256.test(proof.no_rewrite_proof_sha256 ?? '')
+    || proof.no_rewrite_proof_sha256 !== fingerprintV3Value(proofCore)
+  ) fail('render_no_rewrite_proof_hash_mismatch', 'No-rewrite proof self-hash is invalid.');
+  const bindings = input.integration_receipt.input_bindings;
+  const orderedSetSha256 = fingerprintV3Value(
+    canonicalOrderedBlockReceiptSet(input.block_receipts),
+  );
+  if (
+    bindings.ordered_block_receipt_set_sha256 !== orderedSetSha256
+  ) fail('render_ordered_block_receipt_set_mismatch', 'Integration receipt does not bind the ordered block receipt set.');
+  if (
+    bindings.integration_manifest_sha256 !== manifest.integration_manifest_sha256
+    || bindings.no_rewrite_proof_sha256 !== proof.no_rewrite_proof_sha256
+    || bindings.integrated_source_sha256 !== manifest.integrated_source_sha256
+  ) fail('render_integration_binding_mismatch', 'Integration receipt is not bound to current bytes.');
+  return {
+    status: 'passed',
+    pipeline_contract_version: PIPELINE_CONTRACT_VERSION,
+    authoring_topology_id: AUTHORING_TOPOLOGY_ID,
+    validation_policy_id: VALIDATION_POLICY_ID,
+    production_contract_sha256: input.production_contract.production_contract_sha256,
+    block_count: blockIds.length,
+    integration_manifest_sha256: manifest.integration_manifest_sha256,
+    integration_receipt_sha256: input.integration_receipt.receipt_sha256,
+    no_rewrite_proof_sha256: proof.no_rewrite_proof_sha256,
+    gate_names: SCRIPT_ONLY_GATE_NAMES,
+  };
+}
+
+export function inspectStageReceipt(receipt, evidence = {}) {
+  const compatibility = inspectV3Compatibility(receipt);
+  if (compatibility.code !== 'canonical_artifact_validation_required') {
+    return {
+      resume_eligible: false,
+      resign_eligible: false,
+      code: compatibility.code,
+      schema_version: Number.isSafeInteger(receipt?.schema_version)
+        ? receipt.schema_version
+        : null,
+      pipeline_contract_version: compatibility.pipeline_contract_version,
+      stage: typeof receipt?.stage === 'string' ? receipt.stage : null,
+      receipt_sha256: SHA256.test(receipt?.receipt_sha256 ?? '')
+        ? receipt.receipt_sha256
+        : null,
+    };
+  }
+  try {
+    validateStageReceipt(receipt, evidence);
+  } catch (error) {
+    return {
+      resume_eligible: false,
+      resign_eligible: false,
+      code: error?.code ?? 'receipt_invalid',
+      schema_version: Number.isSafeInteger(receipt?.schema_version)
+        ? receipt.schema_version
+        : null,
+      pipeline_contract_version: compatibility.pipeline_contract_version,
+      stage: typeof receipt?.stage === 'string' ? receipt.stage : null,
+      receipt_sha256: SHA256.test(receipt?.receipt_sha256 ?? '')
+        ? receipt.receipt_sha256
+        : null,
+    };
+  }
+  return {
+    resume_eligible: true,
+    resign_eligible: false,
+    code: null,
+    schema_version: receipt.schema_version,
+    pipeline_contract_version: receipt.pipeline_contract_version,
+    stage: receipt.stage,
+    receipt_sha256: receipt.receipt_sha256,
+  };
 }

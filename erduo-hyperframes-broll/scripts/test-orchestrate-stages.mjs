@@ -1,73 +1,210 @@
-import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, readFile } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import { orchestrateFixture } from './orchestrate-stages.mjs';
+import test from 'node:test';
+import {
+  OrchestrationError,
+  inspectOrchestrationInput,
+  orchestrateFixture,
+  orchestrateScriptOnlyV3,
+} from './orchestrate-stages.mjs';
+import {
+  H,
+  REAL_LIMITATION_CODES,
+  createDeliveryPhaseReceipt,
+  createReceipt,
+  createRuntimeBundle,
+} from './test-support-script-only-v3-runtime.mjs';
 
-test('orchestrates four producer packages in order and resumes without redoing verified work', async (t) => {
-  const temporary = await mkdtemp(path.join(os.tmpdir(), 'broll-staged-e2e-')); t.after(() => rm(temporary, { recursive: true, force: true }));
-  const root = path.join(temporary, 'new-project-root');
-  const first = await orchestrateFixture({ fixtureId: 'faceless-basic', projectRoot: root });
-  assert.deepEqual(first.stages.map((entry) => entry.stage), ['director', 'assets', 'master-build', 'render']);
-  assert.deepEqual(first.stages.map((entry) => entry.action), ['completed', 'completed', 'completed', 'completed']);
-  assert.equal(first.coverage_basis_points, 10000);
-  assert.match(await readFile(path.join(root, 'hyperframes-project', 'index.html'), 'utf8'), /data-duration="4"/u);
-  const second = await orchestrateFixture({ fixtureId: 'faceless-basic', projectRoot: root });
-  assert.deepEqual(second.stages.map((entry) => entry.action), ['reused', 'reused', 'reused', 'reused']);
-  const receipt = JSON.parse(await readFile(path.join(root, '.erduo-hyperframes-broll', 'receipts', 'director.json'), 'utf8'));
-  assert.equal(receipt.schema_version, 2);
-  assert.deepEqual(receipt.output.review_refs, []);
-  assert.deepEqual(receipt.output.main_review_refs.map((entry) => entry.gate), ['shot_plan_review']);
-  const manifest = JSON.parse(await readFile(path.join(root, '.erduo-hyperframes-broll', 'artifacts', 'director', 'manifest.json'), 'utf8'));
-  assert.equal(receipt.output.manifest_envelope.manifest_sha256, manifest.manifest_sha256);
-  const sourceManifest = JSON.parse(await readFile(path.join(root, '.erduo-hyperframes-broll', 'artifacts', 'master-build', 'manifest.json'), 'utf8'));
-  const renderReceipt = JSON.parse(await readFile(path.join(root, '.erduo-hyperframes-broll', 'receipts', 'render.json'), 'utf8'));
-  const masterBuildReceipt = JSON.parse(await readFile(path.join(root, '.erduo-hyperframes-broll', 'receipts', 'master-build.json'), 'utf8'));
-  assert.deepEqual(masterBuildReceipt.output.review_refs, []);
-  assert.deepEqual(masterBuildReceipt.output.main_review_refs.map((entry) => entry.gate), ['html_preview_review']);
-  assert.equal(masterBuildReceipt.output.manifest_envelope.metrics.source_gate_passed, true);
-  assert.equal(masterBuildReceipt.output.manifest_envelope.metrics.pixel_gate_passed, true);
-  assert.equal(masterBuildReceipt.output.manifest_envelope.metrics.official_hyperframes_skill_used, true);
-  assert.match(masterBuildReceipt.output.manifest_envelope.metrics.official_hyperframes_creation_sha256, /^[0-9a-f]{64}$/u);
-  assert.match(sourceManifest.manifest_sha256, /^[0-9a-f]{64}$/u);
-  assert.deepEqual(renderReceipt.output.review_refs, []);
-  assert.deepEqual(renderReceipt.output.main_review_refs.map((entry) => entry.gate), ['final_frame_review']);
-  assert.equal(renderReceipt.output.manifest_envelope.metrics.coverage_basis_points, 10000);
-  assert.equal(renderReceipt.output.manifest_envelope.metrics.verify_passed, true);
-  assert.equal(first.state.stages.preflight.status, 'complete');
-  assert.equal(first.state.stages.verify.status, 'complete');
-  assert.equal(JSON.stringify(receipt).includes('/Users/'), false);
+const copy = (value) => structuredClone(value);
+
+function options(blockCount = 2, overrides = {}) {
+  const bundle = createRuntimeBundle({ blockCount });
+  let renderCalls = 0;
+  let verifyCalls = 0;
+  const renderResult = {
+    master_media_sha256: H('1'),
+    render_receipt_sha256: H('2'),
+  };
+  const technicalResult = {
+    status: 'passed',
+    receipt_sha256: H('3'),
+    checked_media_sha256: H('1'),
+    limitation_codes: [...REAL_LIMITATION_CODES],
+  };
+  const base = {
+    run_id: 'run-v3',
+    production_contract: bundle.sealed,
+    validation_policy: bundle.validationPolicy,
+    policy_receipt: bundle.policyReceipt,
+    block_receipts: bundle.blockReceipts,
+    integration_manifest: bundle.integrationManifest,
+    integration_receipt: bundle.integrationReceipt,
+    no_rewrite_proof: bundle.noRewriteProof,
+    render_master: async (input) => {
+      renderCalls += 1;
+      assert.equal(
+        input.integrated_source_sha256,
+        bundle.integrationManifest.integrated_source_sha256,
+      );
+      return renderResult;
+    },
+    technical_verify: async (input) => {
+      verifyCalls += 1;
+      assert.equal(input.master_media_sha256, H('1'));
+      return technicalResult;
+    },
+    run_delivery_gate: async () => createDeliveryPhaseReceipt({
+      bundle,
+      render: renderResult,
+      technical: technicalResult,
+    }),
+    ...overrides,
+  };
+  return {
+    bundle,
+    value: base,
+    counts: () => ({ renderCalls, verifyCalls }),
+  };
+}
+
+test('orchestrates only v3 five-gate inputs and performs one final render', async () => {
+  const fixture = options();
+  const result = await orchestrateScriptOnlyV3(fixture.value);
+  assert.equal(result.status, 'technical-contract-passed');
+  assert.equal(result.pipeline_contract_version, 3);
+  assert.equal(result.authoring_topology_id, 'script-only-authoring-cluster-v1');
+  assert.equal(result.validation_policy_id, 'script-only-production-v1');
+  assert.deepEqual(fixture.counts(), { renderCalls: 1, verifyCalls: 1 });
+  assert.deepEqual(Object.keys(result.gate_receipts).sort(), [
+    'integration-delivery-gate',
+    'pixel-signal-gate',
+    'policy-gate',
+    'runtime-seek-gate',
+    'source-conformance-gate',
+  ]);
 });
 
-test('refuses final render when main preview approval is absent', async (t) => {
-  const temporary = await mkdtemp(path.join(os.tmpdir(), 'broll-staged-no-main-preview-')); t.after(() => rm(temporary, { recursive: true, force: true }));
+test('orchestrator preserves dynamic N blocks without changing their order', async () => {
+  for (const count of [1, 3, 6]) {
+    const fixture = options(count);
+    const result = await orchestrateFixture(fixture.value);
+    assert.equal(result.block_count, count);
+    assert.equal(result.preflight.block_count, count);
+    assert.equal(result.gate_receipts['source-conformance-gate'].length, count);
+    assert.deepEqual(fixture.counts(), { renderCalls: 1, verifyCalls: 1 });
+  }
+});
+
+test('render and technical callbacks are mandatory and run only after preflight', async () => {
+  const missingRender = options(2, { render_master: null });
   await assert.rejects(
-    () => orchestrateFixture({ fixtureId: 'faceless-basic', projectRoot: path.join(temporary, 'project'), omitMainPreviewReview: true }),
-    (error) => error?.code === 'main_agent_review_missing',
+    () => orchestrateScriptOnlyV3(missingRender.value),
+    (error) => error instanceof OrchestrationError
+      && error.code === 'orchestration_callback_invalid',
+  );
+  assert.deepEqual(missingRender.counts(), { renderCalls: 0, verifyCalls: 0 });
+  const badBlocks = options();
+  badBlocks.value.block_receipts = [];
+  await assert.rejects(
+    () => orchestrateScriptOnlyV3(badBlocks.value),
+    (error) => error.code === 'render_block_receipts_invalid',
+  );
+  assert.deepEqual(badBlocks.counts(), { renderCalls: 0, verifyCalls: 0 });
+});
+
+test('policy gate must be passed, current and bound to the sealed contract', async () => {
+  const failed = options();
+  failed.value.policy_receipt = createReceipt({
+    gate: 'policy-gate',
+    phase: 'sealed',
+    contract: failed.bundle.sealed,
+    validationPolicy: failed.bundle.validationPolicy,
+    status: 'failed',
+    hardFailureCodes: ['policy_gate_contract_failure'],
+  });
+  await assert.rejects(
+    () => orchestrateScriptOnlyV3(failed.value),
+    (error) => error.code === 'policy_gate_failed',
+  );
+  const stale = options();
+  stale.value.policy_receipt.production_contract_sha256 = H('0');
+  await assert.rejects(
+    () => orchestrateScriptOnlyV3(stale.value),
+    (error) => [
+      'gate_receipt_contract_unbound',
+      'gate_receipt_hash_mismatch',
+    ].includes(error.code),
   );
 });
 
-test('refuses final render when official HyperFrames authoring evidence is absent', async (t) => {
-  const temporary = await mkdtemp(path.join(os.tmpdir(), 'broll-staged-no-official-hf-')); t.after(() => rm(temporary, { recursive: true, force: true }));
-  await assert.rejects(
-    () => orchestrateFixture({ fixtureId: 'faceless-basic', projectRoot: path.join(temporary, 'project'), omitOfficialHyperframesSkill: true }),
-    (error) => error?.code === 'official_hyperframes_skill_missing',
-  );
+test('invalid render output is rejected before technical verification', async () => {
+  for (const renderResult of [
+    { master_media_sha256: 'bad', render_receipt_sha256: H('2') },
+    { master_media_sha256: H('1') },
+    { master_media_sha256: H('1'), render_receipt_sha256: H('2'), extra: true },
+  ]) {
+    const fixture = options(2, { render_master: async () => renderResult });
+    await assert.rejects(
+      () => orchestrateScriptOnlyV3(fixture.value),
+      (error) => error.code === 'render_result_invalid',
+    );
+    assert.equal(fixture.counts().verifyCalls, 0);
+  }
 });
 
-test('refuses malformed pre-master evidence before final render', async (t) => {
-  const temporary = await mkdtemp(path.join(os.tmpdir(), 'broll-staged-bad-preflight-')); t.after(() => rm(temporary, { recursive: true, force: true }));
-  await assert.rejects(
-    () => orchestrateFixture({ fixtureId: 'faceless-basic', projectRoot: path.join(temporary, 'project'), tamperPreMasterEvidence: true }),
-    (error) => error?.code === 'visual_preflight_frame_mismatch',
-  );
+test('technical verification must pass and bind the rendered master bytes', async () => {
+  for (const technicalResult of [
+    {
+      status: 'failed',
+      receipt_sha256: H('3'),
+      checked_media_sha256: H('1'),
+      limitation_codes: [],
+    },
+    {
+      status: 'passed',
+      receipt_sha256: H('3'),
+      checked_media_sha256: H('0'),
+      limitation_codes: [],
+    },
+    {
+      status: 'passed',
+      receipt_sha256: H('3'),
+      checked_media_sha256: H('1'),
+      limitation_codes: ['not valid'],
+    },
+  ]) {
+    const fixture = options(2, { technical_verify: async () => technicalResult });
+    await assert.rejects(
+      () => orchestrateScriptOnlyV3(fixture.value),
+      (error) => error.code === 'technical_verify_failed',
+    );
+  }
 });
 
-test('refuses a display selection that is not bound to the font package', async (t) => {
-  const temporary = await mkdtemp(path.join(os.tmpdir(), 'broll-staged-bad-display-')); t.after(() => rm(temporary, { recursive: true, force: true }));
+test('v2 and re-signed superseded authorization inputs can only be inspected', async () => {
+  const fixture = options();
+  const legacy = {
+    ...fixture.bundle.sealed,
+    pipeline_contract_version: 2,
+    authoring_topology_id: 'bounded-authoring-cluster-v1',
+  };
+  const inspected = inspectOrchestrationInput(legacy);
+  assert.equal(inspected.resume_eligible, false);
+  assert.equal(inspected.render_authorization_eligible, false);
+  assert.equal(inspected.code, 'pipeline_upgrade_required');
   await assert.rejects(
-    () => orchestrateFixture({ fixtureId: 'faceless-basic', projectRoot: path.join(temporary, 'project'), tamperDisplaySelection: true }),
-    (error) => error?.code === 'display_selection_unbound',
+    () => orchestrateScriptOnlyV3({
+      ...fixture.value,
+      production_contract: legacy,
+    }),
+    (error) => error.code === 'pipeline_upgrade_required',
+  );
+  const resigned = copy(fixture.bundle.sealed);
+  resigned.main_review_refs = [{ status: 'approved' }];
+  await assert.rejects(
+    () => orchestrateScriptOnlyV3({
+      ...fixture.value,
+      production_contract: resigned,
+    }),
+    (error) => error.code === 'legacy_field_forbidden',
   );
 });

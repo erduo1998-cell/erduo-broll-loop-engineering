@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erduo.local/schemas/design-slice.schema.json",
+  "title": "Erduo HyperFrames B-roll design slice",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pipeline_contract_version",
+    "registry_version",
+    "parsed_srt_sha256",
+    "plan_sha256",
+    "frame_projection",
+    "style_dna",
+    "display_font_selection",
+    "shots"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "pipeline_contract_version": { "const": 2 },
+    "registry_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "parsed_srt_sha256": { "$ref": "#/$defs/sha256" },
+    "plan_sha256": { "$ref": "#/$defs/sha256" },
+    "frame_projection": { "$ref": "#/$defs/frameProjectionReference" },
+    "style_dna": { "$ref": "#/$defs/styleDna" },
+    "display_font_selection": { "$ref": "#/$defs/displayFontSelection" },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/shot" }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "nonEmptyText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600
+    },
+    "textList": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonEmptyText" }
+    },
+    "bbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 },
+        "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+      }
+    },
+    "fps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 1 },
+        "denominator": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "frameProjectionReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "pipeline_contract_version",
+        "contract",
+        "projection_sha256",
+        "parsed_srt_sha256",
+        "plan_sha256",
+        "fps",
+        "rule_version"
+      ],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "pipeline_contract_version": { "const": 2 },
+        "contract": { "const": "scripts/compile-frame-projection.mjs#schema-v1" },
+        "projection_sha256": { "$ref": "#/$defs/sha256" },
+        "parsed_srt_sha256": { "$ref": "#/$defs/sha256" },
+        "plan_sha256": { "$ref": "#/$defs/sha256" },
+        "fps": { "$ref": "#/$defs/fps" },
+        "rule_version": { "const": "absolute-ms-nearest-half-up-shared-boundary-v1" }
+      }
+    },
+    "srtWindowMs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_ms", "end_ms"],
+      "properties": {
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "styleDna": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dna_id",
+        "visual_invariants",
+        "subject_title_relationship",
+        "material_relationship",
+        "negative_space_policy",
+        "type_contrast_relationship",
+        "edge_bleed_relationship",
+        "prohibited_directions"
+      ],
+      "properties": {
+        "dna_id": { "$ref": "#/$defs/id" },
+        "visual_invariants": { "$ref": "#/$defs/textList" },
+        "subject_title_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "material_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "negative_space_policy": { "$ref": "#/$defs/nonEmptyText" },
+        "type_contrast_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "edge_bleed_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "prohibited_directions": { "$ref": "#/$defs/textList" }
+      }
+    },
+    "displayFontSelection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "selection_sha256",
+        "source_kind",
+        "primary_visual_dna",
+        "display_font_id",
+        "required_roles"
+      ],
+      "properties": {
+        "contract": { "const": "scripts/validate-display-font-selection.mjs#user-local-v1" },
+        "selection_sha256": { "$ref": "#/$defs/sha256" },
+        "source_kind": { "const": "user-provided-local" },
+        "primary_visual_dna": { "$ref": "#/$defs/id" },
+        "display_font_id": { "$ref": "#/$defs/id" },
+        "required_roles": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["key-quote", "chapter-focus", "core-number", "emphasis"]
+          }
+        }
+      }
+    },
+    "styleDnaUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_title_relationship",
+        "material_relationship",
+        "negative_space_relationship",
+        "type_contrast_relationship",
+        "edge_bleed_relationship"
+      ],
+      "properties": {
+        "subject_title_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "material_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "negative_space_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "type_contrast_relationship": { "$ref": "#/$defs/nonEmptyText" },
+        "edge_bleed_relationship": { "$ref": "#/$defs/nonEmptyText" }
+      }
+    },
+    "readingPathItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order", "role", "bbox"],
+      "properties": {
+        "order": { "type": "integer", "minimum": 1 },
+        "role": { "$ref": "#/$defs/id" },
+        "bbox": { "$ref": "#/$defs/bbox" }
+      }
+    },
+    "negativeSpace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["region_id", "bbox", "responsibility"],
+      "properties": {
+        "region_id": { "$ref": "#/$defs/id" },
+        "bbox": { "$ref": "#/$defs/bbox" },
+        "responsibility": {
+          "enum": ["focus", "reading", "emotion", "material", "transition"]
+        }
+      }
+    },
+    "protectedRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["region_id", "bbox", "protects", "reason"],
+      "properties": {
+        "region_id": { "$ref": "#/$defs/id" },
+        "bbox": { "$ref": "#/$defs/bbox" },
+        "protects": { "enum": ["face", "hands", "product", "evidence", "title", "number", "logo", "cta", "material"] },
+        "reason": { "$ref": "#/$defs/nonEmptyText" }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "family_id",
+        "selection_reason",
+        "evidence_status",
+        "composition_bbox",
+        "focus_bbox",
+        "reading_path",
+        "negative_space",
+        "protected_regions"
+      ],
+      "properties": {
+        "family_id": { "pattern": "^F0[1-9]$" },
+        "selection_reason": { "type": "string", "minLength": 20, "maxLength": 500 },
+        "evidence_status": { "enum": ["distilled-pattern-evidence", "distilled-candidate-evidence"] },
+        "composition_bbox": { "$ref": "#/$defs/bbox" },
+        "focus_bbox": { "$ref": "#/$defs/bbox" },
+        "reading_path": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/readingPathItem" }
+        },
+        "negative_space": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/negativeSpace" }
+        },
+        "protected_regions": {
+          "type": "array",
+          "maxItems": 12,
+          "items": { "$ref": "#/$defs/protectedRegion" }
+        }
+      }
+    },
+    "typeElement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "element_id",
+        "role",
+        "content_lines",
+        "wrap_mode",
+        "font_id",
+        "font_family",
+        "fallback_families",
+        "weight",
+        "special_mode",
+        "renderer",
+        "factual",
+        "bbox"
+      ],
+      "properties": {
+        "element_id": { "$ref": "#/$defs/id" },
+        "role": { "enum": ["display", "body", "meta", "mono"] },
+        "content_lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[^\\r\\n]+$"
+          }
+        },
+        "wrap_mode": { "const": "explicit-only" },
+        "font_id": { "$ref": "#/$defs/id" },
+        "font_family": { "$ref": "#/$defs/nonEmptyText" },
+        "fallback_families": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "weight": { "type": "integer", "minimum": 100, "maximum": 900, "multipleOf": 100 },
+        "special_mode": {
+          "enum": [
+            "none",
+            "brush-vector",
+            "projective-plane",
+            "materialized-glyph",
+            "oversized-editorial",
+            "microtext-texture"
+          ]
+        },
+        "renderer": { "enum": ["html", "svg", "image-generation"] },
+        "factual": { "type": "boolean" },
+        "bbox": { "$ref": "#/$defs/bbox" }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_reason", "elements"],
+      "properties": {
+        "selection_reason": { "type": "string", "minLength": 20, "maxLength": 500 },
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/typeElement" }
+        }
+      }
+    },
+    "motionPhase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_frame", "end_frame", "behavior"],
+      "properties": {
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "end_frame": { "type": "integer", "minimum": 1 },
+        "behavior": { "$ref": "#/$defs/nonEmptyText" }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grammar_id", "selection_reason", "evidence_status", "entry", "action", "result", "hold", "exit"],
+      "properties": {
+        "grammar_id": { "pattern": "^G(?:0[1-9]|10)$" },
+        "selection_reason": { "type": "string", "minLength": 20, "maxLength": 500 },
+        "evidence_status": { "enum": ["distilled-pattern-evidence", "distilled-candidate-evidence"] },
+        "entry": { "$ref": "#/$defs/motionPhase" },
+        "action": { "$ref": "#/$defs/motionPhase" },
+        "result": { "$ref": "#/$defs/motionPhase" },
+        "hold": { "$ref": "#/$defs/motionPhase" },
+        "exit": { "$ref": "#/$defs/motionPhase" }
+      }
+    },
+    "continuityException": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["content_driven", "reason", "semantic_link"],
+      "properties": {
+        "content_driven": { "const": true },
+        "reason": { "type": "string", "minLength": 20, "maxLength": 400 },
+        "semantic_link": { "type": "string", "minLength": 12, "maxLength": 400 }
+      }
+    },
+    "antiTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "composition_signature",
+        "action_signature",
+        "focus_signature",
+        "geometry_signature",
+        "novelty_basis",
+        "continuity_exception"
+      ],
+      "properties": {
+        "composition_signature": { "$ref": "#/$defs/id" },
+        "action_signature": { "$ref": "#/$defs/id" },
+        "focus_signature": { "$ref": "#/$defs/id" },
+        "geometry_signature": { "$ref": "#/$defs/sha256" },
+        "novelty_basis": { "type": "string", "minLength": 20, "maxLength": 500 },
+        "continuity_exception": { "$ref": "#/$defs/continuityException" }
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shot_id",
+        "srt_window_ms",
+        "start_frame",
+        "duration_frames",
+        "semantic_claim",
+        "style_dna_use",
+        "composition",
+        "typography",
+        "motion",
+        "anti_template"
+      ],
+      "properties": {
+        "shot_id": { "type": "string", "pattern": "^S[0-9]{3}$" },
+        "srt_window_ms": { "$ref": "#/$defs/srtWindowMs" },
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "duration_frames": { "type": "integer", "minimum": 5 },
+        "semantic_claim": { "$ref": "#/$defs/nonEmptyText" },
+        "style_dna_use": { "$ref": "#/$defs/styleDnaUse" },
+        "composition": { "$ref": "#/$defs/composition" },
+        "typography": { "$ref": "#/$defs/typography" },
+        "motion": { "$ref": "#/$defs/motion" },
+        "anti_template": { "$ref": "#/$defs/antiTemplate" }
+      }
+    }
+  }
+}

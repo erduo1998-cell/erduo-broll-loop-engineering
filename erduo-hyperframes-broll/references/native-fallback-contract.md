@@ -1,5 +1,16 @@
-# HyperFrames-native fallback
+# HyperFrames-native auxiliary contract
 
-For a shot without usable media, generate a deterministic native scene specification from its validated director brief. It must retain at least one concrete subject, relationship, explanatory action, final result, semantic type, duration, and primary compositing. Native fallback never emits subtitle text, narrated claims, logos, interfaces, facts, or empty decorative particles.
+In a version-2 run, HyperFrames-native output is not a primary-material
+fallback. Assets must first freeze one approved ordinary image/video Flat Shot
+Kit for the shot. If user media, image generation and Pexels cannot supply a
+valid primary, the assets stage fails; it cannot fill the gap with native
+graphics.
 
-Supported scene grammars map directly to brief representation modes: object/relation/process/chart/evidence-safe/mood. Each contains semantic nodes, one supported action, final-state hold, and a small layout role set. The output is path-free, hashable, seek-safe, and is later rendered by the single HyperFrames project template.
+After the ordinary primary is frozen, native output may provide only
+supporting text, relationship, information-graphic, emphasis, transition or
+local structure specified by the approved design slice. Its action must
+support the same readable result and must not replace, hide or reduce the
+ordinary primary to wallpaper. Native output never emits subtitle restatement,
+unverified claims, logos, fabricated interfaces/facts or empty decorative
+particles. It remains path-free, hashable and seek-safe, but does not appear in
+the Flat Shot Kit's primary asset, primary consumer or fallback fields.

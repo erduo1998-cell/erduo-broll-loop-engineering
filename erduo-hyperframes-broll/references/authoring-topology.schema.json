@@ -1,0 +1,588 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erduo.local/erduo-hyperframes-broll/authoring-topology.schema.json",
+  "title": "Bounded authoring cluster artifacts",
+  "oneOf": [
+    { "$ref": "#/$defs/authoringPlan" },
+    { "$ref": "#/$defs/chunkManifest" },
+    { "$ref": "#/$defs/integrationManifest" },
+    { "$ref": "#/$defs/sourceCodeReview" }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifactId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$"
+    },
+    "packetArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "size_bytes", "media_type"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/artifactId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 1, "maximum": 33554432 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 }
+      }
+    },
+    "sourceReviewPacket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "page_tables", "pages", "artifact_set_sha256"],
+      "properties": {
+        "root": { "$ref": "#/$defs/packetArtifactRef" },
+        "page_tables": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/packetArtifactRef" }
+        },
+        "pages": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 1024,
+          "items": { "$ref": "#/$defs/packetArtifactRef" }
+        },
+        "artifact_set_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "shotId": {
+      "type": "string",
+      "pattern": "^S[0-9]{3}$"
+    },
+    "chunkId": {
+      "type": "string",
+      "pattern": "^C[0-9]{3}$"
+    },
+    "fps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numerator", "denominator"],
+      "properties": {
+        "numerator": { "type": "integer", "minimum": 1 },
+        "denominator": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shot_id", "start_ms", "end_ms", "duration_ms"],
+      "properties": {
+        "shot_id": { "$ref": "#/$defs/shotId" },
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 },
+        "duration_ms": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "chunkSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk_id",
+        "shot_start",
+        "shot_end",
+        "shot_count",
+        "start_ms",
+        "end_ms",
+        "duration_ms",
+        "shots",
+        "chunk_spec_sha256"
+      ],
+      "properties": {
+        "chunk_id": { "$ref": "#/$defs/chunkId" },
+        "shot_start": { "$ref": "#/$defs/shotId" },
+        "shot_end": { "$ref": "#/$defs/shotId" },
+        "shot_count": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 },
+        "duration_ms": { "type": "integer", "minimum": 1 },
+        "shots": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 999,
+          "items": { "$ref": "#/$defs/shot" }
+        },
+        "chunk_spec_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "authoringPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "global_rules_sha256",
+        "parsed_srt_sha256",
+        "plan_sha256",
+        "projection_sha256",
+        "design_slice_sha256",
+        "kit_set_sha256",
+        "fps",
+        "chunk_policy",
+        "shot_count",
+        "shots",
+        "chunks",
+        "authoring_plan_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 2 },
+        "authoring_topology_id": { "const": "bounded-authoring-cluster-v1" },
+        "global_rules_sha256": { "$ref": "#/$defs/sha256" },
+        "parsed_srt_sha256": { "$ref": "#/$defs/sha256" },
+        "plan_sha256": { "$ref": "#/$defs/sha256" },
+        "projection_sha256": { "$ref": "#/$defs/sha256" },
+        "design_slice_sha256": { "$ref": "#/$defs/sha256" },
+        "kit_set_sha256": { "$ref": "#/$defs/sha256" },
+        "fps": { "$ref": "#/$defs/fps" },
+        "chunk_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_shots", "max_duration_ms", "oversize_singleton"],
+          "properties": {
+            "max_shots": { "type": "integer", "minimum": 1, "maximum": 999 },
+            "max_duration_ms": { "type": "integer", "minimum": 1 },
+            "oversize_singleton": { "const": true }
+          }
+        },
+        "shot_count": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "shots": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 999,
+          "items": { "$ref": "#/$defs/shot" }
+        },
+        "chunks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 999,
+          "items": { "$ref": "#/$defs/chunkSpec" }
+        },
+        "authoring_plan_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sourceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "relative_path", "sha256", "size_bytes", "media_type"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/artifactId" },
+        "relative_path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 1 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 }
+      }
+    },
+    "gateReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "receipt_sha256"],
+      "properties": {
+        "status": { "const": "passed" },
+        "receipt_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "validationGates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "font", "asset", "hyperframes", "seek", "profile", "pixel"],
+      "properties": {
+        "source": { "$ref": "#/$defs/gateReceipt" },
+        "font": { "$ref": "#/$defs/gateReceipt" },
+        "asset": { "$ref": "#/$defs/gateReceipt" },
+        "hyperframes": { "$ref": "#/$defs/gateReceipt" },
+        "seek": { "$ref": "#/$defs/gateReceipt" },
+        "profile": { "$ref": "#/$defs/gateReceipt" },
+        "pixel": { "$ref": "#/$defs/gateReceipt" }
+      }
+    },
+    "chunkManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "stage",
+        "kind",
+        "authoring_plan_sha256",
+        "global_rules_sha256",
+        "chunk_id",
+        "chunk_spec_sha256",
+        "attempt",
+        "producer_isolation_sha256",
+        "shot_start",
+        "shot_end",
+        "shot_count",
+        "source_files",
+        "source_bundle_sha256",
+        "validation_gates",
+        "manifest_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 2 },
+        "authoring_topology_id": { "const": "bounded-authoring-cluster-v1" },
+        "stage": { "const": "master-build" },
+        "kind": { "const": "authoring-chunk" },
+        "authoring_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "global_rules_sha256": { "$ref": "#/$defs/sha256" },
+        "chunk_id": { "$ref": "#/$defs/chunkId" },
+        "chunk_spec_sha256": { "$ref": "#/$defs/sha256" },
+        "attempt": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "producer_isolation_sha256": { "$ref": "#/$defs/sha256" },
+        "shot_start": { "$ref": "#/$defs/shotId" },
+        "shot_end": { "$ref": "#/$defs/shotId" },
+        "shot_count": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "source_files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/sourceFile" }
+        },
+        "source_bundle_sha256": { "$ref": "#/$defs/sha256" },
+        "validation_gates": { "$ref": "#/$defs/validationGates" },
+        "manifest_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "chunkIntegrationRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chunk_id",
+        "shot_start",
+        "shot_end",
+        "shot_count",
+        "manifest_sha256",
+        "source_bundle_sha256",
+        "producer_isolation_sha256",
+        "attempt"
+      ],
+      "properties": {
+        "chunk_id": { "$ref": "#/$defs/chunkId" },
+        "shot_start": { "$ref": "#/$defs/shotId" },
+        "shot_end": { "$ref": "#/$defs/shotId" },
+        "shot_count": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "source_bundle_sha256": { "$ref": "#/$defs/sha256" },
+        "producer_isolation_sha256": { "$ref": "#/$defs/sha256" },
+        "attempt": { "type": "integer", "minimum": 1, "maximum": 2 }
+      }
+    },
+    "integratedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "integrated_path",
+        "chunk_id",
+        "chunk_artifact_id",
+        "sha256",
+        "size_bytes",
+        "media_type"
+      ],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/artifactId" },
+        "integrated_path": { "type": "string", "minLength": 1 },
+        "chunk_id": { "$ref": "#/$defs/chunkId" },
+        "chunk_artifact_id": { "$ref": "#/$defs/artifactId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "type": "integer", "minimum": 1 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 }
+      }
+    },
+    "noRewriteReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "status",
+        "mode",
+        "authoring_plan_sha256",
+        "style_source_ledger_sha256",
+        "style_validator_receipt_sha256",
+        "chunk_set_sha256",
+        "chunk_count",
+        "source_file_count",
+        "source_bundle_sha256",
+        "wrapper_sha256",
+        "integration_map_sha256",
+        "receipt_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 2 },
+        "status": { "const": "passed" },
+        "mode": { "const": "byte-identical-chunk-source" },
+        "authoring_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "style_source_ledger_sha256": { "$ref": "#/$defs/sha256" },
+        "style_validator_receipt_sha256": { "$ref": "#/$defs/sha256" },
+        "chunk_set_sha256": { "$ref": "#/$defs/sha256" },
+        "chunk_count": { "type": "integer", "minimum": 1, "maximum": 999 },
+        "source_file_count": { "type": "integer", "minimum": 1 },
+        "source_bundle_sha256": { "$ref": "#/$defs/sha256" },
+        "wrapper_sha256": { "$ref": "#/$defs/sha256" },
+        "integration_map_sha256": { "$ref": "#/$defs/sha256" },
+        "receipt_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "integrationManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "stage",
+        "kind",
+        "authoring_plan_sha256",
+        "global_rules_sha256",
+        "integrator_isolation_sha256",
+        "style_integration_authorization_sha256",
+        "style_source_ledger_sha256",
+        "style_validator_receipt_sha256",
+        "chunk_set_sha256",
+        "chunks",
+        "source_files",
+        "generated_files",
+        "source_bundle_sha256",
+        "no_rewrite_receipt",
+        "source_review_packet",
+        "manifest_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 2 },
+        "authoring_topology_id": { "const": "bounded-authoring-cluster-v1" },
+        "stage": { "const": "master-build" },
+        "kind": { "const": "authoring-integration" },
+        "authoring_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "global_rules_sha256": { "$ref": "#/$defs/sha256" },
+        "integrator_isolation_sha256": { "$ref": "#/$defs/sha256" },
+        "style_integration_authorization_sha256": { "$ref": "#/$defs/sha256" },
+        "style_source_ledger_sha256": { "$ref": "#/$defs/sha256" },
+        "style_validator_receipt_sha256": { "$ref": "#/$defs/sha256" },
+        "chunk_set_sha256": { "$ref": "#/$defs/sha256" },
+        "chunks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 999,
+          "items": { "$ref": "#/$defs/chunkIntegrationRecord" }
+        },
+        "source_files": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/integratedSource" }
+        },
+        "generated_files": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "$ref": "#/$defs/sourceFile" }
+        },
+        "source_bundle_sha256": { "$ref": "#/$defs/sha256" },
+        "no_rewrite_receipt": { "$ref": "#/$defs/noRewriteReceipt" },
+        "source_review_packet": { "$ref": "#/$defs/sourceReviewPacket" },
+        "manifest_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "deterministicResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "facts_sha256", "failure_codes"],
+      "properties": {
+        "status": { "const": "passed" },
+        "facts_sha256": { "$ref": "#/$defs/sha256" },
+        "failure_codes": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "sourceChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "positions",
+        "z_order",
+        "shot_order",
+        "timing",
+        "lifecycle",
+        "selectors",
+        "cross_chunk_seams",
+        "errors"
+      ],
+      "properties": {
+        "positions": { "const": true },
+        "z_order": { "const": true },
+        "shot_order": { "const": true },
+        "timing": { "const": true },
+        "lifecycle": { "const": true },
+        "selectors": { "const": true },
+        "cross_chunk_seams": { "const": true },
+        "errors": { "const": true }
+      }
+    },
+    "stillEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uses", "animation_approval", "evidence_sha256"],
+      "properties": {
+        "uses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["font", "crop", "material-visibility"]
+          }
+        },
+        "animation_approval": { "const": false },
+        "evidence_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sourceDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "read_all_source_pages",
+        "position_z_order_checked",
+        "shot_order_checked",
+        "duration_checked",
+        "five_phase_lifecycle_checked",
+        "selectors_checked",
+        "cross_block_seams_checked",
+        "source_errors_checked",
+        "static_checks_limited_to_font_crop_material_visibility",
+        "animation_approved_from_stills",
+        "finding_count",
+        "decision_sha256"
+      ],
+      "properties": {
+        "outcome": { "const": "approved" },
+        "read_all_source_pages": { "const": true },
+        "position_z_order_checked": { "const": true },
+        "shot_order_checked": { "const": true },
+        "duration_checked": { "const": true },
+        "five_phase_lifecycle_checked": { "const": true },
+        "selectors_checked": { "const": true },
+        "cross_block_seams_checked": { "const": true },
+        "source_errors_checked": { "const": true },
+        "static_checks_limited_to_font_crop_material_visibility": { "const": true },
+        "animation_approved_from_stills": { "const": false },
+        "finding_count": { "const": 0 },
+        "decision_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sourceCodeReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "gate",
+        "phase",
+        "status",
+        "subject_manifest_sha256",
+        "producer_isolation_sha256",
+        "reviewer_role",
+        "reviewer_model_id",
+        "reviewer_isolation_sha256",
+        "authority_scope",
+        "review_packet_sha256",
+        "deterministic_result",
+        "visual_decision",
+        "authoring_plan_sha256",
+        "integration_manifest_sha256",
+        "source_bundle_sha256",
+        "no_rewrite_receipt_sha256",
+        "whole_film_rules_sha256",
+        "chunk_plan_sha256",
+        "wrapper_sha256",
+        "ordered_block_map_sha256",
+        "block_hash_ledger_sha256",
+        "integration_gate_sha256",
+        "style_integration_authorization_sha256",
+        "style_source_ledger_sha256",
+        "style_validator_receipt_sha256",
+        "inspected_page_table_sha256s",
+        "inspected_source_page_sha256s",
+        "inspected_facts_page_sha256s",
+        "inspected_supplemental_visual_page_sha256s",
+        "inspected_supplemental_facts_page_sha256s",
+        "source_decision",
+        "source_checks",
+        "still_evidence",
+        "approval_sha256"
+      ],
+      "properties": {
+        "pipeline_contract_version": { "const": 2 },
+        "authoring_topology_id": { "const": "bounded-authoring-cluster-v1" },
+        "gate": { "const": "source_code_review" },
+        "phase": { "const": "pre-render" },
+        "status": { "const": "approved" },
+        "subject_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "producer_isolation_sha256": { "$ref": "#/$defs/sha256" },
+        "reviewer_role": { "const": "erduo-hyperframes-broll-main-agent" },
+        "reviewer_model_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+        },
+        "reviewer_isolation_sha256": { "$ref": "#/$defs/sha256" },
+        "authority_scope": { "const": "source-review" },
+        "review_packet_sha256": { "$ref": "#/$defs/sha256" },
+        "deterministic_result": { "$ref": "#/$defs/deterministicResult" },
+        "visual_decision": { "type": "null" },
+        "authoring_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "integration_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "source_bundle_sha256": { "$ref": "#/$defs/sha256" },
+        "no_rewrite_receipt_sha256": { "$ref": "#/$defs/sha256" },
+        "whole_film_rules_sha256": { "$ref": "#/$defs/sha256" },
+        "chunk_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "wrapper_sha256": { "$ref": "#/$defs/sha256" },
+        "ordered_block_map_sha256": { "$ref": "#/$defs/sha256" },
+        "block_hash_ledger_sha256": { "$ref": "#/$defs/sha256" },
+        "integration_gate_sha256": { "$ref": "#/$defs/sha256" },
+        "style_integration_authorization_sha256": { "$ref": "#/$defs/sha256" },
+        "style_source_ledger_sha256": { "$ref": "#/$defs/sha256" },
+        "style_validator_receipt_sha256": { "$ref": "#/$defs/sha256" },
+        "inspected_page_table_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "inspected_source_page_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "inspected_facts_page_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "inspected_supplemental_visual_page_sha256s": {
+          "type": "array",
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "inspected_supplemental_facts_page_sha256s": {
+          "type": "array",
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "source_decision": { "$ref": "#/$defs/sourceDecision" },
+        "source_checks": { "$ref": "#/$defs/sourceChecks" },
+        "still_evidence": { "$ref": "#/$defs/stillEvidence" },
+        "approval_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

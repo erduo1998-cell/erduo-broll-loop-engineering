@@ -30,19 +30,21 @@ test('requires an auditable selected display role and fails when any required DO
   const document = {
     schema_version: 2,
     display_selection: { schema_version: 1, primary_visual_dna: 'deep-current-hud', display_font_id: 'display', display_text: '重点 001' },
-    fonts: [{ font_id: 'display', role: 'display', family: 'User Display', weight: 700, style: 'normal', file_sha256: sha('a'), file_kind: 'woff2', official_source: 'user-provided-display-library', source_status: 'user-provided', cjk_coverage_sha256: sha('c'), css: { font_face: true, src: './assets/fonts/user-display/display.woff2', used: true, fallbacks: [] } }],
+    fonts: [{ font_id: 'display', role: 'display', family: 'User Display', weight: 700, style: 'normal', file_sha256: sha('a'), file_kind: 'woff2', official_source: 'user-provided-local', source_status: 'user-provided-local', license_id: 'User-License', license_file_sha256: sha('b'), commercial_scope: 'user-confirmed-licensed', cjk_coverage_sha256: sha('c'), css: { font_face: true, src: './assets/fonts/user-supplied/display.woff2', used: true, fallbacks: [] } }],
   };
   assert.equal(validateFontPackage(document, { artifactManifest: artifactManifest() }).role_count, 1);
-  const html = `@font-face { font-family: "User Display"; src: url("./assets/fonts/user-display/display.woff2"); } [data-font-role] { font-family: "User Display"; } <p data-font-role="key-quote" data-display-font-id="display"></p><p data-font-role="chapter-focus" data-display-font-id="display"></p><p data-font-role="core-number" data-display-font-id="display"></p><p data-font-role="emphasis" data-display-font-id="display"></p>`;
+  const html = `@font-face { font-family: "User Display"; src: url("./assets/fonts/user-supplied/display.woff2"); } [data-font-role] { font-family: "User Display"; } <p data-font-role="key-quote" data-display-font-id="display">quote</p><p data-font-role="chapter-focus" data-display-font-id="display">chapter</p><p data-font-role="core-number" data-display-font-id="display">42</p><p data-font-role="emphasis" data-display-font-id="display">emphasis</p>`;
   assert.deepEqual(auditDisplayFontRoleBindings(html, document).bindings, { 'key-quote': 1, 'chapter-focus': 1, 'core-number': 1, emphasis: 1 });
+  assert.deepEqual(auditDisplayFontRoleBindings(html, document, { requiredRoles: ['key-quote'] }).bindings, { 'key-quote': 1 });
+  assert.throws(() => auditDisplayFontRoleBindings(html.replace('>quote</p>', '></p>'), document, { requiredRoles: ['key-quote'] }), (error) => error instanceof FontPackageError && error.code === 'display_font_role_unbound');
   assert.throws(() => auditDisplayFontRoleBindings(html.replace('data-font-role="emphasis" data-display-font-id="display"', 'data-font-role="emphasis" data-display-font-id="wrong"'), document), (error) => error instanceof FontPackageError && error.code === 'display_font_role_unbound');
   const mismatch = structuredClone(document); mismatch.display_selection.display_font_id = 'other';
   expect(mismatch, { artifactManifest: artifactManifest() }, 'font_package_invalid');
 });
-test('the shipped HyperFrames template uses a bundled display face for its marked display nodes', async () => {
+test('the shipped neutral HyperFrames scaffold has no font or marked display nodes before authoring', async () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const html = await readFile(path.join(root, 'assets/hyperframes-template/index.html'), 'utf8');
   assert.deepEqual(validateRuntimeFontText(html), { ok: true });
-  assert.match(html, /font-family: "AaJiJiaHei";\s*src: url\("\.\/assets\/fonts\/user-display\/aa-ji-jia-hei\.ttf"\)/u);
-  for (const role of ['key-quote', 'chapter-focus', 'core-number', 'emphasis']) assert.match(html, new RegExp(`data-font-role="${role}" data-display-font-id="aa-ji-jia-hei"`, 'u'));
+  assert.doesNotMatch(html, /@font-face|font-family|data-font-role|data-display-font-id/u);
+  assert.match(html, /data-scaffold-profile="structure-only-neutral-v1"/u);
 });

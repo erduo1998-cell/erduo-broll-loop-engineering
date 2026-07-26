@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Assets"
-  short_description: "Route and freeze user, generated, then Pexels media for main-approved shots."
-  default_prompt: "Use $broll-assets to route and freeze media in order user assets, AI generation, then Pexels, and return an asset contact-sheet fact packet for main-agent review."
+  short_description: "Freeze local media facts and seal the script-only v3 production contract."
+  default_prompt: "Use $broll-assets to freeze actual local media bytes, probe, rights, provenance, geometry and route facts, then seal the v3 contract and return the asset manifest, sealed contract, sealed policy receipt, and bounded envelope."

@@ -1,5 +1,54 @@
 # HyperFrames Composition Project
 
+This directory is a structure-only neutral scaffold. Copy it, then replace the
+empty root through the official HyperFrames authoring workflow. Do not treat
+its placeholder duration or raster as creative direction, and do not add CDN
+scripts, remote styles, remote media, sample copy, or a default visual skin.
+
+## Script-only v3 authoring cluster
+
+When this scaffold is used by `erduo-hyperframes-broll`, the current identity
+is:
+
+```text
+pipeline_contract_version: 3
+authoring_topology_id: script-only-authoring-cluster-v1
+validation_policy_id: script-only-production-v1
+```
+
+Do not write a complete long film in one author context. Require the frozen
+global rules, deterministic authoring plan and exactly one assigned
+`C001…C999` chunk. Public planning defaults are no more than 8 contiguous shots
+and 45,000 ms per chunk; a shot longer than the duration bound stays one
+singleton and is never split.
+
+As a chunk author:
+
+- use the official HyperFrames skills for creative HTML authoring;
+- read only the allocated shots and their exact SRT/projection/design/kit/font
+  bindings;
+- write only the chunk's package-relative source and never change another
+  chunk, the shared rules or integration output;
+- freeze actual source bytes and immediately pass source-conformance,
+  runtime-seek and pixel-signal gates;
+- accept at most one aggregate retry for this chunk; do not rebuild unrelated
+  passing chunks;
+- do not claim visual approval from deterministic checks or stills.
+
+As the independent integrator, do not author or repair creative source. Call
+only deterministic integration. Preserve every chunk source byte and generate
+exactly `integration/wrapper.json` and `integration/map.json`; any formatting,
+normalization, omission, duplication or reorder of chunk source is failure.
+
+Before render, the integration-delivery gate verifies actual source/byte,
+order, timing, lifecycle, selector and seam facts. The parent receives only
+the bounded hash receipts; it does not read integrated source or stills. After
+render, run technical verification only.
+
+Older pipeline artifacts are inspection-only for new authoring. Do not
+introduce Scene Kit, layers, layered-hero quotas or host-specific creative
+paths.
+
 ## Skills — USE THESE FIRST
 
 **Always invoke the relevant skill before writing or modifying compositions.** Skills encode framework-specific patterns (e.g., `window.__timelines` registration, `data-*` attribute semantics, shader-compatible CSS rules) that are NOT in generic web docs. Skipping them produces broken compositions.

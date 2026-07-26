@@ -1,0 +1,357 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erduo.local/erduo-hyperframes-broll/production-contract.schema.json",
+  "title": "Script-only v3 production contract",
+  "description": "An immutable director-phase contract or its asset-sealed successor. Unknown future hashes are forbidden.",
+  "oneOf": [
+    { "$ref": "#/$defs/directorContract" },
+    { "$ref": "#/$defs/sealedContract" }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "creativeDirectiveRef": {
+      "type": "string",
+      "pattern": "^(semantic-object|text-element|component|safe-region|next-shot):[A-Za-z0-9][A-Za-z0-9._-]{0,95}$"
+    },
+    "attentionPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_focus_ref",
+        "reading_order_refs",
+        "negative_space_region_refs",
+        "transition_exit_ref"
+      ],
+      "properties": {
+        "primary_focus_ref": { "$ref": "#/$defs/creativeDirectiveRef" },
+        "reading_order_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/creativeDirectiveRef" }
+        },
+        "negative_space_region_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/creativeDirectiveRef" }
+        },
+        "transition_exit_ref": { "$ref": "#/$defs/creativeDirectiveRef" }
+      }
+    },
+    "creativeDirectiveModule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module_id", "fact_binding_sha256"],
+      "properties": {
+        "module_id": {
+          "enum": [
+            "narrative-attention-v1",
+            "physical-media-v1",
+            "reference-variation-v1",
+            "editorial-evidence-v1",
+            "cultural-evidence-v1"
+          ]
+        },
+        "fact_binding_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "creativeDirective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_visual_decision",
+        "attention_plan",
+        "modules",
+        "creative_directive_sha256"
+      ],
+      "properties": {
+        "primary_visual_decision": { "type": "string", "minLength": 1, "maxLength": 480 },
+        "attention_plan": { "$ref": "#/$defs/attentionPlan" },
+        "modules": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/creativeDirectiveModule" }
+        },
+        "creative_directive_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "scopedTimeWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_ms", "end_ms"],
+      "properties": {
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "scopedDesignFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "focal_role",
+        "density_level",
+        "layout_family",
+        "dominant_axis",
+        "primary_primitive",
+        "component_id",
+        "motion_profile_id"
+      ],
+      "properties": {
+        "focal_role": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "density_level": { "type": "integer", "minimum": 1 },
+        "layout_family": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "dominant_axis": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "primary_primitive": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "component_id": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "motion_profile_id": { "type": "string", "minLength": 1, "maxLength": 600 }
+      }
+    },
+    "scopedTypographyFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text_roles", "text_elements"],
+      "properties": {
+        "text_roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+        },
+        "text_elements": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "element_id",
+              "selector",
+              "type_role",
+              "semantic_responsibility",
+              "carries_primary_meaning"
+            ],
+            "properties": {
+              "element_id": { "type": "string", "minLength": 1, "maxLength": 96 },
+              "selector": { "type": "string", "pattern": "^#[A-Za-z][A-Za-z0-9_-]{0,95}$" },
+              "type_role": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "semantic_responsibility": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "carries_primary_meaning": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "scopedLifecycleFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hold_window", "causal_lifecycle"],
+      "properties": {
+        "hold_window": { "$ref": "#/$defs/scopedTimeWindow" },
+        "causal_lifecycle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["entry", "action", "result", "hold", "exit"],
+          "properties": {
+            "entry": { "$ref": "#/$defs/scopedLifecyclePhase" },
+            "action": { "$ref": "#/$defs/scopedLifecyclePhase" },
+            "result": { "$ref": "#/$defs/scopedLifecyclePhase" },
+            "hold": { "$ref": "#/$defs/scopedLifecyclePhase" },
+            "exit": { "$ref": "#/$defs/scopedLifecyclePhase" }
+          }
+        }
+      }
+    },
+    "scopedLifecyclePhase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_frame", "end_frame", "selectors", "timeline_calls"],
+      "properties": {
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "end_frame": { "type": "integer", "minimum": 1 },
+        "selectors": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^#[A-Za-z][A-Za-z0-9_-]{0,95}$" }
+        },
+        "timeline_calls": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$" }
+        }
+      }
+    },
+    "scopedBlockCreativePacket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "artifact_kind",
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "block_id",
+        "shot_ids",
+        "production_contract_sha256",
+        "shot_plan_sha256",
+        "design_system_sha256",
+        "font_package_sha256",
+        "asset_manifest_sha256",
+        "block_time_window",
+        "adjacent_seams",
+        "scoped_shots",
+        "packet_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "artifact_kind": { "const": "scoped-block-creative-packet" },
+        "pipeline_contract_version": { "const": 3 },
+        "authoring_topology_id": { "const": "script-only-authoring-cluster-v1" },
+        "block_id": { "type": "string", "pattern": "^B[0-9]{3}$" },
+        "shot_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^S[0-9]{3}$" }
+        },
+        "production_contract_sha256": { "$ref": "#/$defs/sha256" },
+        "shot_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "design_system_sha256": { "$ref": "#/$defs/sha256" },
+        "font_package_sha256": { "$ref": "#/$defs/sha256" },
+        "asset_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "block_time_window": { "$ref": "#/$defs/scopedTimeWindow" },
+        "adjacent_seams": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["previous_shot_id", "next_shot_id"],
+          "properties": {
+            "previous_shot_id": { "type": ["string", "null"], "pattern": "^S[0-9]{3}$" },
+            "next_shot_id": { "type": ["string", "null"], "pattern": "^S[0-9]{3}$" }
+          }
+        },
+        "scoped_shots": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "shot_id",
+              "chapter_id",
+              "time_window",
+              "semantic_claim",
+              "creative_directive",
+              "design_facts",
+              "typography_facts",
+              "lifecycle_facts"
+            ],
+            "properties": {
+              "shot_id": { "type": "string", "pattern": "^S[0-9]{3}$" },
+              "chapter_id": { "type": "string", "pattern": "^C[0-9]{2}$" },
+              "time_window": { "$ref": "#/$defs/scopedTimeWindow" },
+              "semantic_claim": { "type": "string", "minLength": 1, "maxLength": 600 },
+              "creative_directive": { "$ref": "#/$defs/creativeDirective" },
+              "design_facts": { "$ref": "#/$defs/scopedDesignFacts" },
+              "typography_facts": { "$ref": "#/$defs/scopedTypographyFacts" },
+              "lifecycle_facts": { "$ref": "#/$defs/scopedLifecycleFacts" }
+            }
+          }
+        },
+        "packet_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "directorContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "validation_policy_id",
+        "contract_phase",
+        "parsed_srt_sha256",
+        "shot_plan_sha256",
+        "design_system_sha256",
+        "component_registry_sha256",
+        "validation_policy_sha256",
+        "reference_style_profile_sha256",
+        "font_package_sha256",
+        "projection_sha256",
+        "delivery_profile_sha256",
+        "production_contract_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 3 },
+        "authoring_topology_id": { "const": "script-only-authoring-cluster-v1" },
+        "validation_policy_id": { "const": "script-only-production-v1" },
+        "contract_phase": { "const": "director" },
+        "parsed_srt_sha256": { "$ref": "#/$defs/sha256" },
+        "shot_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "design_system_sha256": { "$ref": "#/$defs/sha256" },
+        "component_registry_sha256": { "$ref": "#/$defs/sha256" },
+        "validation_policy_sha256": { "$ref": "#/$defs/sha256" },
+        "reference_style_profile_sha256": { "$ref": "#/$defs/sha256" },
+        "font_package_sha256": { "$ref": "#/$defs/sha256" },
+        "projection_sha256": { "$ref": "#/$defs/sha256" },
+        "delivery_profile_sha256": { "$ref": "#/$defs/sha256" },
+        "production_contract_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sealedContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "authoring_topology_id",
+        "validation_policy_id",
+        "contract_phase",
+        "parsed_srt_sha256",
+        "shot_plan_sha256",
+        "design_system_sha256",
+        "component_registry_sha256",
+        "validation_policy_sha256",
+        "reference_style_profile_sha256",
+        "font_package_sha256",
+        "projection_sha256",
+        "delivery_profile_sha256",
+        "prior_contract_sha256",
+        "asset_manifest_sha256",
+        "production_contract_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 3 },
+        "authoring_topology_id": { "const": "script-only-authoring-cluster-v1" },
+        "validation_policy_id": { "const": "script-only-production-v1" },
+        "contract_phase": { "const": "sealed" },
+        "parsed_srt_sha256": { "$ref": "#/$defs/sha256" },
+        "shot_plan_sha256": { "$ref": "#/$defs/sha256" },
+        "design_system_sha256": { "$ref": "#/$defs/sha256" },
+        "component_registry_sha256": { "$ref": "#/$defs/sha256" },
+        "validation_policy_sha256": { "$ref": "#/$defs/sha256" },
+        "reference_style_profile_sha256": { "$ref": "#/$defs/sha256" },
+        "font_package_sha256": { "$ref": "#/$defs/sha256" },
+        "projection_sha256": { "$ref": "#/$defs/sha256" },
+        "delivery_profile_sha256": { "$ref": "#/$defs/sha256" },
+        "prior_contract_sha256": { "$ref": "#/$defs/sha256" },
+        "asset_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "production_contract_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

@@ -4345,6 +4345,37 @@
     "relative_path": "styles/style-title-typography-taste-gate.md"
   },
   {
+    "id": "STY-028",
+    "category": "styles",
+    "tags": [
+      "calibration-only",
+      "编辑印刷",
+      "语义留白",
+      "真实排字",
+      "单锚点",
+      "印刷因果"
+    ],
+    "capabilities": [
+      "按语义密度分配 16:9 留白，并限制每镜只有一个材料或语义锚点",
+      "用本地 HTML/SVG 真实排字承载事实文字，只保留一个高色度语义强调",
+      "把纸张和至多一种复制过程编译为可停止、可读、可验证的印刷因果动作"
+    ],
+    "summary": "仅供作者显式校准的 16:9 平面编辑印刷风格编译器，不参与默认风格选择。",
+    "source_boundary": {
+      "user_reference_priority": true,
+      "usage_mode": "advisory",
+      "provenance": "sanitized-abstract",
+      "content_handling": "non-literal-only"
+    },
+    "dependencies": [
+      "STY-025",
+      "STY-026",
+      "STY-027"
+    ],
+    "validation_status": "calibration-only",
+    "relative_path": "styles/style-quiet-editorial-print-compiler.md"
+  },
+  {
     "id": "SCN-011",
     "category": "scene-logic",
     "tags": [

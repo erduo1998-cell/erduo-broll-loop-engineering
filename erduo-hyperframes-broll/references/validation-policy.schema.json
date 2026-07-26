@@ -1,0 +1,306 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erduo.local/erduo-hyperframes-broll/validation-policy.schema.json",
+  "title": "Script-only v3 validation policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pipeline_contract_version",
+    "validation_policy_id",
+    "context_budget",
+    "profile_policy",
+    "readable_hold_policy",
+    "data_policy",
+    "whole_film_budgets",
+    "runtime_sample_strategy",
+    "pixel_thresholds",
+    "gate_policies",
+    "cache_key_fields",
+    "tool_bindings",
+    "legacy_policy",
+    "validation_policy_sha256"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "pipeline_contract_version": { "const": 3 },
+    "validation_policy_id": { "const": "script-only-production-v1" },
+    "context_budget": { "$ref": "#/$defs/contextBudget" },
+    "profile_policy": { "$ref": "#/$defs/profilePolicy" },
+    "readable_hold_policy": { "$ref": "#/$defs/readableHoldPolicy" },
+    "data_policy": { "$ref": "#/$defs/dataPolicy" },
+    "whole_film_budgets": { "$ref": "#/$defs/wholeFilmBudgets" },
+    "runtime_sample_strategy": { "$ref": "#/$defs/runtimeSampleStrategy" },
+    "pixel_thresholds": { "$ref": "#/$defs/pixelThresholds" },
+    "gate_policies": { "$ref": "#/$defs/gatePolicies" },
+    "cache_key_fields": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "source_sha256" },
+        { "const": "policy_sha256" },
+        { "const": "production_contract_sha256" },
+        { "const": "renderer_version" },
+        { "const": "hyperframes_version" },
+        { "const": "state_or_frame" }
+      ],
+      "items": false,
+      "minItems": 6,
+      "maxItems": 6
+    },
+    "tool_bindings": { "$ref": "#/$defs/toolBindings" },
+    "legacy_policy": { "$ref": "#/$defs/legacyPolicy" },
+    "validation_policy_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{2,95}$"
+    },
+    "codeList": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/code" }
+    },
+    "contextBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_receipt_max_bytes",
+        "stage_envelope_max_bytes",
+        "final_summary_max_bytes",
+        "inline_source_allowed",
+        "inline_image_allowed",
+        "inline_log_allowed",
+        "contact_sheet_allowed",
+        "subjective_quality_fields_allowed"
+      ],
+      "properties": {
+        "block_receipt_max_bytes": { "const": 16384 },
+        "stage_envelope_max_bytes": { "const": 32768 },
+        "final_summary_max_bytes": { "const": 65536 },
+        "inline_source_allowed": { "const": false },
+        "inline_image_allowed": { "const": false },
+        "inline_log_allowed": { "const": false },
+        "contact_sheet_allowed": { "const": false },
+        "subjective_quality_fields_allowed": { "const": false }
+      }
+    },
+    "profilePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_profile_required",
+        "public_default_profile_id",
+        "forbidden_public_default_profiles"
+      ],
+      "properties": {
+        "project_profile_required": { "const": true },
+        "public_default_profile_id": { "type": "null" },
+        "forbidden_public_default_profiles": {
+          "type": "array",
+          "contains": { "const": "deep-current-hud" },
+          "minContains": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "readableHoldPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinary_min_frames",
+        "complex_min_frames",
+        "complex_classes",
+        "short_window_action"
+      ],
+      "properties": {
+        "ordinary_min_frames": { "type": "integer", "minimum": 24 },
+        "complex_min_frames": { "type": "integer", "minimum": 45 },
+        "complex_classes": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "table" },
+            { "const": "chart" },
+            { "const": "multi-field" },
+            { "const": "data" }
+          ],
+          "items": false,
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "short_window_action": { "const": "reduce-content-or-motion" }
+      }
+    },
+    "dataPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_roles",
+        "require_unit",
+        "require_denominator",
+        "require_formula",
+        "require_source_ref"
+      ],
+      "properties": {
+        "evidence_roles": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["measured", "reported", "illustrative"] }
+        },
+        "require_unit": { "const": true },
+        "require_denominator": { "const": true },
+        "require_formula": { "const": true },
+        "require_source_ref": { "const": true }
+      }
+    },
+    "wholeFilmBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "emphasis_max_events",
+        "density_level_min",
+        "density_level_max",
+        "max_same_layout_run",
+        "max_same_metaphor_run",
+        "cooldown_min_changed_dimensions"
+      ],
+      "properties": {
+        "emphasis_max_events": { "type": "integer", "minimum": 1 },
+        "density_level_min": { "type": "integer", "minimum": 1 },
+        "density_level_max": { "type": "integer", "minimum": 2 },
+        "max_same_layout_run": { "type": "integer", "minimum": 1 },
+        "max_same_metaphor_run": { "type": "integer", "minimum": 1 },
+        "cooldown_min_changed_dimensions": { "type": "integer", "minimum": 2 }
+      }
+    },
+    "runtimeSampleStrategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["paths", "causal_phases", "state_hash_required"],
+      "properties": {
+        "paths": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "fresh_direct" },
+            { "const": "zero_to_t" },
+            { "const": "end_to_t" },
+            { "const": "repeat_to_t" }
+          ],
+          "items": false,
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "causal_phases": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "entry" },
+            { "const": "action" },
+            { "const": "result" },
+            { "const": "hold" },
+            { "const": "exit" }
+          ],
+          "items": false,
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "state_hash_required": { "const": true }
+      }
+    },
+    "pixelThresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "near_black_luma_max",
+        "near_empty_coverage_max_ratio",
+        "text_overflow_tolerance_px",
+        "primary_roi_min_ratio"
+      ],
+      "properties": {
+        "near_black_luma_max": { "type": "number", "minimum": 0, "maximum": 255 },
+        "near_empty_coverage_max_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "text_overflow_tolerance_px": { "type": "number", "minimum": 0 },
+        "primary_roi_min_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "gatePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hard_failure_codes", "warning_codes"],
+      "properties": {
+        "hard_failure_codes": { "$ref": "#/$defs/codeList" },
+        "warning_codes": { "$ref": "#/$defs/codeList" }
+      }
+    },
+    "gatePolicies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy-gate",
+        "source-conformance-gate",
+        "runtime-seek-gate",
+        "pixel-signal-gate",
+        "integration-delivery-gate"
+      ],
+      "properties": {
+        "policy-gate": { "$ref": "#/$defs/gatePolicy" },
+        "source-conformance-gate": { "$ref": "#/$defs/gatePolicy" },
+        "runtime-seek-gate": { "$ref": "#/$defs/gatePolicy" },
+        "pixel-signal-gate": { "$ref": "#/$defs/gatePolicy" },
+        "integration-delivery-gate": { "$ref": "#/$defs/gatePolicy" }
+      }
+    },
+    "toolBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["renderer_version", "hyperframes_version", "policy_version"],
+      "properties": {
+        "renderer_version": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "hyperframes_version": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "policy_version": { "type": "string", "minLength": 1, "maxLength": 120 }
+      }
+    },
+    "legacyPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accepted_pipeline_contract_version",
+        "legacy_pipeline_contract_versions",
+        "mode",
+        "resume_allowed",
+        "resign_allowed",
+        "render_authorization_allowed",
+        "forbidden_active_fields"
+      ],
+      "properties": {
+        "accepted_pipeline_contract_version": { "const": 3 },
+        "legacy_pipeline_contract_versions": {
+          "type": "array",
+          "prefixItems": [{ "const": 2 }],
+          "items": false,
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "mode": { "const": "inspection-only" },
+        "resume_allowed": { "const": false },
+        "resign_allowed": { "const": false },
+        "render_authorization_allowed": { "const": false },
+        "forbidden_active_fields": {
+          "type": "array",
+          "minItems": 13,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "contains": { "const": "stable_window" },
+          "minContains": 1
+        }
+      }
+    }
+  }
+}

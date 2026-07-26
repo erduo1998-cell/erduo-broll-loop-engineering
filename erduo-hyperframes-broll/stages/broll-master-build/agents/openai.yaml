@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Master Build"
-  short_description: "Author one complete HyperFrames HTML project through official skills."
-  default_prompt: "Use $broll-master-build to load official HyperFrames authoring skills, create the approved HTML composition, freeze source/evidence, and return preview/contact-sheet facts without rendering the final master."
+  display_name: "B-roll Script-only Block Build"
+  short_description: "Author one sealed v3 block and pass its three deterministic gates."
+  default_prompt: "Use $broll-master-build for exactly one assigned contiguous block and its compiled Block Creative Commission. Before any source read or write, exactly in order: call Skill(hyperframes-core); call Skill(hyperframes-creative), read house-style.md then video-composition.md; call Skill(hyperframes-animation); read the sealed scoped block packet; author only the assigned namespace. Use the frozen content facts while freely choosing DOM, composition, material treatment and causal motion. Do not use fixed F/G templates, recreate a reference, use generic/system fonts, remote dependencies, a centered web-page stack or ambient-only motion. Do not claim Skill loading in a receipt: host trace is the only proof. Freeze actual local bytes, then run source-conformance, runtime-seek and pixel-signal in order; return only bounded technical receipts and allow one failure-code-driven aggregate replacement."

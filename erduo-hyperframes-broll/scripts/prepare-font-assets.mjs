@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { loadDisplayFontLibrary, validateDisplayFontSelection } from './validate-display-font-selection.mjs';
+import { validateUserDisplayFontSelection } from './validate-display-font-selection.mjs';
 
 const execFile = promisify(execFileCallback);
 const SHA256 = /^[0-9a-f]{64}$/u;
@@ -193,7 +193,7 @@ function uniqueCodepoints(value) {
   return [...new Set(String(value ?? ''))].sort((a, b) => a.codePointAt(0) - b.codePointAt(0)).join('');
 }
 
-export async function prepareFontAssets({ manifestPath, projectDir, cacheDir, roles, visibleText = '', sourceRoot, fetchFn = globalThis.fetch, subsetter, displaySelection: requestedDisplaySelection, displayLibrary, displaySkillRoot, displayGlyphCoverage } = {}) {
+export async function prepareFontAssets({ manifestPath, projectDir, cacheDir, roles, visibleText = '', sourceRoot, fetchFn = globalThis.fetch, subsetter, displaySelection: requestedDisplaySelection, displayGlyphCoverage } = {}) {
   if (typeof manifestPath !== 'string' || !manifestPath || typeof projectDir !== 'string' || !projectDir || typeof cacheDir !== 'string' || !cacheDir
     || !Array.isArray(roles) || !roles.length || roles.some((role) => !ROLE.test(role)) || new Set(roles).size !== roles.length) fail('font_prepare_invalid', 'Font preparation arguments are invalid.');
   const manifest = validateManifest(JSON.parse(await fs.readFile(manifestPath, 'utf8')));
@@ -255,36 +255,25 @@ export async function prepareFontAssets({ manifestPath, projectDir, cacheDir, ro
   let displaySelection;
   if (wantsDisplay) {
     const requested = requestedDisplaySelection;
-    if (!requested) fail('display_font_selection_required', 'A selected bundled display font is required for the display role.', 'display');
-    const library = displayLibrary ?? await loadDisplayFontLibrary(path.join(root, 'assets', 'fonts', 'display-library.json'));
+    if (!requested) fail('display_font_selection_required', 'A user-provided, rights-confirmed display font is required for the display role.', 'display');
     let selected;
     try {
-      selected = await validateDisplayFontSelection(requested, { library, skillRoot: displaySkillRoot ?? root, ...(displayGlyphCoverage ? { glyphCoverage: displayGlyphCoverage } : {}) });
+      selected = await validateUserDisplayFontSelection(requested, { ...(displayGlyphCoverage ? { glyphCoverage: displayGlyphCoverage } : {}) });
     } catch (error) {
-      fail(error?.code ?? 'display_font_selection_invalid', 'Bundled display font selection is invalid.', 'display');
+      fail(error?.code ?? 'display_font_selection_invalid', 'User display-font selection is invalid.', 'display');
     }
-    const extension = path.posix.extname(selected.relative_path).slice(1).toLowerCase();
-    const relative = `assets/fonts/user-display/${path.posix.basename(selected.relative_path)}`;
-    const source = path.join(displaySkillRoot ?? root, ...selected.relative_path.split('/'));
-    const bytes = await readRegular(source, 'display_font_missing', 'Selected bundled display font is missing.');
-    if (!bytes || hash(bytes) !== selected.sha256) fail('display_font_hash_mismatch', 'Selected bundled display font bytes do not match the catalog.', 'display');
-    await fs.mkdir(path.join(projectDir, 'assets', 'fonts', 'user-display'), { recursive: true });
-    await fs.writeFile(path.join(projectDir, ...relative.split('/')), bytes);
-    sourceResults.set(`display:${selected.display_font_id}`, { relative, bytes, acquired: 'bundled-display-library', subset_mode: 'full-verified-copy' });
-    displaySelection = requested;
-    fonts.push({
-      font_id: selected.display_font_id,
-      role: 'display',
-      family: selected.family,
-      weight: '400 900',
-      style: 'normal',
-      file_sha256: selected.sha256,
-      file_kind: extension,
-      official_source: 'user-provided-display-library',
-      source_status: 'user-provided',
-      cjk_coverage_sha256: hash(Buffer.from(requested.display_text.normalize('NFC'), 'utf8')),
-      css: { font_face: true, src: `./${relative}`, used: true, fallbacks: [] },
-    });
+    const relative = `assets/fonts/user-supplied/${selected.font.font_id}.${selected.font.file_kind}`;
+    await fs.mkdir(path.join(projectDir, 'assets', 'fonts', 'user-supplied'), { recursive: true });
+    await fs.writeFile(path.join(projectDir, ...relative.split('/')), selected.font_bytes);
+    sourceResults.set(`display:${selected.font.font_id}`, { relative, bytes: selected.font_bytes, acquired: 'user-provided-local', subset_mode: 'full-verified-copy' });
+    const licenseRelative = `assets/licenses/user-display-${selected.font.font_id}.txt`;
+    if (!licenses.has(selected.font.license_file_sha256)) {
+      await fs.mkdir(path.join(projectDir, 'assets', 'licenses'), { recursive: true });
+      await fs.writeFile(path.join(projectDir, ...licenseRelative.split('/')), selected.license_bytes);
+      licenses.set(selected.font.license_file_sha256, licenseRelative);
+    }
+    displaySelection = selected.selection;
+    fonts.push({ ...selected.font, css: { font_face: true, src: `./${relative}`, used: true, fallbacks: [] } });
   }
   return {
     schema_version: 1,
@@ -295,11 +284,10 @@ export async function prepareFontAssets({ manifestPath, projectDir, cacheDir, ro
 }
 
 async function main(argv) {
-  if (argv.length < 4 || argv.length > 7) fail('usage', 'Usage: node scripts/prepare-font-assets.mjs <source-manifest.json> <cache-dir> <project-dir> <roles-csv> [visible-text-file] [display-selection.json] [display-library.json]');
+  if (argv.length < 4 || argv.length > 6) fail('usage', 'Usage: node scripts/prepare-font-assets.mjs <source-manifest.json> <cache-dir> <project-dir> <roles-csv> [visible-text-file] [user-display-selection.json]');
   const visibleText = argv[4] ? await fs.readFile(argv[4], 'utf8') : '';
   const displaySelection = argv[5] ? JSON.parse(await fs.readFile(argv[5], 'utf8')) : undefined;
-  const displayLibrary = argv[6] ? JSON.parse(await fs.readFile(argv[6], 'utf8')) : undefined;
-  process.stdout.write(`${JSON.stringify(await prepareFontAssets({ manifestPath: argv[0], cacheDir: argv[1], projectDir: argv[2], roles: argv[3].split(','), visibleText, displaySelection, displayLibrary }))}\n`);
+  process.stdout.write(`${JSON.stringify(await prepareFontAssets({ manifestPath: argv[0], cacheDir: argv[1], projectDir: argv[2], roles: argv[3].split(','), visibleText, displaySelection }))}\n`);
 }
 
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);

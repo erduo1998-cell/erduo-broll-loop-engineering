@@ -14,3 +14,11 @@
 **/node_modules/
 **/renders/
 **/.erduo-hyperframes-broll/
+
+# Runtime-only manifests, generated delivery artifacts, and verified font
+# downloads belong to a private run directory, never to the public Skill.
+/erduo-hyperframes-broll/.preflight/
+/erduo-hyperframes-broll/artifacts/
+/erduo-hyperframes-broll/assets/fonts/production-fonts/
+/erduo-hyperframes-broll/assets/fonts/user-display/
+/erduo-hyperframes-broll/assets/fonts/display-library.json

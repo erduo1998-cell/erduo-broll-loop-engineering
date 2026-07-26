@@ -3,6 +3,7 @@
   "selection": {
     "default_eligible_statuses": ["production"],
     "development_eligible_statuses": ["draft", "production"],
+    "calibration_only_template_ids": ["quiet-editorial-print"],
     "base_template_count": 1,
     "max_borrowed_patterns": 2,
     "conditional_compositing_requires_opt_in": true,
@@ -97,6 +98,17 @@
       "avoid_topic_tags": ["history", "lifestyle", "humanities", "children"],
       "avoid_moods": ["warm", "ceremonial", "tactile"],
       "density_range": [2, 4]
+    },
+    {
+      "template_id": "quiet-editorial-print",
+      "reference_atom_id": "STY-028",
+      "topic_tags": ["writing", "editorial", "archival", "reading", "cultural-research", "reflection"],
+      "semantic_types": ["key-quote", "explanation", "case", "reveal", "reorganization"],
+      "moods": ["quiet", "editorial", "tactile", "reflective", "print"],
+      "media_types": ["text", "paper", "photo", "native-graphics"],
+      "avoid_topic_tags": ["api", "monitoring", "network", "product-ui", "code-terminal"],
+      "avoid_moods": ["cyber", "immersive", "ceremonial", "commercial"],
+      "density_range": [1, 3]
     }
   ]
 }

@@ -82,6 +82,7 @@
       "minItems": 1,
       "items": { "$ref": "#/$defs/adaptationKnob" }
     },
+    "visual_grammar_constraints": { "$ref": "#/$defs/visualGrammarConstraints" },
     "inspiration_atoms": {
       "type": "array",
       "items": { "$ref": "#/$defs/inspirationAtom" }
@@ -123,6 +124,20 @@
     "outputMode": {
       "type": "string",
       "enum": ["fullscreen", "hard-alpha", "black-background-light"]
+    },
+    "authoringField": {
+      "type": "string",
+      "enum": [
+        "surface",
+        "attention_geometry",
+        "semantic_anchor",
+        "anchor_treatment",
+        "typography",
+        "color",
+        "material_texture",
+        "motion_causality",
+        "emotional_temperature"
+      ]
     },
     "layer": {
       "type": "string",
@@ -375,6 +390,126 @@
         },
         "adaptation_goal": { "$ref": "#/$defs/nonEmptyString" },
         "constraints": { "$ref": "#/$defs/nonEmptyUniqueStrings" }
+      }
+    },
+    "axisAuthoringField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["axis_id", "authoring_field"],
+      "properties": {
+        "axis_id": { "$ref": "#/$defs/templateId" },
+        "authoring_field": { "$ref": "#/$defs/authoringField" }
+      }
+    },
+    "visualGrammarConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axis_authoring_fields",
+        "adjacent_min_axis_changes",
+        "adjacent_required_any_axis_ids"
+      ],
+      "properties": {
+        "axis_authoring_fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 9,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/axisAuthoringField" },
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "surface" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "attention_geometry" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "semantic_anchor" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "anchor_treatment" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "typography" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "color" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "material_texture" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "motion_causality" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["authoring_field"],
+                "properties": { "authoring_field": { "const": "emotional_temperature" } }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            }
+          ]
+        },
+        "adjacent_min_axis_changes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "adjacent_required_any_axis_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/templateId" }
+        }
       }
     },
     "inspirationAtom": {

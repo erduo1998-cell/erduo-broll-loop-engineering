@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erduo.local/erduo-hyperframes-broll/master-bindings-v3.schema.json",
+  "title": "Master bindings schema 3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pipeline_contract_version",
+    "shot_plan_sha256",
+    "design_slice_sha256",
+    "flat_shot_kit_set_sha256",
+    "frame_projection_receipt_sha256",
+    "target_raster",
+    "shots",
+    "ordinary_assets",
+    "primary_consumers",
+    "auxiliary_consumers"
+  ],
+  "properties": {
+    "schema_version": { "const": 3 },
+    "pipeline_contract_version": { "const": 2 },
+    "shot_plan_sha256": { "$ref": "#/$defs/sha256" },
+    "design_slice_sha256": { "$ref": "#/$defs/sha256" },
+    "flat_shot_kit_set_sha256": { "$ref": "#/$defs/sha256" },
+    "frame_projection_receipt_sha256": { "$ref": "#/$defs/sha256" },
+    "target_raster": { "$ref": "#/$defs/raster" },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 999,
+      "items": { "$ref": "#/$defs/shot" }
+    },
+    "ordinary_assets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 999,
+      "items": { "$ref": "#/$defs/ordinaryAsset" }
+    },
+    "primary_consumers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 999,
+      "items": { "$ref": "#/$defs/primaryConsumer" }
+    },
+    "auxiliary_consumers": {
+      "type": "array",
+      "maxItems": 3996,
+      "items": { "$ref": "#/$defs/auxiliaryConsumer" }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifactId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "shotId": {
+      "type": "string",
+      "pattern": "^S[0-9]{3}$"
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "raster": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1, "maximum": 16384 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 16384 }
+      }
+    },
+    "bbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "$ref": "#/$defs/positiveInteger" },
+        "height": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "msWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_ms", "end_ms"],
+      "properties": {
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "frameWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_frame", "end_frame", "duration_frames"],
+      "properties": {
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "end_frame": { "type": "integer", "minimum": 1 },
+        "duration_frames": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_frame", "end_frame", "behavior"],
+      "properties": {
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "end_frame": { "type": "integer", "minimum": 1 },
+        "behavior": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry", "action", "result", "hold", "exit"],
+      "properties": {
+        "entry": { "$ref": "#/$defs/phase" },
+        "action": { "$ref": "#/$defs/phase" },
+        "result": { "$ref": "#/$defs/phase" },
+        "hold": { "$ref": "#/$defs/phase" },
+        "exit": { "$ref": "#/$defs/phase" }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_motion", "treatment", "direction", "amplitude_basis_points"],
+      "properties": {
+        "source_motion": { "enum": ["static", "intrinsic"] },
+        "treatment": { "enum": ["locked", "pan", "zoom", "pan-zoom"] },
+        "direction": { "enum": ["none", "left", "right", "up", "down", "in", "out"] },
+        "amplitude_basis_points": { "type": "integer", "minimum": 0, "maximum": 10000 }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dominant_hex", "background_luminance_basis_points", "title_contrast_ratio_x100"],
+      "properties": {
+        "dominant_hex": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+        },
+        "background_luminance_basis_points": { "type": "integer", "minimum": 0, "maximum": 10000 },
+        "title_contrast_ratio_x100": { "type": "integer", "minimum": 100, "maximum": 2100 }
+      }
+    },
+    "protectedRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "bbox"],
+      "properties": {
+        "kind": { "enum": ["primary-subject", "face", "product", "logo"] },
+        "bbox": { "$ref": "#/$defs/bbox" }
+      }
+    },
+    "titleRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "title_bbox", "text_safe_region_index", "min_clearance_px"],
+      "properties": {
+        "mode": { "enum": ["none", "inside-text-safe-region", "outside-primary-subject"] },
+        "title_bbox": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/bbox" }
+          ]
+        },
+        "text_safe_region_index": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 0 }
+          ]
+        },
+        "min_clearance_px": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "compositionFit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coordinate_space",
+        "subject_bbox",
+        "focal_point",
+        "output_crop_bbox",
+        "text_safe_regions",
+        "protected_regions",
+        "motion",
+        "palette",
+        "title_relation",
+        "result_roi"
+      ],
+      "properties": {
+        "coordinate_space": { "const": "target-raster-px" },
+        "subject_bbox": { "$ref": "#/$defs/bbox" },
+        "focal_point": { "$ref": "#/$defs/point" },
+        "output_crop_bbox": { "$ref": "#/$defs/bbox" },
+        "text_safe_regions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/bbox" }
+        },
+        "protected_regions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/protectedRegion" }
+        },
+        "motion": { "$ref": "#/$defs/motion" },
+        "palette": { "$ref": "#/$defs/palette" },
+        "title_relation": { "$ref": "#/$defs/titleRelation" },
+        "result_roi": { "$ref": "#/$defs/bbox" }
+      }
+    },
+    "evidenceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "size_bytes"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/artifactId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "pipeline_contract_version",
+        "status",
+        "producer",
+        "verification_mode",
+        "capture_frame",
+        "target_raster",
+        "result_roi",
+        "capture_format",
+        "enabled_frame",
+        "disabled_frame",
+        "roi_diff",
+        "roi_pixel_count",
+        "changed_pixel_count",
+        "gate_receipt_sha256"
+      ],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "pipeline_contract_version": { "const": 2 },
+        "status": { "const": "verified" },
+        "producer": { "const": "master-build-deterministic-roi-gate-v1" },
+        "verification_mode": { "const": "byte-resolved-pixel-ablation" },
+        "capture_frame": { "type": "integer", "minimum": 0 },
+        "target_raster": { "$ref": "#/$defs/raster" },
+        "result_roi": { "$ref": "#/$defs/bbox" },
+        "capture_format": { "enum": ["P6", "P3"] },
+        "enabled_frame": { "$ref": "#/$defs/evidenceArtifact" },
+        "disabled_frame": { "$ref": "#/$defs/evidenceArtifact" },
+        "roi_diff": { "$ref": "#/$defs/evidenceArtifact" },
+        "roi_pixel_count": { "$ref": "#/$defs/positiveInteger" },
+        "changed_pixel_count": { "$ref": "#/$defs/positiveInteger" },
+        "gate_receipt_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shot_id",
+        "design_shot_sha256",
+        "flat_shot_kit_artifact_id",
+        "flat_shot_kit_sha256",
+        "srt_window_ms",
+        "frame_window",
+        "lifecycle",
+        "ordinary_asset_id",
+        "primary_consumer_id",
+        "result_roi",
+        "contribution"
+      ],
+      "properties": {
+        "shot_id": { "$ref": "#/$defs/shotId" },
+        "design_shot_sha256": { "$ref": "#/$defs/sha256" },
+        "flat_shot_kit_artifact_id": { "$ref": "#/$defs/artifactId" },
+        "flat_shot_kit_sha256": { "$ref": "#/$defs/sha256" },
+        "srt_window_ms": { "$ref": "#/$defs/msWindow" },
+        "frame_window": { "$ref": "#/$defs/frameWindow" },
+        "lifecycle": { "$ref": "#/$defs/lifecycle" },
+        "ordinary_asset_id": { "$ref": "#/$defs/artifactId" },
+        "primary_consumer_id": { "$ref": "#/$defs/artifactId" },
+        "result_roi": { "$ref": "#/$defs/bbox" },
+        "contribution": { "$ref": "#/$defs/contribution" }
+      }
+    },
+    "ordinaryAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_id", "shot_id", "route", "media_kind", "locator_id", "source_sha256", "size_bytes"],
+      "properties": {
+        "asset_id": { "$ref": "#/$defs/artifactId" },
+        "shot_id": { "$ref": "#/$defs/shotId" },
+        "route": { "enum": ["user-media", "image-generation", "pexels"] },
+        "media_kind": { "enum": ["image", "video"] },
+        "locator_id": { "$ref": "#/$defs/artifactId" },
+        "source_sha256": { "$ref": "#/$defs/sha256" },
+        "size_bytes": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "primaryConsumer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consumer_id",
+        "shot_id",
+        "asset_id",
+        "role",
+        "element",
+        "fit",
+        "visible",
+        "opacity_basis_points",
+        "source_element_id",
+        "selector",
+        "selector_sha256",
+        "source_sha256",
+        "composition_fit",
+        "visible_window_ms",
+        "frame_window"
+      ],
+      "properties": {
+        "consumer_id": { "$ref": "#/$defs/artifactId" },
+        "shot_id": { "$ref": "#/$defs/shotId" },
+        "asset_id": { "$ref": "#/$defs/artifactId" },
+        "role": { "const": "primary" },
+        "element": { "enum": ["img", "background-image", "video"] },
+        "fit": { "enum": ["cover", "contain"] },
+        "visible": { "const": true },
+        "opacity_basis_points": { "const": 10000 },
+        "source_element_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9._:-]{0,127}$"
+        },
+        "selector": {
+          "type": "string",
+          "pattern": "^#[A-Za-z][A-Za-z0-9._:-]{0,127}$"
+        },
+        "selector_sha256": { "$ref": "#/$defs/sha256" },
+        "source_sha256": { "$ref": "#/$defs/sha256" },
+        "composition_fit": { "$ref": "#/$defs/compositionFit" },
+        "visible_window_ms": { "$ref": "#/$defs/msWindow" },
+        "frame_window": { "$ref": "#/$defs/frameWindow" }
+      }
+    },
+    "auxiliaryConsumer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["consumer_id", "shot_id", "role", "source_kind", "element", "selector", "visible_window_frames"],
+      "properties": {
+        "consumer_id": { "$ref": "#/$defs/artifactId" },
+        "shot_id": { "$ref": "#/$defs/shotId" },
+        "role": { "const": "auxiliary" },
+        "source_kind": { "const": "hyperframes-native" },
+        "element": { "enum": ["html", "svg", "canvas"] },
+        "selector": {
+          "type": "string",
+          "pattern": "^#[A-Za-z][A-Za-z0-9._:-]{0,127}$"
+        },
+        "visible_window_frames": { "$ref": "#/$defs/frameWindow" }
+      }
+    }
+  }
+}

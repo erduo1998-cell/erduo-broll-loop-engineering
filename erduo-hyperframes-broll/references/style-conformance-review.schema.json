@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openai.local/erduo-hyperframes-broll/style-conformance-review.schema.json",
+  "title": "Erduo HyperFrames static style-conformance review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pipeline_contract_version",
+    "authoring_topology_id",
+    "gate",
+    "authority_scope",
+    "subject_packet_index_sha256",
+    "visual_grammar_sha256",
+    "whole_film_rules_sha256",
+    "design_slice_sha256",
+    "chunk_plan_sha256",
+    "projection_sha256",
+    "review_generation",
+    "reviewer_role",
+    "reviewer_model_id",
+    "reviewer_isolation_sha256",
+    "reviewed_blocks",
+    "adjacent_result_reviews",
+    "findings",
+    "block_revision_findings",
+    "decision",
+    "review_sha256"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "pipeline_contract_version": { "const": 2 },
+    "authoring_topology_id": { "const": "bounded-authoring-cluster-v1" },
+    "gate": { "const": "style_conformance_review" },
+    "authority_scope": { "const": "static-style-review" },
+    "subject_packet_index_sha256": { "$ref": "#/$defs/sha256" },
+    "visual_grammar_sha256": { "$ref": "#/$defs/sha256" },
+    "whole_film_rules_sha256": { "$ref": "#/$defs/sha256" },
+    "design_slice_sha256": { "$ref": "#/$defs/sha256" },
+    "chunk_plan_sha256": { "$ref": "#/$defs/sha256" },
+    "projection_sha256": { "$ref": "#/$defs/sha256" },
+    "review_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "reviewer_role": { "const": "erduo-hyperframes-broll-main-agent" },
+    "reviewer_model_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+    },
+    "reviewer_isolation_sha256": { "$ref": "#/$defs/sha256" },
+    "reviewed_blocks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/reviewedBlock" }
+    },
+    "adjacent_result_reviews": {
+      "type": "array",
+      "maxItems": 2047,
+      "items": { "$ref": "#/$defs/adjacentResultReview" }
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 512,
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "block_revision_findings": {
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/blockRevisionFindings" }
+    },
+    "decision": { "$ref": "#/$defs/decision" },
+    "review_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "blockId": {
+      "type": "string",
+      "pattern": "^B[0-9]{3}$"
+    },
+    "shotId": {
+      "type": "string",
+      "pattern": "^S[0-9]{3}$"
+    },
+    "findingId": {
+      "type": "string",
+      "pattern": "^B[0-9]{3}-F[0-9]{3}$"
+    },
+    "shotChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visual_identity",
+        "anti_identity",
+        "attention_geometry",
+        "subject_title_relationship",
+        "real_html_svg_text_readability",
+        "accent_visibility_load",
+        "material_texture_language",
+        "negative_space_responsibility"
+      ],
+      "properties": {
+        "visual_identity": { "type": "boolean" },
+        "anti_identity": { "type": "boolean" },
+        "attention_geometry": { "type": "boolean" },
+        "subject_title_relationship": { "type": "boolean" },
+        "real_html_svg_text_readability": { "type": "boolean" },
+        "accent_visibility_load": { "type": "boolean" },
+        "material_texture_language": { "type": "boolean" },
+        "negative_space_responsibility": { "type": "boolean" }
+      }
+    },
+    "shotReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shot_id", "checks", "finding_ids"],
+      "properties": {
+        "shot_id": { "$ref": "#/$defs/shotId" },
+        "checks": { "$ref": "#/$defs/shotChecks" },
+        "finding_ids": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/findingId" }
+        }
+      }
+    },
+    "reviewedBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "block_manifest_sha256",
+        "inspected_source_sha256s",
+        "authoring_context_sha256",
+        "shared_directive_sha256",
+        "shot_recipe_sha256s",
+        "renderer_receipt_sha256",
+        "inspected_evidence_page_sha256",
+        "inspected_still_sha256s",
+        "inspected_capture_binding_sha256s",
+        "inspected_pixel_facts_sha256",
+        "shot_reviews"
+      ],
+      "properties": {
+        "block_id": { "$ref": "#/$defs/blockId" },
+        "block_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "inspected_source_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "authoring_context_sha256": { "$ref": "#/$defs/sha256" },
+        "shared_directive_sha256": { "$ref": "#/$defs/sha256" },
+        "shot_recipe_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "renderer_receipt_sha256": { "$ref": "#/$defs/sha256" },
+        "inspected_evidence_page_sha256": { "$ref": "#/$defs/sha256" },
+        "inspected_still_sha256s": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 24,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "inspected_capture_binding_sha256s": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 24,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "inspected_pixel_facts_sha256": { "$ref": "#/$defs/sha256" },
+        "shot_reviews": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/shotReview" }
+        }
+      }
+    },
+    "adjacentResultReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left_shot_id",
+        "right_shot_id",
+        "owner_block_id",
+        "left_result_sha256",
+        "right_result_sha256",
+        "only_text_changed",
+        "finding_ids"
+      ],
+      "properties": {
+        "left_shot_id": { "$ref": "#/$defs/shotId" },
+        "right_shot_id": { "$ref": "#/$defs/shotId" },
+        "owner_block_id": { "$ref": "#/$defs/blockId" },
+        "left_result_sha256": { "$ref": "#/$defs/sha256" },
+        "right_result_sha256": { "$ref": "#/$defs/sha256" },
+        "only_text_changed": { "type": "boolean" },
+        "finding_ids": {
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/findingId" }
+        }
+      }
+    },
+    "criterion": {
+      "enum": [
+        "visual_identity",
+        "anti_identity",
+        "attention_geometry",
+        "subject_title_relationship",
+        "real_html_svg_text_readability",
+        "accent_visibility_load",
+        "material_texture_language",
+        "negative_space_responsibility",
+        "adjacent_result_text_swap"
+      ]
+    },
+    "findingCode": {
+      "enum": [
+        "visual_identity_mismatch",
+        "anti_identity_violation",
+        "attention_geometry_conflict",
+        "subject_title_relationship_weak",
+        "html_svg_text_unreadable_or_not_real",
+        "accent_invisible",
+        "accent_overload",
+        "material_texture_language_mismatch",
+        "negative_space_unresolved",
+        "adjacent_result_text_swap_only"
+      ]
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_id",
+        "block_id",
+        "shot_ids",
+        "criterion",
+        "severity",
+        "code",
+        "summary",
+        "evidence_sha256s",
+        "required_change"
+      ],
+      "properties": {
+        "finding_id": { "$ref": "#/$defs/findingId" },
+        "block_id": { "$ref": "#/$defs/blockId" },
+        "shot_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/shotId" }
+        },
+        "criterion": { "$ref": "#/$defs/criterion" },
+        "severity": { "const": "revision_required" },
+        "code": { "$ref": "#/$defs/findingCode" },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "evidence_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "required_change": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "blockRevisionFindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["block_id", "finding_count", "finding_ids"],
+      "properties": {
+        "block_id": { "$ref": "#/$defs/blockId" },
+        "finding_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 512
+        },
+        "finding_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/findingId" }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "viewed_all_pages",
+        "read_all_bound_sources",
+        "static_scope_only",
+        "animation_approved_from_stills",
+        "rhythm_approved_from_stills",
+        "transitions_approved_from_stills",
+        "five_phase_lifecycle_approved_from_stills",
+        "seek_behavior_approved_from_stills",
+        "block_revision_count",
+        "finding_count",
+        "decision_sha256"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": ["approved", "revision_required"]
+        },
+        "viewed_all_pages": { "const": true },
+        "read_all_bound_sources": { "const": true },
+        "static_scope_only": { "const": true },
+        "animation_approved_from_stills": { "const": false },
+        "rhythm_approved_from_stills": { "const": false },
+        "transitions_approved_from_stills": { "const": false },
+        "five_phase_lifecycle_approved_from_stills": { "const": false },
+        "seek_behavior_approved_from_stills": { "const": false },
+        "block_revision_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "finding_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 512
+        },
+        "decision_sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "outcome": { "const": "approved" } },
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "block_revision_count": { "const": 0 },
+              "finding_count": { "const": 0 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "outcome": { "const": "revision_required" } },
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "block_revision_count": { "minimum": 1 },
+              "finding_count": { "minimum": 1 }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

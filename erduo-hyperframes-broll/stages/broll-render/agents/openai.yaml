@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Render"
-  short_description: "Render and deterministically verify one approved HyperFrames master."
-  default_prompt: "Use $broll-render only after source/pixel hard gates, main html_preview_review and official HyperFrames authoring evidence bind the exact source; render once, verify, and return final-frame facts."
+  short_description: "Render one current 4K master and verify its actual media technically."
+  default_prompt: "Use $broll-render only from the sealed v3 contract, passed Gate 5 integration receipt and current no-rewrite proof; reopen all integrated bytes, render once at 4K with network disabled, then verify the actual master by probe and full decode."

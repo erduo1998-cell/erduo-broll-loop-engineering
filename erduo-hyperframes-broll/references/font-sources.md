@@ -1,10 +1,10 @@
 # Font source and project-copy contract
 
-The public package includes the user-selected display-font binaries recorded in `assets/fonts/display-library.json`. Read that catalog first for display roles; its files are bundled under `assets/fonts/user-display/` and must pass the catalog hash audit. `assets/fonts/source-manifest.json` remains the pinned acquisition source for the supporting Noto families.
+The public package includes no display-font catalog or display-font binaries. For a display role, the user supplies a local regular font file, its local license file and an explicit `user-confirmed-licensed` declaration; only verified bytes and hashes enter the generated project. `assets/fonts/source-manifest.json` remains the pinned acquisition source for the supporting Noto families.
 
 ## Acquisition
 
-1. For a catalogued display role, use its already bundled local file; do not download, replace, or silently fall back. For a supporting Noto role, try the manifest's exact pinned `raw_url` first and write only to a private user cache.
+1. For a display role, accept only the user-provided local font and local license file declared for that run; do not download, replace, or silently fall back. For a supporting Noto role, try the manifest's exact pinned `raw_url` first and write only to a private user cache.
 2. Only when that raw request fails at the network or HTTP transport layer may acquisition use GitHub's Contents API followed by the Git Blob API. The fallback must use the same official GitHub repository, exact pinned commit and exact `source_path`; it is another transport for the same object, not another source.
 3. After any successful raw or API response, verify byte length and SHA-256 before parsing the font. A byte-length or hash mismatch is a hard integrity failure: delete or quarantine the response, do not try the other transport, and never switch to a mirror, branch tip, release alias or different commit/path.
 4. Verify that the bundled license file SHA-256 equals `license_sha256`. Copy that license into the generated project's font-notices directory.

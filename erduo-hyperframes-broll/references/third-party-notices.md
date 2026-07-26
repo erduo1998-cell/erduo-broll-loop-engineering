@@ -8,7 +8,7 @@ The runtime font source manifest pins Noto Sans CJK SC and Noto Serif CJK SC fro
 
 ## User-provided display fonts
 
-The package contains 19 display-font binaries registered in `assets/fonts/display-library.json`. Their names, paths, hashes and user-provided provenance are recorded for integrity and deterministic selection. Their redistribution and commercial-use licenses have not been independently verified. Inclusion is not a license grant; downstream users must confirm rights before redistribution or commercial use.
+The package contains no user-provided display-font binary or catalog. When a run uses one, the user must provide it locally with its applicable license file and explicitly confirm rights; the bytes stay in that generated project and are not redistributed by this repository.
 
 ## video-shotcraft
 
@@ -17,6 +17,10 @@ Some reference-library entries are sanitized, HyperFrames-oriented abstractions 
 ## taste-skill
 
 The taste preflight and design-dial concepts were abstracted from `Leonxlnx/taste-skill`, licensed MIT. This package does not include the upstream Skill, code or visual examples. License: `assets/licenses/taste-skill-MIT.txt`.
+
+## gc-minimal-zine-poster
+
+The draft `quiet-editorial-print` calibration profile and compiler abstract an identity/invariant/variation/quality-gate method from the fixed `LiamGvchi/gc-minimal-zine-poster` commit recorded in `reference-library/source-map.json`, licensed MIT. This package does not include upstream example images, generated posters, sample prompts or copy, fixed vertical ratios, repository branding, cultural style labels, fonts, logos or other third-party assets. The profile is an independent 16:9 HyperFrames adaptation and does not imply affiliation. License: `assets/licenses/gc-minimal-zine-poster-MIT.txt`.
 
 ## awesome-design-md
 

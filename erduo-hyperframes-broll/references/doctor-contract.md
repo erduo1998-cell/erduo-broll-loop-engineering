@@ -2,6 +2,11 @@
 
 `scripts/doctor.mjs` performs a read-only preflight plus one reversible write probe. It does not install tools, download a browser, modify user configuration, or print environment values.
 
+Node.js, FFmpeg/FFprobe, HyperFrames and its browser are machine-level
+dependencies. Portable project snapshots deliberately do not bundle them; run
+doctor again after every migration and provision missing capabilities on the
+destination machine.
+
 ## Command surface
 
 ```bash

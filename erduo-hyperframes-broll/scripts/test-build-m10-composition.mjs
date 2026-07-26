@@ -16,7 +16,7 @@ const fontBytes = Buffer.from('prepared-noto-font-fixture');
 const fontSha256 = createHash('sha256').update(fontBytes).digest('hex');
 const fontPackage = () => ({ schema_version: 2, display_selection: { schema_version: 1, primary_visual_dna: 'deep-current-hud', display_font_id: 'fixture-display', display_text: '约束出现 下一步 001 002' }, fonts: [
   { font_id: 'noto-fixture', role: 'information', family: 'Noto Fixture Runtime Information', weight: '100 900', style: 'normal', file_sha256: fontSha256, file_kind: 'ttf', css: { font_face: true, src: './assets/fonts/noto-fixture.ttf', used: true, fallbacks: [] } },
-  { font_id: 'fixture-display', role: 'display', family: 'Fixture Display Runtime', weight: '400 900', style: 'normal', file_sha256: fontSha256, file_kind: 'ttf', official_source: 'user-provided-display-library', source_status: 'user-provided', cjk_coverage_sha256: sha('d'), css: { font_face: true, src: './assets/fonts/noto-fixture.ttf', used: true, fallbacks: [] } },
+  { font_id: 'fixture-display', role: 'display', family: 'Fixture Display Runtime', weight: '400 900', style: 'normal', file_sha256: fontSha256, file_kind: 'ttf', official_source: 'user-provided-local', source_status: 'user-provided-local', license_id: 'Fixture-License', license_file_sha256: sha('e'), commercial_scope: 'user-confirmed-licensed', cjk_coverage_sha256: sha('d'), css: { font_face: true, src: './assets/fonts/noto-fixture.ttf', used: true, fallbacks: [] } },
 ] });
 async function prepareProjectFont(output) { await fs.mkdir(path.join(output, 'assets/fonts'), { recursive: true }); await fs.writeFile(path.join(output, 'assets/fonts/noto-fixture.ttf'), fontBytes); }
 

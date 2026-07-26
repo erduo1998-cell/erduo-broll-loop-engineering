@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "registry_id": "m20-failed-visual-regressions-v1",
+  "samples": [
+    {
+      "sample_id": "ART-086",
+      "evidence_availability": "archived-metadata-only",
+      "historical_outcome": "user-rejected",
+      "failure_classes": [
+        "adjacent-dark-hud-repetition",
+        "large-unowned-dead-zone",
+        "ordinary-material-not-visible",
+        "tiny-isolated-information",
+        "generic-ai-template-hierarchy",
+        "producer-self-approval"
+      ],
+      "required_review_authority": "qualified-main-agent"
+    },
+    {
+      "sample_id": "ART-096",
+      "evidence_availability": "archived-metadata-only",
+      "historical_outcome": "user-rejected",
+      "failure_classes": [
+        "black-segment",
+        "empty-card",
+        "large-unowned-dead-zone",
+        "dim-masked-material",
+        "weak-display-font-character",
+        "false-visual-approval"
+      ],
+      "required_review_authority": "qualified-main-agent"
+    },
+    {
+      "sample_id": "ART-098",
+      "evidence_availability": "archived-metadata-only",
+      "historical_outcome": "user-rejected",
+      "failure_classes": [
+        "black-or-bright-low-information",
+        "visible-unicode-escape",
+        "dim-masked-material",
+        "weak-typographic-hierarchy",
+        "generic-ai-template-hierarchy",
+        "false-visual-approval"
+      ],
+      "required_review_authority": "qualified-main-agent"
+    },
+    {
+      "sample_id": "latest-4k",
+      "evidence_availability": "private-capture-required",
+      "historical_outcome": "user-rejected",
+      "failure_classes": [
+        "generic-ai-template-hierarchy",
+        "weak-typographic-hierarchy",
+        "weak-composition-system",
+        "weak-material-system"
+      ],
+      "required_review_authority": "qualified-main-agent"
+    }
+  ]
+}

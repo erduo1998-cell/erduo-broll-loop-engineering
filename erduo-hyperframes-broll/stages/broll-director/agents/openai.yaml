@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Director"
-  short_description: "Create a creative SRT-anchored B-roll shot plan fact packet."
-  default_prompt: "Use $broll-director to turn the confirmed SRT/design brief into a creative shot plan with intent, material needs, prohibited directions and a bounded fact packet for main-agent review."
+  short_description: "Compile the script-only v3 director contract and deterministic policy receipt."
+  default_prompt: "Use $broll-director to bind actual SRT bytes and canonical authoring artifacts; return the director-phase production contract, deterministic policy receipt, and bounded stage envelope."

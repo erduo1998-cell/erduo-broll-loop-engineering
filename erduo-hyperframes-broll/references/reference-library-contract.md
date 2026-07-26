@@ -46,7 +46,7 @@ reference-library/
 - 文字镜头应召回字体/排版相关 atom（至少覆盖 `STY-006`、`STY-025` 或用户 design override）作为排版计划依据，并在 main preview/final frame review 与 verify 阶段应用 `QLT-018`。无来源的 `Inter`、system/browser sans 默认或其他禁用字体栈不得作为内部默认。
 - 没有用户 design/reference 时，director 必须召回 `STY-026`，先写设计读数与视觉差异、运动强度、视觉密度三档拨盘，再选择风格。
 - 标题、金句、章节字、UI 字段和其他关键文字镜头必须有 `STY-027`、展示字体库选择或显式用户字体覆盖作为依据；pixel gate 与 main agent 都必须按 `QLT-018` 检查标题完整可读，verify 只核验对应 main review refs 和字体事实。
-- 自包含 director method 必须召回 `SCN-011` 并在 assets 前由 main `shot_plan_review` 应用 `QLT-019`。任一 Pexels selected route 必须召回 `CPS-018` 并通过 `QLT-020`。所有真实运行在 render 前必须通过 `QLT-021`，除非用户提供的完整 design review 已覆盖同一字段并写入 trace。
+- 自包含 director method 必须召回 `SCN-011` 并在 assets 前由确定性 director facts gate 应用 `QLT-019`；它不能判断尚未实现的像素。任一 Pexels selected route 必须召回 `CPS-018` 并通过 `QLT-020`。所有真实运行在 render 前必须由主 agent 基于实际源码执行 `source_code_review` 并通过 `QLT-021`，除非用户提供的完整 design review 已覆盖同一字段并写入 trace。
 - 不写入任何 `production` 伪证；若需上线，必须另行升级审核流程并写入验收证据。
 - `source_boundary` 用于明确用户参考优先：用户输入/用户约束可覆盖，默认库仅提供建议。
 

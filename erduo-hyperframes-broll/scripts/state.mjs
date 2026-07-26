@@ -1,10 +1,35 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { createReadStream, promises as fs } from 'node:fs';
 import path from 'node:path';
+import {
+  AUTHORING_TOPOLOGY_ID,
+  PIPELINE_CONTRACT_VERSION,
+  VALIDATION_POLICY_ID,
+  inspectV3Compatibility,
+} from './validate-production-contract.mjs';
 
-export const STAGES = ['preflight', 'directing', 'assets', 'build', 'render', 'verify'];
+export {
+  AUTHORING_TOPOLOGY_ID,
+  PIPELINE_CONTRACT_VERSION,
+  VALIDATION_POLICY_ID,
+};
+export const STAGES = [
+  'preflight',
+  'directing',
+  'assets',
+  'authoring',
+  'integration',
+  'render',
+  'verify',
+];
 const INPUT_SLOTS = new Set(['srt', 'control_media', 'narration_media', 'design', 'user_assets']);
-const SETTING_KEYS = new Set(['aspect_ratio', 'frame_rate', 'template_policy_sha256', 'production_library_sha256']);
+const SETTING_KEYS = new Set([
+  'aspect_ratio',
+  'frame_rate',
+  'template_policy_sha256',
+  'production_library_sha256',
+  'design_selection_options_sha256',
+]);
 const SHA256 = /^[0-9a-f]{64}$/u;
 const CREDENTIAL_KEY = /(?:api[_-]?key|token|secret|cookie|password|authorization|credential)/iu;
 const ABSOLUTE_VALUE = /^(?:\/|[A-Za-z]:[\\/]|\\\\|file:)/u;
@@ -140,7 +165,11 @@ function normalizeSettings(settings = {}) {
     }
     result.frame_rate = { numerator: value.numerator, denominator: value.denominator };
   }
-  for (const key of ['template_policy_sha256', 'production_library_sha256']) {
+  for (const key of [
+    'template_policy_sha256',
+    'production_library_sha256',
+    'design_selection_options_sha256',
+  ]) {
     if (key in settings) {
       if (!SHA256.test(settings[key])) stateFail('invalid_manifest', `${key} is invalid.`);
       result[key] = settings[key];
@@ -186,7 +215,10 @@ export function createRunState(manifest, {
   validateManifest(manifest);
   const timestamp = isoNow(now);
   return {
-    schema_version: 1,
+    schema_version: 3,
+    pipeline_contract_version: PIPELINE_CONTRACT_VERSION,
+    authoring_topology_id: AUTHORING_TOPOLOGY_ID,
+    validation_policy_id: VALIDATION_POLICY_ID,
     run_id: makeId(),
     created_at: timestamp,
     updated_at: timestamp,
@@ -204,9 +236,12 @@ export function validateManifest(manifest) {
 }
 
 function invalidationStage(field) {
-  if (field === 'design' || field === 'template_policy_sha256' || field === 'production_library_sha256') return 'directing';
+  if (field === 'design'
+    || field === 'template_policy_sha256'
+    || field === 'production_library_sha256'
+    || field === 'design_selection_options_sha256') return 'directing';
   if (field === 'user_assets') return 'assets';
-  if (field === 'aspect_ratio' || field === 'frame_rate') return 'build';
+  if (field === 'aspect_ratio' || field === 'frame_rate') return 'authoring';
   return 'preflight';
 }
 
@@ -300,8 +335,33 @@ export function assertStatePrivacy(value) {
 }
 
 export function validateRunState(state) {
-  if (!state || typeof state !== 'object' || Array.isArray(state) || state.schema_version !== 1) stateFail('unsupported_state', 'Run state schema is missing or unsupported.');
-  const allowed = new Set(['schema_version', 'run_id', 'created_at', 'updated_at', 'manifest', 'changes', 'stages']);
+  if (!state || typeof state !== 'object' || Array.isArray(state)) stateFail('unsupported_state', 'Run state schema is missing or unsupported.');
+  const compatibility = inspectV3Compatibility(state);
+  if (compatibility.code === 'pipeline_upgrade_required') {
+    stateFail('pipeline_upgrade_required', 'Legacy run state is inspection-only and cannot resume.');
+  }
+  if (compatibility.code === 'legacy_field_forbidden') {
+    stateFail('legacy_field_forbidden', 'Legacy authorization fields cannot be re-signed into v3 state.');
+  }
+  if (state.schema_version !== 3) {
+    stateFail('legacy_state_resign_forbidden', 'A legacy state shape cannot be re-signed as v3.');
+  }
+  if (state.authoring_topology_id !== AUTHORING_TOPOLOGY_ID
+    || state.validation_policy_id !== VALIDATION_POLICY_ID) {
+    stateFail('invalid_state', 'Run state identity is invalid.');
+  }
+  const allowed = new Set([
+    'schema_version',
+    'pipeline_contract_version',
+    'authoring_topology_id',
+    'validation_policy_id',
+    'run_id',
+    'created_at',
+    'updated_at',
+    'manifest',
+    'changes',
+    'stages',
+  ]);
   if (Object.keys(state).some((key) => !allowed.has(key))) stateFail('invalid_state', 'Run state contains an unknown field.');
   if (typeof state.run_id !== 'string' || !/^(?:run-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f-]{27,})$/iu.test(state.run_id)) stateFail('invalid_state', 'Run ID is invalid.');
   for (const timestamp of [state.created_at, state.updated_at]) {
@@ -338,6 +398,57 @@ export function validateRunState(state) {
   return state;
 }
 
+export function inspectRunState(state) {
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    return {
+      resume_eligible: false,
+      resign_eligible: false,
+      code: 'unsupported_state',
+      schema_version: null,
+      pipeline_contract_version: null,
+      run_id: null,
+      stages: null,
+    };
+  }
+  const compatibility = inspectV3Compatibility(state);
+  if (compatibility.code !== 'canonical_artifact_validation_required') {
+    return {
+      resume_eligible: false,
+      resign_eligible: false,
+      code: compatibility.code,
+      schema_version: Number.isSafeInteger(state.schema_version) ? state.schema_version : null,
+      pipeline_contract_version: compatibility.pipeline_contract_version,
+      run_id: typeof state.run_id === 'string' ? state.run_id : null,
+      stages: state.stages && typeof state.stages === 'object'
+        ? Object.fromEntries(STAGES.map((stage) => [stage, state.stages[stage]?.status ?? null]))
+        : null,
+    };
+  }
+  if (state.schema_version !== 3) {
+    return {
+      resume_eligible: false,
+      resign_eligible: false,
+      code: 'legacy_state_resign_forbidden',
+      schema_version: Number.isSafeInteger(state.schema_version) ? state.schema_version : null,
+      pipeline_contract_version: compatibility.pipeline_contract_version,
+      run_id: typeof state.run_id === 'string' ? state.run_id : null,
+      stages: state.stages && typeof state.stages === 'object'
+        ? Object.fromEntries(STAGES.map((stage) => [stage, state.stages[stage]?.status ?? null]))
+        : null,
+    };
+  }
+  validateRunState(state);
+  return {
+    resume_eligible: true,
+    resign_eligible: false,
+    code: null,
+    schema_version: state.schema_version,
+    pipeline_contract_version: state.pipeline_contract_version,
+    run_id: state.run_id,
+    stages: Object.fromEntries(STAGES.map((stage) => [stage, state.stages[stage].status])),
+  };
+}
+
 async function statePaths(projectRoot, pathImpl = path) {
   const root = pathImpl.resolve(projectRoot);
   return { root, dir: pathImpl.join(root, '.erduo-hyperframes-broll'), file: pathImpl.join(root, '.erduo-hyperframes-broll', 'run.json') };
@@ -368,6 +479,21 @@ export async function loadRunState(projectRoot, { fsImpl = fs, pathImpl = path }
   let state;
   try { state = JSON.parse(text); } catch { stateFail('state_invalid_json', 'Run state is not valid JSON.'); }
   return validateRunState(state);
+}
+
+export async function inspectStoredRunState(projectRoot, { fsImpl = fs, pathImpl = path } = {}) {
+  const paths = await statePaths(projectRoot, pathImpl);
+  await rejectSymlink(paths.root, fsImpl, { requireDirectory: true });
+  const dir = await rejectSymlink(paths.dir, fsImpl, { allowMissing: true, requireDirectory: true });
+  if (!dir) return null;
+  const file = await rejectSymlink(paths.file, fsImpl, { allowMissing: true });
+  if (!file) return null;
+  if (!file.isFile()) stateFail('unsafe_state_path', 'Run state path is unsafe.');
+  let text;
+  try { text = await fsImpl.readFile(paths.file, 'utf8'); } catch { stateFail('state_read_failed', 'Run state could not be read.'); }
+  let state;
+  try { state = JSON.parse(text); } catch { stateFail('state_invalid_json', 'Run state is not valid JSON.'); }
+  return inspectRunState(state);
 }
 
 export async function saveRunState(projectRoot, state, {

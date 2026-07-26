@@ -27,15 +27,15 @@ async function fixture(t, { seedCache = true } = {}) {
   const manifestPath = path.join(root, 'assets/fonts/source-manifest.json');
   const cacheDir = path.join(root, 'cache');
   const projectDir = path.join(root, 'project');
-  await Promise.all([fs.mkdir(path.dirname(manifestPath), { recursive: true }), fs.mkdir(path.join(root, 'assets/licenses'), { recursive: true }), fs.mkdir(path.join(root, 'assets/fonts/user-display'), { recursive: true }), fs.mkdir(cacheDir, { recursive: true })]);
+  await Promise.all([fs.mkdir(path.dirname(manifestPath), { recursive: true }), fs.mkdir(path.join(root, 'assets/licenses'), { recursive: true }), fs.mkdir(cacheDir, { recursive: true })]);
   await Promise.all([fs.writeFile(manifestPath, JSON.stringify(manifest)), fs.writeFile(path.join(root, 'assets/licenses/OFL.txt'), license)]);
   if (seedCache) await fs.writeFile(path.join(cacheDir, 'noto-fixture-vf-1.0.ttf'), bytes);
   const displayBytes = Buffer.from('fixture-user-display-font');
-  await fs.writeFile(path.join(root, 'assets/fonts/user-display/fixture-display.ttf'), displayBytes);
-  const displayFont = (index = 0) => ({ font_id: index ? `fixture-display-${index}` : 'fixture-display', family: 'Fixture User Display', relative_path: `assets/fonts/user-display/${index ? `fixture-display-${index}` : 'fixture-display'}.ttf`, sha256: hash(displayBytes), style_tags: ['bold'], compatible_visual_dna: ['fixture-dna'], source_status: 'user-provided' });
-  const displayLibrary = { schema_version: 1, package_distribution: 'included', source_status: 'user-provided', font_count: 19, fonts: Array.from({ length: 19 }, (_, index) => displayFont(index)) };
-  for (let index = 1; index < 19; index += 1) await fs.writeFile(path.join(root, `assets/fonts/user-display/fixture-display-${index}.ttf`), displayBytes);
-  return { root, manifestPath, cacheDir, projectDir, bytes, license, manifest, displayBytes, displayLibrary };
+  const displayPath = path.join(root, 'local-licensed-display.ttf');
+  const displayLicensePath = path.join(root, 'local-display-license.txt');
+  await Promise.all([fs.writeFile(displayPath, displayBytes), fs.writeFile(displayLicensePath, 'Fixture display license\n')]);
+  const displaySelection = { schema_version: 1, primary_visual_dna: 'fixture-dna', display_font_id: 'fixture-display', family: 'Fixture User Display', file_path: displayPath, license_id: 'Fixture-License', license_file_path: displayLicensePath, commercial_scope: 'user-confirmed-licensed', display_text: '重点 001' };
+  return { root, manifestPath, cacheDir, projectDir, bytes, license, manifest, displayBytes, displaySelection };
 }
 
 test('uses a strictly verified local cache and copies real font/license bytes into the project', async (t) => {
@@ -51,17 +51,16 @@ test('uses a strictly verified local cache and copies real font/license bytes in
   assert.equal(result.font_package.fonts.every((font) => font.css.src.startsWith('./assets/fonts/') && font.css.fallbacks.length === 0), true);
 });
 
-test('requires exactly one catalogued display selection and copies its verified bytes into the generated project', async (t) => {
+test('requires one rights-confirmed local display selection and copies its verified bytes into the generated project', async (t) => {
   const value = await fixture(t);
-  const selection = { schema_version: 1, primary_visual_dna: 'fixture-dna', display_font_id: 'fixture-display', display_text: '重点 001' };
-  const result = await prepareFontAssets({ ...value, roles: ['information', 'display'], visibleText: '支持文字', subsetter: null, displaySelection: selection, displayLibrary: value.displayLibrary, displayGlyphCoverage: async () => ({ missing_codepoints: [] }) });
+  const result = await prepareFontAssets({ ...value, roles: ['information', 'display'], visibleText: '支持文字', subsetter: null, displaySelection: value.displaySelection, displayGlyphCoverage: async () => ({ missing_codepoints: [] }) });
   assert.equal(result.font_package.schema_version, 2);
-  assert.deepEqual(result.font_package.display_selection, selection);
+  assert.deepEqual(result.font_package.display_selection, { schema_version: 1, primary_visual_dna: 'fixture-dna', display_font_id: 'fixture-display', display_text: '重点 001' });
   const display = result.font_package.fonts.find((font) => font.role === 'display');
   assert.equal(display.font_id, 'fixture-display');
-  assert.equal(display.source_status, 'user-provided');
-  assert.deepEqual(await fs.readFile(path.join(value.projectDir, 'assets/fonts/user-display/fixture-display.ttf')), value.displayBytes);
-  await assert.rejects(() => prepareFontAssets({ ...value, roles: ['display'], visibleText: '重点', subsetter: null }), (error) => error.code === 'display_font_selection_required');
+  assert.equal(display.source_status, 'user-provided-local');
+  assert.deepEqual(await fs.readFile(path.join(value.projectDir, 'assets/fonts/user-supplied/fixture-display.ttf')), value.displayBytes);
+  await assert.rejects(() => prepareFontAssets({ ...value, roles: ['display'], visibleText: '重点', subsetter: null, displaySelection: undefined }), (error) => error.code === 'display_font_selection_required');
 });
 
 test('downloads only a pinned match and uses a deterministic injected subsetter when available', async (t) => {

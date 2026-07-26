@@ -30,6 +30,28 @@
       "excluded": ["upstream Skill files", "code", "visual examples", "brand assets"]
     },
     {
+      "source_id": "gc-minimal-zine-poster",
+      "name": "LiamGvchi/gc-minimal-zine-poster",
+      "repository": "https://github.com/LiamGvchi/gc-minimal-zine-poster",
+      "audited_commit": "d2768f2a3488856af08ae5b2a3f8970d59197fdd",
+      "license_id": "MIT",
+      "license_path": "assets/licenses/gc-minimal-zine-poster-MIT.txt",
+      "license_sha256": "d15c81ae8fa9a0b4b1db46c66e4490cc92e4898fb1f55e030559fbd2a2e2a232",
+      "distribution_mode": "sanitized-calibration-abstraction-only",
+      "file_globs": [
+        "reference-library/styles/style-quiet-editorial-print-compiler.md",
+        "references/design-library/templates/quiet-editorial-print.json"
+      ],
+      "excluded": [
+        "upstream example images and generated posters",
+        "upstream sample prompts, captions, objects, dates and layout recipes",
+        "upstream callable-skill expression and repository branding",
+        "upstream fixed vertical ratio and bitmap-generation workflow",
+        "cultural or geographic style labels",
+        "fonts, logos and other third-party assets"
+      ]
+    },
+    {
       "source_id": "awesome-design-md",
       "name": "VoltAgent/awesome-design-md",
       "repository": "https://github.com/VoltAgent/awesome-design-md",
@@ -39,7 +61,14 @@
       "license_path": "assets/licenses/awesome-design-md-LICENSE.txt",
       "license_sha256": "6d4bdc9a9cf30e7beb593475fdcdbf29f981ea6bd7923f202866145409f87b44",
       "distribution_mode": "sanitized-template-inspiration",
-      "file_globs": ["references/design-library/templates/*.json"],
+      "file_globs": [
+        "references/design-library/templates/deep-current-hud.json",
+        "references/design-library/templates/forbidden-red-gold.json",
+        "references/design-library/templates/greenroom-writing.json",
+        "references/design-library/templates/neon-cyber-overlay.json",
+        "references/design-library/templates/restrained-gradient-flow.json",
+        "references/design-library/templates/soft-aurora-workbench.json"
+      ],
       "excluded": ["brand logos", "screenshots", "preview pages", "complete upstream documents"]
     },
     {
