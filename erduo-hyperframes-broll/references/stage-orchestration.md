@@ -1,144 +1,142 @@
-# Stage orchestration contract
+# Stage orchestration
 
-## Active graph
+## Ownership
 
-```text
-parent deterministic preflight
-  → Director
-  → Assets
-  → deterministic contiguous blocks B001…BN
-  → bounded parallel Master Build
-  → three deterministic block gates
-  → byte-preserving Master Integrate
-  → whole-film integration-delivery gate
-  → one 4K Render
-  → technical delivery verification
-  → optional master-derived Shot Export
-```
-
-The graph requires `pipeline_contract_version: 3`,
-`authoring_topology_id: script-only-authoring-cluster-v1` and
-`validation_policy_id: script-only-production-v1`.
-
-Director, Assets, every Master Build block, Master Integrate and Render use
-fresh isolated contexts. A run with `N` blocks therefore uses `N + 4` stage
-contexts. Preflight, partitioning and gates remain main/script operations. Do
-not add reviewer agents.
-
-## Claude Code dispatch boundary
-
-On Claude Code, every production context below is a fresh
-`Agent(subagent_type: "general-purpose")`; parent-side `Skill(broll-*)` calls
-are inline execution and invalid:
-
-| Stage | Agent-owned Skill | Parent may read | Child returns |
+| Stage | Fresh owner | Normal working area | Parent review |
 | --- | --- | --- | --- |
-| director | `broll-director` | ≤4 KiB preflight receipt and artifact IDs | ≤32 KiB stage envelope/receipts |
-| assets | `broll-assets` | upstream hashes and artifact IDs | ≤32 KiB stage envelope/receipts |
-| each block | `broll-master-build` | its packet ID and sealed hash facts | ≤16 KiB block receipts |
-| integration | `broll-master-integrate` | passed block hashes/IDs | ≤32 KiB stage envelope/receipts |
-| render | `broll-render` | sealed/integration/receipt hashes | ≤64 KiB final summary |
+| Environment | Onboarding Agent | `broll-production/00-onboarding/` | handoff and relevant official environment facts |
+| Direction | Director Agent | `broll-production/01-director/` | handoff and relevant plans |
+| Material | Assets and Pexels Agent | `broll-production/02-assets/` | handoff, search record, inventory, and material plan |
+| Blocks | one Builder Agent per contiguous block | `broll-production/03-build/<block-id>/` | handoff, notes, and source portions needed for a stated question |
+| Assembly | Integrator Agent | `broll-production/04-integrate/` | handoff, integration notes, official check, and relevant project portions |
+| Master | Render and Delivery Agent | `broll-production/05-delivery/` | handoff, preflight, preview approval, final arguments, and media facts |
+| Shot files | Shot Export Agent, only on request | `broll-production/06-shot-export/` | handoff, export index, and media facts |
 
-The parent supplies no raw SRT, source, images, prompts, transcripts or long
-logs. Every child receipt records `execution_isolation` with host
-`claude-code`, mechanism `claude-agent`, a dispatch-event hash and a stage
-packet/context hash. Missing evidence, an inline mechanism or an out-of-scope
-stage is a hard failure. The parent must issue a new event for each child; its
-actual uniqueness is verified from the Claude Code end-to-end trace, not
-inferred from a hash alone. The optional `broll-shot-export` is likewise a
-fresh `Agent(subagent_type: "general-purpose")` only after explicit user
-request.
+Every production action belongs to its stage Agent. The Parent does not create
+working areas, modify artifacts, search for media, install dependencies, or run
+media and HyperFrames commands.
 
-## Director
+## Dispatch fresh agents
 
-Director freezes actual parsed-SRT facts, the shot plan, design system,
-component registry, validation policy, project-only reference profile,
-project-local font package, frame projection and delivery profile.
+Give each child:
 
-Every shot binds:
+- its exact stage Skill;
+- one stage responsibility;
+- production-root and input-artifact locators;
+- the user goal and constraints relevant to that stage;
+- the unique new output directory, default `master.mp4` H.264 MP4 at
+  3840×2160, 30 fps, high quality, or the user's explicit alternative;
+- the shared Markdown handoff format;
+- a clear prohibition against doing another stage's work.
 
-- one semantic evidence chain and cognitive action;
-- semantic objects, spatial relation, input, operation and result state;
-- functional typography roles and selectors;
-- causal `Entry → Action → Result → Hold → Exit` frame ranges;
-- readable hold and transition/callback;
-- data source, denominator and formula when numeric content exists.
+Do not combine roles in one child or continue a blocked stage in the Parent.
+When review finds several issues owned by one stage, combine them into one
+revision request and re-dispatch that role as a fresh Agent. Keep unaffected
+Builder blocks when one block needs revision.
 
-The whole film binds chapter promise/payoff, callback, emphasis, density and
-cooldown ledgers. Director compiles the director production contract and
-passes `policy-gate`.
+## Onboarding
 
-## Assets
+Dispatch Onboarding when:
 
-Assets reopens the exact director contract and freezes structured provenance,
-rights, bytes, geometry, route and consumer facts. It returns JSON facts only.
-If material selection cannot be resolved from user input and structured facts,
-stop for user input.
+- this is the first run;
+- the project moved to another machine or user profile;
+- Node, HyperFrames, Skills, FFmpeg, FFprobe, Chrome, permissions, storage, or
+  Pexels status may have changed;
+- no current ready handoff exists for this production and delivery path.
+- the production-run identity, host, command `PATH`, official HyperFrames CLI
+  version, target delivery filesystem, or Pexels validation state changed.
 
-After Assets, compile a new sealed production contract that binds the actual
-asset manifest and all unchanged director facts. Rerun `policy-gate`. Build,
-integration, render and export consume only the sealed contract.
+First dispatch a fresh inspection-only Onboarding Agent. It must not modify the
+machine or configuration. The Parent asks the user for one grouped
+authorization based on that inspection, then dispatches a different fresh
+repair Agent. The repair Agent performs only approved work and repeats the full
+inspection.
 
-## Deterministic blocks and parallel build
+The release installer owns initial registration. Onboarding verifies that the
+root Skill and all seven stage Skills are discoverable; it does not create
+their host registration.
 
-The parent deterministically partitions the ordered shot list. Every shot
-appears once in one contiguous block. A normal block contains at most 8 shots
-and spans at most 45,000 ms. Never split a shot; a longer single shot is one
-marked singleton.
+Onboarding may parse only the final SRT cue end milliseconds for
+delivery-space estimation. It does not group cues or make film decisions.
 
-Each block packet contains only its exact shot records, time/frame window,
-namespace, seam obligations, component/motion facts, material facts and sealed
-shared hashes. Missing, extra, reordered, stale or undeclared inputs fail.
+Do not let onboarding replace the Render Agent's same-environment official
+doctor run.
 
-Dispatch one fresh `broll-master-build` context per block, concurrently within
-the host limit. Each context writes only its block package. Immediately run:
+## Partition Builders
 
-1. `source-conformance-gate`
-2. `runtime-seek-gate`
-3. `pixel-signal-gate`
+Assign each Builder a bounded, contiguous semantic span. Place boundaries at
+clean chapter or meaning handoffs. Do not split one semantic shot across
+Builders, overlap windows, or reduce planned density merely to use fewer
+agents. A short film may have one block.
 
-The gates bind actual source/runtime/pixel facts and emit bounded JSON
-receipts. A failed block receives one aggregate replacement in a fresh context.
-Passing blocks remain reusable.
+## Official HyperFrames loading
 
-## Byte-preserving integration
+Before any Builder reads or writes HyperFrames source, require a real load of
+the current official `hyperframes` Skill through the host's native Skill
+mechanism. Require the Integrator to perform the same load before assembly and
+Render/Delivery before doctor, check, preview, or render.
 
-Dispatch one fresh `broll-master-integrate` context only after every current
-block passes. It may author only:
+A handoff statement or command alone does not prove the Skill load. Retain the
+minimum host-native trace reference needed to verify each fresh child and
+required official Skill load. If the host exposes no inspectable trace, state
+that evidence limitation rather than inventing proof.
 
-- the minimal master wrapper;
-- the ordered block/import map;
-- the block hash and byte-count ledger;
-- the integration manifest and deterministic receipts.
+Before any non-Pexels child process, use the host's native spawn/process API to
+copy the required environment into an explicit child map, remove every key whose
+ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive key
+collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass that map
+directly to the target executable without a shell. This applies to Node, npx,
+HyperFrames CLI and browser descendants, package managers, FFmpeg, FFprobe,
+doctor, check, update, preview, and render. A telemetry opt-in may change only
+the telemetry value; Pexels-key removal remains mandatory.
 
-The integrator must not format, minify, parse/re-emit or repair a block. Reread
-every source and require identical pre/post SHA-256 and byte count.
+Do not use a POSIX-only inline assignment or `env -u` as the contract. If the
+host cannot pass a demonstrably sanitized environment map, stop before spawn as
+`action-required`. Only a dedicated Pexels request may receive the credential,
+in the smallest available scope. Handoffs record only the environment-map
+capability, `pexels_key_removed_case_insensitively=true`, and the telemetry
+setting, never environment values. These settings neither prove Skill loading
+nor replace command and result review.
 
-Run the whole-film phase of `integration-delivery-gate` over block order and
-coverage, time truth, namespace/selector uniqueness, seams, current
-dependency/profile hashes, chapter/callback ledgers and emphasis/density/
-cooldown budgets.
+Official Skills check and update access the official GitHub Skill source. This
+network access must be declared; update still requires repair authorization.
 
-## Render, delivery and export
+## Pass artifacts and review evidence
 
-Dispatch one fresh `broll-render` context from the exact integrated bytes.
-Require the current sealed contract, all required five-gate receipts, the
-current integrated manifest and its no-rewrite proof. Do not require parent
-source/image reading, review pages or reviewer lineage. Render exactly one
-final 4K master. Complete the delivery phase of `integration-delivery-gate` by
-binding decode, duration, raster, rational fps, codec, audio, SRT coverage,
-master hash and current source/tool/profile hashes.
+Pass file and directory locators between children. A downstream child may read
+the upstream artifacts its role needs.
 
-Run `broll-shot-export` only after explicit user request and only from the
-verified master. Independent shot rendering is forbidden.
+The Parent begins with the concise handoff, then reads only the actual plans,
+inventories, notes, source portions, integration results, technical facts, or
+host evidence needed to verify a stated review question. Bounded read-only
+inspection must not become another production stage.
 
-## Context boundary and private calibration
+## Revisions and blockers
 
-The parent consumes only bounded JSON receipts and summaries: block receipt
-at most 16 KiB, stage envelope at most 32 KiB and final summary at most 64 KiB.
-Keep source, images, prompts, long logs and private paths in the artifact store.
+Return issues to the owning stage:
 
-ReachSurge is private minimum authoring calibration and a source of generalized
-negative fixtures only. Never copy its source into the public package or place
-its identity, verdict or hashes in a production receipt or profile. Deep
-Current remains project-only.
+- environment and authorization to Onboarding;
+- film meaning, timing, visual direction, and material intent to Director;
+- material, Pexels, download, provenance, crop, and font issues to Assets;
+- block source and block-owned visual implementation to its Builder;
+- wrapper, resource conflicts, order, and integration-owned seams to
+  Integrator;
+- formal environment, output arguments, render, and media verification to
+  Render/Delivery;
+- slice timing and exported-file verification to Shot Export.
+
+Continue review and revision while the owning stage is making meaningful
+progress. Stop for a missing authorization, unsupported host capability,
+irreconcilable constraint, or the same blocker recurring without progress.
+
+Formal render requires explicit approval of the official final composition
+preview. Unattended production ends at that pause.
+
+A failed render attempt belongs to the current Render/Delivery Agent. Preserve
+its evidence and partial target, then dispatch a different fresh Agent using a
+new unused attempt target. Exactly one successfully verified final master is
+delivered; attempt count is not artificially limited.
+
+Never hide a failure by substituting placeholder media, changing SRT time,
+creating an alternate renderer, overwriting a target, or describing a partial
+output as the master.

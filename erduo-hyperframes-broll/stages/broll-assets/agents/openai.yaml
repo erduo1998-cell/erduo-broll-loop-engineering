@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Assets"
-  short_description: "Freeze local media facts and seal the script-only v3 production contract."
-  default_prompt: "Use $broll-assets to freeze actual local media bytes, probe, rights, provenance, geometry and route facts, then seal the v3 contract and return the asset manifest, sealed contract, sealed policy receipt, and bounded envelope."
+  display_name: "B-roll Assets and Pexels"
+  short_description: "Collect and plan shot-bound media and fonts."
+  default_prompt: "Use $broll-assets to inspect user media, consider controllable generation, run real Pexels searches, and freeze selected shot-bound material."

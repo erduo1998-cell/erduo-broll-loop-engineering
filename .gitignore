@@ -1,24 +1,25 @@
-# This repository has a public release boundary. Ignore every root-level
-# development/governance artifact unless it is explicitly allowlisted below.
-/*
-!/.gitignore
-!/LICENSE
-!/README.md
-!/RELEASE-CHECKLIST.md
-!/release-allowlist.txt
-!/erduo-hyperframes-broll/
-!/erduo-hyperframes-broll/**
-
 .DS_Store
-.tmp-hf-fixture/
-**/node_modules/
-**/renders/
-**/.erduo-hyperframes-broll/
+node_modules/
+.npm/
+*.log
+*.tmp
+*.tar
+*.tar.gz
+*.zip
 
-# Runtime-only manifests, generated delivery artifacts, and verified font
-# downloads belong to a private run directory, never to the public Skill.
-/erduo-hyperframes-broll/.preflight/
-/erduo-hyperframes-broll/artifacts/
-/erduo-hyperframes-broll/assets/fonts/production-fonts/
-/erduo-hyperframes-broll/assets/fonts/user-display/
-/erduo-hyperframes-broll/assets/fonts/display-library.json
+# Runtime and user production data
+.erduo-hyperframes-broll/
+broll-production/
+renders/
+artifacts/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+config.json
+
+# Editor files
+.idea/
+.vscode/
+*~

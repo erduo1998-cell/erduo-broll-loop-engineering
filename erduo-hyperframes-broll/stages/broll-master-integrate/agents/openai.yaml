@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Master Integrate"
-  short_description: "Assemble validated blocks and prove their source bytes were not rewritten."
-  default_prompt: "Use $broll-master-integrate after every script-only v3 block gate passes; assemble the ordered wrapper/map, reopen and prove every block byte unchanged, aggregate deterministic whole-film ledgers, and return only path-free Gate 5 integration evidence."
+  display_name: "B-roll Master Integrator"
+  short_description: "Assemble verified blocks into one master project."
+  default_prompt: "Use $broll-master-integrate to load the official hyperframes Skill, assemble every completed block in order, and run the official standard check."

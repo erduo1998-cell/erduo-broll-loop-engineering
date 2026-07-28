@@ -1,4 +1,4 @@
 interface:
   display_name: "Erduo HyperFrames B-roll"
-  short_description: "Build script-only v3 B-roll through five deterministic gates."
-  default_prompt: "Use $erduo-hyperframes-broll to run Director, Assets, bounded parallel Master Build, byte-preserving Integrate, one 4K Render, technical delivery, and optional master-derived shot export while keeping ReachSurge calibration private and out of public receipts and profiles."
+  short_description: "Produce SRT-anchored B-roll with isolated agents."
+  default_prompt: "Use $erduo-hyperframes-broll to onboard the environment and supervise fresh stage agents through one verified final B-roll master."

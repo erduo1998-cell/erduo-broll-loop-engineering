@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Erduo HyperFrames B-roll 中文工作流程</title>
+  <desc id="desc">从准备字幕与素材，到安装检查、分镜、素材、分块构建、整合预览、渲染交付的八步流程。</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffaf1"/>
+      <stop offset="1" stop-color="#f5f8ff"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8a3d"/>
+      <stop offset="1" stop-color="#ff5c57"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#22304a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M0,0 L10,6 L0,12 Z" fill="#77839a"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .eyebrow { font-size: 21px; font-weight: 700; letter-spacing: 2px; fill: #ff6b48; }
+      .title { font-size: 46px; font-weight: 800; fill: #172033; }
+      .subtitle { font-size: 24px; fill: #667085; }
+      .step { font-size: 18px; font-weight: 800; fill: #fff; text-anchor: middle; dominant-baseline: middle; }
+      .node-title { font-size: 25px; font-weight: 800; fill: #172033; }
+      .node-copy { font-size: 19px; fill: #667085; }
+      .footer { font-size: 20px; font-weight: 650; fill: #344054; }
+      .card { fill: #fff; stroke: #e4e8f0; stroke-width: 2; filter: url(#shadow); }
+      .flow { fill: none; stroke: #77839a; stroke-width: 4; stroke-linecap: round; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" rx="36" fill="url(#background)"/>
+  <text x="90" y="76" class="eyebrow">小白只需要准备输入，其余交给 AGENT</text>
+  <text x="90" y="132" class="title">从一份 SRT 到一个可编辑的 4K B-roll Master</text>
+  <text x="90" y="174" class="subtitle">安装一次 · 每次按语义分镜 · 素材与构建分工 · 预览后再正式渲染</text>
+
+  <path class="flow" d="M375 317 H445"/>
+  <path class="flow" d="M755 317 H825"/>
+  <path class="flow" d="M1135 317 H1205"/>
+  <path class="flow" d="M1360 425 V485"/>
+  <path class="flow" d="M1205 610 H1135"/>
+  <path class="flow" d="M825 610 H755"/>
+  <path class="flow" d="M445 610 H375"/>
+
+  <g transform="translate(65 220)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="url(#accent)"/>
+    <text x="42" y="43" class="step">1</text>
+    <text x="80" y="50" class="node-title">准备输入</text>
+    <text x="28" y="98" class="node-copy">必需：SRT 字幕</text>
+    <text x="28" y="132" class="node-copy">口播：再给已剪视频</text>
+    <text x="28" y="166" class="node-copy">可选：图片 / Logo / 截图</text>
+  </g>
+
+  <g transform="translate(445 220)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#4f7cff"/>
+    <text x="42" y="43" class="step">2</text>
+    <text x="80" y="50" class="node-title">安装与体检</text>
+    <text x="28" y="98" class="node-copy">运行 Install.command</text>
+    <text x="28" y="132" class="node-copy">自动准备 HyperFrames</text>
+    <text x="28" y="166" class="node-copy">一次性配置 Pexels Key</text>
+  </g>
+
+  <g transform="translate(825 220)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#8b5cf6"/>
+    <text x="42" y="43" class="step">3</text>
+    <text x="80" y="50" class="node-title">语义分镜</text>
+    <text x="28" y="98" class="node-copy">Director 理解内容结构</text>
+    <text x="28" y="132" class="node-copy">确定视觉方向与节奏</text>
+    <text x="28" y="166" class="node-copy">不要求额外 design.md</text>
+  </g>
+
+  <g transform="translate(1205 220)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#12a594"/>
+    <text x="42" y="43" class="step">4</text>
+    <text x="80" y="50" class="node-title">收集素材</text>
+    <text x="28" y="98" class="node-copy">用户素材 → 可控生成</text>
+    <text x="28" y="132" class="node-copy">→ Pexels 图片 / 视频</text>
+    <text x="28" y="166" class="node-copy">每份素材都服务具体语义</text>
+  </g>
+
+  <g transform="translate(1205 485)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#0f9f6e"/>
+    <text x="42" y="43" class="step">5</text>
+    <text x="80" y="50" class="node-title">分块并行构建</text>
+    <text x="28" y="98" class="node-copy">每个 Builder 独立负责一段</text>
+    <text x="28" y="132" class="node-copy">真实加载 HyperFrames Skill</text>
+    <text x="28" y="166" class="node-copy">失败只返工所属片段</text>
+  </g>
+
+  <g transform="translate(825 485)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#e85d75"/>
+    <text x="42" y="43" class="step">6</text>
+    <text x="80" y="50" class="node-title">整合 Master</text>
+    <text x="28" y="98" class="node-copy">Integrator 组装所有片段</text>
+    <text x="28" y="132" class="node-copy">保持字幕时间线连续覆盖</text>
+    <text x="28" y="166" class="node-copy">先生成正式预览</text>
+  </g>
+
+  <g transform="translate(445 485)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#f59e0b"/>
+    <text x="42" y="43" class="step">7</text>
+    <text x="80" y="50" class="node-title">你确认预览</text>
+    <text x="28" y="98" class="node-copy">检查画面、节奏与风格</text>
+    <text x="28" y="132" class="node-copy">不满意：把意见告诉 Agent</text>
+    <text x="28" y="166" class="node-copy">满意：明确同意正式渲染</text>
+  </g>
+
+  <g transform="translate(65 485)">
+    <rect class="card" width="310" height="205" rx="24"/>
+    <circle cx="42" cy="42" r="25" fill="#2d65d8"/>
+    <text x="42" y="43" class="step">8</text>
+    <text x="80" y="50" class="node-title">渲染与交付</text>
+    <text x="28" y="98" class="node-copy">默认输出 4K / 30 fps MP4</text>
+    <text x="28" y="132" class="node-copy">完成时长、解码等技术验证</text>
+    <text x="28" y="166" class="node-copy">需要时再导出逐镜头文件</text>
+  </g>
+
+  <rect x="65" y="748" width="1470" height="88" rx="22" fill="#172033"/>
+  <text x="800" y="785" class="footer" fill="#fff" text-anchor="middle">你只需做三件事：准备输入 → 回答首次授权 → 观看并确认最终预览</text>
+  <text x="800" y="817" class="node-copy" fill="#cbd5e1" text-anchor="middle">Agent 负责分镜、找素材、分块构建、整合、渲染与技术验收</text>
+</svg>

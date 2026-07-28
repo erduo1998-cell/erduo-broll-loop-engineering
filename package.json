@@ -1,0 +1,19 @@
+{
+  "name": "erduo-hyperframes-broll",
+  "version": "0.1.0-rc.2",
+  "private": true,
+  "description": "Prompt-first SRT-anchored HyperFrames B-roll parent/child Agent Skills.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "install:skills": "node scripts/install.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "config:status": "node scripts/config.mjs status",
+    "uninstall:skills": "node scripts/uninstall.mjs",
+    "package:release": "node scripts/package-release.mjs",
+    "test": "node --test scripts/test.mjs"
+  }
+}

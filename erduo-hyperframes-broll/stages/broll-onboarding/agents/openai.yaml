@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Environment Onboarding"
+  short_description: "Prepare the machine and coordinate required access."
+  default_prompt: "Use $broll-onboarding to inspect the real environment, coordinate safe repairs, and return a credential-free readiness handoff."

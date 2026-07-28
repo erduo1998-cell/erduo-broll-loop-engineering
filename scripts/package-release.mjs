@@ -1,0 +1,760 @@
+#!/usr/bin/env node
+
+import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { constants } from 'node:fs';
+import {
+  chmod,
+  copyFile,
+  lstat,
+  mkdir,
+  mkdtemp,
+  open,
+  readFile,
+  readdir,
+  realpath,
+  rm,
+  utimes,
+  writeFile,
+} from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import {
+  crc32,
+  gzipSync,
+  inflateRawSync,
+} from 'node:zlib';
+import {
+  ActionRequiredError,
+  RELEASE_VERSION,
+  publicError,
+  sanitizedChildEnv,
+} from './lib.mjs';
+
+const execFileAsync = promisify(execFile);
+const PACKAGE_NAME = `erduo-hyperframes-broll-${RELEASE_VERSION}`;
+const TAR_BLOCK_SIZE = 512;
+const MAX_ARCHIVE_BYTES = 16 * 1024 * 1024;
+const MAX_UNCOMPRESSED_BYTES = 128 * 1024 * 1024;
+const MAX_TAR_RECORDS = 512;
+const CANONICAL_MTIME_SECONDS = 946684800;
+const CANONICAL_MTIME = new Date(CANONICAL_MTIME_SECONDS * 1000);
+
+const ROOT_FILES = [
+  '.gitignore',
+  'CHANGELOG.md',
+  'CONTRIBUTING.md',
+  'Install.command',
+  'LICENSE',
+  'PRIVACY.md',
+  'README.md',
+  'RELEASE-CHECKLIST.md',
+  'SECURITY.md',
+  'SUPPORT-MATRIX.md',
+  'THIRD-PARTY-NOTICES.md',
+  'package.json',
+  'runtime/package.json',
+  'runtime/package-lock.json',
+];
+
+const SCRIPT_FILES = [
+  'scripts/config.mjs',
+  'scripts/doctor.mjs',
+  'scripts/install.mjs',
+  'scripts/lib.mjs',
+  'scripts/package-release.mjs',
+  'scripts/test.mjs',
+  'scripts/uninstall.mjs',
+];
+
+const SKILL_FILES = [
+  'erduo-hyperframes-broll/SKILL.md',
+  'erduo-hyperframes-broll/agents/openai.yaml',
+  'erduo-hyperframes-broll/references/first-run-onboarding.md',
+  'erduo-hyperframes-broll/references/handoff-template.md',
+  'erduo-hyperframes-broll/references/parent-review-checklist.md',
+  'erduo-hyperframes-broll/references/prompt-first-workflow.md',
+  'erduo-hyperframes-broll/references/stage-orchestration.md',
+  ...[
+    'broll-onboarding',
+    'broll-director',
+    'broll-assets',
+    'broll-master-build',
+    'broll-master-integrate',
+    'broll-render',
+    'broll-shot-export',
+  ].flatMap((name) => [
+    `erduo-hyperframes-broll/stages/${name}/SKILL.md`,
+    `erduo-hyperframes-broll/stages/${name}/agents/openai.yaml`,
+  ]),
+];
+
+export const RELEASE_FILES = Object.freeze([
+  ...ROOT_FILES,
+  ...SCRIPT_FILES,
+  ...SKILL_FILES,
+].toSorted());
+
+export const REPOSITORY_ONLY_FILES = Object.freeze([
+  'docs/images/wechat-contact.jpg',
+  'docs/images/workflow-zh.svg',
+].toSorted());
+
+const SENSITIVE_EXTENSIONS = /\.(?:srt|vtt|jpg|jpeg|png|gif|webp|heic|mp4|mov|mkv|webm|avi|mp3|wav|m4a|pem|key|p12|pfx)$/iu;
+const SENSITIVE_NAMES = /(?:^|\/)(?:\.env(?:\..*)?|cookies?(?:\..*)?|\.netrc)$/iu;
+const PRIVATE_PATHS = [
+  /\/Users\/[^/\s]+/u,
+  /\/home\/[^/\s]+/u,
+  /[A-Za-z]:\\Users\\/u,
+];
+const CREDENTIAL_PATTERNS = [
+  /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/u,
+  /\b(?:AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35})\b/u,
+  /\b(?:sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|npm_[A-Za-z0-9]{20,})\b/u,
+  /(?:^|[\s,{])["']?(?:api[_-]?key|token|secret|password)["']?\s*[:=]\s*(?:"[^"\r\n]{8,}"|'[^'\r\n]{8,}'|[^\s"'#,}\]]{8,})(?=$|[\s,}\]])/imu,
+  /(?:^|[\s,{])["']?(?:PEXELS_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|GITHUB_TOKEN|NPM_TOKEN|AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|GOOGLE_API_KEY|[A-Z][A-Z0-9_]*(?:_KEY|_TOKEN|_PASSWORD|_SECRET))["']?\s*[:=]\s*(?:"[A-Za-z0-9._~+/=-]{8,}"|'[A-Za-z0-9._~+/=-]{8,}'|[A-Za-z0-9._~+/=-]{8,})(?=$|[\s,}\]])/imu,
+];
+
+function isWithin(parent, child) {
+  const relative = path.relative(parent, child);
+  return relative !== '' && !path.isAbsolute(relative)
+    && relative !== '..' && !relative.startsWith(`..${path.sep}`);
+}
+
+async function sourceFiles(repoRoot) {
+  const files = [];
+  async function visit(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (entry.name === '.git' || entry.name === 'node_modules') continue;
+      const absolute = path.join(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        throw new ActionRequiredError(
+          'release_symlink_forbidden',
+          'Release source contains a symbolic link.',
+        );
+      }
+      if (entry.isDirectory()) await visit(absolute);
+      else if (entry.isFile()) files.push(path.relative(repoRoot, absolute));
+      else {
+        throw new ActionRequiredError(
+          'release_special_file_forbidden',
+          'Release source contains a non-regular file.',
+        );
+      }
+    }
+  }
+  await visit(repoRoot);
+  return files.toSorted();
+}
+
+async function validateSource(repoRoot) {
+  const actual = await sourceFiles(repoRoot);
+  const repositoryFiles = [...RELEASE_FILES, ...REPOSITORY_ONLY_FILES].toSorted();
+  const allowed = new Set(repositoryFiles);
+  const extra = actual.filter((file) => !allowed.has(file));
+  const missing = repositoryFiles.filter((file) => !actual.includes(file));
+  if (extra.length || missing.length) {
+    throw new ActionRequiredError(
+      'release_file_set_mismatch',
+      `Release file whitelist mismatch: extra=${extra.length}, missing=${missing.length}.`,
+    );
+  }
+
+  for (const relative of RELEASE_FILES) {
+    if (SENSITIVE_EXTENSIONS.test(relative) || SENSITIVE_NAMES.test(relative)) {
+      throw new ActionRequiredError(
+        'release_sensitive_file_forbidden',
+        'Release whitelist contains a sensitive filename or media type.',
+      );
+    }
+    const text = await readFile(path.join(repoRoot, relative), 'utf8');
+    const privatePattern = PRIVATE_PATHS.findIndex((pattern) => pattern.test(text));
+    const credentialPattern = CREDENTIAL_PATTERNS.findIndex((pattern) => pattern.test(text));
+    if (privatePattern !== -1 || credentialPattern !== -1) {
+      throw new ActionRequiredError(
+        'release_sensitive_content_forbidden',
+        `Release source contains sensitive content in ${relative} `
+          + `(path-rule=${privatePattern}, credential-rule=${credentialPattern}).`,
+      );
+    }
+  }
+
+  const workflow = await readFile(
+    path.join(repoRoot, 'docs/images/workflow-zh.svg'),
+    'utf8',
+  );
+  if (!workflow.startsWith('<svg ') || !workflow.includes('</svg>')
+    || Buffer.byteLength(workflow) > 512 * 1024
+    || PRIVATE_PATHS.some((pattern) => pattern.test(workflow))
+    || CREDENTIAL_PATTERNS.some((pattern) => pattern.test(workflow))) {
+    throw new ActionRequiredError(
+      'release_repository_asset_invalid',
+      'Repository workflow image failed its bounded SVG validation.',
+    );
+  }
+
+  const contact = await readFile(
+    path.join(repoRoot, 'docs/images/wechat-contact.jpg'),
+  );
+  if (contact.length < 4 || contact.length > 2 * 1024 * 1024
+    || contact[0] !== 0xff || contact[1] !== 0xd8
+    || contact.at(-2) !== 0xff || contact.at(-1) !== 0xd9) {
+    throw new ActionRequiredError(
+      'release_repository_asset_invalid',
+      'Repository contact image failed its bounded JPEG validation.',
+    );
+  }
+}
+
+async function hashFile(file) {
+  return createHash('sha256').update(await readFile(file)).digest('hex');
+}
+
+async function writeChecksums(packageRoot) {
+  const lines = [];
+  for (const relative of RELEASE_FILES) {
+    lines.push(`${await hashFile(path.join(packageRoot, relative))}  ${relative}`);
+  }
+  const file = path.join(packageRoot, 'SHA256SUMS.txt');
+  await writeFile(
+    file,
+    `${lines.join('\n')}\n`,
+    { encoding: 'utf8', mode: 0o644, flag: 'wx' },
+  );
+  return file;
+}
+
+function releaseChildEnv(env) {
+  const childEnv = sanitizedChildEnv(env);
+  for (const key of Object.keys(childEnv)) {
+    if (key.toUpperCase() === 'COPYFILE_DISABLE') delete childEnv[key];
+  }
+  childEnv.COPYFILE_DISABLE = '1';
+  return childEnv;
+}
+
+function archiveError(code = 'release_archive_invalid') {
+  const messages = {
+    release_archive_appledouble_forbidden: 'Archive contains forbidden AppleDouble metadata.',
+    release_archive_members_mismatch: 'Archive members do not match the release whitelist.',
+    release_archive_checksum_invalid: 'Archive checksum verification failed.',
+  };
+  return new ActionRequiredError(
+    code,
+    messages[code] || 'Archive failed strict raw tar validation.',
+  );
+}
+
+function isZeroBlock(buffer, offset) {
+  for (let index = offset; index < offset + TAR_BLOCK_SIZE; index += 1) {
+    if (buffer[index] !== 0) return false;
+  }
+  return true;
+}
+
+function parseTarNumber(field) {
+  if (field[0] & 0x80) {
+    if (field[0] & 0x40) throw archiveError();
+    let value = BigInt(field[0] & 0x3f);
+    for (const byte of field.subarray(1)) value = (value << 8n) | BigInt(byte);
+    if (value > BigInt(Number.MAX_SAFE_INTEGER)) throw archiveError();
+    return Number(value);
+  }
+  const text = field.toString('ascii').replace(/[\0 ]+$/u, '').trimStart();
+  if (text === '') return 0;
+  if (!/^[0-7]+$/u.test(text)) throw archiveError();
+  const value = Number.parseInt(text, 8);
+  if (!Number.isSafeInteger(value) || value < 0) throw archiveError();
+  return value;
+}
+
+function decodeTarField(field) {
+  const nul = field.indexOf(0);
+  const content = nul === -1 ? field : field.subarray(0, nul);
+  if (nul !== -1 && field.subarray(nul).some((byte) => byte !== 0)) {
+    throw archiveError();
+  }
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(content);
+  } catch {
+    throw archiveError();
+  }
+}
+
+function verifyTarHeaderChecksum(header) {
+  const stored = parseTarNumber(header.subarray(148, 156));
+  let calculated = 0;
+  for (let index = 0; index < TAR_BLOCK_SIZE; index += 1) {
+    calculated += index >= 148 && index < 156 ? 0x20 : header[index];
+  }
+  if (stored !== calculated) throw archiveError();
+}
+
+function validateMemberPath(rawPath, type) {
+  if (typeof rawPath !== 'string' || rawPath === '' || rawPath.includes('\0')
+    || rawPath.includes('\\') || rawPath.startsWith('/') || rawPath.includes('//')
+    || rawPath.normalize('NFC') !== rawPath) {
+    throw archiveError();
+  }
+  const directory = type === 'directory';
+  if (directory !== rawPath.endsWith('/')) throw archiveError();
+  const logical = directory ? rawPath.slice(0, -1) : rawPath;
+  const parts = logical.split('/');
+  if (!logical || parts.some((part) => part === '' || part === '.' || part === '..')) {
+    throw archiveError();
+  }
+  if (parts.some((part) => part.startsWith('._') || part.toUpperCase() === '__MACOSX')) {
+    throw archiveError('release_archive_appledouble_forbidden');
+  }
+  if (parts[0] !== PACKAGE_NAME) throw archiveError('release_archive_members_mismatch');
+  return logical;
+}
+
+function rejectAppleDoublePath(rawPath) {
+  const parts = rawPath.split('/');
+  if (parts.some((part) => part.startsWith('._') || part.toUpperCase() === '__MACOSX')) {
+    throw archiveError('release_archive_appledouble_forbidden');
+  }
+}
+
+function expectedArchiveMembers() {
+  const files = [...RELEASE_FILES, 'SHA256SUMS.txt']
+    .map((relative) => `${PACKAGE_NAME}/${relative}`)
+    .toSorted();
+  const directories = new Set([PACKAGE_NAME]);
+  for (const file of files) {
+    let current = path.posix.dirname(file);
+    while (current !== '.') {
+      directories.add(current);
+      if (current === PACKAGE_NAME) break;
+      current = path.posix.dirname(current);
+    }
+  }
+  return { files, directories: [...directories].toSorted() };
+}
+
+async function readBoundedRegularFile(file, limit, {
+  lstatImpl = lstat,
+  openImpl = open,
+  allocate = Buffer.allocUnsafe,
+} = {}) {
+  let before;
+  try {
+    before = await lstatImpl(file);
+  } catch {
+    throw archiveError();
+  }
+  if (before.isSymbolicLink() || !before.isFile() || !Number.isSafeInteger(before.size)
+    || before.size <= 0 || before.size > limit) {
+    throw archiveError();
+  }
+
+  let handle;
+  try {
+    handle = await openImpl(
+      file,
+      constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0),
+    );
+    const opened = await handle.stat();
+    if (!opened.isFile() || opened.dev !== before.dev || opened.ino !== before.ino
+      || opened.size !== before.size || opened.size > limit) {
+      throw archiveError();
+    }
+    const buffer = allocate(opened.size);
+    if (!Buffer.isBuffer(buffer) || buffer.length !== opened.size) throw archiveError();
+    let offset = 0;
+    while (offset < buffer.length) {
+      const { bytesRead } = await handle.read(
+        buffer,
+        offset,
+        buffer.length - offset,
+        offset,
+      );
+      if (!Number.isInteger(bytesRead) || bytesRead <= 0) throw archiveError();
+      offset += bytesRead;
+    }
+    const after = await handle.stat();
+    if (after.dev !== opened.dev || after.ino !== opened.ino || after.size !== opened.size) {
+      throw archiveError();
+    }
+    return buffer;
+  } catch (error) {
+    if (error instanceof ActionRequiredError) throw error;
+    throw archiveError();
+  } finally {
+    await handle?.close().catch(() => {});
+  }
+}
+
+function verifyCanonicalGzipHeader(compressed) {
+  if (compressed.length < 18
+    || compressed[0] !== 0x1f || compressed[1] !== 0x8b || compressed[2] !== 0x08
+    || compressed[3] !== 0
+    || compressed.readUInt32LE(4) !== 0
+    || compressed[8] !== 2
+    || compressed[9] !== 255) {
+    throw archiveError();
+  }
+}
+
+function decompressSingleCanonicalGzip(compressed) {
+  verifyCanonicalGzipHeader(compressed);
+  let inflated;
+  try {
+    inflated = inflateRawSync(compressed.subarray(10), {
+      info: true,
+      maxOutputLength: MAX_UNCOMPRESSED_BYTES,
+    });
+  } catch {
+    throw archiveError();
+  }
+  const consumed = inflated?.engine?.bytesWritten;
+  const tar = inflated?.buffer;
+  if (!Buffer.isBuffer(tar) || !Number.isSafeInteger(consumed) || consumed <= 0) {
+    throw archiveError();
+  }
+  const footerOffset = 10 + consumed;
+  if (footerOffset + 8 !== compressed.length
+    || compressed.readUInt32LE(footerOffset) !== (crc32(tar) >>> 0)
+    || compressed.readUInt32LE(footerOffset + 4) !== (tar.length >>> 0)) {
+    throw archiveError();
+  }
+  return tar;
+}
+
+function verifyChecksumManifest(contents, regularContents) {
+  let text;
+  try {
+    text = new TextDecoder('utf-8', { fatal: true }).decode(contents);
+  } catch {
+    throw archiveError('release_archive_checksum_invalid');
+  }
+  if (!text.endsWith('\n')) throw archiveError('release_archive_checksum_invalid');
+  const lines = text.slice(0, -1).split('\n');
+  if (lines.length !== RELEASE_FILES.length) {
+    throw archiveError('release_archive_checksum_invalid');
+  }
+  const seen = new Set();
+  for (const line of lines) {
+    const match = /^([0-9a-f]{64})  (.+)$/u.exec(line);
+    const relative = match?.[2];
+    const archivePath = relative ? `${PACKAGE_NAME}/${relative}` : '';
+    const body = regularContents.get(archivePath);
+    if (!match || seen.has(relative) || !RELEASE_FILES.includes(relative) || !body
+      || createHash('sha256').update(body).digest('hex') !== match[1]) {
+      throw archiveError('release_archive_checksum_invalid');
+    }
+    seen.add(relative);
+  }
+  if (JSON.stringify([...seen].toSorted()) !== JSON.stringify(RELEASE_FILES)) {
+    throw archiveError('release_archive_checksum_invalid');
+  }
+  return seen.size;
+}
+
+export async function verifyReleaseArchiveRaw(archive, io = {}) {
+  const compressed = await readBoundedRegularFile(archive, MAX_ARCHIVE_BYTES, io);
+  const tar = decompressSingleCanonicalGzip(compressed);
+  if (tar.length < TAR_BLOCK_SIZE * 2 || tar.length % TAR_BLOCK_SIZE !== 0) {
+    throw archiveError();
+  }
+
+  const files = [];
+  const directories = [];
+  const regularContents = new Map();
+  const collisionKeys = new Set();
+  let offset = 0;
+  let records = 0;
+  let ended = false;
+
+  while (offset < tar.length) {
+    if (records >= MAX_TAR_RECORDS) throw archiveError();
+    if (isZeroBlock(tar, offset)) {
+      if (offset + TAR_BLOCK_SIZE * 2 > tar.length
+        || !isZeroBlock(tar, offset + TAR_BLOCK_SIZE)) throw archiveError();
+      for (let tail = offset + TAR_BLOCK_SIZE * 2; tail < tar.length; tail += 1) {
+        if (tar[tail] !== 0) throw archiveError();
+      }
+      ended = true;
+      break;
+    }
+
+    const header = tar.subarray(offset, offset + TAR_BLOCK_SIZE);
+    if (header.length !== TAR_BLOCK_SIZE) throw archiveError();
+    verifyTarHeaderChecksum(header);
+    if (decodeTarField(header.subarray(257, 263)) !== 'ustar'
+      || decodeTarField(header.subarray(263, 265)) !== '00'
+      || header.subarray(500, 512).some((byte) => byte !== 0)) {
+      throw archiveError();
+    }
+    records += 1;
+    const headerSize = parseTarNumber(header.subarray(124, 136));
+    const typeflag = header[156];
+    const type = typeflag === 0 ? '\0' : String.fromCharCode(typeflag);
+    const name = decodeTarField(header.subarray(0, 100));
+    const prefix = decodeTarField(header.subarray(345, 500));
+    const ustarPath = prefix ? `${prefix}/${name}` : name;
+    rejectAppleDoublePath(ustarPath);
+    const effectiveSize = headerSize;
+    const bodyOffset = offset + TAR_BLOCK_SIZE;
+    const paddedSize = Math.ceil(effectiveSize / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+    if (bodyOffset + paddedSize > tar.length) throw archiveError();
+    const body = tar.subarray(bodyOffset, bodyOffset + effectiveSize);
+    if (tar.subarray(bodyOffset + effectiveSize, bodyOffset + paddedSize).some(
+      (byte) => byte !== 0,
+    )) throw archiveError();
+    offset = bodyOffset + paddedSize;
+
+    if (['x', 'g', 'L', 'K'].includes(type)) throw archiveError();
+    const memberPath = ustarPath;
+    const headerLink = decodeTarField(header.subarray(157, 257));
+    const memberLink = headerLink;
+
+    let memberType;
+    if (type === '\0' || type === '0') memberType = 'regular';
+    else if (type === '5') memberType = 'directory';
+    else throw archiveError();
+    if (memberType === 'directory' && effectiveSize !== 0) throw archiveError();
+    if (memberLink !== '') throw archiveError();
+    const expectedMode = memberType === 'directory' || memberPath.endsWith('/Install.command')
+      ? 0o755
+      : 0o644;
+    if (parseTarNumber(header.subarray(100, 108)) !== expectedMode
+      || parseTarNumber(header.subarray(108, 116)) !== 0
+      || parseTarNumber(header.subarray(116, 124)) !== 0
+      || parseTarNumber(header.subarray(136, 148)) !== CANONICAL_MTIME_SECONDS
+      || decodeTarField(header.subarray(265, 297)) !== 'root'
+      || decodeTarField(header.subarray(297, 329)) !== 'root'
+      || parseTarNumber(header.subarray(329, 337)) !== 0
+      || parseTarNumber(header.subarray(337, 345)) !== 0) {
+      throw archiveError();
+    }
+
+    const logicalPath = validateMemberPath(memberPath, memberType);
+    const collisionKey = logicalPath.normalize('NFC').toLocaleLowerCase('en-US');
+    if (collisionKeys.has(collisionKey)) throw archiveError();
+    collisionKeys.add(collisionKey);
+    if (memberType === 'regular') {
+      files.push(logicalPath);
+      regularContents.set(logicalPath, body);
+    } else {
+      directories.push(logicalPath);
+    }
+  }
+  if (!ended) throw archiveError();
+
+  const expected = expectedArchiveMembers();
+  if (JSON.stringify(files.toSorted()) !== JSON.stringify(expected.files)
+    || JSON.stringify(directories.toSorted()) !== JSON.stringify(expected.directories)) {
+    throw archiveError('release_archive_members_mismatch');
+  }
+  const manifestPath = `${PACKAGE_NAME}/SHA256SUMS.txt`;
+  const checksums = verifyChecksumManifest(regularContents.get(manifestPath), regularContents);
+  return Object.freeze({
+    regular: files.length,
+    directories: directories.length,
+    metadata: 0,
+    appledouble: 0,
+    symlinks: 0,
+    special: 0,
+    checksum_entries: checksums,
+  });
+}
+
+async function normalizePackageTree(tempRoot) {
+  const expected = expectedArchiveMembers();
+  for (const member of expected.files) {
+    const absolute = path.join(tempRoot, ...member.split('/'));
+    await chmod(
+      absolute,
+      member.endsWith('/Install.command') ? 0o755 : 0o644,
+    );
+    await utimes(absolute, CANONICAL_MTIME, CANONICAL_MTIME);
+  }
+  for (const member of expected.directories.toReversed()) {
+    const absolute = path.join(tempRoot, ...member.split('/'));
+    await chmod(absolute, 0o755);
+    await utimes(absolute, CANONICAL_MTIME, CANONICAL_MTIME);
+  }
+}
+
+async function verifyExtractedTree(extracted) {
+  const files = [];
+  const directories = [];
+  async function visit(directory, relative = '') {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const nextRelative = relative ? `${relative}/${entry.name}` : entry.name;
+      const absolute = path.join(directory, entry.name);
+      const stat = await lstat(absolute);
+      if (stat.isSymbolicLink()) throw archiveError();
+      if (stat.isDirectory()) {
+        directories.push(nextRelative);
+        await visit(absolute, nextRelative);
+      } else if (stat.isFile()) files.push(nextRelative);
+      else throw archiveError();
+    }
+  }
+  await visit(extracted);
+  const expected = expectedArchiveMembers();
+  const expectedFiles = expected.files.map((member) => member.slice(PACKAGE_NAME.length + 1));
+  const expectedDirectories = expected.directories
+    .filter((member) => member !== PACKAGE_NAME)
+    .map((member) => member.slice(PACKAGE_NAME.length + 1));
+  if (JSON.stringify(files.toSorted()) !== JSON.stringify(expectedFiles.toSorted())
+    || JSON.stringify(directories.toSorted()) !== JSON.stringify(expectedDirectories.toSorted())) {
+    throw archiveError('release_archive_members_mismatch');
+  }
+}
+
+async function verifyArchive(archive, tempRoot, {
+  env,
+  tarRunner,
+}) {
+  const raw = await verifyReleaseArchiveRaw(archive);
+
+  const verifyRoot = path.join(tempRoot, 'verify');
+  await mkdir(verifyRoot);
+  await tarRunner('tar', ['-xzf', archive, '-C', verifyRoot], {
+    env: releaseChildEnv(env),
+  });
+  const extracted = path.join(verifyRoot, PACKAGE_NAME);
+  await verifyExtractedTree(extracted);
+  const checksumText = await readFile(path.join(extracted, 'SHA256SUMS.txt'), 'utf8');
+  const checksumLines = checksumText.trimEnd().split('\n');
+  if (checksumLines.length !== RELEASE_FILES.length) {
+    throw new ActionRequiredError(
+      'release_checksum_invalid',
+      'Extracted release checksum verification failed.',
+    );
+  }
+  const seen = new Set();
+  for (const line of checksumLines) {
+    const match = /^([0-9a-f]{64})  (.+)$/u.exec(line);
+    if (!match || seen.has(match[2]) || !RELEASE_FILES.includes(match[2])
+      || await hashFile(path.join(extracted, match[2])) !== match[1]) {
+      throw new ActionRequiredError(
+        'release_checksum_invalid',
+        'Extracted release checksum verification failed.',
+      );
+    }
+    seen.add(match[2]);
+  }
+  if (JSON.stringify([...seen].toSorted()) !== JSON.stringify(RELEASE_FILES)) {
+    throw new ActionRequiredError(
+      'release_checksum_invalid',
+      'Extracted release checksum verification failed.',
+    );
+  }
+  return raw;
+}
+
+export async function buildRelease({
+  repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+  output,
+  env = process.env,
+  tarRunner = execFileAsync,
+} = {}) {
+  const canonicalRepo = await realpath(repoRoot);
+  if (typeof output !== 'string' || !path.isAbsolute(output)) {
+    throw new ActionRequiredError(
+      'release_output_required',
+      'Release output must be an explicit absolute .tar.gz path.',
+    );
+  }
+  if (!output.endsWith('.tar.gz') || isWithin(canonicalRepo, output)) {
+    throw new ActionRequiredError(
+      'release_output_unsafe',
+      'Release output must be a .tar.gz path outside the source tree.',
+    );
+  }
+  try {
+    await lstat(output);
+    throw new ActionRequiredError(
+      'release_output_exists',
+      'Release output already exists; refusing to overwrite it.',
+    );
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  const outputParent = path.dirname(output);
+  const parentStat = await lstat(outputParent);
+  if (!parentStat.isDirectory() || parentStat.isSymbolicLink()) {
+    throw new ActionRequiredError(
+      'release_output_parent_unsafe',
+      'Release output parent must be an existing regular directory.',
+    );
+  }
+
+  await validateSource(canonicalRepo);
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'erduo-release-'));
+  let outputCreated = false;
+  try {
+    const packageRoot = path.join(tempRoot, PACKAGE_NAME);
+    await mkdir(packageRoot);
+    for (const relative of RELEASE_FILES) {
+      const destination = path.join(packageRoot, relative);
+      await mkdir(path.dirname(destination), { recursive: true });
+      await copyFile(path.join(canonicalRepo, relative), destination);
+      await chmod(destination, relative === 'Install.command' ? 0o755 : 0o644);
+    }
+    await writeChecksums(packageRoot);
+    await normalizePackageTree(tempRoot);
+    const rawTar = path.join(tempRoot, `${PACKAGE_NAME}.tar`);
+    await tarRunner('tar', [
+      '--no-xattrs',
+      '--format', 'ustar',
+      '--uid', '0',
+      '--gid', '0',
+      '--uname', 'root',
+      '--gname', 'root',
+      '-cf', rawTar,
+      '-C', tempRoot,
+      PACKAGE_NAME,
+    ], {
+      env: releaseChildEnv(env),
+    });
+    const rawTarBytes = await readBoundedRegularFile(rawTar, MAX_UNCOMPRESSED_BYTES);
+    const compressed = gzipSync(rawTarBytes, { level: 9 });
+    compressed[9] = 255;
+    verifyCanonicalGzipHeader(compressed);
+    await writeFile(output, compressed, { flag: 'wx', mode: 0o644 });
+    outputCreated = true;
+    const raw = await verifyArchive(output, tempRoot, { env, tarRunner });
+    return {
+      status: 'packaged',
+      version: RELEASE_VERSION,
+      files: RELEASE_FILES.length + 1,
+      archive: output,
+      raw_archive: raw,
+    };
+  } catch (error) {
+    if (outputCreated) await rm(output, { force: true }).catch(() => {});
+    throw error;
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
+async function main(argv) {
+  if (argv.length !== 2 || argv[0] !== '--output') {
+    throw new ActionRequiredError(
+      'usage',
+      'Usage: package-release.mjs --output /absolute/external/path.tar.gz',
+    );
+  }
+  const report = await buildRelease({ output: argv[1] });
+  process.stdout.write(`${JSON.stringify(report)}\n`);
+}
+
+const isMain = process.argv[1]
+  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  try {
+    await main(process.argv.slice(2));
+  } catch (error) {
+    process.stderr.write(`${JSON.stringify(publicError(error))}\n`);
+    process.exitCode = error?.code === 'usage' ? 64 : 2;
+  }
+}

@@ -1,156 +1,97 @@
 ---
 name: broll-master-build
-description: Author exactly one bounded contiguous HyperFrames block from the sealed script-only v3 contract, then pass source, runtime-seek and pixel-signal gates with one failure-code-driven aggregate retry.
+description: Build one assigned contiguous semantic block of an SRT-anchored B-roll film as real HyperFrames source. Use once per isolated block after Direction and the mandatory Assets and Pexels stage are complete.
 ---
 
-# B-roll script-only v3 block author
+# B-roll Block Builder
 
-Invoke this Skill once for one assigned block. It authors neither another
-block nor the integrated wrapper, final master or master-derived exports.
+Act only as the author of one assigned contiguous block. Do not author another
+block, change the film plan, collect missing assets, assemble the master,
+render the final film, or export shots.
 
-## Required private input
+## Official HyperFrames requirement
 
-The fresh Builder must receive one compiled Block Creative Commission and its
-one sealed scoped block creative packet before source authoring. The Commission
-binds this block's identity, ordered shots and packet hash; the packet contains
-only this block's frozen creative facts and adjacent seam summary. Do not put a
-full director contract, full assets contract, raw SRT, image, source, prompt or
-reference body into the Builder context.
+Before reading or writing any HyperFrames source, use the host's native Skill
+mechanism to load the current official `hyperframes` Skill. Follow its current
+routing and load the relevant official domain Skills, including composition,
+creative, animation, keyframe, media, and CLI guidance when the block needs
+them.
 
-Private deterministic validation resolves the exact seven-field P3 evidence
-set without returning those whole documents to the authoring context:
+A handoff statement, remembered rule, or CLI invocation alone does not replace
+the real Skill load. Retain the host-native trace reference when available. If
+the host cannot load the official Skill, stop before authoring.
 
-1. director-phase `prior_contract`;
-2. passing director `policy-gate` receipt;
-3. all nine actual canonical artifacts, not a hash-only surrogate;
-4. the actual asset-facts manifest;
-5. passing sealed `policy-gate` receipt;
-6. sealed `production_contract`;
-7. its actual `validation_policy`.
+Before every non-Pexels child process, use the host's native spawn/process API
+to copy the required environment into an explicit child map, remove every key
+whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
+key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
+directly to the executable without a shell. Telemetry opt-in may change only
+the telemetry value; Pexels-key removal remains mandatory. Do not use
+shell-inline assignments or `env -u` as the contract. If the host cannot prove
+the sanitized map was passed, stop before spawn as `action-required`. This
+setting does not prove Skill loading or replace required CLI review.
 
-Recompute canonical document hashes and validate the immutable
-director-to-sealed chain. The actual policy document, both policy receipts,
-asset manifest and contract bindings must agree byte-for-byte. Reject an
-older pipeline, substituted artifact, stale receipt, future hash placeholder
-or missing actual document before authoring or validating source.
+## Inputs
 
-The assigned block is one continuous ordered canonical shot slice. Preserve
-its `B001…BN` identity, namespace, projection windows and exact source hash.
-Use at most eight shots. Never add, omit, split, reorder or retime a shot, and
-never write outside this block package.
+- assigned block ID and contiguous integer-millisecond range
+- Director creative brief, visual direction, film plan, and assigned shots
+- Assets material plan, local media, fonts, and licenses
+- preceding and following block seam summaries
+- output profile and audio policy
+- ready onboarding handoff
 
-## Mandatory creative prelude
+## Author the block
 
-Before any source read or write, perform this exact sequence:
+Read the whole assigned block before writing source. For each shot:
 
-1. call `Skill(hyperframes-core)`;
-2. call `Skill(hyperframes-creative)` and read `house-style.md`, then
-   `video-composition.md`;
-3. call `Skill(hyperframes-animation)`;
-4. read the sealed scoped block creative packet bound by the Commission;
-5. author source.
+- preserve its exact SRT window and semantic purpose;
+- choose a concrete composition that serves the audience-understanding goal;
+- establish a clear focus and attention path;
+- make the intended change, comparison, reveal, accumulation, interruption,
+  callback, or deliberate stillness visible;
+- leave required information readable;
+- integrate selected photographic material as part of the composition;
+- use native graphics only for meaningful structure and support;
+- keep screen copy selective and safe;
+- use the project-local font roles and actual font files;
+- connect intentionally to neighboring shots and block seams.
 
-Do not reorder, omit or conditionally choose any item. If the Commission,
-packet binding or required prelude is absent, stop before source authoring.
-The actual Claude Code host trace is the only proof that this happened; never
-claim Skill loading in a receipt or stage output.
+Do not turn the plan into repeated cards, a long native-only passage, unrelated
+stock footage under titles, or ambient motion without informational purpose.
+Do not expose internal shot IDs, milliseconds, debug labels, or status text in
+the final image.
 
-## Authoring contract
+Use only local production assets. Keep timelines deterministic and seekable
+according to the official HyperFrames guidance. Run the official development
+checks appropriate while authoring and resolve real block-owned errors.
 
-The author, not a deterministic validator, makes the creative implementation
-inside the packet's frozen content facts. It may freely choose the DOM,
-composition, material treatment, picture language and causal motion that serve
-those facts. Do not use F01–F09/G01–G10 as a fixed template, recreate a
-reference, use a generic/system font, remote dependency, centered web-page
-stack, adjacent shot that only changes text, or ambient-only motion without a
-visible causal Action→Result change. ReachSurge may calibrate authoring privately,
-but no ReachSurge identifier, positive calibration conclusion or copied
-project source enters production evidence. Deep Current remains only the
-current project's bound reference profile and is never a public default.
+## Deliverables
 
-Before writing source, form a private `creative_resolution` for each assigned
-shot: primary relation, focus path, text/material relationship and visible
-Action→Result causality. It is never returned to the parent or written into a
-receipt, and it is not a subjective approval field.
+Write only under:
 
-Implement the canonical facts without reinterpretation:
+`broll-production/03-build/<block-id>/`
 
-- one primary cognitive action per shot;
-- registered semantic objects, relation, operation and visible result;
-- registered component, layout, focal, token, type-role and motion-profile
-  references;
-- one actual `Entry → Action → Result → Hold → Exit` lifecycle whose
-  selectors and timeline calls bind the canonical shot and projection;
-- at least one non-opacity semantic state change in Action;
-- Result after Action and the same functional result carrier throughout
-  Result and Hold;
-- the exact readable-Hold minimum from policy, including the complex minimum
-  for data, table, chart and multi-field shots;
-- role-aware functional text; texture microtext cannot carry primary meaning;
-- structured data value, unit, denominator, formula, source reference and
-  evidence role identical to the canonical shot;
-- finite, paused, reversible and seek-safe HyperFrames timelines.
+Deliver:
 
-Use only registered local source, font and material bytes. Ordinary image or
-video primaries must match the P3 asset-facts manifest and their declared
-consumer type. Native auxiliary material must remain auxiliary, bind its
-actual local bytes and use its declared shot IDs. Do not use a remote
-dependency, runtime network request, system/generic/local font fallback,
-unseeded randomness, wall-clock state, infinite repeat, one-way DOM callback,
-root escape, symlink input or hard-coded user path.
+- real renderable HyperFrames source;
+- local dependencies owned by the block;
+- `build-notes.md`;
+- `handoff.md`.
 
-## Mandatory gate chain
+The notes explain major creative choices, material integration, typography,
+time coverage, seam behavior, official Skill loads, and actual CLI work.
 
-After freezing the actual block bytes, run
-`scripts/run-block-gate-chain.mjs` in this exact order:
+## Completion
 
-1. `source-conformance-gate`;
-2. `runtime-seek-gate`;
-3. `pixel-signal-gate`.
+Complete when every assigned shot exists as real source, exact time coverage is
+preserved, selected material and fonts are used correctly, the block is
+seekable, seams are intentional, official checks show no unresolved
+block-owned error, and the handoff points to the actual artifacts.
 
-The source gate reopens actual source, font and material bytes; recomputes
-file, bundle and block hashes; validates the complete actual P3 chain;
-cross-checks canonical registration, selectors, DOM roles, lifecycle calls,
-numeric facts, duration truth and local dependencies; and emits one P1
-lineage receipt.
+## Stop
 
-The runtime gate samples every declared causal checkpoint through
-`fresh_direct`, `zero_to_t`, `end_to_t` and `repeat_to_t`. It compares
-normalized state hashes and rejects network, console, result-order, repeat,
-font or reverse-seek drift.
-
-The pixel gate consumes a closed technical-facts object. Technical frames
-remain private and are never returned. It checks only deterministic black,
-empty, alpha, transform, overflow, crop, overlap, ROI, font, glyph, Hold and
-declared adjacent-change facts. It cannot issue an aesthetic score or quality
-approval.
-
-Each cache key binds current source, policy, production contract, renderer,
-HyperFrames and state/frame identity. A passing cached gate is revalidated
-and re-signed against the current upstream receipt. Identical second-run
-inputs must be all hits and must not repeat runtime or frame capture.
-
-## Recovery and output
-
-One block may consume exactly one aggregate replacement, producing attempt
-2. The replacement request receives only the block identity/current private
-block plus a deduplicated bounded list of technical failure codes; it receives
-no stack, long log, image or subjective conclusion. Restart this block at the
-source gate. A second failure is terminal. Passing blocks and their cache
-entries remain unchanged.
-
-Return only:
-
-```text
-block_id
-attempt
-source-conformance receipt
-runtime-seek receipt
-pixel-signal receipt
-```
-
-Every gate receipt is at most 16 KiB and the enclosing stage packet is at most
-32 KiB. Parent-visible output contains no source, local path, image, prompt,
-private calibration payload, long log or subjective field. A script PASS
-proves only the frozen technical contract; it does not prove aesthetic
-quality.
+Stop when the official HyperFrames Skill cannot be loaded, an assigned asset
+or font is missing, timing is contradictory, the source cannot satisfy current
+official rules, or the upstream creative decision is insufficient. Return the
+issue to the owning stage. Do not create placeholder media or redesign another
+stage's work.

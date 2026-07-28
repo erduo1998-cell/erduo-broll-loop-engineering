@@ -1,67 +1,102 @@
 ---
 name: broll-director
-description: Compile actual SRT-bound canonical authoring artifacts into the script-only v3 director contract and bounded deterministic receipt.
+description: Direct an SRT-anchored B-roll film from raw inputs into an original visual direction, whole-film plan, semantic shot plan, and material requests. Use as the first production stage after environment onboarding.
 ---
 
-# B-roll director producer
+# B-roll Director
 
-1. Accept actual SRT bytes plus the canonical parsed-SRT artifact, shot plan,
-   design system, component registry, validation policy, project-only
-   reference-style profile, real font package, frame projection and delivery
-   profile. The active identity is `pipeline_contract_version: 3`,
-   `script-only-authoring-cluster-v1` and `script-only-production-v1`.
-2. Keep creative production responsibility. Author each shot as one structured
-   semantic evidence chain: claim, one cognitive action, semantic objects,
-   spatial relation, input, operation, visible result, readable
-   `hold_window`, transition/callback, functional type roles, focal role,
-   layout, metaphor, component and causal lifecycle.
-3. SRT integer milliseconds are the only time truth. `hold_window` is the only
-   authoring hold field and must stay inside its shot. Compile frame windows
-   deterministically from the actual parsed SRT, ordered cue IDs, shot windows
-   and rational FPS; never accept an author-supplied alternate timeline.
-4. Close the whole-film chapter promise/payoff, motif callback, emphasis,
-   density and adjacent layout/metaphor cooldown ledgers. Bind data values to
-   unit, denominator, structured formula, source and evidence role. Short
-   windows reduce content or motion; they never change SRT time.
-5. Use private positive examples only as authoring calibration. Absorb their
-   general semantic, layout, typography, lifecycle and pacing lessons without
-   copying project-specific metaphors, code, paths, hashes or style skins into
-   public artifacts. A project-only draft profile never becomes a public
-   default.
-6. Freeze a closed `creative_directive` and the referenced design facts for
-   every shot in the canonical director artifacts. Every shot has one compact
-   `attention_plan`: its first focus, ordered reading path, negative-space
-   responsibility and transition exit all reference the already-frozen semantic
-   objects, type roles, registered geometry or result. Enable DACNAY-derived
-   modules only when the current content calls for them (normally one to three
-   conditional modules); ordinary data, process and relationship shots keep the
-   semantic evidence chain without invented photography, culture or title acts.
-7. Freeze content relationships and implementation assertions—not a fixed HTML,
-   CSS, DOM, visual skin, prompt recipe or F01–F09/G01–G10 template. The
-   directive constrains the mission, focal/read order, material/text/space
-   relation, type roles, lifecycle and negative-space intent; the Builder keeps
-   freedom to choose the concrete composition, material treatment and motion
-   implementation inside those frozen facts.
-8. Validate actual bytes and all canonical cross-bindings, then compile exactly
-   one immutable director-phase production contract. It cannot contain a
-   predecessor or future asset-manifest binding. Assets must reopen this exact
-   contract and freeze material facts before the parent compiles a Block Creative
-   Commission and its scoped block creative packet. The parent receives only
-   hash-bound, scoped canonical facts: never raw director/assets contracts, raw
-   SRT, source, image, prompt or reference payloads, and never facts belonging
-   to another block.
-9. Run only deterministic coverage, content correspondence, material-needs and
-   logical-consistency checks. Validation may reject invalid authored facts;
-   it cannot invent or improve a recipe and cannot decide material from pixels.
-   When structured facts and user input cannot determine material, stop for
-   user input.
-10. Emit one bounded `policy-gate` director receipt with the exact closed hash
-   binding set and one path-free stage envelope. Receipts contain hashes,
-   status, registered codes and bounded scalar metrics only—never source,
-   images, prompts, long logs, calibration conclusions or subjective quality
-   claims.
-11. Legacy v2 artifacts remain inspection-only and cannot resume, be re-signed
-   or authorize v3. Do not create reviewer agents, visual approval packets,
-   contact pages, a visual/aesthetic pass or producer self-approval. Five gates
-   only test technical and contract facts; no stage may restore a legacy review
-   authority.
+Act only as the film Director. Understand the entire SRT before dividing it
+into shots. Do not collect media, write HyperFrames source, integrate blocks,
+render, or export.
+
+## Inputs
+
+- actual SRT
+- talking-head or faceless mode
+- matching edited video for talking-head mode
+- user goal, audience, platform, output profile, and constraints
+- optional user images, videos, logos, screenshots, and ordinary references
+- ready onboarding handoff
+
+Do not require or request a `design.md`, visual-specification file, preset, or
+private example.
+
+Before every non-Pexels child process, use the host's native spawn/process API
+to copy the required environment into an explicit child map, remove every key
+whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
+key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
+directly to the executable without a shell. Do not use shell-inline assignments
+or `env -u` as the contract. If the host cannot prove the sanitized map was
+passed, stop before spawn as `action-required`.
+
+## Direct the film
+
+Use integer SRT milliseconds as the only time truth. Cover continuously from
+zero through the final cue end, including gaps between cues, without rewriting
+cue times. Merge consecutive cues when they express one semantic idea. Change
+shots at meaningful turns rather than subtitle boundaries.
+
+Determine:
+
+- what the audience should understand, feel, compare, or decide;
+- the film's sections and how each advances the argument;
+- an original visual direction formed from this content and optional material;
+- color and brightness roles, typography roles, spatial hierarchy, material
+  relationships, and motion character;
+- a motif that can develop or return with changed meaning;
+- density rises, releases, and recovery moments;
+- varied section-level primary-material intentions;
+- adjacent-shot variation and purposeful continuity;
+- uncertainties in names, brands, versions, and factual claims.
+
+For every shot, decide:
+
+- integer-millisecond window and cue range;
+- semantic purpose and audience-understanding goal;
+- one clear focus and intended attention path;
+- a content-specific visual logic or deliberate stable state;
+- what visibly changes, accumulates, resolves, contrasts, or remains still;
+- what information must remain readable and when;
+- selective screen copy that does not reproduce the subtitle passage;
+- material role and desired composition relationship;
+- connection to the preceding and following shot.
+
+These are thinking prompts, not a mandatory component recipe or fixed motion
+sequence. Choose the structure that best explains the content.
+
+Treat a suspicious transcript term as low-confidence. Use a semantically safe
+generic expression unless a reliable source or the user confirms it, and
+record the uncertainty for downstream stages.
+
+Plan project-local font roles for titles, interface information, and body text.
+Do not prescribe a font that cannot be sourced and licensed locally.
+
+## Deliverables
+
+Write:
+
+- `broll-production/01-director/creative-brief.md`
+- `broll-production/01-director/visual-direction.md`
+- `broll-production/01-director/film-plan.md`
+- `broll-production/01-director/shot-plan.md`
+- `broll-production/01-director/material-requests.md`
+- `broll-production/01-director/handoff.md`
+
+The visual direction must explain its content-based reasoning. The shot plan
+must map every cue, prove continuous coverage, and be implementable without
+inventing missing creative decisions.
+
+## Completion
+
+Complete when the whole film is coherent, every cue belongs to a semantic shot,
+time coverage is continuous, visual and material intentions vary with content,
+font roles are planned, uncertainties are safe, and the Assets and Builder
+Agents have actionable inputs.
+
+## Stop
+
+Stop when the SRT cannot be parsed, talking-head inputs do not correspond,
+required timing is contradictory, a factual uncertainty would materially
+change the film and cannot be expressed safely, or user constraints are
+irreconcilable. Report the exact unresolved question without doing another
+stage's work.

@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Director"
-  short_description: "Compile the script-only v3 director contract and deterministic policy receipt."
-  default_prompt: "Use $broll-director to bind actual SRT bytes and canonical authoring artifacts; return the director-phase production contract, deterministic policy receipt, and bounded stage envelope."
+  short_description: "Create an original semantic film and shot plan."
+  default_prompt: "Use $broll-director to turn this SRT and production goal into an original visual direction and executable semantic shot plan."

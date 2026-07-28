@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Shot Export"
-  short_description: "Optionally cut per-shot files from the technically verified master."
-  default_prompt: "Use $broll-shot-export only after an explicit user request, byte-verified integration with the current integration-delivery receipt and a passing final technical verify; cut from the exact master without rerendering."
+  short_description: "Cut requested shots from the verified master."
+  default_prompt: "Use $broll-shot-export to cut only explicitly requested shot windows from the verified final master without rerendering."

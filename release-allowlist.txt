@@ -1,7 +1,0 @@
-# Files permitted in the public Git repository and release archives.
-.gitignore
-LICENSE
-README.md
-RELEASE-CHECKLIST.md
-release-allowlist.txt
-erduo-hyperframes-broll/**

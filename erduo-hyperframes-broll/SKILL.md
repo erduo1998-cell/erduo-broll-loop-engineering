@@ -1,126 +1,181 @@
 ---
 name: erduo-hyperframes-broll
-description: Create editable, SRT-anchored HyperFrames B-roll with the script-only v3 five-gate contract, bounded parallel block authoring, byte-preserving integration, one final 4K render, deterministic technical delivery verification, and optional master-derived shot export.
+description: Create editable, SRT-anchored B-roll through a Parent Producer and fresh isolated stage agents. Use for talking-head B-roll from an edited video plus SRT, or faceless B-roll from an SRT, with first-run environment onboarding, mandatory material collection, semantic HyperFrames building, one final master, technical delivery, and optional master-derived shot export.
 ---
 
 # Erduo HyperFrames B-roll
 
-Act as the main producer and decision-maker. Use
-`pipeline_contract_version: 3`,
-`authoring_topology_id: script-only-authoring-cluster-v1` and
-`validation_policy_id: script-only-production-v1`.
+Act only as the Parent Producer. Read:
 
-Treat every earlier pipeline contract as inspection-only. In Claude Code, read
-[the dispatch contract](references/claude-code-dispatch-contract.md) before the
-first producer is started. The parent does not load raw SRT, source, images or
-long stage artifacts to perform intake; it runs the deterministic preflight
-below and consumes its small receipt.
+- [prompt-first workflow](references/prompt-first-workflow.md)
+- [stage orchestration](references/stage-orchestration.md)
+- [parent review checklist](references/parent-review-checklist.md)
+- [handoff format](references/handoff-template.md)
+- [first-run onboarding](references/first-run-onboarding.md)
 
-## Start
+## Parent boundary
 
-1. Ask for the SRT, mode-specific media, safe Pexels configuration and one
-   style/material reference. Present one complete brief and wait for explicit
-   confirmation.
-2. Write the confirmed brief and input locators into a private preflight
-   manifest. Run `node scripts/production-preflight.mjs --manifest
-   <private-manifest> --host-skill-root <active-host-skill-root>`.
-3. The parent may receive only the script's hash-only receipt (at most 4 KiB).
-   It must not open the SRT, media, source, images or long diagnostic output
-   for this check. A blocked receipt ends intake with its short blocker codes.
-4. A passed receipt proves local input hashes, confirmed brief, runtime
-   capabilities and one-source Skill installation. Freeze SRT-millisecond time
-   truth, delivery profile, material route, font roles, native-primary ceiling
-   and prohibited directions only after that result.
+The Parent may clarify the production goal, dispatch fresh agents, read
+Markdown handoffs, inspect bounded stage artifacts for a stated review
+question, compare cross-stage facts, assign revisions to the owning stage, and
+write the final user report.
 
-## Run the v3 authoring cluster
+The Parent must not create or modify production files, code, material, or
+media; search or download material; install dependencies; run production
+commands; render, decode, or export; or imitate a child role in the parent
+context.
 
-1. On Claude Code, start a fresh `Agent(subagent_type: "general-purpose")`
-   for `broll-director`; a parent-side `Skill(broll-director)` call is invalid.
-   Freeze the parsed SRT, shot plan, design
-   system, component registry, validation policy, project-only reference
-   profile, font package, frame projection and delivery profile. Compile the
-   director production contract and pass `policy-gate`.
-2. Require every shot to bind one semantic evidence chain, one cognitive
-   action, causal `Entry → Action → Result → Hold → Exit` lifecycle, readable
-   hold, functional typography roles and any data source/formula. Freeze
-   chapter promise/payoff, callback, emphasis, density and cooldown ledgers.
-3. Start a fresh `Agent(subagent_type: "general-purpose")` for
-   `broll-assets` from the exact director contract. Freeze only
-   structured provenance, rights, bytes, geometry, route and consumer facts.
-   Seal a new immutable production contract with the actual asset-manifest
-   hash and rerun `policy-gate`.
-4. Deterministically partition the ordered shot list into contiguous blocks.
-   A normal block contains at most 8 shots and at most 45,000 ms. Never split
-   a shot; mark a longer single shot as a singleton block.
-5. Start one fresh `Agent(subagent_type: "general-purpose")` for
-   `broll-master-build` per block, concurrently
-   within the host limit. Give each author only its sealed shared facts and
-   exact shot/window/namespace/material allocation.
-6. Immediately validate each authored block with
-   `source-conformance-gate`, `runtime-seek-gate` and `pixel-signal-gate`.
-   Scripts judge contracts and measurable signals, never beauty. A failed
-   block gets one aggregate block-scoped replacement; passing blocks remain
-   reusable.
-7. Start one fresh `Agent(subagent_type: "general-purpose")` for
-   `broll-master-integrate` after every block
-   passes. It may add only the wrapper, ordered map, hash ledger, manifest and
-   receipts. Prove every block source byte is unchanged.
-8. Run the whole-film portion of `integration-delivery-gate`: exact
-   block/order/time/hash truth, no gap or overlap, namespace and selector
-   integrity, cross-block seams, chapter/callback ledgers, emphasis/density/
-   cooldown budgets and current dependency/profile bindings.
-9. Start one fresh `Agent(subagent_type: "general-purpose")` for
-   `broll-render` from the exact byte-verified integrated source.
-   Authorize render only from the current sealed contract, all required
-   five-gate receipts, integrated manifest and no-rewrite proof. Render exactly
-   one final 4K master and complete the delivery phase of
-   `integration-delivery-gate`, including decode, duration, raster, fps, codec,
-   audio, SRT coverage and current source/tool/profile hashes.
-10. Only after an explicit request, start one fresh
-    `Agent(subagent_type: "general-purpose")` for `broll-shot-export` and cut
-    from the verified master. Never independently rerender shots.
+Stop when the host cannot create genuinely fresh isolated agents or cannot
+perform a required official Skill load. Do not simulate isolation with role
+labels.
 
-The only production gate receipts are:
+## Establish the goal
 
-1. `policy-gate`
-2. `source-conformance-gate`
-3. `runtime-seek-gate`
-4. `pixel-signal-gate`
-5. `integration-delivery-gate`
+- Require an SRT locator.
+- For talking-head mode, also require the matching edited-video locator.
+- Ask once whether the user has images, videos, logos, screenshots, or other
+  ordinary material. These inputs are optional.
+- Confirm the mode and explicit brand, content, audio, or privacy constraints.
+- When the user does not specify a delivery location, choose one new
+  timestamped directory beside the SRT. Use the SRT basename plus
+  `-broll-YYYYMMDD-HHMMSS`, adding a unique suffix if needed.
+- Default the delivery target inside that new directory to `master.mp4`,
+  H.264 MP4, 3840×2160, 30 fps, and official high quality. Use another format,
+  profile, or location only when the user explicitly requests it.
+- Never overwrite an existing directory or target. If the requested target
+  already exists, stop for a new target or create another uniquely named
+  output directory with the user's approval.
+- Do not request or depend on a `design.md`, visual-specification file, preset,
+  or private example. The Director forms an original visual direction from the
+  current SRT, goal, and optional material.
 
-Keep the preflight receipt at or below 4 KiB, every block receipt at or below
-16 KiB, every stage envelope at or below 32 KiB and the final summary at or
-below 64 KiB. Receipts contain hashes,
-failure codes, warnings and bounded scalar metrics only; never inline source,
-images, prompts, long logs or subjective verdicts.
+## Run onboarding when needed
 
-## ReachSurge boundary
+On the first run, after migration, or whenever the current environment has no
+fresh `ready` evidence, dispatch a fresh `broll-onboarding` Agent in
+inspection-only mode before production.
 
-Use ReachSurge only as private minimum authoring calibration and as a source of
-minimal negative engineering fixtures. Do not copy its project source into the
-public package, identify it in a public receipt, bind it into a production or
-reference profile, or turn Deep Current into a public default. A passing script
-receipt proves only the declared technical contract.
+Fresh ready evidence must belong to the same production run and bind the same
+host, command `PATH`, official HyperFrames CLI version, target delivery
+filesystem, and Pexels validation state. Any change requires a new
+inspection-only Onboarding Agent.
 
-## Hard failures
+The onboarding Agent coordinates environment and authorization only. It must
+use the current official HyperFrames Skill and CLI guidance, actually run the
+official HyperFrames doctor and Skills checks, and use the official browser
+command when Chrome repair is authorized. It must not substitute a
+project-specific doctor.
 
-- Any contract identity other than v3, any legacy artifact attempting to
-  resume, or any missing current-byte/hash binding.
-- A non-contiguous or oversized non-singleton block, out-of-scope write,
-  undeclared input, or integration rewrite of a block byte.
-- Missing semantic action/result/hold evidence, inconsistent data formula,
-  unresolved chapter promise or callback, or violated whole-film budget.
-- Network/runtime nondeterminism, irreversible seek state, conflicting
-  duration truth, remote or fallback fonts, hidden primary material, invalid
-  selector/ID, out-of-bounds animation or unusable rendered pixels.
-- A receipt that exceeds its budget or includes source, media, private
-  calibration identity, long logs, prompts or subjective approval.
-- More than one final render or any shot export not derived from the verified
-  master.
+The first Onboarding Agent must not modify the machine or configuration. It
+returns one complete repair and authorization request. After one explicit user
+authorization, dispatch a different fresh Onboarding Agent in repair mode.
+That Agent performs only the approved safe reversible repairs, then reruns the
+full inspection.
+
+Onboarding must group all known human-only actions into one request.
+Pexels account creation and API-key acquisition, system authorization,
+administrator approval, package-manager setup, restricted-directory access,
+cloud login, and disk cleanup cannot be impersonated.
+
+Never place a Pexels key in chat, Markdown, a handoff, log, file path, command
+argument, production artifact, or user-facing report. When a safe public
+repository configuration tool is discoverable, the repair Agent may use its
+stdin or hidden-interaction interface. Otherwise use a secure host secret or
+environment mechanism. If Pexels is not configured, onboarding is
+`action-required`. If secure credential configuration is unavailable, stop
+once and explain the required action.
+
+Onboarding success does not replace the Render/Delivery Agent's required
+same-environment doctor run immediately before formal rendering.
+
+## Dispatch the fixed production chain
+
+After onboarding is `ready`, use fresh agents in this order:
+
+1. `broll-director`
+2. `broll-assets`
+3. one or more `broll-master-build` agents, one per contiguous semantic block
+4. `broll-master-integrate`
+5. `broll-render`
+6. `broll-shot-export` only after an explicit user request
+
+Assets and Pexels collection is mandatory. The Assets Agent must inspect user
+material, consider controllable generation, perform real Pexels image and
+video searches, evaluate candidates, and freeze selected files locally. It may
+select zero Pexels items when none is suitable, but it may not skip the search
+or omit the explanation.
+
+Require every Builder to load the current official `hyperframes` Skill through
+the host's native Skill mechanism before reading or writing HyperFrames source.
+Require the Integrator to load it before assembly and Render/Delivery to load
+it before doctor, check, preview, or render. A handoff claim or a CLI command
+alone does not replace a real Skill load. Retain the available host-native
+trace reference; if the host exposes no inspectable trace, report that
+limitation honestly.
+
+Require every stage to use the shared safe child-environment contract for all
+non-Pexels processes: an explicit host-native environment map, removal of every
+case variant of `PEXELS_API_KEY`, `HYPERFRAMES_NO_TELEMETRY=1` by default, and
+direct spawn without a shell. Only a dedicated Pexels request receives the key.
+If the host cannot prove this isolation, the owning stage stops before spawn as
+`action-required`.
+
+All stages before the final official composition preview may proceed
+unattended after onboarding is ready. Formal render must pause for explicit
+user approval of that final preview.
+
+## Review without taking over
+
+Begin each review with the stage handoff. Inspect only the actual artifacts
+needed to answer a concrete question. Group all currently known issues owned
+by one stage into one revision request and re-dispatch that role as a fresh
+agent. Never repair the stage's work in the Parent. Preserve unaffected Builder
+blocks when one block needs revision.
+
+Continue while the responsible stage is making meaningful progress. Stop for
+a real missing dependency, unavailable authorization, insufficient host
+capability, irreconcilable constraint, or the same blocker recurring without
+progress.
+
+## Preserve the film rules
+
+- Use parsed SRT integer milliseconds as the only time truth.
+- Cover continuously from zero through the final cue end.
+- Group cues by meaning; do not force one shot per subtitle cue.
+- Give every shot a semantic reason, an audience-understanding goal, a clear
+  focus, a visible change or deliberate stable state, readable information,
+  and an intentional connection to neighboring shots.
+- Let sections establish, question, compare, explain, escalate, resolve,
+  callback, or transition in the form the content needs. Develop motifs, vary
+  density, and avoid accidental adjacent repetition.
+- Keep screen copy selective. Do not reproduce subtitle passages or burn the
+  subtitle track into the B-roll.
+- Treat uncertain transcript names, model names, versions, and brand facts as
+  low-confidence until confirmed. Do not silently correct or enlarge them into
+  hero copy.
+- Route primary material in this order: user material, controllable
+  generation, Pexels, then HyperFrames-native structural support.
+- Make photographic material carry meaning inside the composition. Do not use
+  unrelated footage as a title background.
+- Keep native graphics auxiliary; do not let them become the default primary
+  material for an extended passage.
+- Use project-local font files with recorded source and license. Plan title,
+  interface, and body roles, and verify every visible face actually loads.
+- Keep internal identifiers, timing labels, debug text, and status metadata out
+  of persistent visible copy.
+- Do not add background music. Keep faceless output silent by default. In
+  talking-head mode, preserve the agreed source-audio policy.
+- Deliver one successful final master. This does not limit render attempts to
+  one: a failed attempt remains failed evidence, and the Parent dispatches a
+  fresh Render/Delivery Agent to retry with a new unused attempt target. Never
+  count a partial file as the master or overwrite it. Derive shot files from
+  the verified master only after an explicit request.
 
 ## Report
 
-Return only the master path, duration, route counts, block count, five-gate
-receipt summary, technical delivery result, optional export paths and real
-limitations. Do not expose private artifacts, source, frames, prompts, logs,
-credentials or private calibration identities.
+Return the master path, resolution, duration, continuous coverage, material and
+font sources, objective media facts, optional export paths, environment or
+host-evidence limitations, and unresolved risks.
+
+Technical success does not decide aesthetic quality. Ask the user to make the
+final visual judgment by watching the master.

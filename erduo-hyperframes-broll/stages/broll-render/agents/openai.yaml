@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Render"
-  short_description: "Render one current 4K master and verify its actual media technically."
-  default_prompt: "Use $broll-render only from the sealed v3 contract, passed Gate 5 integration receipt and current no-rewrite proof; reopen all integrated bytes, render once at 4K with network disabled, then verify the actual master by probe and full decode."
+  display_name: "B-roll Render and Delivery"
+  short_description: "Render and technically verify one final master."
+  default_prompt: "Use $broll-render to load the official hyperframes Skill, run same-environment doctor and check, obtain preview approval, and verify one final render."
