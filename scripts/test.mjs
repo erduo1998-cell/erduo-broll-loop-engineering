@@ -3199,8 +3199,8 @@ test('public release source contains the parent plus seven prompt stage Skills',
   assert.equal(REPOSITORY_ONLY_FILES.includes('.github/workflows/ci.yml'), true);
   if (!RELEASE_PACKAGE_MODE) {
     const workflow = await readFile(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
-    assert.match(workflow, /actions\/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4/u);
-    assert.match(workflow, /actions\/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4/u);
+    assert.match(workflow, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7\.0\.1/u);
+    assert.match(workflow, /actions\/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7\.0\.0/u);
     assert.match(workflow, /run: npm test/u);
     assert.doesNotMatch(workflow, /uses:\s*[^\n]+@v\d+/u);
   }
