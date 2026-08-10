@@ -33,7 +33,7 @@
 
 ### `video-shotcraft` 吸收边界
 
-| 项目 | `0.3.0` 状态 | 证据边界 |
+| 项目 | `0.4.0` 状态 | 证据边界 |
 | --- | --- | --- |
 | 镜头卡目录 | verified data | 152 张卡、209 个全局唯一 style key；目录、来源 commit 与 manifest 由自动化测试核验 |
 | 卡片全文 | verified upstream artifact | 每卡与 pinned upstream Markdown byte-identical，并有稳定 ID、上游 URL、本地路径、字节数与 SHA-256；正文作为运行时中立镜头知识消费 |

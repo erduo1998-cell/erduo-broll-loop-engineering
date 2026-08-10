@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/shot-recipe.schema.json",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-recipe.schema.json",
   "title": "Runtime-neutral shot recipe",
   "description": "A semantic, integer-millisecond shot contract. Runtime source code and runtime-specific configuration do not belong in this document.",
   "type": "object",

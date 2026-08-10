@@ -1,6 +1,6 @@
 {
-  "name": "erduo-hyperframes-broll",
-  "version": "0.3.0",
+  "name": "erduo-broll-loop-engineering",
+  "version": "0.4.0",
   "private": true,
   "description": "Prompt-first SRT-anchored dual-backend B-roll parent/child Agent Skills.",
   "type": "module",
@@ -14,7 +14,7 @@
     "config:status": "node scripts/config.mjs status",
     "uninstall:skills": "node scripts/uninstall.mjs",
     "package:release": "node scripts/package-release.mjs",
-    "validate:recipes": "node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs",
+    "validate:recipes": "node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs",
     "test": "node --test scripts/test.mjs"
   }
 }

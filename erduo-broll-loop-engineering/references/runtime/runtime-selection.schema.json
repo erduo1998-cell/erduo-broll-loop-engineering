@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/runtime-selection.schema.json",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/runtime-selection.schema.json",
   "title": "B-roll runtime selection",
   "description": "Machine-readable result of bounded runtime routing. Default routing is read-only; an explicitly authorized Onboarding probe may execute the local Remotion CLI and records that fact. It does not replace full onboarding.",
   "type": "object",

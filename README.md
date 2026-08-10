@@ -1,10 +1,10 @@
 <div align="center">
 
-# Erduo HyperFrames B-roll
+# Erduo B-roll Loop Engineering
 
 **把一份 SRT 和可选的口播视频交给一组协作 Agent，由前置路由选择 HyperFrames 或 Remotion，得到可编辑、可复查的 B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.3.0-16a34a)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -14,7 +14,7 @@
 </div>
 
 > [!IMPORTANT]
-> `0.3.0` 增加可执行的双后端路由与独立 Remotion 后段。稳定指公开的 Skill、安装、路由和发布包契约进入语义化版本管理；不表示同一镜头在两个运行时中天然视觉一致，也不表示任意既有 Remotion 工程都能自动修复。请先看[支持范围](#支持范围)。
+> `0.4.0` 起项目正式更名为 **Erduo B-roll Loop Engineering**，公开仓库与父 Skill 统一使用 `erduo-broll-loop-engineering`。双后端能力保持不变；稳定不表示同一镜头在 HyperFrames 与 Remotion 中天然视觉一致，也不表示任意既有工程都能自动修复。请先看[支持范围](#支持范围)。
 
 ## 它解决什么问题
 
@@ -33,7 +33,7 @@
 ## 一张图看懂完整流程
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-hyperframes-broll/main/docs/images/workflow-zh.svg" alt="Erduo HyperFrames B-roll 中文工作流程：输入、安装、分镜、素材、构建、整合、预览、渲染" width="100%">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/workflow-zh.svg" alt="Erduo B-roll Loop Engineering 中文工作流程：输入、安装、分镜、素材、构建、整合、预览、渲染" width="100%">
 </p>
 
 你实际只需要做三件事：
@@ -75,7 +75,7 @@
 可直接检查一个项目的路由结果：
 
 ```bash
-node erduo-hyperframes-broll/scripts/detect-runtime.mjs --project <项目目录> --json
+node erduo-broll-loop-engineering/scripts/detect-runtime.mjs --project <项目目录> --json
 ```
 
 也可显式追加 `--runtime hyperframes` 或 `--runtime remotion`。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
@@ -83,12 +83,12 @@ node erduo-hyperframes-broll/scripts/detect-runtime.mjs --project <项目目录>
 开发者可以对 Director 生成的逐镜头 Recipe 目录运行零依赖校验：
 
 ```bash
-node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs <shot-recipes-directory>
+node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs <shot-recipes-directory>
 ```
 
 ## 镜头能力目录
 
-`0.3.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+`0.4.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
 
 请准确理解这里的“吸收”：
 
@@ -102,13 +102,13 @@ node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs <shot-recipes-dir
 
 ```bash
 # 查看数量摘要
-node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --stats
+node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --stats
 
 # 按语义查询，先取得候选摘要
-node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --search '急推 特写' --category camera
+node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --search '急推 特写' --category camera
 
 # 已知稳定 card id 时只读取这一张
-node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --card <card-id>
+node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --card <card-id>
 ```
 
 `--search` 会把空白分隔的关键词按 AND 匹配；长句无结果时，改用一两个辨识度高的词重试，不要直接判定“没有合适卡片”。还可以用 `--list --category <category>` 枚举分类；已选定卡片后，可用 `--card <card-id> --style <style-key>` 限定该卡内部的 style。`--style` 不能独立反查。只有 `--card` 输出卡片全文，其余命令保持渐进式摘要。目录、卡片和逐文件哈希之间的绑定由测试与发布清单验证。完整许可证见 [`third_party/licenses/video-shotcraft-APACHE-2.0.txt`](third_party/licenses/video-shotcraft-APACHE-2.0.txt)，证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
@@ -142,8 +142,8 @@ node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --card <card-id>
 打开“终端”，逐行粘贴：
 
 ```bash
-git clone https://github.com/erduo1998-cell/erduo-hyperframes-broll.git
-cd erduo-hyperframes-broll
+git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
+cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
@@ -202,7 +202,7 @@ node scripts/config.mjs status
 把 SRT、对应的已剪视频和可选素材拖进对话，然后说：
 
 ```text
-用 erduo-hyperframes-broll 处理这条口播。
+用 erduo-broll-loop-engineering 处理这条口播。
 SRT 和已剪视频已经附上；优先使用我附带的 Logo 和产品截图。
 默认输出即可，持续推进到最终预览再叫我确认。
 ```
@@ -210,7 +210,7 @@ SRT 和已剪视频已经附上；优先使用我附带的 Logo 和产品截图�
 如果宿主需要文件路径，也可以写：
 
 ```text
-用 erduo-hyperframes-broll 处理这个 SRT 和对应的已剪视频。
+用 erduo-broll-loop-engineering 处理这个 SRT 和对应的已剪视频。
 SRT：<把文件拖进对话或填写路径>
 视频：<把文件拖进对话或填写路径>
 可选素材：<没有就写“无”>
@@ -219,14 +219,14 @@ SRT：<把文件拖进对话或填写路径>
 ### 场景 B：只用 SRT 做无人出镜视频
 
 ```text
-用 erduo-hyperframes-broll 把这个 SRT 做成无人出镜 B-roll。
+用 erduo-broll-loop-engineering 把这个 SRT 做成无人出镜 B-roll。
 没有额外素材，默认输出即可，持续推进到最终预览再叫我确认。
 ```
 
 ### 场景 C：带明确品牌或交付要求
 
 ```text
-用 erduo-hyperframes-broll 处理这个 SRT。
+用 erduo-broll-loop-engineering 处理这个 SRT。
 品牌主色是深蓝和橙色；不要出现人物正脸；输出 1920×1080、30 fps。
 Logo 和产品截图已经附上。正式渲染前给我看最终预览。
 ```
@@ -234,7 +234,7 @@ Logo 和产品截图已经附上。正式渲染前给我看最终预览。
 ### 场景 D：明确使用 Remotion 后段
 
 ```text
-用 erduo-hyperframes-broll 处理这个 SRT，后段明确使用 Remotion。
+用 erduo-broll-loop-engineering 处理这个 SRT，后段明确使用 Remotion。
 项目目录：<现有 Remotion 项目或准备创建新项目的空目录>
 先完成 runtime 路由和本地依赖证据检查；不要全局安装 Remotion。
 持续推进到最终预览，再叫我确认正式渲染。
@@ -303,10 +303,16 @@ node scripts/uninstall.mjs
 
 ## 更新
 
+### 从 0.3.x 旧名称升级
+
+GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变；是否手动重命名本地 clone 不影响升级。拉取 `0.4.0` 后重新运行 `Install.command`：安装器会验证旧 schema 1/2/3 的所有权，创建新的 `erduo-broll-loop-engineering` 父 Skill，重新绑定十个阶段 Skill，并且只在旧父 Skill 链接仍属于本安装器时退休它。旧名称位置原本存在的用户内容会从备份恢复；目标被改动时安装器停止，不会删除。
+
+为避免更名导致 Pexels 凭据、固定 HyperFrames runtime 和安装备份丢失，本地私有应用数据目录继续沿用 v0.3.x 的内部路径。该路径只承担兼容存储，不再是仓库、产品或 Skill 名称。
+
 如果使用 Git 安装：
 
 ```bash
-cd erduo-hyperframes-broll
+cd erduo-broll-loop-engineering
 git pull --ff-only
 ./Install.command
 ```
@@ -330,7 +336,7 @@ git pull --ff-only
 
 本仓库自身不采集或发送遥测。安装、诊断、打包和公共生产 Skills 对其启动的非 Pexels 子进程使用显式安全环境映射，并默认设置 `HYPERFRAMES_NO_TELEMETRY=1`。
 
-当宿主不能直接注入或证明安全环境映射时，Skill 只允许通过随包提供的 `erduo-hyperframes-broll/scripts/safe-spawn.mjs` 启动命令。这个边界启动器不打印环境，拒绝大小写冲突，移除所有 `PEXELS_API_KEY` 大小写变体，并以 `shell: false` 启动目标程序；它不替代官方 Skill 加载、doctor、check 或结果审查。
+当宿主不能直接注入或证明安全环境映射时，Skill 只允许通过随包提供的 `erduo-broll-loop-engineering/scripts/safe-spawn.mjs` 启动命令。这个边界启动器不打印环境，拒绝大小写冲突，移除所有 `PEXELS_API_KEY` 大小写变体，并以 `shell: false` 启动目标程序；它不替代官方 Skill 加载、doctor、check 或结果审查。
 
 首次准备可能访问：
 
@@ -360,7 +366,7 @@ npm test
 <table>
   <tr>
     <td width="330" align="center">
-      <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-hyperframes-broll/main/docs/images/wechat-contact.jpg" alt="耳朵微信二维码" width="280">
+      <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/wechat-contact.jpg" alt="耳朵微信二维码" width="280">
     </td>
     <td>
       <strong>刘冉 / 耳朵</strong><br><br>
@@ -375,18 +381,18 @@ npm test
 
 ## English quick start
 
-`erduo-hyperframes-broll` 0.3.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a deterministic front router and independent HyperFrames and Remotion backends. New projects default to HyperFrames. Remotion uses only exact, project-local dependencies and CLI evidence; it is never installed globally by this installer. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
+`erduo-broll-loop-engineering` 0.4.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a deterministic front router and independent HyperFrames and Remotion backends. New projects default to HyperFrames. Remotion uses only exact, project-local dependencies and CLI evidence; it is never installed globally by this installer. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
 
 ```bash
-git clone https://github.com/erduo1998-cell/erduo-hyperframes-broll.git
-cd erduo-hyperframes-broll
+git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
+cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
 Restart Codex or Claude Code, attach an SRT, and ask:
 
 ```text
-Use erduo-hyperframes-broll to turn this SRT into a faceless B-roll master.
+Use erduo-broll-loop-engineering to turn this SRT into a faceless B-roll master.
 Continue unattended until the final preview requires my approval.
 ```
 

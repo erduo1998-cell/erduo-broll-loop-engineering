@@ -186,7 +186,7 @@ itself.
 The release installer owns registration of the public Skill set. Verify that
 the host can discover all eleven:
 
-- `erduo-hyperframes-broll`
+- `erduo-broll-loop-engineering`
 - `broll-onboarding`
 - `broll-director`
 - `broll-assets`

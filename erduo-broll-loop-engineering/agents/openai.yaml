@@ -1,0 +1,4 @@
+interface:
+  display_name: "Erduo B-roll Loop Engineering"
+  short_description: "Build verified SRT B-roll with two runtime backends."
+  default_prompt: "Use $erduo-broll-loop-engineering to route this SRT production to HyperFrames or Remotion and supervise one verified final B-roll master."

@@ -112,7 +112,7 @@ const args = parseArgs(process.argv.slice(2));
 const sourceRoot = resolve(args.source);
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const destinationRoot = resolve(args.destination ?? repoRoot);
-const skillRoot = join(destinationRoot, 'erduo-hyperframes-broll');
+const skillRoot = join(destinationRoot, 'erduo-broll-loop-engineering');
 const shotcraftRoot = join(skillRoot, 'references', 'shotcraft');
 const outputRoot = join(shotcraftRoot, 'remotion-sources');
 
@@ -187,7 +187,7 @@ const records = sourceFiles.map((source) => {
   return {
     source,
     upstreamUrl: `${UPSTREAM_REPOSITORY}/blob/${commit}/${source}`,
-    target: portable('erduo-hyperframes-broll', 'references', 'shotcraft', 'remotion-sources', source),
+    target: portable('erduo-broll-loop-engineering', 'references', 'shotcraft', 'remotion-sources', source),
     bytes: statSync(targetPath).size,
     sha256: sha256(data),
   };
@@ -218,12 +218,12 @@ const manifest = {
   upstream: { repository: UPSTREAM_REPOSITORY, commit, license: 'Apache-2.0' },
   stats: { cards: cardMappings.length, sourceFiles: records.length },
   index: {
-    target: portable('erduo-hyperframes-broll', 'references', 'shotcraft', 'remotion-sources', 'index.json'),
+    target: portable('erduo-broll-loop-engineering', 'references', 'shotcraft', 'remotion-sources', 'index.json'),
     bytes: Buffer.byteLength(indexText),
     sha256: sha256(indexText),
   },
   sourceDescription: {
-    target: portable('erduo-hyperframes-broll', 'references', 'shotcraft', 'remotion-sources', 'SOURCE.md'),
+    target: portable('erduo-broll-loop-engineering', 'references', 'shotcraft', 'remotion-sources', 'SOURCE.md'),
     bytes: Buffer.byteLength(sourceText),
     sha256: sha256(sourceText),
   },

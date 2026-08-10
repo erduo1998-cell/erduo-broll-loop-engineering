@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-08-10
+
+- 项目与父 Skill 正式更名为 **Erduo B-roll Loop Engineering** / `erduo-broll-loop-engineering`，移除公开名称对单一 HyperFrames 后端的误导。
+- 安装 manifest 升级为 schema 4；升级时严格识别 schema 1/2/3 的历史所有权，重新绑定十个阶段 Skill，并安全退休旧父 Skill 链接或恢复其原始备份。
+- 为兼容既有用户，私有配置、固定 HyperFrames runtime 与备份继续复用原内部应用数据目录；旧字符串仅作为迁移定位符，不再是公开产品名。
+- README、Skill 元数据、安装提示、诊断、发布包、Shotcraft 来源闭包与 GitHub 仓库地址统一到新名称。
+
 ## 0.3.0 — 2026-08-10
 
 - 新增前置 Runtime Router：用户显式选择优先；现有项目按真实文件和本地 CLI 证据识别 HyperFrames/Remotion；双信号冲突停止询问；空白新项目默认 HyperFrames。

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/shot-pattern.schema.json",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-pattern.schema.json",
   "title": "Runtime-neutral Shotcraft pattern",
   "description": "One progressively loaded motion-pattern knowledge record. It describes selection and quality intent, not runtime source or verified component availability.",
   "type": "object",

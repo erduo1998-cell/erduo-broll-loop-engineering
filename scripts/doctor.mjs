@@ -31,9 +31,9 @@ async function installedSkillFacts({ homeDir, repoRoot }) {
   for (const { host, root } of hostSkillRoots({ homeDir })) {
     for (const name of SKILL_NAMES) {
       const target = path.join(root, name);
-      const expected = name === 'erduo-hyperframes-broll'
-        ? path.join(repoRoot, 'erduo-hyperframes-broll')
-        : path.join(repoRoot, 'erduo-hyperframes-broll', 'stages', name);
+      const expected = name === 'erduo-broll-loop-engineering'
+        ? path.join(repoRoot, 'erduo-broll-loop-engineering')
+        : path.join(repoRoot, 'erduo-broll-loop-engineering', 'stages', name);
       let status = 'missing';
       try {
         const stat = await lstat(target);
@@ -151,7 +151,7 @@ export async function collectDoctor({
 
 function humanReport(report, homeDir) {
   const lines = [
-    `erduo-hyperframes-broll doctor: ${report.status}`,
+    `erduo-broll-loop-engineering doctor: ${report.status}`,
     `platform=${report.platform}/${report.arch} support=${report.support}`,
     `node=${report.node.version} status=${report.node.status}`,
     `hyperframes=${report.hyperframes.expected_version} runtime=${report.hyperframes.runtime}`,
