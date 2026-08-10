@@ -23,7 +23,7 @@
 - [ ] runtime lock 拒绝额外根依赖、git/file/link/HTTP、缺失 resolved、非 npm registry HTTPS tarball 和缺失或非法 integrity。
 - [ ] 固定 HyperFrames commit 已核验；第三方 Skills CLI 只写隔离 HOME；staged store 精确闭合 8 个核心 Skill且无 symlink/special file；官方 check 显式绑定 `--dir` 与 `--source`。
 - [ ] doctor 的版本更新提示只在 `_meta.version` 精确命中锁定版本时降为非阻断；版本不明/不符以及 Node、FFmpeg、FFprobe、Chrome 任一失败仍关闭。
-- [ ] 8 个官方 Skill 与 11 个本项目 Skill 共用一次占用确认、备份、链接、manifest schema 3 commit 和失败逆序回滚事务；升级与卸载能读取历史 schema 1/2 并恢复初始备份链。
+- [ ] 8 个官方 Skill 与 11 个本项目 Skill 共用一次占用确认、备份、链接、manifest schema 4 commit 和失败逆序回滚事务；升级能读取历史 schema 1/2/3、只退休匹配所有权的旧父 Skill 名称，并保留或恢复初始备份链。
 - [ ] FFmpeg 缺失路径只在 Homebrew 已存在并获一次授权时安装，否则清晰返回 action-required。
 - [ ] Codex 与 Claude Code 的父 Skill + 十个阶段 Skill 均安装；冲突安装有可恢复备份。
 - [ ] Pexels Key 通过隐藏输入或 stdin 配置、真实 API 验证、0600 原子保存，并且未进入 argv、日志或诊断。
@@ -63,7 +63,7 @@
 
 ## 正式发布与回滚
 
-- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.3.0`。
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.4.0`。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
 - [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

@@ -193,12 +193,47 @@ export async function installSkillLinks({
   const sources = await validateSources(repoRoot, additionalSources);
   const targets = await scanTargets({ sources, homeDir });
   let previousByTarget = new Map();
+  let previousRecords = [];
   if (previousManifest) {
-    previousByTarget = validateInstallManifest(previousManifest, {
+    const validatedPrevious = validateInstallManifest(previousManifest, {
       repoRoot: previousManifest.repo_root,
       appDir,
       homeDir,
-    }).byTarget;
+    });
+    previousByTarget = validatedPrevious.byTarget;
+    previousRecords = validatedPrevious.records;
+  }
+
+  const currentTargets = new Set(targets.map((entry) => entry.target));
+  const retirements = [];
+  for (const record of previousRecords.filter((entry) => !currentTargets.has(entry.target))) {
+    let raw = null;
+    try {
+      const stat = await lstat(record.target);
+      if (!stat.isSymbolicLink()) {
+        throw new ActionRequiredError(
+          'retired_skill_target_changed',
+          'A legacy Skill target changed; no rename migration was performed.',
+        );
+      }
+      const link = await rawLinkDestination(record.target);
+      if (!link || link.absolute !== record.source) {
+        throw new ActionRequiredError(
+          'retired_skill_target_changed',
+          'A legacy Skill target changed; no rename migration was performed.',
+        );
+      }
+      raw = link.raw;
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error;
+    }
+    if (record.backup && !await entryExists(record.backup)) {
+      throw new ActionRequiredError(
+        'retired_skill_backup_missing',
+        'A legacy Skill backup is missing; no rename migration was performed.',
+      );
+    }
+    retirements.push({ record, raw, removed: false, restored: false });
   }
 
   for (const entry of targets) {
@@ -223,6 +258,7 @@ export async function installSkillLinks({
   const backupRoot = path.join(appDir, 'backups', timestamp);
   const installed = [];
   const undo = [];
+  const retiredUndo = [];
 
   async function removeCurrentOwnedLink(entry) {
     const link = await rawLinkDestination(entry.target);
@@ -238,6 +274,18 @@ export async function installSkillLinks({
 
   async function rollback() {
     const failures = [];
+    for (const retirement of retiredUndo.toReversed()) {
+      try {
+        if (retirement.restored) {
+          await rename(retirement.record.target, retirement.record.backup);
+        }
+        if (retirement.removed && retirement.raw !== null) {
+          await symlink(retirement.raw, retirement.record.target, 'dir');
+        }
+      } catch (error) {
+        failures.push(error);
+      }
+    }
     for (const operation of undo.toReversed()) {
       try {
         await removeCurrentOwnedLink(operation.entry);
@@ -313,6 +361,28 @@ export async function installSkillLinks({
         backup,
       });
       await stepHook({ entry, phase: 'linked', installed: installed.length });
+    }
+    for (const retirement of retirements) {
+      retiredUndo.push(retirement);
+      if (retirement.raw !== null) {
+        await unlink(retirement.record.target);
+        retirement.removed = true;
+      }
+      if (retirement.record.backup) {
+        if (await entryExists(retirement.record.target)) {
+          throw new ActionRequiredError(
+            'retired_skill_restore_target_occupied',
+            'A legacy Skill target became occupied during rename migration.',
+          );
+        }
+        await rename(retirement.record.backup, retirement.record.target);
+        retirement.restored = true;
+      }
+      await stepHook({
+        entry: retirement.record,
+        phase: 'retired-legacy-name',
+        installed: installed.length,
+      });
     }
     await finalize(installed);
     return installed;
@@ -1009,7 +1079,7 @@ export async function runInstall({
       additionalSources: official.sources,
       finalize: async (records) => {
         manifest = {
-          schema_version: 3,
+          schema_version: 4,
           product_version: RELEASE_VERSION,
           installed_at: new Date().toISOString(),
           repo_root: canonicalRepoRoot,
@@ -1067,7 +1137,7 @@ async function main(argv) {
   process.stdout.write(argv.includes('--json')
     ? `${JSON.stringify(report)}\n`
     : [
-      `Installed erduo-hyperframes-broll ${report.product_version}.`,
+      `Installed erduo-broll-loop-engineering ${report.product_version}.`,
       `HyperFrames ${report.hyperframes_version}: official Skills ${report.official_skills}.`,
       `Official doctor selected local render: ${report.official_doctor_selected_local_render_ready}.`,
       `Skill links: ${report.total_skill_links} total (${report.official_skill_links} official, ${report.custom_skill_links} project); backups: ${report.backed_up}.`,

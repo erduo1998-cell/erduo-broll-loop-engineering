@@ -17,6 +17,8 @@ shopt -u nocasematch
 export HYPERFRAMES_NO_TELEMETRY=1
 
 ROOT_DIR="$(cd -- "$(dirname -- "$0")" && pwd -P)"
+# v0.1-v0.3 used this private storage directory. Keep it stable so a rename
+# never strands credentials, the pinned runtime, backups, or ownership data.
 APP_DIR="${HOME}/Library/Application Support/erduo-hyperframes-broll"
 NODE_BIN="${ERDUO_NODE_BIN:-}"
 NODE_MIN_VERSION='22.20.0'

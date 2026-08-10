@@ -8,6 +8,7 @@ node_modules/
 *.zip
 
 # Runtime and user production data
+.erduo-broll-loop-engineering/
 .erduo-hyperframes-broll/
 broll-production/
 renders/

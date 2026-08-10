@@ -10,6 +10,7 @@ import {
   mkdtemp,
   open,
   readFile,
+  readlink,
   readdir,
   realpath,
   rm,
@@ -24,15 +25,18 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { createGzip, gunzipSync, gzipSync } from 'node:zlib';
 import {
+  APP_NAME,
   HYPERFRAMES_SKILLS_COMMIT,
   HYPERFRAMES_SKILL_NAMES,
   HYPERFRAMES_VERSION,
   INSTALL_SKILL_NAMES,
+  LEGACY_APP_NAME,
   LEGACY_SKILL_NAMES,
   RELEASE_VERSION,
   REMOTION_SKILL_NAMES,
   SKILL_NAMES,
   SKILLS_CLI_VERSION,
+  V3_SKILL_NAMES,
   applicationDataDir,
   atomicWriteJson,
   normalizeOfficialDoctor,
@@ -57,46 +61,46 @@ import {
   buildRelease,
   verifyReleaseArchiveRaw,
 } from './package-release.mjs';
-import { validateRecipeDirectory } from '../erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs';
+import { validateRecipeDirectory } from '../erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs';
 import {
   runSafeSpawn,
   sanitizedEnvironment as sanitizedSkillEnvironment,
-} from '../erduo-hyperframes-broll/scripts/safe-spawn.mjs';
-import { detectRuntime } from '../erduo-hyperframes-broll/scripts/detect-runtime.mjs';
+} from '../erduo-broll-loop-engineering/scripts/safe-spawn.mjs';
+import { detectRuntime } from '../erduo-broll-loop-engineering/scripts/detect-runtime.mjs';
 import {
   validateFontClosure,
   walkProject as walkRemotionProject,
-} from '../erduo-hyperframes-broll/scripts/remotion-verify.mjs';
+} from '../erduo-broll-loop-engineering/scripts/remotion-verify.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RELEASE_PACKAGE_MODE = existsSync(path.join(root, 'SHA256SUMS.txt'));
 const runtimeReferenceRoot = path.join(
   root,
-  'erduo-hyperframes-broll',
+  'erduo-broll-loop-engineering',
   'references',
   'runtime',
 );
 const shotcraftRoot = path.join(
   root,
-  'erduo-hyperframes-broll',
+  'erduo-broll-loop-engineering',
   'references',
   'shotcraft',
 );
 const shotcraftQuery = path.join(
   root,
-  'erduo-hyperframes-broll',
+  'erduo-broll-loop-engineering',
   'scripts',
   'query-shotcraft.mjs',
 );
 const safeSpawnScript = path.join(
   root,
-  'erduo-hyperframes-broll',
+  'erduo-broll-loop-engineering',
   'scripts',
   'safe-spawn.mjs',
 );
 const runtimeDetectorScript = path.join(
   root,
-  'erduo-hyperframes-broll',
+  'erduo-broll-loop-engineering',
   'scripts',
   'detect-runtime.mjs',
 );
@@ -139,7 +143,7 @@ async function isolated(t) {
 
 async function createSkillFixture(base) {
   const repoRoot = path.join(base, 'repo');
-  const skillRoot = path.join(repoRoot, 'erduo-hyperframes-broll');
+  const skillRoot = path.join(repoRoot, 'erduo-broll-loop-engineering');
   await mkdir(path.join(repoRoot, 'runtime'), { recursive: true });
   await cp(
     path.join(root, 'runtime', 'package.json'),
@@ -150,7 +154,7 @@ async function createSkillFixture(base) {
     path.join(repoRoot, 'runtime', 'package-lock.json'),
   );
   for (const name of SKILL_NAMES) {
-    const directory = name === 'erduo-hyperframes-broll'
+    const directory = name === 'erduo-broll-loop-engineering'
       ? skillRoot
       : path.join(skillRoot, 'stages', name);
     await mkdir(directory, { recursive: true });
@@ -251,7 +255,7 @@ function expectedArchiveDirectoryCount() {
   return directories.size;
 }
 
-async function manifestFor(records, repoRoot, schemaVersion = 3) {
+async function manifestFor(records, repoRoot, schemaVersion = 4) {
   return {
     schema_version: schemaVersion,
     product_version: 'fixture',
@@ -265,6 +269,40 @@ async function manifestFor(records, repoRoot, schemaVersion = 3) {
       backup: entry.backup,
       action: entry.action,
     })),
+  };
+}
+
+async function createLegacyV3Installation({ repoRoot, appDir, homeDir }) {
+  const canonicalRepoRoot = await realpath(repoRoot);
+  const records = [];
+  for (const { host, root: hostRoot } of [
+    { host: 'codex', root: path.join(homeDir, '.codex', 'skills') },
+    { host: 'claude-code', root: path.join(homeDir, '.claude', 'skills') },
+  ]) {
+    await mkdir(hostRoot, { recursive: true });
+    for (const name of [...HYPERFRAMES_SKILL_NAMES, ...V3_SKILL_NAMES]) {
+      const source = HYPERFRAMES_SKILL_NAMES.includes(name)
+        ? path.join(appDir, 'official-skills', HYPERFRAMES_SKILLS_COMMIT, 'skills', name)
+        : (name === LEGACY_APP_NAME
+          ? path.join(canonicalRepoRoot, LEGACY_APP_NAME)
+          : path.join(canonicalRepoRoot, LEGACY_APP_NAME, 'stages', name));
+      const target = path.join(hostRoot, name);
+      await symlink(source, target, 'dir');
+      let backup = null;
+      if (host === 'codex' && name === LEGACY_APP_NAME) {
+        backup = path.join(appDir, 'backups', 'legacy-v3', host, name);
+        await mkdir(backup, { recursive: true });
+        await writeFile(path.join(backup, 'preserved.txt'), 'pre-rename parent Skill\n');
+      }
+      records.push({ host, name, source, target, backup, action: 'linked' });
+    }
+  }
+  return {
+    schema_version: 3,
+    product_version: '0.3.0',
+    installed_at: 'fixture',
+    repo_root: canonicalRepoRoot,
+    records,
   };
 }
 
@@ -902,12 +940,12 @@ test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique sty
 
   const digest = (data) => createHash('sha256').update(data).digest('hex');
   assert.equal(manifest.catalog.target,
-    'erduo-hyperframes-broll/references/shotcraft/catalog.json');
+    'erduo-broll-loop-engineering/references/shotcraft/catalog.json');
   assert.equal(manifest.catalog.bytes, catalogData.length);
   assert.equal(manifest.catalog.sha256, digest(catalogData));
   assert.equal(
     manifest.catalog.sha256,
-    '8cdd4fd0ba0ab6d01b42bfd108850cf2498119c198d1ab36522ffcb3955a3dfe',
+    'ece17d1aa2b7d76b4f533f33d7127c61941de68927a9459000baf419593a4593',
   );
   const aggregateCardDigest = manifest.cards
     .toSorted((left, right) => left.target.localeCompare(right.target))
@@ -915,7 +953,7 @@ test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique sty
     .join('');
   assert.equal(
     digest(aggregateCardDigest),
-    'aea26bb63d9b3dbe235d0ff181b86edba95898b7b089a19414de3524dfa64f85',
+    '3372d5c434ce58b1c91de6b1b069102000f28dcac709feeda23ee55bee51506b',
   );
 
   const names = new Set();
@@ -997,7 +1035,7 @@ test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique sty
     RELEASE_FILES
       .filter((file) => /\.(?:tsx?|jsx?)$/iu.test(file))
       .every((file) => file.startsWith(
-        'erduo-hyperframes-broll/references/shotcraft/remotion-sources/',
+        'erduo-broll-loop-engineering/references/shotcraft/remotion-sources/',
       )),
     true,
   );
@@ -1023,7 +1061,7 @@ test('Shotcraft Remotion source manifest is a pinned, hash-closed non-media subs
     createHash('sha256')
       .update(await readFile(path.join(sourceRoot, 'manifest.json')))
       .digest('hex'),
-    '55325c6a375f449d5c0989dbfda950e47c72f82b7c1eb06dc106192697aac180',
+    'ab6a3a82788f624678b7405399f4c71c50f227c7915ecd317c5d997441dc9e8c',
   );
   assert.equal(index.stats.cards, 152);
   assert.equal(index.stats.sourceFiles, manifest.files.length);
@@ -1046,7 +1084,7 @@ test('Shotcraft Remotion source manifest is a pinned, hash-closed non-media subs
     .toSorted();
   assert.deepEqual(
     actual,
-    ['erduo-hyperframes-broll/references/shotcraft/remotion-sources/manifest.json', ...targets]
+    ['erduo-broll-loop-engineering/references/shotcraft/remotion-sources/manifest.json', ...targets]
       .toSorted(),
   );
 });
@@ -1139,12 +1177,12 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
   const prepareDestination = async (name) => {
     const destination = path.join(state.base, name);
     await mkdir(
-      path.join(destination, 'erduo-hyperframes-broll', 'references'),
+      path.join(destination, 'erduo-broll-loop-engineering', 'references'),
       { recursive: true },
     );
     await writeFile(
-      path.join(destination, 'erduo-hyperframes-broll', 'SKILL.md'),
-      '---\nname: erduo-hyperframes-broll\ndescription: Fixture.\n---\n',
+      path.join(destination, 'erduo-broll-loop-engineering', 'SKILL.md'),
+      '---\nname: erduo-broll-loop-engineering\ndescription: Fixture.\n---\n',
     );
     return destination;
   };
@@ -1158,7 +1196,7 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
     outside,
     path.join(
       symlinkDestination,
-      'erduo-hyperframes-broll',
+      'erduo-broll-loop-engineering',
       'references',
       'shotcraft',
     ),
@@ -1173,7 +1211,7 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
   const dirtyDestination = await prepareDestination('dirty-destination');
   const dirtyShotcraft = path.join(
     dirtyDestination,
-    'erduo-hyperframes-broll',
+    'erduo-broll-loop-engineering',
     'references',
     'shotcraft',
   );
@@ -1200,7 +1238,7 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
     generatedManifest.catalog.target,
     generatedManifest.attribution.target,
     ...generatedManifest.cards.map((card) => card.target),
-    'erduo-hyperframes-broll/references/shotcraft/manifest.json',
+    'erduo-broll-loop-engineering/references/shotcraft/manifest.json',
   ].toSorted());
 });
 
@@ -1452,32 +1490,32 @@ test('runtime references and production Skills preserve the adapter evidence gat
   assert.match(concernMap, /must not be generalized into automatic\s+Remotion\/HyperFrames render parity/u);
 
   const requiredReferences = {
-    'erduo-hyperframes-broll/SKILL.md': [
+    'erduo-broll-loop-engineering/SKILL.md': [
       'references/runtime/runtime-contract.md',
       'references/runtime/shot-recipe.schema.json',
       'references/runtime/capability-matrix.json',
     ],
-    'erduo-hyperframes-broll/stages/broll-onboarding/SKILL.md': [
+    'erduo-broll-loop-engineering/stages/broll-onboarding/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
     ],
-    'erduo-hyperframes-broll/stages/broll-director/SKILL.md': [
+    'erduo-broll-loop-engineering/stages/broll-director/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/shot-recipe.schema.json',
       '../../references/runtime/capability-matrix.json',
     ],
-    'erduo-hyperframes-broll/stages/broll-assets/SKILL.md': [
+    'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
     ],
-    'erduo-hyperframes-broll/stages/broll-master-build/SKILL.md': [
-      '../../references/runtime/runtime-contract.md',
-      '../../references/runtime/capability-matrix.json',
-    ],
-    'erduo-hyperframes-broll/stages/broll-master-integrate/SKILL.md': [
+    'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
     ],
-    'erduo-hyperframes-broll/stages/broll-render/SKILL.md': [
+    'erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+      '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-broll-loop-engineering/stages/broll-render/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
     ],
@@ -1488,17 +1526,17 @@ test('runtime references and production Skills preserve the adapter evidence gat
   }
 
   const onboardingReference = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'references', 'first-run-onboarding.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'references', 'first-run-onboarding.md'),
     'utf8',
   );
   assert.match(onboardingReference, /`unsupported`: the selected runtime/u);
   const directorSkill = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-director', 'SKILL.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-director', 'SKILL.md'),
     'utf8',
   );
   assert.match(directorSkill, /parent Skill's bundled\s+`scripts\/validate-shot-recipes\.mjs`/u);
   const renderSkill = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-render', 'SKILL.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-render', 'SKILL.md'),
     'utf8',
   );
   assert.match(renderSkill, /optional prior approval evidence/u);
@@ -1506,7 +1544,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
   assert.match(renderSkill, /Recompute and compare the\s+Integrator's `composition-identity\.json`/u);
   assert.doesNotMatch(renderSkill, /- explicit user approval of the official final composition preview/u);
   const integratorSkill = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-master-integrate', 'SKILL.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-master-integrate', 'SKILL.md'),
     'utf8',
   );
   assert.match(integratorSkill, /aggregate SHA-256 of that canonical list/u);
@@ -1514,23 +1552,23 @@ test('runtime references and production Skills preserve the adapter evidence gat
 
 test('Remotion production contracts close silent-audio and local-font evidence', async () => {
   const backend = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'references', 'remotion-backend.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'references', 'remotion-backend.md'),
     'utf8',
   );
   const build = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-remotion-build', 'SKILL.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-remotion-build', 'SKILL.md'),
     'utf8',
   );
   const integrate = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-remotion-integrate', 'SKILL.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-remotion-integrate', 'SKILL.md'),
     'utf8',
   );
   const render = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-remotion-render', 'SKILL.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-remotion-render', 'SKILL.md'),
     'utf8',
   );
   const verifier = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'scripts', 'remotion-verify.mjs'),
+    path.join(root, 'erduo-broll-loop-engineering', 'scripts', 'remotion-verify.mjs'),
     'utf8',
   );
   for (const [name, text] of [
@@ -1599,19 +1637,19 @@ test('Remotion project closure cannot hide production files in output-named dire
 
 test('every production command surface requires a portable case-insensitive child environment map', async () => {
   const files = [
-    'erduo-hyperframes-broll/SKILL.md',
-    'erduo-hyperframes-broll/references/stage-orchestration.md',
-    'erduo-hyperframes-broll/references/prompt-first-workflow.md',
-    'erduo-hyperframes-broll/stages/broll-onboarding/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-director/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-assets/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-master-build/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-master-integrate/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-render/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-shot-export/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-remotion-build/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-remotion-integrate/SKILL.md',
-    'erduo-hyperframes-broll/stages/broll-remotion-render/SKILL.md',
+    'erduo-broll-loop-engineering/SKILL.md',
+    'erduo-broll-loop-engineering/references/stage-orchestration.md',
+    'erduo-broll-loop-engineering/references/prompt-first-workflow.md',
+    'erduo-broll-loop-engineering/stages/broll-onboarding/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-director/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-render/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-shot-export/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-remotion-integrate/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-remotion-render/SKILL.md',
   ];
   for (const file of files) {
     const text = await readFile(path.join(root, file), 'utf8');
@@ -1626,7 +1664,7 @@ test('every production command surface requires a portable case-insensitive chil
     assert.match(text, /stop(?:s)?\s+before\s+spawn/u, file);
   }
   const onboarding = await readFile(
-    path.join(root, 'erduo-hyperframes-broll', 'references', 'first-run-onboarding.md'),
+    path.join(root, 'erduo-broll-loop-engineering', 'references', 'first-run-onboarding.md'),
     'utf8',
   );
   assert.doesNotMatch(
@@ -1714,7 +1752,7 @@ test('Skill installation backs up occupied targets and uninstall restores them',
   assert.equal(await readFile(path.join(occupied, 'old.txt'), 'utf8'), 'preserve me\n');
 });
 
-test('install manifest schemas 1 and 2 remain strict readable migration inputs for schema 3', async (t) => {
+test('install manifest schemas 1, 2, and 3 remain strict migration inputs for schema 4', async (t) => {
   const state = await isolated(t);
   const repoRoot = await createSkillFixture(state.base);
   const canonicalRepoRoot = await realpath(repoRoot);
@@ -1727,14 +1765,17 @@ test('install manifest schemas 1 and 2 remain strict readable migration inputs f
     { host: 'codex', root: path.join(state.homeDir, '.codex', 'skills') },
     { host: 'claude-code', root: path.join(state.homeDir, '.claude', 'skills') },
   ];
-  const recordsFor = (names) => hosts.flatMap(({ host, root: hostRoot }) => names.map((name) => ({
+  const recordsFor = (names, {
+    parentName = LEGACY_APP_NAME,
+    skillRootName = LEGACY_APP_NAME,
+  } = {}) => hosts.flatMap(({ host, root: hostRoot }) => names.map((name) => ({
     host,
     name,
     source: HYPERFRAMES_SKILL_NAMES.includes(name)
       ? path.join(appDir, 'official-skills', HYPERFRAMES_SKILLS_COMMIT, 'skills', name)
-      : (name === 'erduo-hyperframes-broll'
-        ? path.join(canonicalRepoRoot, 'erduo-hyperframes-broll')
-        : path.join(canonicalRepoRoot, 'erduo-hyperframes-broll', 'stages', name)),
+      : (name === parentName
+        ? path.join(canonicalRepoRoot, skillRootName)
+        : path.join(canonicalRepoRoot, skillRootName, 'stages', name)),
     target: path.join(hostRoot, name),
     backup: null,
     action: 'linked',
@@ -1750,6 +1791,20 @@ test('install manifest schemas 1 and 2 remain strict readable migration inputs f
     repo_root: canonicalRepoRoot,
     records: recordsFor(schema2Names),
   };
+  const schema3Names = [...HYPERFRAMES_SKILL_NAMES, ...V3_SKILL_NAMES];
+  const schema3 = {
+    schema_version: 3,
+    repo_root: canonicalRepoRoot,
+    records: recordsFor(schema3Names),
+  };
+  const schema4 = {
+    schema_version: 4,
+    repo_root: canonicalRepoRoot,
+    records: recordsFor(INSTALL_SKILL_NAMES, {
+      parentName: APP_NAME,
+      skillRootName: APP_NAME,
+    }),
+  };
   assert.equal(validateInstallManifest(schema1, {
     repoRoot: canonicalRepoRoot,
     appDir,
@@ -1760,6 +1815,16 @@ test('install manifest schemas 1 and 2 remain strict readable migration inputs f
     appDir,
     homeDir: state.homeDir,
   }).records.length, 32);
+  assert.equal(validateInstallManifest(schema3, {
+    repoRoot: canonicalRepoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  }).records.length, 38);
+  assert.equal(validateInstallManifest(schema4, {
+    repoRoot: canonicalRepoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  }).records.length, 38);
   assert.throws(() => validateInstallManifest({
     ...schema2,
     records: [...schema2.records, ...recordsFor([REMOTION_SKILL_NAMES[0]])],
@@ -1768,6 +1833,110 @@ test('install manifest schemas 1 and 2 remain strict readable migration inputs f
     appDir,
     homeDir: state.homeDir,
   }), (error) => error?.code === 'install_manifest_invalid');
+});
+
+test('schema 3 rename migration rebinds stages and safely retires the old parent Skill', async (t) => {
+  const state = await isolated(t);
+  const repoRoot = await createSkillFixture(state.base);
+  const appDir = applicationDataDir({
+    platform: 'darwin',
+    homeDir: state.homeDir,
+    env: state.env,
+  });
+  const additionalSources = await createOfficialSourceFixture(appDir);
+  const previousManifest = await createLegacyV3Installation({
+    repoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  });
+  let currentManifest;
+  const records = await installSkillLinks({
+    repoRoot,
+    appDir,
+    homeDir: state.homeDir,
+    previousManifest,
+    additionalSources,
+    timestamp: 'rename-success',
+    finalize: async (entries) => {
+      currentManifest = await manifestFor(entries, repoRoot);
+    },
+  });
+  assert.equal(records.length, INSTALL_SKILL_NAMES.length * 2);
+  assert.equal(currentManifest.schema_version, 4);
+  assert.equal(validateInstallManifest(currentManifest, {
+    repoRoot: await realpath(repoRoot),
+    appDir,
+    homeDir: state.homeDir,
+  }).records.length, INSTALL_SKILL_NAMES.length * 2);
+
+  const codexRoot = path.join(state.homeDir, '.codex', 'skills');
+  const claudeRoot = path.join(state.homeDir, '.claude', 'skills');
+  assert.equal(
+    await readFile(path.join(codexRoot, LEGACY_APP_NAME, 'preserved.txt'), 'utf8'),
+    'pre-rename parent Skill\n',
+  );
+  assert.equal(await entryExists(path.join(claudeRoot, LEGACY_APP_NAME)), false);
+  for (const hostRoot of [codexRoot, claudeRoot]) {
+    assert.equal((await lstat(path.join(hostRoot, APP_NAME))).isSymbolicLink(), true);
+    assert.equal(
+      await realpath(path.join(hostRoot, 'broll-director')),
+      path.join(await realpath(repoRoot), APP_NAME, 'stages', 'broll-director'),
+    );
+  }
+});
+
+test('failed schema 3 rename migration restores every old link and backup', async (t) => {
+  const state = await isolated(t);
+  const repoRoot = await createSkillFixture(state.base);
+  const appDir = applicationDataDir({
+    platform: 'darwin',
+    homeDir: state.homeDir,
+    env: state.env,
+  });
+  const additionalSources = await createOfficialSourceFixture(appDir);
+  const previousManifest = await createLegacyV3Installation({
+    repoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  });
+  await assert.rejects(
+    installSkillLinks({
+      repoRoot,
+      appDir,
+      homeDir: state.homeDir,
+      previousManifest,
+      additionalSources,
+      timestamp: 'rename-rollback',
+      finalize: async () => {
+        throw new Error('rename finalize canary');
+      },
+    }),
+    /rename finalize canary/u,
+  );
+  for (const hostRoot of [
+    path.join(state.homeDir, '.codex', 'skills'),
+    path.join(state.homeDir, '.claude', 'skills'),
+  ]) {
+    assert.equal(await entryExists(path.join(hostRoot, APP_NAME)), false);
+    assert.equal(
+      path.resolve(
+        hostRoot,
+        await readlink(path.join(hostRoot, LEGACY_APP_NAME)),
+      ),
+      path.join(await realpath(repoRoot), LEGACY_APP_NAME),
+    );
+    assert.equal(
+      path.resolve(
+        hostRoot,
+        await readlink(path.join(hostRoot, 'broll-director')),
+      ),
+      path.join(await realpath(repoRoot), LEGACY_APP_NAME, 'stages', 'broll-director'),
+    );
+  }
+  const backup = previousManifest.records.find((record) => (
+    record.host === 'codex' && record.name === LEGACY_APP_NAME
+  )).backup;
+  assert.equal(await readFile(path.join(backup, 'preserved.txt'), 'utf8'), 'pre-rename parent Skill\n');
 });
 
 test('doctor uses only mocked official commands and isolated host/config paths', async (t) => {
@@ -1794,9 +1963,9 @@ test('doctor uses only mocked official commands and isolated host/config paths',
   ]) {
     await mkdir(hostRoot, { recursive: true });
     for (const name of SKILL_NAMES) {
-      const source = name === 'erduo-hyperframes-broll'
-        ? path.join(repoRoot, 'erduo-hyperframes-broll')
-        : path.join(repoRoot, 'erduo-hyperframes-broll', 'stages', name);
+      const source = name === 'erduo-broll-loop-engineering'
+        ? path.join(repoRoot, 'erduo-broll-loop-engineering')
+        : path.join(repoRoot, 'erduo-broll-loop-engineering', 'stages', name);
       await symlink(await realpath(source), path.join(hostRoot, name), 'dir');
     }
   }
@@ -1864,7 +2033,7 @@ test('Skill installation rolls back every change when a later step or manifest c
     state.homeDir,
     '.codex',
     'skills',
-    'erduo-hyperframes-broll',
+    'erduo-broll-loop-engineering',
   );
   await mkdir(occupied, { recursive: true });
   await writeFile(path.join(occupied, 'old.txt'), 'original\n', 'utf8');
@@ -2054,7 +2223,7 @@ test('uninstall removes an owned dangling link without claiming a false removal'
   });
   const source = path.join(
     repoRoot,
-    'erduo-hyperframes-broll',
+    'erduo-broll-loop-engineering',
     'stages',
     'broll-director',
   );
@@ -2161,7 +2330,7 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   assert.equal(npmCall.options.cwd, path.join(appDir, 'runtime'));
   assert.equal(npmCi.includes('install'), false);
   const manifest = JSON.parse(await readFile(path.join(appDir, 'install-manifest.json'), 'utf8'));
-  assert.equal(manifest.schema_version, 3);
+  assert.equal(manifest.schema_version, 4);
   assert.equal(manifest.records.length, INSTALL_SKILL_NAMES.length * 2);
   for (const name of HYPERFRAMES_SKILL_NAMES) {
     for (const hostRoot of [
@@ -2381,13 +2550,13 @@ test('entire public release tree has no private path, original-author, private-s
     'RELEASE-CHECKLIST.md',
     'SUPPORT-MATRIX.md',
     'THIRD-PARTY-NOTICES.md',
-    'erduo-hyperframes-broll/references/runtime/shot-pattern.schema.json',
-    'erduo-hyperframes-broll/references/shotcraft/catalog.json',
-    'erduo-hyperframes-broll/references/shotcraft/manifest.json',
-    'erduo-hyperframes-broll/references/remotion-backend.md',
-    'erduo-hyperframes-broll/references/shotcraft/remotion-sources/SOURCE.md',
-    'erduo-hyperframes-broll/references/shotcraft/remotion-sources/index.json',
-    'erduo-hyperframes-broll/references/shotcraft/remotion-sources/manifest.json',
+    'erduo-broll-loop-engineering/references/runtime/shot-pattern.schema.json',
+    'erduo-broll-loop-engineering/references/shotcraft/catalog.json',
+    'erduo-broll-loop-engineering/references/shotcraft/manifest.json',
+    'erduo-broll-loop-engineering/references/remotion-backend.md',
+    'erduo-broll-loop-engineering/references/shotcraft/remotion-sources/SOURCE.md',
+    'erduo-broll-loop-engineering/references/shotcraft/remotion-sources/index.json',
+    'erduo-broll-loop-engineering/references/shotcraft/remotion-sources/manifest.json',
     'scripts/package-release.mjs',
     'scripts/test.mjs',
   ];
@@ -2625,7 +2794,7 @@ test('release tar subprocesses receive the same sanitized child environment', as
 
 test('raw tar verifier rejects a valid-checksum AppleDouble member hidden from list views', async (t) => {
   const state = await isolated(t);
-  const packageName = `erduo-hyperframes-broll-${RELEASE_VERSION}`;
+  const packageName = `erduo-broll-loop-engineering-${RELEASE_VERSION}`;
   const fixtures = [
     {
       name: 'appledouble',
@@ -2688,7 +2857,7 @@ test('raw archive gate rejects the complete canonicality, metadata, path, type, 
   await buildRelease({ repoRoot: fixture, output: validArchive });
   const canonical = await readFile(validArchive);
   const tar = gunzipSync(canonical);
-  const packageName = `erduo-hyperframes-broll-${RELEASE_VERSION}`;
+  const packageName = `erduo-broll-loop-engineering-${RELEASE_VERSION}`;
   const localUserCanary = ['junwei', '001q'].join('');
   assert.deepEqual([...canonical.subarray(0, 10)], [
     0x1f, 0x8b, 0x08, 0, 0, 0, 0, 0, 2, 255,
@@ -3135,7 +3304,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.3.0');
+  assert.equal(RELEASE_VERSION, '0.4.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
@@ -3307,7 +3476,7 @@ test('release packager accepts only the explicit tree and rejects media, SRT, en
 
   const fixtureManifestPath = path.join(
     fixture,
-    'erduo-hyperframes-broll',
+    'erduo-broll-loop-engineering',
     'references',
     'shotcraft',
     'manifest.json',
@@ -3376,7 +3545,7 @@ test('release packager accepts only the explicit tree and rejects media, SRT, en
   await writeFile(readme, original, 'utf8');
   const yamlFile = path.join(
     fixture,
-    'erduo-hyperframes-broll',
+    'erduo-broll-loop-engineering',
     'agents',
     'openai.yaml',
   );
@@ -3450,12 +3619,50 @@ test('private configuration root rejects a symbolic link', async (t) => {
   assert.equal(await entryExists(path.join(outside, 'config.json')), true);
 });
 
+test('old repository name remains only in the bounded migration surface', async () => {
+  const oldName = ['erduo', 'hyperframes', 'broll'].join('-');
+  const textFiles = (await listPublicReleaseFiles()).filter(
+    (file) => path.extname(file).toLowerCase() !== '.jpg',
+  );
+  const filesWithOldName = [];
+  for (const file of textFiles) {
+    if ((await readFile(file, 'utf8')).includes(oldName)) {
+      filesWithOldName.push(path.relative(root, file));
+    }
+  }
+  assert.deepEqual(filesWithOldName.toSorted(), [
+    '.gitignore',
+    'Install.command',
+    'scripts/lib.mjs',
+  ]);
+
+  const readme = await readFile(path.join(root, 'README.md'), 'utf8');
+  const parentSkill = await readFile(
+    path.join(root, 'erduo-broll-loop-engineering', 'SKILL.md'),
+    'utf8',
+  );
+  const packageMetadata = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+  const runtimeMetadata = JSON.parse(
+    await readFile(path.join(root, 'runtime', 'package.json'), 'utf8'),
+  );
+  const openAiMetadata = await readFile(
+    path.join(root, 'erduo-broll-loop-engineering', 'agents', 'openai.yaml'),
+    'utf8',
+  );
+  assert.match(readme, /erduo1998-cell\/erduo-broll-loop-engineering/u);
+  assert.doesNotMatch(readme, new RegExp(oldName, 'u'));
+  assert.match(parentSkill, /^name: erduo-broll-loop-engineering$/mu);
+  assert.equal(packageMetadata.name, 'erduo-broll-loop-engineering');
+  assert.equal(runtimeMetadata.name, 'erduo-broll-loop-engineering-runtime');
+  assert.match(openAiMetadata, /\$erduo-broll-loop-engineering/u);
+});
+
 test('private directory creation rejects an intermediate symbolic-link component', async (t) => {
   const state = await isolated(t);
   const library = path.join(state.homeDir, 'Library');
   const support = path.join(library, 'Application Support');
   const outside = path.join(state.base, 'outside-support');
-  const outsideAppDir = path.join(outside, 'erduo-hyperframes-broll');
+  const outsideAppDir = path.join(outside, 'erduo-broll-loop-engineering');
   await mkdir(library);
   await mkdir(outsideAppDir, { recursive: true });
   await writeFile(
@@ -3512,9 +3719,9 @@ test('public release source contains the parent plus ten prompt stage Skills', a
     'broll-remotion-integrate',
     'broll-remotion-render',
   ]);
-  const skillRoot = path.join(root, 'erduo-hyperframes-broll');
+  const skillRoot = path.join(root, 'erduo-broll-loop-engineering');
   const stageRoot = path.join(skillRoot, 'stages');
-  const expectedStages = SKILL_NAMES.filter((name) => name !== 'erduo-hyperframes-broll')
+  const expectedStages = SKILL_NAMES.filter((name) => name !== 'erduo-broll-loop-engineering')
     .toSorted();
   const stageEntries = await readdir(stageRoot, { withFileTypes: true });
   assert.equal(stageEntries.every((entry) => entry.isDirectory()), true);
@@ -3532,8 +3739,8 @@ test('public release source contains the parent plus ten prompt stage Skills', a
   assert.deepEqual(
     promptSurface,
     RELEASE_FILES
-      .filter((file) => file.startsWith('erduo-hyperframes-broll/'))
-      .map((file) => file.slice('erduo-hyperframes-broll/'.length))
+      .filter((file) => file.startsWith('erduo-broll-loop-engineering/'))
+      .map((file) => file.slice('erduo-broll-loop-engineering/'.length))
       .toSorted(),
   );
   assert.equal(promptSurface.every((file) => (
@@ -3542,7 +3749,7 @@ test('public release source contains the parent plus ten prompt stage Skills', a
         && file.startsWith('references/shotcraft/remotion-sources/'))
   )), true);
   for (const name of SKILL_NAMES) {
-    const file = name === 'erduo-hyperframes-broll'
+    const file = name === 'erduo-broll-loop-engineering'
       ? path.join(skillRoot, 'SKILL.md')
       : path.join(stageRoot, name, 'SKILL.md');
     const contents = await readFile(file, 'utf8');

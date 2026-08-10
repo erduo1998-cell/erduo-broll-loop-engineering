@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/remotion-project.schema.json",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/remotion-project.schema.json",
   "title": "Remotion runtime project manifest",
   "description": "Runtime-owned evidence produced from validated integer-millisecond Shot Recipes. This is not a canonical Recipe and must not be written back into one.",
   "type": "object",

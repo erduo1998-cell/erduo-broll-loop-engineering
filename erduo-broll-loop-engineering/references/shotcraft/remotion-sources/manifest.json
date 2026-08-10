@@ -10,12 +10,12 @@
     "sourceFiles": 218
   },
   "index": {
-    "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/index.json",
+    "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/index.json",
     "bytes": 34299,
     "sha256": "ceafc43534065eb55b08f148523c7d08a801b663d91b6776507aa112e8525221"
   },
   "sourceDescription": {
-    "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/SOURCE.md",
+    "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/SOURCE.md",
     "bytes": 747,
     "sha256": "7a96fb6e4e1f4e4413e16ce6ec2ad423fa4efe10616d1eb593b8155a37791515"
   },
@@ -23,1526 +23,1526 @@
     {
       "source": "demos/_fixtures/Fixtures.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/_fixtures/Fixtures.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/_fixtures/Fixtures.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/_fixtures/Fixtures.tsx",
       "bytes": 4275,
       "sha256": "e06a6edce67ba854c46b897c11575d487ab265a2b3edf2b480be85dbe29bb5a0"
     },
     {
       "source": "demos/_fixtures/Motion.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/_fixtures/Motion.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/_fixtures/Motion.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/_fixtures/Motion.tsx",
       "bytes": 3582,
       "sha256": "961a9ce2401e38b5fe22fce7f44d84fc656d76aad0b178082e447feb01494421"
     },
     {
       "source": "demos/_textures/live-layout.json",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/_textures/live-layout.json",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/_textures/live-layout.json",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/_textures/live-layout.json",
       "bytes": 5601,
       "sha256": "dd99140e7806f0de58c91f98a4a5c2ef0b3e793817b46529e4f9e23b57186869"
     },
     {
       "source": "demos/camera/basic-3d-scene/Basic3DScene.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/basic-3d-scene/Basic3DScene.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/basic-3d-scene/Basic3DScene.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/basic-3d-scene/Basic3DScene.tsx",
       "bytes": 4822,
       "sha256": "9e853848e3db1dd1415c49f42a243c916c750ff6058367edd98826a8e5f67705"
     },
     {
       "source": "demos/camera/crash-zoom-punch/CrashImpactReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/crash-zoom-punch/CrashImpactReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/crash-zoom-punch/CrashImpactReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/crash-zoom-punch/CrashImpactReal.tsx",
       "bytes": 2480,
       "sha256": "6150253befeb22cff49492dcf3a5b56c01d667e3df6136466e480d7b3b92789d"
     },
     {
       "source": "demos/camera/crash-zoom-punch/CrashZoomReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/crash-zoom-punch/CrashZoomReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/crash-zoom-punch/CrashZoomReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/crash-zoom-punch/CrashZoomReal.tsx",
       "bytes": 2443,
       "sha256": "495a5afc91a4c93424d15edf35c8767d1ff90f4d9515bb9194f68d7f355a181f"
     },
     {
       "source": "demos/camera/cursor-flyover/CursorFlyover.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/cursor-flyover/CursorFlyover.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/cursor-flyover/CursorFlyover.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/cursor-flyover/CursorFlyover.tsx",
       "bytes": 9608,
       "sha256": "911e6f6a541c6aed41eb311fbc25af1f0d096591283f2bcf70e1f907ae87e78f"
     },
     {
       "source": "demos/camera/depth-layer-moves/DollyZoomReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/depth-layer-moves/DollyZoomReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/depth-layer-moves/DollyZoomReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/depth-layer-moves/DollyZoomReal.tsx",
       "bytes": 2281,
       "sha256": "47d44cad258e8a3c7b7bfd7c5e5b3535360b486f21621e6fb25d210c7e4797b0"
     },
     {
       "source": "demos/camera/depth-layer-moves/MultiplaneReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/depth-layer-moves/MultiplaneReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/depth-layer-moves/MultiplaneReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/depth-layer-moves/MultiplaneReal.tsx",
       "bytes": 2437,
       "sha256": "b67c6ab37f02f1df6033b54fdb08d1fa0aa85300404578be50715285d16d2124"
     },
     {
       "source": "demos/camera/graze-face-tour/GrazeFaceTour.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/graze-face-tour/GrazeFaceTour.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/graze-face-tour/GrazeFaceTour.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/graze-face-tour/GrazeFaceTour.tsx",
       "bytes": 22352,
       "sha256": "67a92ec45709381b23e79b669a154c9fab2d4ce4997d95226c97c297fd038165"
     },
     {
       "source": "demos/camera/overhead-camera-moves/OverheadTabletopDrop.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/overhead-camera-moves/OverheadTabletopDrop.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/overhead-camera-moves/OverheadTabletopDrop.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/overhead-camera-moves/OverheadTabletopDrop.tsx",
       "bytes": 4624,
       "sha256": "a73f96609940cef8a5436126310af3487c685dde9833ae3ffbedc2a48785a29e"
     },
     {
       "source": "demos/camera/overhead-camera-moves/TiltReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/overhead-camera-moves/TiltReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/overhead-camera-moves/TiltReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/overhead-camera-moves/TiltReveal.tsx",
       "bytes": 1815,
       "sha256": "a981ba2bbe4c78e042e11bb6db9efcc63519564acaf5a60caf02237c435db20a"
     },
     {
       "source": "demos/camera/space-camera-moves/DroneDiveLanding.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/space-camera-moves/DroneDiveLanding.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/space-camera-moves/DroneDiveLanding.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/space-camera-moves/DroneDiveLanding.tsx",
       "bytes": 3845,
       "sha256": "531389b779782c6b8bb4728d11ca1fead05ce98f1ef7d5259061ebde28c95597"
     },
     {
       "source": "demos/camera/space-camera-moves/ExplodedView.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/space-camera-moves/ExplodedView.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/space-camera-moves/ExplodedView.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/space-camera-moves/ExplodedView.tsx",
       "bytes": 7097,
       "sha256": "75ff3c91f4c0c254db89d3f060a34e23d306c6fa4fb38bccbc5049795d1eed09"
     },
     {
       "source": "demos/camera/steep-tilt-glide/SteepTiltGlide.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/steep-tilt-glide/SteepTiltGlide.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/steep-tilt-glide/SteepTiltGlide.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/steep-tilt-glide/SteepTiltGlide.tsx",
       "bytes": 16482,
       "sha256": "184740415dfcaf34311e42fe63b82a69ff987fbb4633f5a8bfb4318ec20e179c"
     },
     {
       "source": "demos/camera/tension-camera-moves/BulletTimeFreezeOrbit.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/tension-camera-moves/BulletTimeFreezeOrbit.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/BulletTimeFreezeOrbit.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/BulletTimeFreezeOrbit.tsx",
       "bytes": 6872,
       "sha256": "975f02697f579905a6d83461727f7e258f285fa4738d783ac96b3e6f997413bb"
     },
     {
       "source": "demos/camera/tension-camera-moves/DutchRollToLevel.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/tension-camera-moves/DutchRollToLevel.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/DutchRollToLevel.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/DutchRollToLevel.tsx",
       "bytes": 3923,
       "sha256": "de3f0848a382c77d5f1d7824041fce6a371cef804be592845fba981dd83564d0"
     },
     {
       "source": "demos/camera/tension-camera-moves/PullBackIsolation.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/tension-camera-moves/PullBackIsolation.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/PullBackIsolation.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/PullBackIsolation.tsx",
       "bytes": 4407,
       "sha256": "93e36a2f42e96497627fb6aac92854d914f70037239a772e5cb3830e7f1a9844"
     },
     {
       "source": "demos/camera/tension-camera-moves/SlowPushIn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/tension-camera-moves/SlowPushIn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/SlowPushIn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/tension-camera-moves/SlowPushIn.tsx",
       "bytes": 2837,
       "sha256": "db43d1d0d52b27cba3a97f17bf2999bcbb8750f5c4aee460889285d7c2647446"
     },
     {
       "source": "demos/camera/terminal-3d/Terminal3D.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/camera/terminal-3d/Terminal3D.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/camera/terminal-3d/Terminal3D.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/camera/terminal-3d/Terminal3D.tsx",
       "bytes": 8873,
       "sha256": "810807a14ff6a7f813fe2ef999a40364734043428d34d9e272b24e7df18280d4"
     },
     {
       "source": "demos/data/avatar-grid-radial-build-colorize/AvatarGridRadialBuildColorize.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/avatar-grid-radial-build-colorize/AvatarGridRadialBuildColorize.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/avatar-grid-radial-build-colorize/AvatarGridRadialBuildColorize.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/avatar-grid-radial-build-colorize/AvatarGridRadialBuildColorize.tsx",
       "bytes": 8450,
       "sha256": "ae2e10a5b3c39c65409dd9e5e417d63729419d468e1e598f323efc8b5435cb0c"
     },
     {
       "source": "demos/data/before-after-slider-scrub/BeforeAfterSliderScrub.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/before-after-slider-scrub/BeforeAfterSliderScrub.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/before-after-slider-scrub/BeforeAfterSliderScrub.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/before-after-slider-scrub/BeforeAfterSliderScrub.tsx",
       "bytes": 4377,
       "sha256": "69096e8839be16b7818d3ac375ad170828cb08fa7fcd4fd826d4cc1b4cdf7f69"
     },
     {
       "source": "demos/data/chart-live-moves/AxisRescaleShockV2.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/chart-live-moves/AxisRescaleShockV2.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/chart-live-moves/AxisRescaleShockV2.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/chart-live-moves/AxisRescaleShockV2.tsx",
       "bytes": 11053,
       "sha256": "13ad5232884e4ad2a3439c4949f7237136ef98d98de17efd7fd261852ebb7313"
     },
     {
       "source": "demos/data/chart-live-moves/OscilloscopeStreamV2.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/chart-live-moves/OscilloscopeStreamV2.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/chart-live-moves/OscilloscopeStreamV2.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/chart-live-moves/OscilloscopeStreamV2.tsx",
       "bytes": 8604,
       "sha256": "ef59ae09fda561c104995ad0f080024fb0f1c3a7016ca911f3a68454c4b2675c"
     },
     {
       "source": "demos/data/chart-live-moves/UnitDotSwarmRegroupV2.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/chart-live-moves/UnitDotSwarmRegroupV2.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/chart-live-moves/UnitDotSwarmRegroupV2.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/chart-live-moves/UnitDotSwarmRegroupV2.tsx",
       "bytes": 8522,
       "sha256": "8d5527f02869a91cf13b5fe091c347f672c8fab02105d948678b09a86be4e043"
     },
     {
       "source": "demos/data/counter-confetti/CounterConfetti.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/counter-confetti/CounterConfetti.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/counter-confetti/CounterConfetti.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/counter-confetti/CounterConfetti.tsx",
       "bytes": 5622,
       "sha256": "eb10f603abc5ae1167cc1d289b81ec7b078b1e0947e8f9e5265a836b1f06ee94"
     },
     {
       "source": "demos/data/gauge-readout-moves/NeedleSweepSelftest.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/gauge-readout-moves/NeedleSweepSelftest.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/gauge-readout-moves/NeedleSweepSelftest.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/gauge-readout-moves/NeedleSweepSelftest.tsx",
       "bytes": 5561,
       "sha256": "609d771627b254fe7481664248604da72f4331eb565d87cf998336127603f80f"
     },
     {
       "source": "demos/data/gauge-readout-moves/TapeScrollFixedPointer.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/gauge-readout-moves/TapeScrollFixedPointer.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/gauge-readout-moves/TapeScrollFixedPointer.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/gauge-readout-moves/TapeScrollFixedPointer.tsx",
       "bytes": 4838,
       "sha256": "dd9c6b97788c86fc96de6cf1711da5d9048b6e9c8ba824e18e0d92efc8d49941"
     },
     {
       "source": "demos/data/hatch-depth/HatchDepth.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/hatch-depth/HatchDepth.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/hatch-depth/HatchDepth.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/hatch-depth/HatchDepth.tsx",
       "bytes": 5195,
       "sha256": "a6e3050ac9b86590a6c74fc9aae3f764e5a4664c891957a98a421303bc8e6b49"
     },
     {
       "source": "demos/data/odometer-digit-roll/OdometerDigitRoll.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/odometer-digit-roll/OdometerDigitRoll.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/odometer-digit-roll/OdometerDigitRoll.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/odometer-digit-roll/OdometerDigitRoll.tsx",
       "bytes": 6103,
       "sha256": "e91c46c1c80f68f83fbed2c1c39e5ad22d6be5799f3541978f56b9e61ee73af2"
     },
     {
       "source": "demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx",
       "bytes": 5361,
       "sha256": "4944a90332df7129abb3c037c5bc9a0982f141b1cd2fa6c40cb12692242494dc"
     },
     {
       "source": "demos/data/particle-celebrate-hits/CounterTickSparks.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/particle-celebrate-hits/CounterTickSparks.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/particle-celebrate-hits/CounterTickSparks.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/particle-celebrate-hits/CounterTickSparks.tsx",
       "bytes": 4397,
       "sha256": "c03d41ef49c1d0c919834c037b59d1aed772a555847631bf56a5b3b8736b9aca"
     },
     {
       "source": "demos/data/particle-sand-fill/ParticleSandFill.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/particle-sand-fill/ParticleSandFill.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/particle-sand-fill/ParticleSandFill.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/particle-sand-fill/ParticleSandFill.tsx",
       "bytes": 5907,
       "sha256": "f0094421646b5c68af5a57592d4e7f554daeb94d8892aa4bbf40bf381ca97617"
     },
     {
       "source": "demos/data/scroll-brake-moves/BrakeReticleLock.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/scroll-brake-moves/BrakeReticleLock.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/scroll-brake-moves/BrakeReticleLock.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/scroll-brake-moves/BrakeReticleLock.tsx",
       "bytes": 7289,
       "sha256": "a46716c0f5bac8e2967c7c094b71fbe1e46746e42a7c4b871acfe8402cec5be9"
     },
     {
       "source": "demos/data/scroll-brake-moves/ChangelogScrollBrake.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/scroll-brake-moves/ChangelogScrollBrake.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/scroll-brake-moves/ChangelogScrollBrake.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/scroll-brake-moves/ChangelogScrollBrake.tsx",
       "bytes": 3739,
       "sha256": "d7a6d95511cde7b5d39fbcce7b4b75c1acd118da1ca0020b8bb33bc9c72f528e"
     },
     {
       "source": "demos/data/timeline-travel/TimelineTravel.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/data/timeline-travel/TimelineTravel.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/data/timeline-travel/TimelineTravel.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/data/timeline-travel/TimelineTravel.tsx",
       "bytes": 5036,
       "sha256": "be4399cdbf8ea9b4e27d61471328d508c725158b75ad75124f194e3d83b4a8fc"
     },
     {
       "source": "demos/effects/assemble-then-type-flyin/AssembleThenTypeFlyin.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/assemble-then-type-flyin/AssembleThenTypeFlyin.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/assemble-then-type-flyin/AssembleThenTypeFlyin.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/assemble-then-type-flyin/AssembleThenTypeFlyin.tsx",
       "bytes": 9438,
       "sha256": "2e5996b09bbef56ef4a8316a60f78cafcc2161d6d034be31a8d281d45100e4f2"
     },
     {
       "source": "demos/effects/aurora-bloom-bg-flip/AuroraBloomBgFlip.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/aurora-bloom-bg-flip/AuroraBloomBgFlip.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/aurora-bloom-bg-flip/AuroraBloomBgFlip.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/aurora-bloom-bg-flip/AuroraBloomBgFlip.tsx",
       "bytes": 5049,
       "sha256": "0fc90fd03f153065cea48ff973c175c6c66653bb1a035e40c7ac33bbb356fa21"
     },
     {
       "source": "demos/effects/brand-frame-snap/BrandFrameSnap.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/brand-frame-snap/BrandFrameSnap.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/brand-frame-snap/BrandFrameSnap.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/brand-frame-snap/BrandFrameSnap.tsx",
       "bytes": 5006,
       "sha256": "4a90782092ade6c63ec05dc7e509096c03793242c60ceb836d6b491c34fbf94b"
     },
     {
       "source": "demos/effects/dashboard-glow-highlight-pill/DashboardGlowHighlightPill.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/dashboard-glow-highlight-pill/DashboardGlowHighlightPill.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/dashboard-glow-highlight-pill/DashboardGlowHighlightPill.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/dashboard-glow-highlight-pill/DashboardGlowHighlightPill.tsx",
       "bytes": 22457,
       "sha256": "84d2f989f506e1bb9059d00468e82daf16c0e38f73984fec98638037583b32bd"
     },
     {
       "source": "demos/effects/fui-hud-moves/LineUnfoldPanel.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/fui-hud-moves/LineUnfoldPanel.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/fui-hud-moves/LineUnfoldPanel.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/fui-hud-moves/LineUnfoldPanel.tsx",
       "bytes": 4461,
       "sha256": "87329b62b3dfe20b6c08c9f3a559b2f77ee4841b4860cc2be1a00ddf2d5d0122"
     },
     {
       "source": "demos/effects/fui-hud-moves/ReticleLockOn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/fui-hud-moves/ReticleLockOn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/fui-hud-moves/ReticleLockOn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/fui-hud-moves/ReticleLockOn.tsx",
       "bytes": 5138,
       "sha256": "46bf287a5de1fde17d34e3725ed6cf66d443a90cff63ebcc907293cf0c31fdf5"
     },
     {
       "source": "demos/effects/glow-flyline-moves/FlylineArc.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/glow-flyline-moves/FlylineArc.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/glow-flyline-moves/FlylineArc.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/glow-flyline-moves/FlylineArc.tsx",
       "bytes": 6302,
       "sha256": "6c2f3a636d343474dcb489393ad7c71d6f454c1962113c9c90988bfa5f48ae4c"
     },
     {
       "source": "demos/effects/glow-flyline-moves/GlowOrbAmbient.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/glow-flyline-moves/GlowOrbAmbient.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/glow-flyline-moves/GlowOrbAmbient.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/glow-flyline-moves/GlowOrbAmbient.tsx",
       "bytes": 4784,
       "sha256": "ae443fcbf79de1fd63b1219c2073830b47115c168d03aea2ef501154fd09fa60"
     },
     {
       "source": "demos/effects/glow-flyline-moves/OrbFlylineRelay.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/glow-flyline-moves/OrbFlylineRelay.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/glow-flyline-moves/OrbFlylineRelay.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/glow-flyline-moves/OrbFlylineRelay.tsx",
       "bytes": 10765,
       "sha256": "d554a49d5bef9064c29d5b9b1bb704ca29798486f44b287d56da43acdc246c20"
     },
     {
       "source": "demos/effects/icon-performance-moves/AttentionBounce.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/icon-performance-moves/AttentionBounce.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/icon-performance-moves/AttentionBounce.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/icon-performance-moves/AttentionBounce.tsx",
       "bytes": 6825,
       "sha256": "c467057383f91a4433be617db40d92d03f5f53f47e4cbcedb66091492f50cb87"
     },
     {
       "source": "demos/effects/icon-performance-moves/PopBurstConfirm.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/icon-performance-moves/PopBurstConfirm.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/icon-performance-moves/PopBurstConfirm.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/icon-performance-moves/PopBurstConfirm.tsx",
       "bytes": 5384,
       "sha256": "cca22774f4d75754795f96e0060f727a8b062c3005b7bab5cf45fce86f02b80f"
     },
     {
       "source": "demos/effects/impact-feedback/AnimeImpact.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/impact-feedback/AnimeImpact.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/impact-feedback/AnimeImpact.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/impact-feedback/AnimeImpact.tsx",
       "bytes": 5692,
       "sha256": "8a513f31e9899de5eae15962e4a3884f3640c352111dd0ba231e6221a9fef2dc"
     },
     {
       "source": "demos/effects/impact-feedback/HitCounter.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/impact-feedback/HitCounter.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/impact-feedback/HitCounter.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/impact-feedback/HitCounter.tsx",
       "bytes": 5332,
       "sha256": "dd83270319aca314ee45a08b53fea9737aba88a1b401b1aa3561b5ab9e63a4da"
     },
     {
       "source": "demos/effects/light-play-moves/HalationBloom.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/light-play-moves/HalationBloom.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/light-play-moves/HalationBloom.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/light-play-moves/HalationBloom.tsx",
       "bytes": 4353,
       "sha256": "515567c881a3b18c8ae92d001b0b656b506f3bbadea32d75a82a476c6ea47096"
     },
     {
       "source": "demos/effects/light-play-moves/SheenSweepRetry.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/light-play-moves/SheenSweepRetry.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/light-play-moves/SheenSweepRetry.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/light-play-moves/SheenSweepRetry.tsx",
       "bytes": 2620,
       "sha256": "c411aedec951a84afcf1722c93e8d9bec2864752610c652cc8a7d9e862f5e799"
     },
     {
       "source": "demos/effects/light-play-moves/SpotlightSweepReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/light-play-moves/SpotlightSweepReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/light-play-moves/SpotlightSweepReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/light-play-moves/SpotlightSweepReveal.tsx",
       "bytes": 3438,
       "sha256": "2abd85f00e8221f6a6b67c89d0be24fea3dc661a1f00d68e3dc954567cb4b438"
     },
     {
       "source": "demos/effects/line-boil/LineBoil.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/line-boil/LineBoil.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/line-boil/LineBoil.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/line-boil/LineBoil.tsx",
       "bytes": 5346,
       "sha256": "063d193e15fe3f742779ebe8c6e9a95339e9d718050c261a96f069e7f213bf25"
     },
     {
       "source": "demos/effects/radial-ripple-phone-chips/RadialRipplePhoneChips.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/radial-ripple-phone-chips/RadialRipplePhoneChips.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/radial-ripple-phone-chips/RadialRipplePhoneChips.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/radial-ripple-phone-chips/RadialRipplePhoneChips.tsx",
       "bytes": 4948,
       "sha256": "c1157c36434d884d015c3056b44bbf4fd94a3cad616385f53af7a54b1d4104db"
     },
     {
       "source": "demos/effects/riso-print-hits/RisoBeatPump.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/riso-print-hits/RisoBeatPump.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/riso-print-hits/RisoBeatPump.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/riso-print-hits/RisoBeatPump.tsx",
       "bytes": 4997,
       "sha256": "430f71b64bb4791eb2b6d492c8ca298d48dc795395f188eecbb4a83dd15bdafc"
     },
     {
       "source": "demos/effects/riso-print-hits/RisoMisregistrationHit.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/riso-print-hits/RisoMisregistrationHit.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/riso-print-hits/RisoMisregistrationHit.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/riso-print-hits/RisoMisregistrationHit.tsx",
       "bytes": 4171,
       "sha256": "55b63608168db7c56b2e4abbe4b8dd7252a61447dd46c364deaaa325d86641df"
     },
     {
       "source": "demos/effects/scan-bracket-sweep/ScanBracketSweep.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/scan-bracket-sweep/ScanBracketSweep.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/scan-bracket-sweep/ScanBracketSweep.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/scan-bracket-sweep/ScanBracketSweep.tsx",
       "bytes": 8132,
       "sha256": "e96046d8b393545fc17a5b6c5d0158aae95d2f2285b6d2a997232a6595e6686e"
     },
     {
       "source": "demos/effects/scanline-annotate-focus/ScanlineAnnotateFocus.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/scanline-annotate-focus/ScanlineAnnotateFocus.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/scanline-annotate-focus/ScanlineAnnotateFocus.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/scanline-annotate-focus/ScanlineAnnotateFocus.tsx",
       "bytes": 11364,
       "sha256": "c0bff214f004465455400f468847b0ed73f672a6d75b05d6ee8b3704b9d82fd7"
     },
     {
       "source": "demos/effects/scanline-assemble-flyin/ScanlineAssembleFlyin.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/scanline-assemble-flyin/ScanlineAssembleFlyin.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/scanline-assemble-flyin/ScanlineAssembleFlyin.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/scanline-assemble-flyin/ScanlineAssembleFlyin.tsx",
       "bytes": 10496,
       "sha256": "e088c86069806039e0affbaad44af6af2dcda1c32ae1a37dfed05acb7d5e92eb"
     },
     {
       "source": "demos/effects/slam-entrance-moves/ImpactBurstKit.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/slam-entrance-moves/ImpactBurstKit.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/slam-entrance-moves/ImpactBurstKit.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/slam-entrance-moves/ImpactBurstKit.tsx",
       "bytes": 6732,
       "sha256": "ae207afed57e5a634528e908da438a58d6734845424f6a96ce0d94b80751aba7"
     },
     {
       "source": "demos/effects/slam-entrance-moves/KanadaPerspectiveSnap.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/slam-entrance-moves/KanadaPerspectiveSnap.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/slam-entrance-moves/KanadaPerspectiveSnap.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/slam-entrance-moves/KanadaPerspectiveSnap.tsx",
       "bytes": 4350,
       "sha256": "1c768591eb775d4daab8f7f956547df26cf937f920cf0904809793fbdcade026"
     },
     {
       "source": "demos/effects/slam-entrance-moves/ScoreSlam.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/slam-entrance-moves/ScoreSlam.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/slam-entrance-moves/ScoreSlam.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/slam-entrance-moves/ScoreSlam.tsx",
       "bytes": 7491,
       "sha256": "e2ce99bd4e387e0ff03ffc22948d787fc1e7696f72ffe482f50daabd9336e878"
     },
     {
       "source": "demos/effects/spotlight-sweep-moves/CornerSpotlightReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/spotlight-sweep-moves/CornerSpotlightReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/spotlight-sweep-moves/CornerSpotlightReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/spotlight-sweep-moves/CornerSpotlightReveal.tsx",
       "bytes": 4958,
       "sha256": "bc5919cf33b701f1080b265ab3f1f3ff9046fe5b2c50355cff2d0c920a8db33d"
     },
     {
       "source": "demos/effects/spotlight-sweep-moves/GlowWakeSleepPanel.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/spotlight-sweep-moves/GlowWakeSleepPanel.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/spotlight-sweep-moves/GlowWakeSleepPanel.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/spotlight-sweep-moves/GlowWakeSleepPanel.tsx",
       "bytes": 9870,
       "sha256": "4ef113f4562992102cc5ffa05fc9f796a840ae9d2fb7cc40bc923b76257277b5"
     },
     {
       "source": "demos/effects/spotlight-sweep-moves/SlideSpotlightPan.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/effects/spotlight-sweep-moves/SlideSpotlightPan.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/effects/spotlight-sweep-moves/SlideSpotlightPan.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/effects/spotlight-sweep-moves/SlideSpotlightPan.tsx",
       "bytes": 8748,
       "sha256": "4ed15797a085a5526a8c075217413d6b49ceb20d65fcd1b5f2a1c472fd6c4755"
     },
     {
       "source": "demos/interaction/ai-stream-response/StreamResponse.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/ai-stream-response/StreamResponse.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/ai-stream-response/StreamResponse.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/ai-stream-response/StreamResponse.tsx",
       "bytes": 7500,
       "sha256": "017726ea7fd92256de50a1c5018391b88efc9920abb7d0cf42dce0e2c0db3df5"
     },
     {
       "source": "demos/interaction/autolayout-gap-dial/AutolayoutGapDial.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/autolayout-gap-dial/AutolayoutGapDial.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/autolayout-gap-dial/AutolayoutGapDial.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/autolayout-gap-dial/AutolayoutGapDial.tsx",
       "bytes": 6344,
       "sha256": "80766040683f84e3a2465b0dd3d800a4ecacd672c58f9ea4db0a63318e9c1f9c"
     },
     {
       "source": "demos/interaction/canvas-materialize-moves/DiagramCascadeBuild.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/canvas-materialize-moves/DiagramCascadeBuild.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/canvas-materialize-moves/DiagramCascadeBuild.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/canvas-materialize-moves/DiagramCascadeBuild.tsx",
       "bytes": 6251,
       "sha256": "c22146209dc68542d3ac630c8816d713d92786501c9cc9e592d1637852fbb548"
     },
     {
       "source": "demos/interaction/canvas-materialize-moves/PanelToCanvasMaterialize.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/canvas-materialize-moves/PanelToCanvasMaterialize.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/canvas-materialize-moves/PanelToCanvasMaterialize.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/canvas-materialize-moves/PanelToCanvasMaterialize.tsx",
       "bytes": 9170,
       "sha256": "1db5d71355732e59394aaade156e7c9c588bdc1fa7f901b1bdcdaf641f52b595"
     },
     {
       "source": "demos/interaction/chip-grid-single-select-blackout/ChipGridSingleSelectBlackout.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/chip-grid-single-select-blackout/ChipGridSingleSelectBlackout.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/chip-grid-single-select-blackout/ChipGridSingleSelectBlackout.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/chip-grid-single-select-blackout/ChipGridSingleSelectBlackout.tsx",
       "bytes": 8212,
       "sha256": "64edeef21295812d0754a0cc5c1f9652d677db3350eb53b0efe1d82bca793338"
     },
     {
       "source": "demos/interaction/chip-lift-to-user-pill/ChipLiftToUserPill.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/chip-lift-to-user-pill/ChipLiftToUserPill.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/chip-lift-to-user-pill/ChipLiftToUserPill.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/chip-lift-to-user-pill/ChipLiftToUserPill.tsx",
       "bytes": 10553,
       "sha256": "afceecb6c9fa57520df71bd7973471b5e4b5c980537ae7045e6560014fe517bb"
     },
     {
       "source": "demos/interaction/collab-cursor-moves/CursorCastEnsemble.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/collab-cursor-moves/CursorCastEnsemble.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/collab-cursor-moves/CursorCastEnsemble.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/collab-cursor-moves/CursorCastEnsemble.tsx",
       "bytes": 6446,
       "sha256": "9ee65f171a355e99bb6faf6f38effd19c65c9a194b43520b20067d73e264033e"
     },
     {
       "source": "demos/interaction/collab-cursor-moves/CursorDialogueDuet.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/collab-cursor-moves/CursorDialogueDuet.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/collab-cursor-moves/CursorDialogueDuet.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/collab-cursor-moves/CursorDialogueDuet.tsx",
       "bytes": 5808,
       "sha256": "d7fd896d41d0ecbe0f538c241f80b1775ea575323d538cd6e69f263880e0f538"
     },
     {
       "source": "demos/interaction/command-palette-summon/CommandPaletteSummon.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/command-palette-summon/CommandPaletteSummon.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/command-palette-summon/CommandPaletteSummon.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/command-palette-summon/CommandPaletteSummon.tsx",
       "bytes": 6108,
       "sha256": "b66b2e5945b72ae36df532a9da0a95cd064515fd837688b1fd666c9e5566f848"
     },
     {
       "source": "demos/interaction/glass-pill-dictation-typing/GlassPillDictationTyping.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/glass-pill-dictation-typing/GlassPillDictationTyping.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/glass-pill-dictation-typing/GlassPillDictationTyping.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/glass-pill-dictation-typing/GlassPillDictationTyping.tsx",
       "bytes": 6445,
       "sha256": "b3d70491d046eb645ea594e5e2a5f9d24d40dd0cf3860d7e65496e528e47f688"
     },
     {
       "source": "demos/interaction/hashtag-to-pill-materialize/HashtagToPillMaterialize.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/hashtag-to-pill-materialize/HashtagToPillMaterialize.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/hashtag-to-pill-materialize/HashtagToPillMaterialize.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/hashtag-to-pill-materialize/HashtagToPillMaterialize.tsx",
       "bytes": 7359,
       "sha256": "e94a48600e18d53f41e2c3caee1ebfb3456a39e5e2681eb63e51ad71df1ddc46"
     },
     {
       "source": "demos/interaction/input-trigger-moves/CursorPerformancePunchIn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/input-trigger-moves/CursorPerformancePunchIn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/input-trigger-moves/CursorPerformancePunchIn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/input-trigger-moves/CursorPerformancePunchIn.tsx",
       "bytes": 6043,
       "sha256": "a2970990b385856cd9e176757eebdcd778fca864f7bf979c976b8fd4cfab53d3"
     },
     {
       "source": "demos/interaction/input-trigger-moves/KeycapSmashCut.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/input-trigger-moves/KeycapSmashCut.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/input-trigger-moves/KeycapSmashCut.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/input-trigger-moves/KeycapSmashCut.tsx",
       "bytes": 9164,
       "sha256": "cd995c264dd139a0e6c161d59bb9b5cff17d92fc2ac4efba2e7003e329d53904"
     },
     {
       "source": "demos/interaction/picker-carousel-feature-cycle/PickerCarouselFeatureCycle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/picker-carousel-feature-cycle/PickerCarouselFeatureCycle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/picker-carousel-feature-cycle/PickerCarouselFeatureCycle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/picker-carousel-feature-cycle/PickerCarouselFeatureCycle.tsx",
       "bytes": 5886,
       "sha256": "123381f36cd03fa6480704b3abd406e09772196a035fcee12d540f3078af69c3"
     },
     {
       "source": "demos/interaction/segmented-thumb-hero/SegmentedThumbHero.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/segmented-thumb-hero/SegmentedThumbHero.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/segmented-thumb-hero/SegmentedThumbHero.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/segmented-thumb-hero/SegmentedThumbHero.tsx",
       "bytes": 7027,
       "sha256": "c55e1f2662eba198ccb0fbfba55e6ce37b5bf4cee2b310f33cfe06d44e1d3e41"
     },
     {
       "source": "demos/interaction/theme-switch-moves/PaletteThemeRipple.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/theme-switch-moves/PaletteThemeRipple.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/theme-switch-moves/PaletteThemeRipple.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/theme-switch-moves/PaletteThemeRipple.tsx",
       "bytes": 9632,
       "sha256": "66aa7cd97905c876cda8c0e736efe53a8b19fb1546a2f9b65aa9dea82f6d189f"
     },
     {
       "source": "demos/interaction/theme-switch-moves/ThemeSweepToggle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/theme-switch-moves/ThemeSweepToggle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/theme-switch-moves/ThemeSweepToggle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/theme-switch-moves/ThemeSweepToggle.tsx",
       "bytes": 5553,
       "sha256": "2bc27f7ca7c358bfd3fd8e6591b1e3a5f18c48cbd842134aacaefd747598dd39"
     },
     {
       "source": "demos/interaction/voice-waveform-live/VoiceWaveformLive.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/interaction/voice-waveform-live/VoiceWaveformLive.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/interaction/voice-waveform-live/VoiceWaveformLive.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/interaction/voice-waveform-live/VoiceWaveformLive.tsx",
       "bytes": 6604,
       "sha256": "77ab5983344687d7d591e2101febe8f80bd72fcef2043b470fa24fb95ee9f833"
     },
     {
       "source": "demos/opening/crane-rise-reveal/CraneRiseReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/crane-rise-reveal/CraneRiseReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/crane-rise-reveal/CraneRiseReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/crane-rise-reveal/CraneRiseReveal.tsx",
       "bytes": 3147,
       "sha256": "50035f51d88795b4a47e322f86f2efbdd41e2755356857668f555832ed66bbd0"
     },
     {
       "source": "demos/opening/dataviz-landscape-open/DatavizLandscapeOpen.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/dataviz-landscape-open/DatavizLandscapeOpen.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/dataviz-landscape-open/DatavizLandscapeOpen.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/dataviz-landscape-open/DatavizLandscapeOpen.tsx",
       "bytes": 15007,
       "sha256": "f575d1387ed5fe5bd1172ab50cdda20fe0562d44bfb469ec6d199b97bacd024a"
     },
     {
       "source": "demos/opening/fracture/Fracture.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/fracture/Fracture.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/fracture/Fracture.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/fracture/Fracture.tsx",
       "bytes": 4089,
       "sha256": "0f413346a2f34863ae7cde0e000f3ee5527edb8650099e07e27001c45bc9e544"
     },
     {
       "source": "demos/opening/icon-field-colorize/IconFieldColorize.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/icon-field-colorize/IconFieldColorize.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/icon-field-colorize/IconFieldColorize.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/icon-field-colorize/IconFieldColorize.tsx",
       "bytes": 5435,
       "sha256": "d80a950a762bddc1b1b26e6459aabdc47145316f2c873f00845bcba7a6ed6590"
     },
     {
       "source": "demos/opening/letterspace-materialize/LetterspaceMaterialize.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/letterspace-materialize/LetterspaceMaterialize.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/letterspace-materialize/LetterspaceMaterialize.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/letterspace-materialize/LetterspaceMaterialize.tsx",
       "bytes": 3816,
       "sha256": "c66c6a726608e8de3584afd8ff25406eecd387edcf313c701a14d577cf7c9341"
     },
     {
       "source": "demos/opening/magician-card-flourish/MagicianCardFlourish.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/magician-card-flourish/MagicianCardFlourish.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/magician-card-flourish/MagicianCardFlourish.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/magician-card-flourish/MagicianCardFlourish.tsx",
       "bytes": 15356,
       "sha256": "b4ce830665fa3db4e82e314efd94bbac1b7777e2fab6e77a914e749244dd63de"
     },
     {
       "source": "demos/opening/stroke-segment-build/StrokeSegmentBuild.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/stroke-segment-build/StrokeSegmentBuild.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/stroke-segment-build/StrokeSegmentBuild.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/stroke-segment-build/StrokeSegmentBuild.tsx",
       "bytes": 5061,
       "sha256": "56847499d68a79584b039701ed4236194b5c2ebcdf322364e75c1e21ebce73dc"
     },
     {
       "source": "demos/opening/text-as-mask/TextAsMask.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/opening/text-as-mask/TextAsMask.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/opening/text-as-mask/TextAsMask.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/opening/text-as-mask/TextAsMask.tsx",
       "bytes": 3780,
       "sha256": "68a6ae67c43cc5b9df63280f3cc0bcf8e212cbe8c86d1c90eeafb935abf61864"
     },
     {
       "source": "demos/outro/edit-hook-moves/LogoStingButton.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/edit-hook-moves/LogoStingButton.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/edit-hook-moves/LogoStingButton.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/edit-hook-moves/LogoStingButton.tsx",
       "bytes": 4424,
       "sha256": "b693cbed3ca283502684e3585fb58844e2f707733cec9675c8376143b4cf5d43"
     },
     {
       "source": "demos/outro/grain-dissolve/GrainDissolve.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/grain-dissolve/GrainDissolve.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/grain-dissolve/GrainDissolve.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/grain-dissolve/GrainDissolve.tsx",
       "bytes": 5729,
       "sha256": "3c5700bf5902266481c891f95028fa016d986f8be380485fc6d0471daf067ca0"
     },
     {
       "source": "demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx",
       "bytes": 5460,
       "sha256": "d8581f081b037f36954214276aefed9039ebe8d76aadbe91ffdf7c6ff3d4a4df"
     },
     {
       "source": "demos/outro/neon-triple-marquee/NeonTripleMarquee.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/neon-triple-marquee/NeonTripleMarquee.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/neon-triple-marquee/NeonTripleMarquee.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/neon-triple-marquee/NeonTripleMarquee.tsx",
       "bytes": 3627,
       "sha256": "990ff41bf447308d6dab8b0d9d84320ed1515df6c71ab848830c173c45847df5"
     },
     {
       "source": "demos/outro/ui-strip-away-outro/UiStripAwayOutro.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/ui-strip-away-outro/UiStripAwayOutro.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/ui-strip-away-outro/UiStripAwayOutro.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/ui-strip-away-outro/UiStripAwayOutro.tsx",
       "bytes": 9726,
       "sha256": "68bc9a8437b2c8f3f4a1980dc8b4e5a3fa4e40127615270140042e5b93a866e3"
     },
     {
       "source": "demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx",
       "bytes": 7167,
       "sha256": "a4ed4cd2e998df90bb16b4ae958635d14d6bdd48bcd54e2291e8780093664bc9"
     },
     {
       "source": "demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx",
       "bytes": 7794,
       "sha256": "8822a5505d06a24bcde526ac47904278b4ebdb2d730504b83dfff46f62cff930"
     },
     {
       "source": "demos/rhythm/beat-cut-moves/BeatCutAccelerando.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/beat-cut-moves/BeatCutAccelerando.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/beat-cut-moves/BeatCutAccelerando.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/beat-cut-moves/BeatCutAccelerando.tsx",
       "bytes": 3035,
       "sha256": "e84aa85acb422b851c1a65182538a6e23501878a0d64f143a611174832a25b1b"
     },
     {
       "source": "demos/rhythm/beat-cut-moves/PaparazziFlash.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/beat-cut-moves/PaparazziFlash.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/beat-cut-moves/PaparazziFlash.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/beat-cut-moves/PaparazziFlash.tsx",
       "bytes": 4011,
       "sha256": "a3f622be9af943c752f7ac2ae293a7fac762c51a29d6e9812e8896cd706888f3"
     },
     {
       "source": "demos/rhythm/beat-step-list-theme-cycle/BeatStepListThemeCycle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/beat-step-list-theme-cycle/BeatStepListThemeCycle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/beat-step-list-theme-cycle/BeatStepListThemeCycle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/beat-step-list-theme-cycle/BeatStepListThemeCycle.tsx",
       "bytes": 4351,
       "sha256": "6dfe335735c21865303c3f817489b3c81578a855a2aef4f5f9e678b56e6ac434"
     },
     {
       "source": "demos/rhythm/montage-rhythm-moves/DominoCascade.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/montage-rhythm-moves/DominoCascade.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/montage-rhythm-moves/DominoCascade.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/montage-rhythm-moves/DominoCascade.tsx",
       "bytes": 5118,
       "sha256": "9f9bb2d3bda0766bab3f8c19c82c2c7bd7588d2b2d61e53461e74c436dd00323"
     },
     {
       "source": "demos/rhythm/montage-rhythm-moves/DropBlackoutSlam.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/montage-rhythm-moves/DropBlackoutSlam.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/montage-rhythm-moves/DropBlackoutSlam.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/montage-rhythm-moves/DropBlackoutSlam.tsx",
       "bytes": 4518,
       "sha256": "da2f4b7a3ed1767525e33ca44551e2ca7ad02dc5104fae14f6fb2eba51ec8529"
     },
     {
       "source": "demos/rhythm/montage-rhythm-moves/WrightTripleCut.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/montage-rhythm-moves/WrightTripleCut.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/montage-rhythm-moves/WrightTripleCut.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/montage-rhythm-moves/WrightTripleCut.tsx",
       "bytes": 7569,
       "sha256": "ed71ad7e2081a78876b043601a14b793c0b2637ff33cc1034e2ba93f820a76cf"
     },
     {
       "source": "demos/rhythm/panel-grid-moves/ComicPanelSplit.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/panel-grid-moves/ComicPanelSplit.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/panel-grid-moves/ComicPanelSplit.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/panel-grid-moves/ComicPanelSplit.tsx",
       "bytes": 7483,
       "sha256": "12f6f3e7cb1039720f4f756aa13b7ba732bdca166467bfca416858e0d2cd2919"
     },
     {
       "source": "demos/rhythm/panel-grid-moves/FlipGridReflow.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/panel-grid-moves/FlipGridReflow.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/panel-grid-moves/FlipGridReflow.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/panel-grid-moves/FlipGridReflow.tsx",
       "bytes": 4315,
       "sha256": "b6b4edd123fadc47fa948590f4589dbe19f70b168115222dc48f52f3669aef91"
     },
     {
       "source": "demos/rhythm/panel-grid-moves/GridFlashMosaic.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/panel-grid-moves/GridFlashMosaic.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/panel-grid-moves/GridFlashMosaic.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/panel-grid-moves/GridFlashMosaic.tsx",
       "bytes": 5762,
       "sha256": "33188969b8e40ee8bf3a9bac2b794184a8884037021df774bacc06ff7ae7766e"
     },
     {
       "source": "demos/rhythm/quad-split-parallel-scenes/QuadSplitParallelScenes.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/quad-split-parallel-scenes/QuadSplitParallelScenes.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/quad-split-parallel-scenes/QuadSplitParallelScenes.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/quad-split-parallel-scenes/QuadSplitParallelScenes.tsx",
       "bytes": 10008,
       "sha256": "0ef89104610b5a00fc7bb89367957fa8b42df0b616a6c98ed535af6984f07c8e"
     },
     {
       "source": "demos/rhythm/rhythm-interrupt-moves/JumpCutPunchIn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/rhythm-interrupt-moves/JumpCutPunchIn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/rhythm-interrupt-moves/JumpCutPunchIn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/rhythm-interrupt-moves/JumpCutPunchIn.tsx",
       "bytes": 2595,
       "sha256": "8af8c4161f1c66d15e956d1ff1d3a3e87d69bfed35733edd3086efa9bb7732b8"
     },
     {
       "source": "demos/rhythm/rhythm-interrupt-moves/StrobeBlackFrames.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/rhythm-interrupt-moves/StrobeBlackFrames.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/rhythm-interrupt-moves/StrobeBlackFrames.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/rhythm-interrupt-moves/StrobeBlackFrames.tsx",
       "bytes": 3589,
       "sha256": "0b8da8214c0c3741cfd5a848cfc264e47d71c6a1d62e8ff7bc3b559c58f01f85"
     },
     {
       "source": "demos/rhythm/sakuga-timing-shift/SakugaTimingShift.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/sakuga-timing-shift/SakugaTimingShift.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/sakuga-timing-shift/SakugaTimingShift.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/sakuga-timing-shift/SakugaTimingShift.tsx",
       "bytes": 5936,
       "sha256": "bc514f8b217c102c2ebbce24a546c30e444bd8f7102efa32d22a2792da8cda50"
     },
     {
       "source": "demos/rhythm/smear-multiples/SmearMultiples.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/smear-multiples/SmearMultiples.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/smear-multiples/SmearMultiples.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/smear-multiples/SmearMultiples.tsx",
       "bytes": 3381,
       "sha256": "ce3d900cb4ad5cf964997a0f5d2170a5a9749ddee3962c76cdb6e7894ce4ae49"
     },
     {
       "source": "demos/rhythm/spectrum-morph-ui/SpectrumMorphUi.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/spectrum-morph-ui/SpectrumMorphUi.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/spectrum-morph-ui/SpectrumMorphUi.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/spectrum-morph-ui/SpectrumMorphUi.tsx",
       "bytes": 4451,
       "sha256": "b161d9ae5240869fffb75a921d2d68a506d8cb0eec7e9fe9056ec65f91146669"
     },
     {
       "source": "demos/rhythm/speed-ramp-freeze/FreezeAnnotateReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/speed-ramp-freeze/FreezeAnnotateReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/speed-ramp-freeze/FreezeAnnotateReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/speed-ramp-freeze/FreezeAnnotateReal.tsx",
       "bytes": 3377,
       "sha256": "5ea9848eb760ed76123ab152d4e2b60bb3b1df9472c3b0ca12e6723fb64f35c7"
     },
     {
       "source": "demos/rhythm/speed-ramp-freeze/SpeedRampReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/speed-ramp-freeze/SpeedRampReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/speed-ramp-freeze/SpeedRampReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/speed-ramp-freeze/SpeedRampReal.tsx",
       "bytes": 2178,
       "sha256": "f3f9e54385f0920aad4071d6f85bf9c878946ddb7908894d5802ab2ecd5f11b8"
     },
     {
       "source": "demos/rhythm/trailer-grammar-moves/CardFootageCadence.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/trailer-grammar-moves/CardFootageCadence.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/trailer-grammar-moves/CardFootageCadence.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/trailer-grammar-moves/CardFootageCadence.tsx",
       "bytes": 4123,
       "sha256": "ef68729c0fc3152f4b1fda48c3bf7ef8757522c830c77069cef638d301ec8a9b"
     },
     {
       "source": "demos/rhythm/trailer-grammar-moves/SmashCut.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/trailer-grammar-moves/SmashCut.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/trailer-grammar-moves/SmashCut.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/trailer-grammar-moves/SmashCut.tsx",
       "bytes": 4246,
       "sha256": "f4ceb69ef80212c21ad14fa9857d31bdb68970812764625da05be6dfecc889ee"
     },
     {
       "source": "demos/rhythm/trailer-grammar-moves/TrailerBumper.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/rhythm/trailer-grammar-moves/TrailerBumper.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/rhythm/trailer-grammar-moves/TrailerBumper.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/rhythm/trailer-grammar-moves/TrailerBumper.tsx",
       "bytes": 3442,
       "sha256": "b91f352e150d02ee286e8ed1169496503d50fed911c34381fc84195757d9b31d"
     },
     {
       "source": "demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx",
       "bytes": 3827,
       "sha256": "a4c70143ab37ac55a233cf73c5c00b1fd90730e842b2d48ae24410cca134c457"
     },
     {
       "source": "demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx",
       "bytes": 7858,
       "sha256": "c30ff2b341f8777f13040c850d78695e5aaa29f71642c8beda33a192721a1724"
     },
     {
       "source": "demos/transition/card-flip-reveal/CardFlipReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/card-flip-reveal/CardFlipReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/card-flip-reveal/CardFlipReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/card-flip-reveal/CardFlipReveal.tsx",
       "bytes": 4620,
       "sha256": "fcce7bee9de5a7e6ce1ac74d4a122c0b2147c1c2b3da4db0f5c92103d6e084b9"
     },
     {
       "source": "demos/transition/card-flock-tumble/CardFlockTumble.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/card-flock-tumble/CardFlockTumble.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/card-flock-tumble/CardFlockTumble.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/card-flock-tumble/CardFlockTumble.tsx",
       "bytes": 17571,
       "sha256": "d89cce89a15012180a3461ee6539ab974fc8f347e3ece9ee62270d1c166cd5c0"
     },
     {
       "source": "demos/transition/circle-match-iris/CircleMatchIris.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/circle-match-iris/CircleMatchIris.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/circle-match-iris/CircleMatchIris.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/circle-match-iris/CircleMatchIris.tsx",
       "bytes": 6275,
       "sha256": "0c2afbb49d65aa15241396fb2343ba3cb046d0958cd80a9eac1925e4f93efd20"
     },
     {
       "source": "demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx",
       "bytes": 4824,
       "sha256": "b20b9a7065356705e27f836e2ea89c9f474e23165a4a9d383b79d5a0fd838677"
     },
     {
       "source": "demos/transition/cube-navigation/CubeNavigation.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/cube-navigation/CubeNavigation.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/cube-navigation/CubeNavigation.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/cube-navigation/CubeNavigation.tsx",
       "bytes": 7235,
       "sha256": "83cc2966e85698bb4c9837c896989993d3eb2ec1b32612712a69af746961d905"
     },
     {
       "source": "demos/transition/gradient-transition/GradientTransition.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/gradient-transition/GradientTransition.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/gradient-transition/GradientTransition.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/gradient-transition/GradientTransition.tsx",
       "bytes": 3089,
       "sha256": "a0dfd2721778d9786b99be67b74da846725fadedcdac0a8a08b7ed3e2bb90cc3"
     },
     {
       "source": "demos/transition/line-carry-transition/LineCarryTransition.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/line-carry-transition/LineCarryTransition.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/line-carry-transition/LineCarryTransition.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/line-carry-transition/LineCarryTransition.tsx",
       "bytes": 6062,
       "sha256": "e3cf0eafab68e3fced8705adedadcd685033af84595d3c738e92af782687ac95"
     },
     {
       "source": "demos/transition/mosaic-reframe/MosaicReframe.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/mosaic-reframe/MosaicReframe.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/mosaic-reframe/MosaicReframe.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/mosaic-reframe/MosaicReframe.tsx",
       "bytes": 4669,
       "sha256": "78487db1769be4203165835c823c663b676223ee8ad84f3da6e04a7740e89766"
     },
     {
       "source": "demos/transition/page-turn-transitions/BarnDoorSplit.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/page-turn-transitions/BarnDoorSplit.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/page-turn-transitions/BarnDoorSplit.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/page-turn-transitions/BarnDoorSplit.tsx",
       "bytes": 4159,
       "sha256": "5d1d04f5685e9d270a68beea2c02b6ab90f208f4e3d7ded1722fe260608cfc14"
     },
     {
       "source": "demos/transition/page-turn-transitions/CubeRotate.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/page-turn-transitions/CubeRotate.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/page-turn-transitions/CubeRotate.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/page-turn-transitions/CubeRotate.tsx",
       "bytes": 4227,
       "sha256": "5270e37dd065f5646254ea7c3607ec93e623636486815079b6a5e23157a91f1f"
     },
     {
       "source": "demos/transition/paper-plane-messenger/PaperPlaneMessenger.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/paper-plane-messenger/PaperPlaneMessenger.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/paper-plane-messenger/PaperPlaneMessenger.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/paper-plane-messenger/PaperPlaneMessenger.tsx",
       "bytes": 9283,
       "sha256": "9355c2bd64750b2d2ca0e7789d61029d10b6554689ce7eb4ea90ab109cee1d37"
     },
     {
       "source": "demos/transition/print-texture-transitions/InkBleedReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/print-texture-transitions/InkBleedReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/print-texture-transitions/InkBleedReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/print-texture-transitions/InkBleedReveal.tsx",
       "bytes": 3901,
       "sha256": "3f951b09da1fb2a8e1e618661c90a5e944649fa4be49118b536da3a8f39840f8"
     },
     {
       "source": "demos/transition/shot-transitions/MaskWipeReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/shot-transitions/MaskWipeReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/shot-transitions/MaskWipeReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/shot-transitions/MaskWipeReal.tsx",
       "bytes": 2830,
       "sha256": "92eb6e2a34f4f075b286e03fa4ee000fda8369ff5f3b2bd3a02964e2efff3713"
     },
     {
       "source": "demos/transition/shot-transitions/PortalWipeV2.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/shot-transitions/PortalWipeV2.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/shot-transitions/PortalWipeV2.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/shot-transitions/PortalWipeV2.tsx",
       "bytes": 4743,
       "sha256": "037b4f5bdd9b5c3d73a11d2932acddc471127e7051c122aee0f6423b77f511c1"
     },
     {
       "source": "demos/transition/shot-transitions/WhipBrakeReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/shot-transitions/WhipBrakeReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/shot-transitions/WhipBrakeReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/shot-transitions/WhipBrakeReal.tsx",
       "bytes": 2418,
       "sha256": "87c84d66f0675d921ca4cfd55a9fd9c5a5ba9a7717870d4b44c4c391c81ad063"
     },
     {
       "source": "demos/transition/shot-transitions/WhipPanReal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/shot-transitions/WhipPanReal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/shot-transitions/WhipPanReal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/shot-transitions/WhipPanReal.tsx",
       "bytes": 1942,
       "sha256": "eda7132e8c2e142be87995b50a30e48c60c925872a9047c6bb8f54a8406be37f"
     },
     {
       "source": "demos/transition/tear-streak-transitions/GlitchDisplace.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/tear-streak-transitions/GlitchDisplace.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/tear-streak-transitions/GlitchDisplace.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/tear-streak-transitions/GlitchDisplace.tsx",
       "bytes": 3654,
       "sha256": "4115ff91755da2c21f58962141dbbce3f6318a71d21b9cea8dc67be5f7cc93c6"
     },
     {
       "source": "demos/transition/transition-hidden-cut/InvisibleCut.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/transition-hidden-cut/InvisibleCut.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/transition-hidden-cut/InvisibleCut.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/transition-hidden-cut/InvisibleCut.tsx",
       "bytes": 3598,
       "sha256": "41e68ca391f37c1ca10288407283c38f71844ab7f796b36a37056d7c56f43ad5"
     },
     {
       "source": "demos/transition/transition-hidden-cut/LightLeakBurn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/transition-hidden-cut/LightLeakBurn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/transition-hidden-cut/LightLeakBurn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/transition-hidden-cut/LightLeakBurn.tsx",
       "bytes": 4656,
       "sha256": "31e4be432a84e13d6fa233ef3aff4a40646d67b949e16e9a5bea2a8f7b62b5fb"
     },
     {
       "source": "demos/transition/transition-hidden-cut/VersusSlam.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/transition-hidden-cut/VersusSlam.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/transition-hidden-cut/VersusSlam.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/transition-hidden-cut/VersusSlam.tsx",
       "bytes": 4291,
       "sha256": "ec0f28e508e4c3706a642798ed8516d90ef1b39c7350e1af15e0f5e9f4cb481a"
     },
     {
       "source": "demos/transition/transition-travel/LetterformZoom.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/transition-travel/LetterformZoom.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/transition-travel/LetterformZoom.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/transition-travel/LetterformZoom.tsx",
       "bytes": 5295,
       "sha256": "272b01d64d73252aab1b70b8f6214656d046704266ca06e5306edb66fc75da13"
     },
     {
       "source": "demos/transition/transition-travel/SharedElementMorph.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/transition-travel/SharedElementMorph.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/transition-travel/SharedElementMorph.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/transition-travel/SharedElementMorph.tsx",
       "bytes": 3743,
       "sha256": "fe5d3a1071e71cce96470939bb6f4b4e7dc52e61058697ffa010c3e17e3521f3"
     },
     {
       "source": "demos/transition/white-flash-logo-simplify-cut/WhiteFlashLogoSimplifyCut.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/white-flash-logo-simplify-cut/WhiteFlashLogoSimplifyCut.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/white-flash-logo-simplify-cut/WhiteFlashLogoSimplifyCut.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/white-flash-logo-simplify-cut/WhiteFlashLogoSimplifyCut.tsx",
       "bytes": 3868,
       "sha256": "3799ba945628b14b28232b7be2a193ef0669faf47f3f62686a8cd4af58eb29d3"
     },
     {
       "source": "demos/transition/wipe-transitions/BlindsSlice.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/wipe-transitions/BlindsSlice.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/wipe-transitions/BlindsSlice.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/wipe-transitions/BlindsSlice.tsx",
       "bytes": 4339,
       "sha256": "9b650fc5e84c438a016f16f14afb2509f73ccf33eb3ec5b3d2d49cc9a637dd0e"
     },
     {
       "source": "demos/transition/wipe-transitions/ClockWipe.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/transition/wipe-transitions/ClockWipe.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/transition/wipe-transitions/ClockWipe.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/transition/wipe-transitions/ClockWipe.tsx",
       "bytes": 3393,
       "sha256": "44a9acb719879eb491d20aa52119cda5d0517e9799d2d0c8ac996c6fd3689ad7"
     },
     {
       "source": "demos/typography/blur-slide/BlurSlide.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/blur-slide/BlurSlide.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/blur-slide/BlurSlide.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/blur-slide/BlurSlide.tsx",
       "bytes": 2681,
       "sha256": "1ad15a7dd560d43fe4a6f40a823d69d6f87ac4f5fc31196f556b31342fd8932f"
     },
     {
       "source": "demos/typography/brace-expand/BraceExpand.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/brace-expand/BraceExpand.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/brace-expand/BraceExpand.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/brace-expand/BraceExpand.tsx",
       "bytes": 2721,
       "sha256": "ef6f5f379c7c785d9b6d9129095920b683a380b0e6eae14d12cb703dcc6c8cb8"
     },
     {
       "source": "demos/typography/cel-flash-stomp/CelFlashStomp.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/cel-flash-stomp/CelFlashStomp.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/cel-flash-stomp/CelFlashStomp.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/cel-flash-stomp/CelFlashStomp.tsx",
       "bytes": 4314,
       "sha256": "f165ca8da06930e0211e34ad52c269023b3303f89dbb08495e5ebf092d7ed6a6"
     },
     {
       "source": "demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx",
       "bytes": 5400,
       "sha256": "ab1c55fff0b9122fa06d7ec87f3e21b3c1cbc716e50d8bab0f910ffb3cb7c571"
     },
     {
       "source": "demos/typography/flying-words/FlyingWords.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/flying-words/FlyingWords.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/flying-words/FlyingWords.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/flying-words/FlyingWords.tsx",
       "bytes": 4608,
       "sha256": "d82f4a34b0b14538cf6404c1dcfa5468a185eb5fa2bd5000595365356387c0b3"
     },
     {
       "source": "demos/typography/glitch-cycle/GlitchCycle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/glitch-cycle/GlitchCycle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/glitch-cycle/GlitchCycle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/glitch-cycle/GlitchCycle.tsx",
       "bytes": 3954,
       "sha256": "ee7489eb08b840a1989aedc2aa10d3f008e95d256f336ae89cb287230528be1a"
     },
     {
       "source": "demos/typography/gradient-word-sweep/GradientWordSweep.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/gradient-word-sweep/GradientWordSweep.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/gradient-word-sweep/GradientWordSweep.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/gradient-word-sweep/GradientWordSweep.tsx",
       "bytes": 10635,
       "sha256": "36f6c2deadea09748bc3894c9d8e1960dfce42996fed370f8e193cc0dacc6799"
     },
     {
       "source": "demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx",
       "bytes": 3788,
       "sha256": "5881cb0b5e38b53eec9dae5093b9dfdb4c69d5b6cf76cf587bc9b123d0e38477"
     },
     {
       "source": "demos/typography/outline-word-fill/OutlineWordFill.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/outline-word-fill/OutlineWordFill.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/outline-word-fill/OutlineWordFill.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/outline-word-fill/OutlineWordFill.tsx",
       "bytes": 4901,
       "sha256": "66f522bf6e6f1034f5386d516d20ff36fcc23fc0bf1e418f83d1fd432846c9bf"
     },
     {
       "source": "demos/typography/pill-chip-slot-cycle-handled/PillChipSlotCycleHandled.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/pill-chip-slot-cycle-handled/PillChipSlotCycleHandled.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/pill-chip-slot-cycle-handled/PillChipSlotCycleHandled.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/pill-chip-slot-cycle-handled/PillChipSlotCycleHandled.tsx",
       "bytes": 5152,
       "sha256": "0daa028b6476a5d43cc0c8ccf5d45203b161d3f0b99d7dc24e01b4b37cad3bad"
     },
     {
       "source": "demos/typography/pill-slot-cycle/PillSlotCycle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/pill-slot-cycle/PillSlotCycle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/pill-slot-cycle/PillSlotCycle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/pill-slot-cycle/PillSlotCycle.tsx",
       "bytes": 6369,
       "sha256": "a8db19162d267d107904fd8e46573e9b74854bcbf871dd604fac56ff58b87f2f"
     },
     {
       "source": "demos/typography/scramble/Scramble.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/scramble/Scramble.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/scramble/Scramble.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/scramble/Scramble.tsx",
       "bytes": 2368,
       "sha256": "5ca76d50731f228fb46076706c9442acc03d9afaed903f6ca8cfff8c36787081"
     },
     {
       "source": "demos/typography/split-flap-title/SplitFlapFlip.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/split-flap-title/SplitFlapFlip.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/split-flap-title/SplitFlapFlip.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/split-flap-title/SplitFlapFlip.tsx",
       "bytes": 5807,
       "sha256": "bbd82fe1d80cffa5a79a1018ac160a240cca38fe242cfbc8c950ab7e3470fa05"
     },
     {
       "source": "demos/typography/text-column-converge/TextColumnConverge.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/text-column-converge/TextColumnConverge.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/text-column-converge/TextColumnConverge.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/text-column-converge/TextColumnConverge.tsx",
       "bytes": 4724,
       "sha256": "786fbf0226ab8e8e4c38f2635a4e9a3368adcf04c0fe00195f54a018486fdf23"
     },
     {
       "source": "demos/typography/title-demote-to-label/TitleDemoteToLabel.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/title-demote-to-label/TitleDemoteToLabel.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/title-demote-to-label/TitleDemoteToLabel.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/title-demote-to-label/TitleDemoteToLabel.tsx",
       "bytes": 5560,
       "sha256": "ffcfee81a30bfef2ad6b579710824e0ea6086dd5dc644a42f760987011ea0b97"
     },
     {
       "source": "demos/typography/type-assembly-moves/LetterformDriftAssembly.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-assembly-moves/LetterformDriftAssembly.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/LetterformDriftAssembly.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/LetterformDriftAssembly.tsx",
       "bytes": 4145,
       "sha256": "dcf5a649fff38bb56b5147b8eb8b70240421ee7b6a82e193efe6b8843c829075"
     },
     {
       "source": "demos/typography/type-assembly-moves/SplitTextStagger.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-assembly-moves/SplitTextStagger.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/SplitTextStagger.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/SplitTextStagger.tsx",
       "bytes": 3779,
       "sha256": "314fae39b2cd73d031ebfb58fc65d850c9cce01924e5c926155ccfc0f84b5bd5"
     },
     {
       "source": "demos/typography/type-assembly-moves/TextOnPath.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-assembly-moves/TextOnPath.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/TextOnPath.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/TextOnPath.tsx",
       "bytes": 3994,
       "sha256": "98f06f0adb9cd5a479fe2a55ac16f1f589bfae707f29163454e7da71dbc8618b"
     },
     {
       "source": "demos/typography/type-assembly-moves/TrackingExpandReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-assembly-moves/TrackingExpandReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/TrackingExpandReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-assembly-moves/TrackingExpandReveal.tsx",
       "bytes": 3970,
       "sha256": "86880648f010b1b39a0500152d3ac0bfb10622f17c0dbf6dd243af64dbe11732"
     },
     {
       "source": "demos/typography/type-entrance-moves/LetterDropPhysics.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-entrance-moves/LetterDropPhysics.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-entrance-moves/LetterDropPhysics.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-entrance-moves/LetterDropPhysics.tsx",
       "bytes": 3824,
       "sha256": "1aefaaba267e4b7084b094c18c35a818da2ba91d4260412ed9ee0e8197e9b442"
     },
     {
       "source": "demos/typography/type-entrance-moves/ScrambleDecode.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-entrance-moves/ScrambleDecode.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-entrance-moves/ScrambleDecode.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-entrance-moves/ScrambleDecode.tsx",
       "bytes": 3195,
       "sha256": "73a045306c38a5fd2b08bf505bf0226a25c3bb520bb77d5e9158d9a2c49660eb"
     },
     {
       "source": "demos/typography/type-rhythm-sync/FontWeightPump.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-rhythm-sync/FontWeightPump.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-rhythm-sync/FontWeightPump.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-rhythm-sync/FontWeightPump.tsx",
       "bytes": 3859,
       "sha256": "a79557ac62b13fce83f2477ba15dadebb641006acd1d20f1b2d941f465e7671c"
     },
     {
       "source": "demos/typography/type-rhythm-sync/KaraokeFillSync.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/type-rhythm-sync/KaraokeFillSync.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/type-rhythm-sync/KaraokeFillSync.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/type-rhythm-sync/KaraokeFillSync.tsx",
       "bytes": 3023,
       "sha256": "eddd5a37905bbc7be54066a349dec2c48ebc1e856b30b9f6de906b6c6a374579"
     },
     {
       "source": "demos/typography/typewriter-moves/TerminalTypewriter.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/typewriter-moves/TerminalTypewriter.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/typewriter-moves/TerminalTypewriter.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/typewriter-moves/TerminalTypewriter.tsx",
       "bytes": 4784,
       "sha256": "e589839ebf66e85c8710ddaf16f7eca4b8d994d16851345038f6cadcf6456f72"
     },
     {
       "source": "demos/typography/typewriter-moves/TypewriterErrorRetype.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/typewriter-moves/TypewriterErrorRetype.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/typewriter-moves/TypewriterErrorRetype.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/typewriter-moves/TypewriterErrorRetype.tsx",
       "bytes": 3876,
       "sha256": "5af87340386005641592173da47d049a53b965db7bb7c2bc8a9a0f77d3821560"
     },
     {
       "source": "demos/typography/typing-code-block/TypingCodeBlock.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/typing-code-block/TypingCodeBlock.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/typing-code-block/TypingCodeBlock.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/typing-code-block/TypingCodeBlock.tsx",
       "bytes": 3680,
       "sha256": "2dafbfe43455a645865ffed317f414fc1855342e98375a56da5a76ce61b10724"
     },
     {
       "source": "demos/typography/vertical-word-roll-blur-cycle/VerticalWordRollBlurCycle.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/vertical-word-roll-blur-cycle/VerticalWordRollBlurCycle.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/vertical-word-roll-blur-cycle/VerticalWordRollBlurCycle.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/vertical-word-roll-blur-cycle/VerticalWordRollBlurCycle.tsx",
       "bytes": 3898,
       "sha256": "b5f5adb87fdd07730759926e765bc4ce81ee97e47cc4379bd98b4c7a5e14b634"
     },
     {
       "source": "demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx",
       "bytes": 15462,
       "sha256": "683f51fb630b93d1dddc4918e8a9e3d694e509f420df1645936590ce8e551f5a"
     },
     {
       "source": "demos/typography/word-relay-geometry/WordRelayGeometry.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/typography/word-relay-geometry/WordRelayGeometry.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/typography/word-relay-geometry/WordRelayGeometry.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/typography/word-relay-geometry/WordRelayGeometry.tsx",
       "bytes": 7079,
       "sha256": "02d2a038ab576b6743bf417572694e09833fed49319174c3005712e6fd0ffc7b"
     },
     {
       "source": "demos/ui-entrance/avatar-bracket-carousel/AvatarBracketCarousel.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/avatar-bracket-carousel/AvatarBracketCarousel.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/avatar-bracket-carousel/AvatarBracketCarousel.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/avatar-bracket-carousel/AvatarBracketCarousel.tsx",
       "bytes": 4591,
       "sha256": "b9f125b0f4f1f9ff6a41a05147a7111e85e89015e73e0223b843a87523715efc"
     },
     {
       "source": "demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx",
       "bytes": 11031,
       "sha256": "a58bdab4308a4f6d92282b969c494359547445b4f8ac92d3742798d31a6adf07"
     },
     {
       "source": "demos/ui-entrance/card-stack/CardStack.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/card-stack/CardStack.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/card-stack/CardStack.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/card-stack/CardStack.tsx",
       "bytes": 3837,
       "sha256": "52d1175ca2e1cbe3cc8cd9eb60d723dfef392b500ee3c22d8dc87b47ec8c4f2d"
     },
     {
       "source": "demos/ui-entrance/carousel-3d/Carousel3D.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/carousel-3d/Carousel3D.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/carousel-3d/Carousel3D.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/carousel-3d/Carousel3D.tsx",
       "bytes": 5032,
       "sha256": "1cd70294e4f695a576c92c2db27d697f2f5b28a7b63788a8f406965a83470006"
     },
     {
       "source": "demos/ui-entrance/cloner-depth-echo/ClonerDepthEcho.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/cloner-depth-echo/ClonerDepthEcho.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/cloner-depth-echo/ClonerDepthEcho.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/cloner-depth-echo/ClonerDepthEcho.tsx",
       "bytes": 3447,
       "sha256": "de76c070fe29cff792e4b49602d4934fcc3ac55f8ec0786713311a26b407a3cb"
     },
     {
       "source": "demos/ui-entrance/doc-park-left-pill-deal/DocParkLeftPillDeal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/doc-park-left-pill-deal/DocParkLeftPillDeal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/doc-park-left-pill-deal/DocParkLeftPillDeal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/doc-park-left-pill-deal/DocParkLeftPillDeal.tsx",
       "bytes": 9854,
       "sha256": "852b32b59cc3a894d789ba5e18029bc1e67b70757775488c6fb0b83ce4cb100a"
     },
     {
       "source": "demos/ui-entrance/draw-svg-trace/DrawSvgTrace.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/draw-svg-trace/DrawSvgTrace.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/draw-svg-trace/DrawSvgTrace.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/draw-svg-trace/DrawSvgTrace.tsx",
       "bytes": 6787,
       "sha256": "654e26eef7357c64a828a6cbbd790331f9865e0e9c18768de15de46c281aacf5"
     },
     {
       "source": "demos/ui-entrance/element-body-moves/AxialStretch.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/element-body-moves/AxialStretch.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/element-body-moves/AxialStretch.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/element-body-moves/AxialStretch.tsx",
       "bytes": 3945,
       "sha256": "90979985198b44c1fc620e2a8eaad86c09b2d013533d6528ef8892919c86c259"
     },
     {
       "source": "demos/ui-entrance/element-body-moves/ContactShadowLift.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/element-body-moves/ContactShadowLift.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/element-body-moves/ContactShadowLift.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/element-body-moves/ContactShadowLift.tsx",
       "bytes": 4513,
       "sha256": "f29a6d77b407b9c6ad8caa8fe9e5c12cfa2d51202d6ea8258cae5015a736843c"
     },
     {
       "source": "demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx",
       "bytes": 15894,
       "sha256": "4bb7d460ac6201e58b8df4a1f5c6feea06f1f860cd3605b926a5ae138681a0e1"
     },
     {
       "source": "demos/ui-entrance/integration-hub-map/IntegrationHubMap.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/integration-hub-map/IntegrationHubMap.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/integration-hub-map/IntegrationHubMap.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/integration-hub-map/IntegrationHubMap.tsx",
       "bytes": 22466,
       "sha256": "fcd9ed29f4f0ca41a05377f31459c2dba664784ea7f5c900abefabc2dc59f3c9"
     },
     {
       "source": "demos/ui-entrance/list-reveal/ListReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/list-reveal/ListReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/list-reveal/ListReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/list-reveal/ListReveal.tsx",
       "bytes": 3087,
       "sha256": "ac1eb531a625376e355b1970e6a7774e726b7752914544f36ae7ce096f237792"
     },
     {
       "source": "demos/ui-entrance/morph-from-primitive/MorphFromPrimitive.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/morph-from-primitive/MorphFromPrimitive.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/morph-from-primitive/MorphFromPrimitive.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/morph-from-primitive/MorphFromPrimitive.tsx",
       "bytes": 6303,
       "sha256": "f18d82ce6675be5c0b097969285a973c122633f2844fd1c4a81cc1c6a97a0d5e"
     },
     {
       "source": "demos/ui-entrance/neon-frame-forerun/NeonFrameForerun.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/neon-frame-forerun/NeonFrameForerun.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/neon-frame-forerun/NeonFrameForerun.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/neon-frame-forerun/NeonFrameForerun.tsx",
       "bytes": 14086,
       "sha256": "008a3b01017c88bb445e7faf916ad4857949c91e9603373edfdb92c23bb4b9a0"
     },
     {
       "source": "demos/ui-entrance/neon-frame-orbit-drop/NeonFrameForerunOrbit.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/neon-frame-orbit-drop/NeonFrameForerunOrbit.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/neon-frame-orbit-drop/NeonFrameForerunOrbit.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/neon-frame-orbit-drop/NeonFrameForerunOrbit.tsx",
       "bytes": 13670,
       "sha256": "5005f06992ef674174dc09979bde3314419dd4dead19cf3e4580b248cdca8521"
     },
     {
       "source": "demos/ui-entrance/page-waterfall-wall/PageWaterfallWall.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/page-waterfall-wall/PageWaterfallWall.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/page-waterfall-wall/PageWaterfallWall.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/page-waterfall-wall/PageWaterfallWall.tsx",
       "bytes": 2050,
       "sha256": "b3e2de8674a22c0d1f523db4bf40443447e143b35b7d3ecd81ff3ea8db4f9f79"
     },
     {
       "source": "demos/ui-entrance/page-waterfall-wall/VerticalTicker.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/page-waterfall-wall/VerticalTicker.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/page-waterfall-wall/VerticalTicker.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/page-waterfall-wall/VerticalTicker.tsx",
       "bytes": 4082,
       "sha256": "e4f90b838559beae465c6bb08736c00097bb0107d6dd4a378f64308e2acf1bae"
     },
     {
       "source": "demos/ui-entrance/paper-craft-moves/MaskingTapeSlap.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/paper-craft-moves/MaskingTapeSlap.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/paper-craft-moves/MaskingTapeSlap.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/paper-craft-moves/MaskingTapeSlap.tsx",
       "bytes": 5951,
       "sha256": "5d36af725cbc9268cc23b039208a7cd21b2237d6e73f7929e20beddb1a481340"
     },
     {
       "source": "demos/ui-entrance/paper-craft-moves/PopupBookRise.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/paper-craft-moves/PopupBookRise.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/paper-craft-moves/PopupBookRise.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/paper-craft-moves/PopupBookRise.tsx",
       "bytes": 5586,
       "sha256": "f1baa230ff76c80de5a60ed52e7c667b7f24acca0ac5971c7ed90a8da3cbbf11"
     },
     {
       "source": "demos/ui-entrance/product-card-progressive-assemble/ProductCardProgressiveAssemble.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/product-card-progressive-assemble/ProductCardProgressiveAssemble.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/product-card-progressive-assemble/ProductCardProgressiveAssemble.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/product-card-progressive-assemble/ProductCardProgressiveAssemble.tsx",
       "bytes": 7055,
       "sha256": "e0586d6b7869c5fee3828272be21cf68d4e93bc13d190732b46be365c77f998c"
     },
     {
       "source": "demos/ui-entrance/radial-wave/RadialWave.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/radial-wave/RadialWave.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/radial-wave/RadialWave.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/radial-wave/RadialWave.tsx",
       "bytes": 2010,
       "sha256": "e0c954b2c9d400f68933e7f58c1edd2120493271f46a768fe638b3c8cba6809c"
     },
     {
       "source": "demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx",
       "bytes": 6067,
       "sha256": "a9747d38a761cb499d9b7c1c41eecbc151fae9bf767edc0818b11a57a92d7983"
     },
     {
       "source": "demos/ui-entrance/runway-ground-skim/RunwayGroundSkim.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/runway-ground-skim/RunwayGroundSkim.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/runway-ground-skim/RunwayGroundSkim.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/runway-ground-skim/RunwayGroundSkim.tsx",
       "bytes": 13458,
       "sha256": "e2197acf61a4fbfd29faa912ef7354a1d13c8f2662256aa9757ab7c1f1415a8d"
     },
     {
       "source": "demos/ui-entrance/skeleton-reveal/SkeletonReveal.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/skeleton-reveal/SkeletonReveal.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/skeleton-reveal/SkeletonReveal.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/skeleton-reveal/SkeletonReveal.tsx",
       "bytes": 10984,
       "sha256": "a2338fd7daf9988805794b69ed1c75f2a035dae1336a7cca65ee3eb3534d5c47"
     },
     {
       "source": "demos/ui-entrance/svg-shape-morph/SvgShapeMorph.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/svg-shape-morph/SvgShapeMorph.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/svg-shape-morph/SvgShapeMorph.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/svg-shape-morph/SvgShapeMorph.tsx",
       "bytes": 2918,
       "sha256": "9e6bfaca697bd36837b3c31163d607863942570daaa0b5abda0c0c5f131172ed"
     },
     {
       "source": "demos/ui-entrance/value-stagger-gradient/ValueStaggerGradient.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/value-stagger-gradient/ValueStaggerGradient.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/value-stagger-gradient/ValueStaggerGradient.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/value-stagger-gradient/ValueStaggerGradient.tsx",
       "bytes": 3928,
       "sha256": "bff99f80839ed7e323cc38c85f61bbf4ce0e609e75a9e89645718e3e1ab053f7"
     },
     {
       "source": "demos/ui-entrance/wall-reveal-moves/BentoLightUp.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/wall-reveal-moves/BentoLightUp.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/wall-reveal-moves/BentoLightUp.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/wall-reveal-moves/BentoLightUp.tsx",
       "bytes": 4787,
       "sha256": "eccb4c2211af30cb26b391ea734c326599958906411e9a3c019acfeceb87fd69"
     },
     {
       "source": "demos/ui-entrance/wall-reveal-moves/GridWaveFlip.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/wall-reveal-moves/GridWaveFlip.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/wall-reveal-moves/GridWaveFlip.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/wall-reveal-moves/GridWaveFlip.tsx",
       "bytes": 5958,
       "sha256": "c39a5cabdca00167d3354667442b4de477b76a36576815abc483609f1198f481"
     },
     {
       "source": "demos/ui-entrance/wall-reveal-moves/WireframeDrawOn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/demos/ui-entrance/wall-reveal-moves/WireframeDrawOn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/demos/ui-entrance/wall-reveal-moves/WireframeDrawOn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/demos/ui-entrance/wall-reveal-moves/WireframeDrawOn.tsx",
       "bytes": 5453,
       "sha256": "18d2fc4192a67dbfdcfca390d753eb52f6bcb50be316b71480e54ed32208558f"
     },
     {
       "source": "template/src/Root.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/Root.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/Root.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/Root.tsx",
       "bytes": 312,
       "sha256": "8b38d625942c8011a32bf050c13e536f125564d948e2ae87c14c53f259fce43a"
     },
     {
       "source": "template/src/aifl/Caption.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/Caption.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/Caption.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/Caption.tsx",
       "bytes": 1422,
       "sha256": "a04b63a145b1b449f896505674b77e5deac2a81be2c3c6b200ff9f230dc9b55f"
     },
     {
       "source": "template/src/aifl/DigitRoll.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/DigitRoll.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/DigitRoll.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/DigitRoll.tsx",
       "bytes": 1638,
       "sha256": "cb86d86df0c8cafb92b0451164e77145c3fb52903b3955dfbc6d577199c059b9"
     },
     {
       "source": "template/src/aifl/FlashCut.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/FlashCut.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/FlashCut.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/FlashCut.tsx",
       "bytes": 657,
       "sha256": "29bb458e3d84088cd0b494f56b1818437290b2a8c6014eb7136dc7e14ce18fef"
     },
     {
       "source": "template/src/aifl/Main.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/Main.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/Main.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/Main.tsx",
       "bytes": 8988,
       "sha256": "f358be9858738eb16d1ba3a48ade59ec4bfb58287b87ec03ca6d833d8496746e"
     },
     {
       "source": "template/src/aifl/PaperTitleCard.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/PaperTitleCard.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/PaperTitleCard.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/PaperTitleCard.tsx",
       "bytes": 3237,
       "sha256": "3de80a3a0fff738084dae6101e3e5299d9137dcfe2b6dc64297c9e990c1ad7f7"
     },
     {
       "source": "template/src/aifl/live-layout.json",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live-layout.json",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live-layout.json",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live-layout.json",
       "bytes": 5601,
       "sha256": "8db053585b4f06453d5795f31c42ce647ca4ccb7a0bcc9d1bfcf059bf89ddf52"
     },
     {
       "source": "template/src/aifl/live/PageCam.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/PageCam.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/PageCam.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/PageCam.tsx",
       "bytes": 6503,
       "sha256": "8bf7640d30a5202f7babb509cf442d3f5098e58d24a748de5656c34e67ccf321"
     },
     {
       "source": "template/src/aifl/live/SceneDetail.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/SceneDetail.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/SceneDetail.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/SceneDetail.tsx",
       "bytes": 5332,
       "sha256": "b407f28bbccdf90b9666db453f122f9f9d0f1cee76807812b40b931e4704d2bd"
     },
     {
       "source": "template/src/aifl/live/SceneFlyIn.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/SceneFlyIn.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/SceneFlyIn.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/SceneFlyIn.tsx",
       "bytes": 19178,
       "sha256": "92bb75b8f29223dd9f50a4861ec57586671beab98e767da9d0079403cfc526b6"
     },
     {
       "source": "template/src/aifl/live/SceneOpen.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/SceneOpen.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/SceneOpen.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/SceneOpen.tsx",
       "bytes": 24458,
       "sha256": "a627d004280debdbb73c30e885591f05445a8ba6d08d7d6b5fbfa03ab4c7a9e8"
     },
     {
       "source": "template/src/aifl/live/SceneOutroLive.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/SceneOutroLive.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/SceneOutroLive.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/SceneOutroLive.tsx",
       "bytes": 16688,
       "sha256": "ebe6f814d50100d8fe08e1e7c55f36b5f45e1c4407e804a87fdbcb43280fb187"
     },
     {
       "source": "template/src/aifl/live/ScenePapers.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/ScenePapers.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/ScenePapers.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/ScenePapers.tsx",
       "bytes": 7352,
       "sha256": "52e9ed3e2a10f1da10d053c45ca367e651d276434288762fd89a5c8cca05e60b"
     },
     {
       "source": "template/src/aifl/live/SceneWbr.tsx",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/aifl/live/SceneWbr.tsx",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/aifl/live/SceneWbr.tsx",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/aifl/live/SceneWbr.tsx",
       "bytes": 11677,
       "sha256": "c44aa769ebc1158c91e0426e9e27d39375d99d7c606fddc95d554998ea073d5f"
     },
     {
       "source": "template/src/index.ts",
       "upstreamUrl": "https://github.com/Vincentwei1021/video-shotcraft/blob/41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b/template/src/index.ts",
-      "target": "erduo-hyperframes-broll/references/shotcraft/remotion-sources/template/src/index.ts",
+      "target": "erduo-broll-loop-engineering/references/shotcraft/remotion-sources/template/src/index.ts",
       "bytes": 93,
       "sha256": "98b03b1da7aa397e0fc89cb4600c418d3572b389cb1831b1e72e9b4400a5a34e"
     }

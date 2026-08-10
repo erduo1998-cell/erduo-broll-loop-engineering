@@ -1,9 +1,9 @@
 ---
-name: erduo-hyperframes-broll
+name: erduo-broll-loop-engineering
 description: Create editable, SRT-anchored B-roll through a Parent Producer and fresh isolated stage agents. Use for talking-head B-roll from an edited video plus SRT, or faceless B-roll from an SRT, with deterministic HyperFrames-or-Remotion routing, first-run environment onboarding, mandatory material collection, runtime-neutral direction, one final master, technical delivery, and optional master-derived shot export.
 ---
 
-# Erduo HyperFrames B-roll
+# Erduo B-roll Loop Engineering
 
 Act only as the Parent Producer. Read:
 

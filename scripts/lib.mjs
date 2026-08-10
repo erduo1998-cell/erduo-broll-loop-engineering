@@ -18,8 +18,9 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
-export const APP_NAME = 'erduo-hyperframes-broll';
-export const RELEASE_VERSION = '0.3.0';
+export const APP_NAME = 'erduo-broll-loop-engineering';
+export const LEGACY_APP_NAME = 'erduo-hyperframes-broll';
+export const RELEASE_VERSION = '0.4.0';
 export const HYPERFRAMES_VERSION = '0.7.104';
 export const SKILLS_CLI_VERSION = '1.5.22';
 export const HYPERFRAMES_SKILLS_COMMIT = 'c96b30c7174984e684620556ce871a285381ec60';
@@ -34,7 +35,7 @@ export const HYPERFRAMES_SKILL_NAMES = Object.freeze([
   'media-use',
 ]);
 export const LEGACY_SKILL_NAMES = Object.freeze([
-  'erduo-hyperframes-broll',
+  LEGACY_APP_NAME,
   'broll-onboarding',
   'broll-director',
   'broll-assets',
@@ -48,8 +49,13 @@ export const REMOTION_SKILL_NAMES = Object.freeze([
   'broll-remotion-integrate',
   'broll-remotion-render',
 ]);
-export const SKILL_NAMES = Object.freeze([
+export const V3_SKILL_NAMES = Object.freeze([
   ...LEGACY_SKILL_NAMES,
+  ...REMOTION_SKILL_NAMES,
+]);
+export const SKILL_NAMES = Object.freeze([
+  APP_NAME,
+  ...LEGACY_SKILL_NAMES.slice(1),
   ...REMOTION_SKILL_NAMES,
 ]);
 export const INSTALL_SKILL_NAMES = Object.freeze([
@@ -57,10 +63,27 @@ export const INSTALL_SKILL_NAMES = Object.freeze([
   ...SKILL_NAMES,
 ]);
 
-const INSTALL_MANIFEST_SKILLS_BY_SCHEMA = Object.freeze(new Map([
-  [1, LEGACY_SKILL_NAMES],
-  [2, Object.freeze([...HYPERFRAMES_SKILL_NAMES, ...LEGACY_SKILL_NAMES])],
-  [3, INSTALL_SKILL_NAMES],
+const INSTALL_MANIFEST_PROFILE_BY_SCHEMA = Object.freeze(new Map([
+  [1, Object.freeze({
+    names: LEGACY_SKILL_NAMES,
+    parentName: LEGACY_APP_NAME,
+    skillRootName: LEGACY_APP_NAME,
+  })],
+  [2, Object.freeze({
+    names: Object.freeze([...HYPERFRAMES_SKILL_NAMES, ...LEGACY_SKILL_NAMES]),
+    parentName: LEGACY_APP_NAME,
+    skillRootName: LEGACY_APP_NAME,
+  })],
+  [3, Object.freeze({
+    names: Object.freeze([...HYPERFRAMES_SKILL_NAMES, ...V3_SKILL_NAMES]),
+    parentName: LEGACY_APP_NAME,
+    skillRootName: LEGACY_APP_NAME,
+  })],
+  [4, Object.freeze({
+    names: INSTALL_SKILL_NAMES,
+    parentName: APP_NAME,
+    skillRootName: APP_NAME,
+  })],
 ]));
 
 export class ActionRequiredError extends Error {
@@ -76,16 +99,20 @@ export function applicationDataDir({
   env = process.env,
   homeDir = os.homedir(),
 } = {}) {
+  // Keep the v0.1-v0.3 private storage locator so upgrades reuse credentials,
+  // the pinned runtime, backups, and the ownership manifest. This is not the
+  // public repository or Skill identity.
+  const directoryName = LEGACY_APP_NAME;
   if (platform === 'darwin') {
-    return path.join(homeDir, 'Library', 'Application Support', APP_NAME);
+    return path.join(homeDir, 'Library', 'Application Support', directoryName);
   }
   if (platform === 'win32') {
-    return path.join(env.APPDATA || path.join(homeDir, 'AppData', 'Roaming'), APP_NAME);
+    return path.join(env.APPDATA || path.join(homeDir, 'AppData', 'Roaming'), directoryName);
   }
   const xdg = typeof env.XDG_CONFIG_HOME === 'string' && path.isAbsolute(env.XDG_CONFIG_HOME)
     ? env.XDG_CONFIG_HOME
     : path.join(homeDir, '.config');
-  return path.join(xdg, APP_NAME);
+  return path.join(xdg, directoryName);
 }
 
 export function hostSkillRoots({ homeDir = os.homedir() } = {}) {
@@ -99,6 +126,11 @@ export function skillSourceFor(repoRoot, name) {
   return name === APP_NAME
     ? path.join(repoRoot, APP_NAME)
     : path.join(repoRoot, APP_NAME, 'stages', name);
+}
+
+function manifestSkillSourceFor(repoRoot, name, profile) {
+  const root = path.join(repoRoot, profile.skillRootName);
+  return name === profile.parentName ? root : path.join(root, 'stages', name);
 }
 
 export function officialSkillBundleRoot(appDir) {
@@ -142,8 +174,9 @@ export function validateInstallManifest(manifest, {
   appDir,
   homeDir = os.homedir(),
 } = {}) {
-  const manifestSkillNames = INSTALL_MANIFEST_SKILLS_BY_SCHEMA.get(manifest?.schema_version);
-  if (!manifest || !manifestSkillNames || !Array.isArray(manifest.records)
+  const profile = INSTALL_MANIFEST_PROFILE_BY_SCHEMA.get(manifest?.schema_version);
+  const manifestSkillNames = profile?.names;
+  if (!manifest || !profile || !Array.isArray(manifest.records)
     || typeof manifest.repo_root !== 'string'
     || !path.isAbsolute(manifest.repo_root)
     || path.resolve(manifest.repo_root) !== manifest.repo_root
@@ -162,7 +195,7 @@ export function validateInstallManifest(manifest, {
         target,
         source: HYPERFRAMES_SKILL_NAMES.includes(name)
           ? officialSkillSourceFor(appDir, name)
-          : skillSourceFor(repoRoot, name),
+          : manifestSkillSourceFor(repoRoot, name, profile),
       });
     }
   }

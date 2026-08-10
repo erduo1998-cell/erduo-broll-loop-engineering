@@ -1,6 +1,6 @@
 ---
 name: broll-onboarding
-description: Prepare a fresh or changed machine for an erduo-hyperframes-broll run. Use before production when no current ready environment handoff exists, coordinating safe reversible repairs and the human-only authorizations required for Node, HyperFrames Skills, FFmpeg, FFprobe, Chrome, storage, permissions, and Pexels access.
+description: Prepare a fresh or changed machine for an erduo-broll-loop-engineering run. Use before production when no current ready environment handoff exists, coordinating safe reversible repairs and the human-only authorizations required for Node, HyperFrames Skills, FFmpeg, FFprobe, Chrome, storage, permissions, and Pexels access.
 ---
 
 # B-roll onboarding
@@ -105,7 +105,7 @@ For Remotion, additionally check:
 Verify that the host can discover all eleven public Skills installed by the
 release installer:
 
-- `erduo-hyperframes-broll`
+- `erduo-broll-loop-engineering`
 - `broll-onboarding`
 - `broll-director`
 - `broll-assets`
