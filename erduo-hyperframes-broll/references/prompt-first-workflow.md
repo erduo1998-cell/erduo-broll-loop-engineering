@@ -38,6 +38,17 @@ Builder owns the selected adapter and runtime source. Current Integrator and
 Render stages accept only the production-ready HyperFrames route. Describing a
 recipe is not evidence that both runtimes implement it.
 
+The bundled Shotcraft catalog is a runtime-neutral pattern reference, not a
+second backend. Start with `scripts/query-shotcraft.mjs --stats`, then use a
+directed cross-category `--search` or a category-filtered `--list` for compact
+discovery, and `--card <id> --style <key>` only for the selected card. Search
+uses whitespace-separated AND terms; retry a zero-result phrase with one or
+two discriminating terms. Never run an unfiltered `--list` during production.
+Do not load `references/shotcraft/catalog.json` or all card bodies into a stage
+context. The catalog excludes upstream TSX, demo media, audio, textures, and
+runtime assets; its entries are not verified HyperFrames components or
+Remotion/HyperFrames parity witnesses.
+
 ## Environment onboarding
 
 Before production, require a current ready onboarding handoff for the exact
@@ -72,9 +83,11 @@ FFmpeg, and FFprobe. Telemetry opt-in may change only the telemetry value;
 Pexels-key removal remains mandatory.
 
 Do not rely on POSIX-only inline assignments or `env -u`, and never write these
-settings into the user's shell profile. If the host cannot pass and verify the
-sanitized child map, stop before spawn as `action-required`. Only a dedicated
-Pexels request may receive the credential in minimal scope.
+settings into the user's shell profile. If the host cannot inject or attest the
+sanitized child map, use the parent Skill's bundled `scripts/safe-spawn.mjs` as
+the only approved bounded no-log, no-shell bootstrap. If neither route is
+available, stop before spawn as `action-required`. Only a dedicated Pexels
+request may receive the credential in minimal scope.
 
 Telemetry preference does not prove that the official `hyperframes` Skill was
 loaded and does not replace doctor, check, preview, render, or inspection of
@@ -144,6 +157,12 @@ whole film, and writes:
 - `material-requests.md`
 - `handoff.md`
 
+After establishing each shot's meaning, the Director searches the catalog and
+selects at most one primary pattern, or records an explicit no-pattern
+decision in the shot plan. A selected `patternRef` records a resolvable card
+ID, style key, pinned upstream Git commit, semantic reason, and fallback.
+Pattern selection never replaces the shot's content-specific visual logic.
+
 The visual direction arises from the current content, audience, goal, and
 optional material. It is not selected from a bundled theme. The shot plan must
 prove continuous time coverage, semantic grouping, whole-film development,
@@ -170,6 +189,11 @@ subject, focal point, crop, safe overlay area, brightness, color temperature,
 depth, movement, title relationship, source, creator, local path, and shot
 binding.
 
+For a selected pattern, Assets reads only that card and verifies its concrete
+material preconditions. Missing screenshots, UI states, paired states, layers,
+data, masks, or depth inputs invoke the declared fallback or return to the
+Director; they are not replaced with fabricated or unrelated media.
+
 When controllable generation is unavailable, record that fact and continue to
 Pexels. Do not impose a fixed search count, but preserve evidence of real image
 and video searches plus the selection or rejection reasoning.
@@ -180,7 +204,7 @@ Partition the shot plan into one or more contiguous semantic blocks and
 dispatch one fresh Builder per block.
 
 Before reading or writing HyperFrames source, every Builder must load the
-current official `hyperframes` Skill through the host's native Skill mechanism
+release-pinned official `hyperframes` Skill through the host's native Skill mechanism
 and follow the relevant official domain guidance.
 
 Each Builder authors only its assigned block, preserves exact time, uses real
@@ -189,10 +213,18 @@ HyperFrames-owned source, integrates media with native structure, and explains
 its content-specific creative and runtime implementation decisions. This does
 not claim that an automatic adapter is bundled.
 
+When a Recipe selects a Shotcraft pattern, its Builder reads only that exact
+card/style and implements the motion grammar from first principles as native,
+seekable HyperFrames source. It does not copy or transpile upstream TSX,
+Remotion APIs, frame constants, demo media, fonts, sounds, or configuration.
+Porting an existing Remotion implementation is a separate explicit workflow,
+not the default card-use path and not evidence that Remotion is production
+available.
+
 ## 4. Integration
 
 Dispatch a fresh Integrator Agent. Before opening source or assembling blocks,
-it must load the current official `hyperframes` Skill.
+it must load the release-pinned official `hyperframes` Skill.
 
 It rejects mixed or non-HyperFrames runtime bindings, then assembles all blocks
 in order, resolves integration-owned connections,
@@ -204,7 +236,7 @@ strict warning behavior.
 ## 5. Render and delivery
 
 Dispatch a fresh Render and Delivery Agent. Before doctor, check, preview, or
-render, it must load the current official `hyperframes` Skill and CLI guidance.
+render, it must load the release-pinned official `hyperframes` Skill and CLI guidance.
 It rejects any non-HyperFrames or experimental project before formal work.
 
 In the exact formal-render environment it:

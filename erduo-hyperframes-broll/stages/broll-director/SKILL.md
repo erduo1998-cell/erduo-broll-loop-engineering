@@ -29,13 +29,40 @@ runtime-neutral intent only. Do not emit React, Remotion, HyperFrames, DOM,
 CSS, timeline-library, or adapter-specific APIs or component choices. Do not
 change the creative plan according to runtime convenience.
 
+Use the bundled Shotcraft catalog only through progressive disclosure. From
+the installed Skill root, run:
+
+```text
+node scripts/query-shotcraft.mjs --stats
+node scripts/query-shotcraft.mjs --list --category <relevant-category>
+node scripts/query-shotcraft.mjs --search <semantic terms> [--category <relevant-category>]
+node scripts/query-shotcraft.mjs --card <card-id> --style <style-key>
+```
+
+The first three routes return compact discovery facts. Start with a directed
+search across all categories; add `--category` only when the shot's motion
+family is already clear. Search splits whitespace-separated terms and requires
+every term to match. If a natural-language query returns zero, retry with one
+or two discriminating terms instead of concluding that no card exists. Do not
+run an unfiltered `--list`, which enumerates the entire library. Run `--card`
+only for a candidate selected for a real shot, and read only that exact
+returned card.
+Never read `catalog.json`, scan every card body, or import all cards into the
+Director context. The cards are runtime-neutral pattern knowledge derived from
+an upstream Remotion-oriented library; they are not runtime source or proof of
+implementation in either backend.
+
 Before every non-Pexels child process, use the host's native spawn/process API
 to copy the required environment into an explicit child map, remove every key
 whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
 key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
 directly to the executable without a shell. Do not use shell-inline assignments
-or `env -u` as the contract. If the host cannot prove the sanitized map was
-passed, stop before spawn as `action-required`.
+or `env -u` as the contract. If the host cannot inject or attest the sanitized
+map, invoke the command only through the parent Skill's bundled
+`scripts/safe-spawn.mjs` using the command form documented in the parent Skill.
+That launcher is the bounded no-log, no-shell trust
+boundary. If neither route is available, stop before spawn as
+`action-required`.
 
 ## Direct the film
 
@@ -69,6 +96,15 @@ For every shot, decide:
 - material role and desired composition relationship;
 - connection to the preceding and following shot.
 
+After the semantic plan exists, query Shotcraft by purpose, visible
+relationship, material kind, and energy. Bind no more than one primary pattern
+to a shot. A pattern is optional: use none when no card improves audience
+understanding, when its material preconditions cannot be met, or when it would
+create adjacent repetition. For a selection, record the stable card ID, exact
+style key, pinned upstream Git commit, semantic reason, and a runtime-neutral
+fallback. Do not select by name or spectacle alone, invent a style key, or
+rewrite the film around a card.
+
 These are thinking prompts, not a mandatory component recipe or fixed motion
 sequence. Choose the structure that best explains the content.
 
@@ -78,6 +114,14 @@ time value; state semantic goal, material roles, layout relationships,
 entry/action/result/hold behavior, readability requirements, and neighboring
 connections as observable outcomes. Keep frame numbers and runtime-specific
 implementation out of the recipe.
+
+Store a selected card in the Recipe's optional `patternRef`. Omit
+`patternRef` when no pattern is selected; do not create a sentinel card such as
+`none`. The referenced card and style must resolve through the query command.
+Translate upstream frame-based examples into absolute integer-millisecond
+intent only after fitting the actual SRT window. Never copy upstream TSX,
+Remotion APIs, frame constants, audio directions, branding, or demo assets into
+the Recipe.
 
 A descriptive recipe is not proof that both runtimes support it. Record the
 required capability IDs defined by the capability matrix, but leave
@@ -113,19 +157,24 @@ validate against the repository schema, use its Shot ID as the filename, and
 match the shot plan one-for-one. Run the parent Skill's bundled
 `scripts/validate-shot-recipes.mjs` against the completed directory and record
 the result; successful JSON parsing alone is not contract validation.
+Also record compact Shotcraft list/search queries, selected card/style
+resolution, and explicit no-pattern decisions in `shot-plan.md`; do not copy
+the full catalog or unselected card bodies into production artifacts.
 
 ## Completion
 
 Complete when the whole film is coherent, every cue belongs to a semantic shot,
 time coverage is continuous, visual and material intentions vary with content,
 font roles are planned, uncertainties are safe, the runtime-neutral recipes
-validate and match the plan, and the Assets and Builder Agents have actionable
-inputs.
+validate and match the plan, every selected pattern resolves to one catalog
+card and style with an explicit fallback, and the Assets and Builder Agents
+have actionable inputs.
 
 ## Stop
 
 Stop when the SRT cannot be parsed, talking-head inputs do not correspond,
 required timing is contradictory, a factual uncertainty would materially
 change the film and cannot be expressed safely, or user constraints are
-irreconcilable. Report the exact unresolved question without doing another
-stage's work.
+irreconcilable. Also stop when the query command cannot resolve a selected
+card/style or the pinned upstream Git commit cannot be recorded exactly.
+Report the exact unresolved question without doing another stage's work.

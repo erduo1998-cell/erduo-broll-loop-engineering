@@ -1,16 +1,23 @@
 # Changelog
 
-本项目遵循 Semantic Versioning。候选版在全部发布门完成前不承诺稳定 API。
+本项目遵循 Semantic Versioning。稳定版本冻结公开的 Skill、目录、查询与发布包契约；运行时支持等级仍以支持矩阵的实际证据为准。
 
 ## Unreleased
 
+## 0.2.0 — 2026-08-10
+
 - 新增 runtime-adapter foundation：用运行时无关 Shot Recipe、能力矩阵、映射文档和零依赖校验器冻结 HyperFrames/Remotion 的适配边界。
 - HyperFrames 继续作为默认且唯一具有本项目生产证据的运行时；Remotion 仅为实验性契约，不捆绑、不安装，也不代表已完成双端渲染或全自动转换。
-- 明确本轮尚未吸收第三方镜头卡；后续迁移必须逐卡实现、验证并记录许可证和证据。
+- 从固定的 `video-shotcraft@41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b` 收录 152 张 byte-identical Markdown 卡片原文，并生成 209 个全局唯一 style 索引；保留 Apache-2.0、来源路径、逐文件字节数与 SHA-256。
+- 新增渐进式 Shotcraft 查询命令：stats、list、search 只返回摘要，card 才读取单卡全文；`--style` 只能随 `--card` 限定卡内 style。
+- 明确不复制上游 TSX、Remotion 工程、媒体和运行时依赖；152 张能力卡不等于 152 个已验证 HyperFrames 组件。
+- 首次安装把 HyperFrames 官方核心 Skill 固定到与 CLI 0.7.104 对应的 commit；锁定 `skills@1.5.22`，只在隔离 staging 中安装并验证，再与本项目 Skill 一起执行可回滚事务，避开官方 `skills update --full-depth` 在新机上的无进度克隆风险。
+- Director、Assets 与 Builder 接入卡片查询和运行时中立意图，保持 Parent、Integrator 与 Render 的既有职责边界。
 - 消除预览批准输入循环：预览 Agent 停止后，由新的 Render Agent 绑定未变更 composition 的批准证据并复检后渲染。
-- 重写中文 README，补充零基础安装、Pexels Key、三类使用提示词、运行停点、故障处理、更新、卸载和支持边界。
+- 更新中文 README，补充 Shotcraft 能力边界、查询示例、许可证、零基础安装、三类使用提示词与支持范围。
 - 新增中文八步流程图与作者联系方式；两项文档图片作为仓库展示资产，不进入严格白名单发布归档。
-- 发布归档随 runtime contract 与校验器调整为 47 个源码文件、48 个 regular member，并继续保持确定性白名单边界。
+- 发布归档纳入 catalog、manifest、查询器、归因、152 张卡片和完整 Apache-2.0 文本；以显式白名单与 manifest 哈希闭集继续保持确定性发布边界。
+- 新增公开 CI，执行完整测试与 Skill quick validation。
 
 ## 0.1.0-rc.2 — 2026-07-28
 

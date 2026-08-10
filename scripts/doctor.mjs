@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
   ActionRequiredError,
   HYPERFRAMES_VERSION,
+  HYPERFRAMES_SKILLS_COMMIT,
   RELEASE_VERSION,
   SKILL_NAMES,
   applicationDataDir,
@@ -14,6 +15,7 @@ import {
   hyperframesCliPath,
   normalizeOfficialDoctor,
   normalizeSkillsCheck,
+  officialSkillBundleRoot,
   parseJsonPayload,
   pathExists,
   publicError,
@@ -66,7 +68,15 @@ export async function collectDoctor({
   let official = null;
 
   if (runtimeAvailable) {
-    const skillResult = await runner(process.execPath, [cli, 'skills', 'check', '--json'], {
+    const pinnedSkillSource = officialSkillBundleRoot(appDir);
+    const skillResult = await runner(process.execPath, [
+      cli,
+      'skills',
+      'check',
+      '--source',
+      pinnedSkillSource,
+      '--json',
+    ], {
       env: childEnv,
       timeout: 120_000,
     });
@@ -116,13 +126,14 @@ export async function collectDoctor({
     authority: 'environment-facts-only-no-creative-or-quality-approval',
     platform,
     arch,
-    support: platform === 'darwin' ? 'macos-release-candidate' : 'unverified',
+    support: platform === 'darwin' ? 'macos-supported' : 'unverified',
     node: {
       version: nodeVersion,
       status: nodeMajor >= 22 ? 'ok' : 'action-required',
     },
     hyperframes: {
       expected_version: HYPERFRAMES_VERSION,
+      official_skills_commit: HYPERFRAMES_SKILLS_COMMIT,
       runtime: runtimeAvailable ? 'present' : 'action-required',
       skills,
       official_doctor: official,

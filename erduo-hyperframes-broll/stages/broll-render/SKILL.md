@@ -24,7 +24,7 @@ project reaches this stage.
 ## Official HyperFrames requirement
 
 Before doctor, check, preview, or render, use the host's native Skill mechanism
-to load the current official `hyperframes` Skill and official CLI guidance.
+to load the release-pinned official `hyperframes` Skill and official CLI guidance.
 
 A handoff statement or a CLI invocation alone does not replace the real Skill
 load. Retain the available host-native trace reference. Stop before work if the
@@ -38,8 +38,12 @@ directly to the executable without a shell. This includes doctor, check,
 preview, browser descendants, render, FFmpeg, and FFprobe. Telemetry opt-in may
 change only the telemetry value; Pexels-key removal remains mandatory. Do not
 use shell-inline assignments or `env -u` as the contract. If the host cannot
-prove the sanitized map was passed, stop before spawn as `action-required`.
-This setting does not prove Skill loading or replace result inspection.
+inject or attest the sanitized map, invoke the command only through the parent
+Skill's bundled `scripts/safe-spawn.mjs` with the documented
+`node …/safe-spawn.mjs -- <executable> [args...]` form. That
+launcher is the bounded no-log, no-shell trust boundary. If neither route is
+available, stop before spawn as `action-required`. This setting does not prove
+Skill loading or replace result inspection.
 
 ## Inputs
 
@@ -73,6 +77,9 @@ Supplement doctor with real delivery facts:
   Chrome, FFmpeg, and FFprobe that were inspected.
 - the integrated project, Onboarding evidence, and runtime-capability decision
   all bind the same production-ready `hyperframes` runtime.
+- selected Shotcraft references remain traceable through Recipe, Builder, and
+  Integrator records without being described as preverified components or
+  cross-runtime witnesses.
 
 Prepare a missing dependency only through safe, authorized, delivery-local or
 official repair. Rerun doctor after repair. Do not call render as a diagnostic.
@@ -136,7 +143,9 @@ Write only under:
 
 `broll-production/05-delivery/`
 
-Deliver:
+On a preview pass, deliver only the official preview locator plus an
+`action-required` handoff bound to the composition identity; do not claim or
+list a final master. On an approved render pass, deliver:
 
 - one final master;
 - `preflight-report.md`;

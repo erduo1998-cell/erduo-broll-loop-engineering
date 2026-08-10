@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeRoot = path.join(skillRoot, 'references', 'runtime');
+const shotcraftRoot = path.join(skillRoot, 'references', 'shotcraft');
 
 function resolveLocalRef(rootSchema, reference) {
   if (!reference.startsWith('#/')) throw new Error(`unsupported schema reference: ${reference}`);
@@ -90,7 +91,15 @@ function validateSchema(value, rule, rootSchema, pointer, errors) {
   }
 }
 
-function validateSemanticInvariants(recipe, capabilityIds, unsupportedIds, fileName, errors) {
+function validateSemanticInvariants(
+  recipe,
+  capabilityIds,
+  unsupportedIds,
+  shotcraftCards,
+  shotcraftRevision,
+  fileName,
+  errors,
+) {
   const { startMs, endMs } = recipe.window ?? {};
   if (Number.isInteger(startMs) && Number.isInteger(endMs) && endMs <= startMs) {
     errors.push('#/window: endMs must be greater than startMs');
@@ -130,12 +139,29 @@ function validateSemanticInvariants(recipe, capabilityIds, unsupportedIds, fileN
       errors.push(`#/requiredCapabilities: unsupported capability ${capabilityId}`);
     }
   }
+
+  if (recipe.patternRef) {
+    const card = shotcraftCards.get(recipe.patternRef.cardId);
+    if (!card) {
+      errors.push(`#/patternRef/cardId: unknown Shotcraft card ${recipe.patternRef.cardId}`);
+    } else if (!card.styles.some(({ key }) => key === recipe.patternRef.styleKey)) {
+      errors.push(
+        `#/patternRef/styleKey: style ${recipe.patternRef.styleKey} does not belong to card ${card.name}`,
+      );
+    }
+    if (recipe.patternRef.sourceRevision !== shotcraftRevision) {
+      errors.push(
+        `#/patternRef/sourceRevision: must equal bundled Shotcraft revision ${shotcraftRevision}`,
+      );
+    }
+  }
 }
 
 export async function validateRecipeDirectory(directory) {
-  const [schema, matrix] = await Promise.all([
+  const [schema, matrix, shotcraft] = await Promise.all([
     readFile(path.join(runtimeRoot, 'shot-recipe.schema.json'), 'utf8').then(JSON.parse),
     readFile(path.join(runtimeRoot, 'capability-matrix.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(shotcraftRoot, 'catalog.json'), 'utf8').then(JSON.parse),
   ]);
   const capabilityIds = new Set(matrix.capabilities.map(({ id }) => id));
   const unsupportedIds = new Set(
@@ -143,6 +169,8 @@ export async function validateRecipeDirectory(directory) {
       .filter(({ classification }) => classification === 'unsupported')
       .map(({ id }) => id),
   );
+  const shotcraftCards = new Map(shotcraft.cards.map((card) => [card.name, card]));
+  const shotcraftRevision = shotcraft.upstream.commit;
   const entries = await readdir(directory, { withFileTypes: true });
   if (entries.length === 0) throw new Error('recipe directory is empty');
 
@@ -164,7 +192,15 @@ export async function validateRecipeDirectory(directory) {
       continue;
     }
     validateSchema(recipe, schema, schema, '#', errors);
-    validateSemanticInvariants(recipe, capabilityIds, unsupportedIds, entry.name, errors);
+    validateSemanticInvariants(
+      recipe,
+      capabilityIds,
+      unsupportedIds,
+      shotcraftCards,
+      shotcraftRevision,
+      entry.name,
+      errors,
+    );
     if (recipe?.shotId) {
       if (shotIds.has(recipe.shotId)) errors.push('#/shotId: duplicate shot ID');
       shotIds.add(recipe.shotId);

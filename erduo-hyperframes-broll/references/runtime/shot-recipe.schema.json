@@ -57,6 +57,9 @@
       },
       "uniqueItems": true
     },
+    "patternRef": {
+      "$ref": "#/$defs/patternRef"
+    },
     "fallback": {
       "$ref": "#/$defs/fallback"
     },
@@ -322,6 +325,42 @@
             "type": "string",
             "minLength": 1
           }
+        }
+      }
+    },
+    "patternRef": {
+      "type": "object",
+      "description": "One optional runtime-neutral Shotcraft pattern selected after semantic direction. Omit this object when no pattern is selected.",
+      "additionalProperties": false,
+      "required": [
+        "cardId",
+        "styleKey",
+        "sourceRevision",
+        "semanticReason",
+        "fallback"
+      ],
+      "properties": {
+        "cardId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "styleKey": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "sourceRevision": {
+          "type": "string",
+          "description": "The pinned upstream commit from the bundled Shotcraft catalog.",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "semanticReason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fallback": {
+          "$ref": "#/$defs/fallback"
         }
       }
     },

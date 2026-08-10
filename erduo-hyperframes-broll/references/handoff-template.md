@@ -69,6 +69,10 @@ font roles. Include the validated `shot-recipes/` locator, per-file schema and
 bundled-validator results, one-to-one shot mapping, and required capability
 IDs. Confirm that Recipes use integer milliseconds and contain no
 runtime-specific APIs or component syntax.
+Include compact Shotcraft stats/category/search facts, selected card IDs and
+style keys, pinned upstream Git commit, semantic reasons, declared fallbacks,
+and explicit no-pattern decisions. Link selected cards; do not copy the
+catalog or card bodies into the handoff.
 
 ### Assets and Pexels
 
@@ -80,6 +84,9 @@ separate real image and video search facts without inventing a fixed count.
 Confirm the credential was scoped only to dedicated Pexels requests.
 Include Shot Recipe bindings, objective media facts, and adapter-relevant
 constraints without selecting runtime APIs.
+For each selected Shotcraft pattern, include whether its real material
+preconditions were met or which declared fallback was invoked. Do not describe
+upstream demo media or runtime assets as collected production material.
 
 ### Builder
 
@@ -87,6 +94,10 @@ Include block ID and exact range, implemented shots, seam behavior, material
 and font use, official HyperFrames Skill-load trace reference when available,
 and actual CLI work. Include selected runtime, Recipe-to-runtime mapping,
 capability evidence, and faithful implementation variances.
+Include selected Shotcraft card/style/pinned-upstream-commit resolution, native
+HyperFrames implementation decisions, preserved quality constraints, and
+faithful variances. State explicitly that no upstream TSX or runtime asset was
+copied.
 
 ### Integrator
 
@@ -96,6 +107,8 @@ standard-check result. Confirm one production-ready HyperFrames runtime binding
 and complete Recipe-to-runtime traceability. Include the
 `composition-identity.json` locator and aggregate SHA-256; never copy its full
 file list into the handoff.
+Confirm selected pattern references match the Director Recipes and Builder
+records and that no unselected card was introduced during integration.
 
 ### Render and delivery
 

@@ -18,6 +18,16 @@
       "notes": "Dependencies, licenses, source, witnesses, and renders require a later explicit milestone."
     }
   },
+  "patternKnowledge": {
+    "catalog": "../shotcraft/catalog.json",
+    "schema": "shot-pattern.schema.json",
+    "runtimeNeutral": true,
+    "selectionCardinality": "zero-or-one-primary-pattern-per-shot",
+    "hyperframesComponentsVerified": false,
+    "remotionBackendAdded": false,
+    "renderParityClaimed": false,
+    "notes": "Catalog cards guide semantic selection and independent native implementation. They are not runtime capabilities, components, adapters, or witnesses."
+  },
   "classifications": {
     "portable": "A runtime-neutral semantic requirement intended for independent native implementation in both runtimes.",
     "native-remotion": "A requirement intentionally owned by a Remotion implementation and not translated into HyperFrames source.",

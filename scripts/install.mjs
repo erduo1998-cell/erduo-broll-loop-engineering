@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
 import {
+  cp,
   lstat,
+  mkdtemp,
+  readdir,
   readlink,
   realpath,
   rename,
+  rm,
   symlink,
   unlink,
 } from 'node:fs/promises';
@@ -15,9 +19,13 @@ import readline from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import {
   ActionRequiredError,
+  HYPERFRAMES_SKILLS_COMMIT,
+  HYPERFRAMES_SKILL_NAMES,
   HYPERFRAMES_VERSION,
+  INSTALL_SKILL_NAMES,
   RELEASE_VERSION,
   SKILL_NAMES,
+  SKILLS_CLI_VERSION,
   applicationDataDir,
   assertDirectoryChain,
   assertInstallManifestFilesystem,
@@ -28,6 +36,7 @@ import {
   hyperframesCliPath,
   normalizeOfficialDoctor,
   normalizeSkillsCheck,
+  officialSkillBundleRoot,
   parseJsonPayload,
   pathExists,
   publicError,
@@ -39,7 +48,21 @@ import {
   validateInstallManifest,
 } from './lib.mjs';
 
-async function validateSources(repoRoot) {
+const HYPERFRAMES_REPOSITORY = 'https://github.com/heygen-com/hyperframes.git';
+const MINIMUM_NODE_VERSION = Object.freeze([22, 20, 0]);
+
+export function isSupportedNodeVersion(version = process.versions.node) {
+  const match = /^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/u.exec(String(version));
+  if (!match) return false;
+  const current = match.slice(1).map(Number);
+  for (let index = 0; index < MINIMUM_NODE_VERSION.length; index += 1) {
+    if (current[index] > MINIMUM_NODE_VERSION[index]) return true;
+    if (current[index] < MINIMUM_NODE_VERSION[index]) return false;
+  }
+  return true;
+}
+
+async function validateSources(repoRoot, additionalSources = []) {
   const sources = [];
   for (const name of SKILL_NAMES) {
     const source = skillSourceFor(repoRoot, name);
@@ -54,6 +77,35 @@ async function validateSources(repoRoot) {
       );
     }
     sources.push({ name, source: await realpath(source) });
+  }
+  const extraNames = additionalSources.map((entry) => entry?.name).sort();
+  const wantedExtraNames = [...HYPERFRAMES_SKILL_NAMES].sort();
+  if (additionalSources.length > 0
+    && JSON.stringify(extraNames) !== JSON.stringify(wantedExtraNames)) {
+    throw new ActionRequiredError(
+      'official_skill_source_incomplete',
+      'The staged official HyperFrames Skill set is not the exact pinned core set.',
+    );
+  }
+  for (const entry of additionalSources) {
+    if (!entry || typeof entry.source !== 'string') {
+      throw new ActionRequiredError(
+        'official_skill_source_incomplete',
+        'A staged official HyperFrames Skill source is invalid.',
+      );
+    }
+    try {
+      const directory = await lstat(entry.source);
+      const skill = await lstat(path.join(entry.source, 'SKILL.md'));
+      if (!directory.isDirectory() || directory.isSymbolicLink()
+        || !skill.isFile() || skill.isSymbolicLink()) throw new Error('invalid');
+    } catch {
+      throw new ActionRequiredError(
+        'official_skill_source_incomplete',
+        `The staged official ${entry.name} Skill is invalid.`,
+      );
+    }
+    sources.push({ name: entry.name, source: path.resolve(entry.source) });
   }
   return sources;
 }
@@ -131,12 +183,13 @@ export async function installSkillLinks({
   previousManifest = null,
   finalize = async () => {},
   stepHook = async () => {},
+  additionalSources = [],
 } = {}) {
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(timestamp)) {
     throw new ActionRequiredError('unsafe_backup_name', 'Backup identifier is invalid.');
   }
   await ensurePrivateDirectory(appDir, { trustedRoot: homeDir });
-  const sources = await validateSources(repoRoot);
+  const sources = await validateSources(repoRoot, additionalSources);
   const targets = await scanTargets({ sources, homeDir });
   let previousByTarget = new Map();
   if (previousManifest) {
@@ -272,10 +325,19 @@ export async function installSkillLinks({
   }
 }
 
-async function npmCliPath() {
+export async function npmCliPath({
+  env = process.env,
+  execPath = process.execPath,
+} = {}) {
+  const siblingNpm = path.join(path.dirname(execPath), 'npm');
+  let resolvedSiblingNpm = null;
+  if (await pathExists(siblingNpm)) {
+    resolvedSiblingNpm = await realpath(siblingNpm);
+  }
   const candidates = [
-    process.env.npm_execpath,
-    path.resolve(path.dirname(process.execPath), '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
+    env.npm_execpath,
+    resolvedSiblingNpm,
+    path.resolve(path.dirname(execPath), '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'),
   ].filter(Boolean);
   for (const candidate of candidates) {
     if (await pathExists(candidate)) return candidate;
@@ -286,11 +348,12 @@ async function npmCliPath() {
   );
 }
 
-function hasOnlyPinnedHyperFramesDependency(value) {
+function hasOnlyPinnedRuntimeDependencies(value) {
   const dependencies = value?.dependencies;
   if (!dependencies || typeof dependencies !== 'object' || Array.isArray(dependencies)
-    || Object.keys(dependencies).length !== 1
-    || dependencies.hyperframes !== HYPERFRAMES_VERSION) {
+    || Object.keys(dependencies).length !== 2
+    || dependencies.hyperframes !== HYPERFRAMES_VERSION
+    || dependencies.skills !== SKILLS_CLI_VERSION) {
     return false;
   }
   return [
@@ -348,20 +411,22 @@ export function validateRuntimeLock(packageJson, packageLock) {
     ? Object.entries(packages).filter(([name]) => name)
     : [];
   const locked = packageLock?.packages?.['node_modules/hyperframes'];
+  const lockedSkills = packageLock?.packages?.['node_modules/skills'];
   const invalidPackages = packageEntries
     .filter(([name, value]) => !isLockPackagePath(name) || !isPinnedRegistryPackage(value))
     .map(([name]) => name);
-  if (!hasOnlyPinnedHyperFramesDependency(packageJson)
+  if (!hasOnlyPinnedRuntimeDependencies(packageJson)
     || packageLock?.lockfileVersion !== 3
     || !packages
-    || !hasOnlyPinnedHyperFramesDependency(packages[''])
+    || !hasOnlyPinnedRuntimeDependencies(packages[''])
     || packageLock.dependencies !== undefined
     || locked?.version !== HYPERFRAMES_VERSION
+    || lockedSkills?.version !== SKILLS_CLI_VERSION
     || packageEntries.length === 0
     || invalidPackages.length) {
     throw new ActionRequiredError(
       'runtime_lock_invalid',
-      'Bundled HyperFrames runtime lock must contain only the pinned root dependency and integrity-locked npm registry packages.',
+      'Bundled runtime lock must contain only pinned HyperFrames/Skills CLI roots and integrity-locked npm registry packages.',
     );
   }
 }
@@ -397,12 +462,11 @@ async function installPinnedHyperFrames({
   const result = await runner(process.execPath, [
     npmCli,
     'ci',
-    '--prefix',
-    runtime,
     '--ignore-scripts',
     '--no-audit',
     '--no-fund',
   ], {
+    cwd: runtime,
     env: { ...childEnv, npm_config_cache: npmCache },
     timeout: 10 * 60_000,
     maxBuffer: 4 * 1024 * 1024,
@@ -410,15 +474,24 @@ async function installPinnedHyperFrames({
   const installedPackage = await readJsonIfPresent(
     path.join(runtime, 'node_modules', 'hyperframes', 'package.json'),
   );
+  const installedSkillsPackage = await readJsonIfPresent(
+    path.join(runtime, 'node_modules', 'skills', 'package.json'),
+  );
   if (result.code !== 0
     || installedPackage?.version !== HYPERFRAMES_VERSION
-    || !await pathExists(hyperframesCliPath(appDir))) {
+    || installedSkillsPackage?.version !== SKILLS_CLI_VERSION
+    || !await pathExists(hyperframesCliPath(appDir))
+    || !await pathExists(skillsCliPath(appDir))) {
     throw new ActionRequiredError(
       'hyperframes_install_failed',
-      `Could not install hyperframes@${HYPERFRAMES_VERSION} in the user application directory.`,
+      `Could not install the pinned HyperFrames ${HYPERFRAMES_VERSION} / Skills CLI ${SKILLS_CLI_VERSION} runtime.`,
     );
   }
   return hyperframesCliPath(appDir);
+}
+
+function skillsCliPath(appDir) {
+  return path.join(appDir, 'runtime', 'node_modules', 'skills', 'dist', 'cli.mjs');
 }
 
 async function runOfficialJson(cli, args, { env, runner, label, timeout = 180_000 }) {
@@ -430,49 +503,369 @@ async function runOfficialJson(cli, args, { env, runner, label, timeout = 180_00
   return { result, payload };
 }
 
-async function prepareOfficialHyperFrames({ cli, env, runner }) {
+function isolatedSkillEnvironment(env, { homeDir, appDir }) {
   const childEnv = sanitizedChildEnv(env);
-  const update = await runner(process.execPath, [cli, 'skills', 'update'], {
-    env: childEnv,
-    timeout: 5 * 60_000,
-  });
-  if (update.code !== 0) {
-    throw new ActionRequiredError(
-      'hyperframes_skills_update_failed',
-      'Official HyperFrames Skills update did not succeed.',
-    );
+  const isolatedNames = new Set([
+    'HOME',
+    'XDG_CONFIG_HOME',
+    'XDG_STATE_HOME',
+    'CODEX_HOME',
+    'CLAUDE_CONFIG_DIR',
+    'NPM_CONFIG_CACHE',
+  ]);
+  for (const key of Object.keys(childEnv)) {
+    if (isolatedNames.has(key.toUpperCase())) delete childEnv[key];
   }
-  const check = await runOfficialJson(cli, ['skills', 'check', '--json'], {
-    env,
-    runner,
-    label: 'hyperframes_skills_check',
-  });
-  const normalizedCheck = normalizeSkillsCheck(check.payload, check.result.code);
-  if (normalizedCheck.status !== 'ok') {
-    throw new ActionRequiredError(
-      'hyperframes_skills_stale',
-      'Official HyperFrames Skills check requires action after update.',
-    );
-  }
-  const browser = await runner(process.execPath, [cli, 'browser', 'ensure'], {
-    env: childEnv,
-    timeout: 10 * 60_000,
-  });
-  if (browser.code !== 0) {
-    throw new ActionRequiredError(
-      'hyperframes_browser_unavailable',
-      'Official HyperFrames browser ensure did not succeed.',
-    );
-  }
-  const doctor = await runOfficialJson(cli, ['doctor', '--json'], {
-    env,
-    runner,
-    label: 'hyperframes_doctor',
-  });
   return {
-    skills: normalizedCheck,
-    doctor: normalizeOfficialDoctor(doctor.payload),
+    ...childEnv,
+    HOME: homeDir,
+    XDG_CONFIG_HOME: path.join(homeDir, '.config'),
+    XDG_STATE_HOME: path.join(homeDir, '.local', 'state'),
+    CODEX_HOME: path.join(homeDir, '.codex'),
+    CLAUDE_CONFIG_DIR: path.join(homeDir, '.claude'),
+    npm_config_cache: path.join(appDir, 'npm-cache'),
   };
+}
+
+async function assertRegularTree(root) {
+  const stat = await lstat(root);
+  if (!stat.isDirectory() || stat.isSymbolicLink()) {
+    throw new ActionRequiredError(
+      'official_skill_bundle_unsafe',
+      'The staged official Skill bundle contains an unsafe directory.',
+    );
+  }
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    const target = path.join(root, entry.name);
+    const entryStat = await lstat(target);
+    if (entryStat.isSymbolicLink()) {
+      throw new ActionRequiredError(
+        'official_skill_bundle_unsafe',
+        'The staged official Skill bundle contains a symbolic link.',
+      );
+    }
+    if (entryStat.isDirectory()) await assertRegularTree(target);
+    else if (!entryStat.isFile()) {
+      throw new ActionRequiredError(
+        'official_skill_bundle_unsafe',
+        'The staged official Skill bundle contains a special file.',
+      );
+    }
+  }
+}
+
+async function validateOfficialSkillStore(store) {
+  await assertRegularTree(store);
+  const entries = await readdir(store, { withFileTypes: true });
+  const names = entries.map((entry) => entry.name).sort();
+  const expected = [...HYPERFRAMES_SKILL_NAMES].sort();
+  if (JSON.stringify(names) !== JSON.stringify(expected)
+    || entries.some((entry) => !entry.isDirectory() || entry.isSymbolicLink())) {
+    throw new ActionRequiredError(
+      'official_skill_bundle_incomplete',
+      'The staged official Skill bundle is not the exact eight-Skill core set.',
+    );
+  }
+  for (const name of expected) {
+    const skill = await lstat(path.join(store, name, 'SKILL.md'));
+    if (!skill.isFile() || skill.isSymbolicLink()) {
+      throw new ActionRequiredError(
+        'official_skill_bundle_incomplete',
+        `The staged official ${name} Skill is missing SKILL.md.`,
+      );
+    }
+  }
+}
+
+async function validateOfficialBundle(bundle) {
+  const bundleStat = await lstat(bundle);
+  if (!bundleStat.isDirectory() || bundleStat.isSymbolicLink()) {
+    throw new ActionRequiredError(
+      'official_skill_bundle_unsafe',
+      'The application-owned official Skill bundle is not a regular directory.',
+    );
+  }
+  const names = (await readdir(bundle, { withFileTypes: true }))
+    .map((entry) => entry.name)
+    .sort();
+  if (JSON.stringify(names) !== JSON.stringify(['SOURCE.json', 'skills', 'skills-manifest.json'])) {
+    throw new ActionRequiredError(
+      'official_skill_bundle_incomplete',
+      'The application-owned official Skill bundle has an unexpected top-level entry.',
+    );
+  }
+  for (const name of ['SOURCE.json', 'skills-manifest.json']) {
+    const stat = await lstat(path.join(bundle, name));
+    if (!stat.isFile() || stat.isSymbolicLink()) {
+      throw new ActionRequiredError(
+        'official_skill_bundle_unsafe',
+        'The application-owned official Skill bundle contains unsafe metadata.',
+      );
+    }
+  }
+  await validateOfficialSkillStore(path.join(bundle, 'skills'));
+}
+
+async function runRequired(runner, command, args, options, code, message) {
+  const result = await runner(command, args, options);
+  if (result.code !== 0) throw new ActionRequiredError(code, message);
+  return result;
+}
+
+export async function preparePinnedOfficialSkills({
+  cli,
+  appDir,
+  homeDir,
+  env,
+  runner,
+}) {
+  const stagingRoot = await mkdtemp(path.join(appDir, '.official-skills-stage-'));
+  const source = path.join(stagingRoot, 'source');
+  const stagingHome = path.join(stagingRoot, 'home');
+  const stagedStore = path.join(stagingHome, '.agents', 'skills');
+  const bundle = officialSkillBundleRoot(appDir);
+  let created = false;
+  const stageEnv = isolatedSkillEnvironment(env, { homeDir: stagingHome, appDir });
+  try {
+    await ensurePrivateDirectory(stagingHome, { trustedRoot: stagingRoot });
+    if (await entryExists(bundle)) {
+      await validateOfficialBundle(bundle);
+      const sourceRecord = await readJsonIfPresent(path.join(bundle, 'SOURCE.json'));
+      if (sourceRecord?.commit !== HYPERFRAMES_SKILLS_COMMIT
+        || sourceRecord?.hyperframes_version !== HYPERFRAMES_VERSION
+        || sourceRecord?.skills_cli_version !== SKILLS_CLI_VERSION) {
+        throw new ActionRequiredError(
+          'official_skill_bundle_changed',
+          'The existing application-owned official Skill bundle has unexpected provenance.',
+        );
+      }
+      const cachedCheck = await runOfficialJson(
+        cli,
+        ['skills', 'check', '--dir', path.join(bundle, 'skills'), '--source', bundle, '--json'],
+        { env: stageEnv, runner, label: 'hyperframes_skills_check' },
+      );
+      const cachedSkills = normalizeSkillsCheck(cachedCheck.payload, cachedCheck.result.code);
+      if (cachedSkills.status !== 'ok') {
+        throw new ActionRequiredError(
+          'official_skill_bundle_changed',
+          'The existing application-owned official Skill bundle failed verification.',
+        );
+      }
+      return {
+        bundle,
+        bundle_created: false,
+        skills: cachedSkills,
+        sources: HYPERFRAMES_SKILL_NAMES.map((name) => ({
+          name,
+          source: path.join(bundle, 'skills', name),
+        })),
+      };
+    }
+    await runRequired(
+      runner,
+      'git',
+      ['init', '--quiet', source],
+      { env: stageEnv, timeout: 30_000 },
+      'hyperframes_skills_source_failed',
+      'Could not initialize the isolated official HyperFrames Skill source.',
+    );
+    await runRequired(
+      runner,
+      'git',
+      ['-C', source, 'remote', 'add', 'origin', HYPERFRAMES_REPOSITORY],
+      { env: stageEnv, timeout: 30_000 },
+      'hyperframes_skills_source_failed',
+      'Could not bind the official HyperFrames Skill source.',
+    );
+    await runRequired(
+      runner,
+      'git',
+      ['-C', source, 'sparse-checkout', 'init', '--cone'],
+      { env: stageEnv, timeout: 30_000 },
+      'hyperframes_skills_source_failed',
+      'Could not initialize the isolated sparse checkout.',
+    );
+    await runRequired(
+      runner,
+      'git',
+      ['-C', source, 'sparse-checkout', 'set', 'skills'],
+      { env: stageEnv, timeout: 30_000 },
+      'hyperframes_skills_source_failed',
+      'Could not scope the isolated checkout to official Skills.',
+    );
+    let fetched = false;
+    for (let attempt = 1; attempt <= 3 && !fetched; attempt += 1) {
+      const result = await runner(
+        'git',
+        ['-C', source, 'fetch', '--depth', '1', 'origin', HYPERFRAMES_SKILLS_COMMIT],
+        {
+          env: {
+            ...stageEnv,
+            GIT_TERMINAL_PROMPT: '0',
+            GIT_LFS_SKIP_SMUDGE: '1',
+            GIT_HTTP_LOW_SPEED_LIMIT: '1024',
+            GIT_HTTP_LOW_SPEED_TIME: '60',
+          },
+          timeout: 5 * 60_000,
+        },
+      );
+      fetched = result.code === 0;
+    }
+    if (!fetched) {
+      throw new ActionRequiredError(
+        'hyperframes_skills_source_failed',
+        'Could not fetch the pinned official HyperFrames Skill commit after three bounded attempts.',
+      );
+    }
+    await runRequired(
+      runner,
+      'git',
+      ['-C', source, 'checkout', '--detach', 'FETCH_HEAD'],
+      { env: stageEnv, timeout: 60_000 },
+      'hyperframes_skills_source_failed',
+      'Could not check out the pinned official HyperFrames Skill commit.',
+    );
+    const revision = await runRequired(
+      runner,
+      'git',
+      ['-C', source, 'rev-parse', 'HEAD'],
+      { env: stageEnv, timeout: 30_000 },
+      'hyperframes_skills_source_failed',
+      'Could not verify the pinned official HyperFrames Skill commit.',
+    );
+    if (revision.stdout.trim() !== HYPERFRAMES_SKILLS_COMMIT) {
+      throw new ActionRequiredError(
+        'hyperframes_skills_commit_mismatch',
+        'The official HyperFrames Skill checkout does not match the pinned commit.',
+      );
+    }
+    const skillArguments = HYPERFRAMES_SKILL_NAMES.flatMap((name) => ['--skill', name]);
+    await runRequired(
+      runner,
+      process.execPath,
+      [
+        skillsCliPath(appDir),
+        'add',
+        source,
+        ...skillArguments,
+        '--global',
+        '--agent',
+        'universal',
+        '--copy',
+        '--full-depth',
+        '--yes',
+      ],
+      { env: stageEnv, timeout: 3 * 60_000, maxBuffer: 4 * 1024 * 1024 },
+      'hyperframes_skills_stage_failed',
+      'Could not install official HyperFrames Skills inside the isolated staging home.',
+    );
+    await validateOfficialSkillStore(stagedStore);
+    const stagedCheck = await runOfficialJson(
+      cli,
+      ['skills', 'check', '--dir', stagedStore, '--source', source, '--json'],
+      { env: stageEnv, runner, label: 'hyperframes_skills_check' },
+    );
+    const normalizedCheck = normalizeSkillsCheck(stagedCheck.payload, stagedCheck.result.code);
+    if (normalizedCheck.status !== 'ok') {
+      throw new ActionRequiredError(
+        'hyperframes_skills_stale',
+        'The isolated official HyperFrames Skill set failed its pinned-source check.',
+      );
+    }
+
+    if (await entryExists(bundle)) {
+      await validateOfficialBundle(bundle);
+      const sourceRecord = await readJsonIfPresent(path.join(bundle, 'SOURCE.json'));
+      if (sourceRecord?.commit !== HYPERFRAMES_SKILLS_COMMIT
+        || sourceRecord?.hyperframes_version !== HYPERFRAMES_VERSION
+        || sourceRecord?.skills_cli_version !== SKILLS_CLI_VERSION) {
+        throw new ActionRequiredError(
+          'official_skill_bundle_changed',
+          'The existing application-owned official Skill bundle has unexpected provenance.',
+        );
+      }
+      const existingCheck = await runOfficialJson(
+        cli,
+        ['skills', 'check', '--dir', path.join(bundle, 'skills'), '--source', source, '--json'],
+        { env: stageEnv, runner, label: 'hyperframes_skills_check' },
+      );
+      if (normalizeSkillsCheck(existingCheck.payload, existingCheck.result.code).status !== 'ok') {
+        throw new ActionRequiredError(
+          'official_skill_bundle_changed',
+          'The existing application-owned official Skill bundle failed verification.',
+        );
+      }
+    } else {
+      const pending = path.join(stagingRoot, 'bundle');
+      await ensurePrivateDirectory(pending, { trustedRoot: stagingRoot });
+      await rename(stagedStore, path.join(pending, 'skills'));
+      await cp(
+        path.join(source, 'skills-manifest.json'),
+        path.join(pending, 'skills-manifest.json'),
+      );
+      await atomicWriteJson(
+        path.join(pending, 'SOURCE.json'),
+        {
+          schema_version: 1,
+          repository: HYPERFRAMES_REPOSITORY,
+          commit: HYPERFRAMES_SKILLS_COMMIT,
+          hyperframes_version: HYPERFRAMES_VERSION,
+          skills_cli_version: SKILLS_CLI_VERSION,
+          skills: HYPERFRAMES_SKILL_NAMES,
+        },
+        { trustedRoot: stagingRoot },
+      );
+      await ensurePrivateDirectory(path.dirname(bundle), { trustedRoot: appDir });
+      await rename(pending, bundle);
+      created = true;
+    }
+    return {
+      bundle,
+      bundle_created: created,
+      skills: normalizedCheck,
+      sources: HYPERFRAMES_SKILL_NAMES.map((name) => ({
+        name,
+        source: path.join(bundle, 'skills', name),
+      })),
+    };
+  } finally {
+    await rm(stagingRoot, { recursive: true, force: true });
+  }
+}
+
+async function prepareOfficialHyperFrames({ cli, appDir, homeDir, env, runner }) {
+  const childEnv = sanitizedChildEnv(env);
+  let pinned;
+  try {
+    pinned = await preparePinnedOfficialSkills({
+      cli,
+      appDir,
+      homeDir,
+      env,
+      runner,
+    });
+    const browser = await runner(process.execPath, [cli, 'browser', 'ensure'], {
+      env: childEnv,
+      timeout: 10 * 60_000,
+    });
+    if (browser.code !== 0) {
+      throw new ActionRequiredError(
+        'hyperframes_browser_unavailable',
+        'Official HyperFrames browser ensure did not succeed.',
+      );
+    }
+    const doctor = await runOfficialJson(cli, ['doctor', '--json'], {
+      env,
+      runner,
+      label: 'hyperframes_doctor',
+    });
+    return {
+      ...pinned,
+      doctor: normalizeOfficialDoctor(doctor.payload),
+    };
+  } catch (error) {
+    throw error;
+  }
 }
 
 function ffmpegMissing(doctor) {
@@ -538,11 +931,14 @@ export async function runInstall({
   if (platform !== 'darwin') {
     throw new ActionRequiredError(
       'platform_unverified',
-      'This release candidate is verified only for macOS.',
+      'This stable release supports installation only on macOS.',
     );
   }
-  if (Number(process.versions.node.split('.')[0]) < 22) {
-    throw new ActionRequiredError('node_version_unsupported', 'Node.js 22 or newer is required.');
+  if (!isSupportedNodeVersion()) {
+    throw new ActionRequiredError(
+      'node_version_unsupported',
+      'Node.js 22.20.0 or newer is required.',
+    );
   }
   const childEnv = sanitizedChildEnv(env);
   await ensurePrivateDirectory(appDir, { trustedRoot: homeDir });
@@ -563,80 +959,95 @@ export async function runInstall({
     runner,
     npmCli,
   });
-  let official = await prepareOfficialHyperFrames({ cli, env: childEnv, runner });
-  const installedFfmpeg = await maybeInstallFfmpeg({
-    doctor: official.doctor,
-    interactive,
-    approveHomebrewFfmpeg,
-    confirmer,
-    env: childEnv,
-    runner,
-  });
-  if (installedFfmpeg) {
-    const rerun = await runOfficialJson(cli, ['doctor', '--json'], {
+  let official;
+  try {
+    official = await prepareOfficialHyperFrames({
+      cli,
+      appDir,
+      homeDir,
       env: childEnv,
       runner,
-      label: 'hyperframes_doctor',
     });
-    official = { ...official, doctor: normalizeOfficialDoctor(rerun.payload) };
-  }
-  if (!official.doctor.selected_local_render_ready) {
-    const missing = official.doctor.required
-      .filter((entry) => entry.status !== 'ok')
-      .map((entry) => entry.id)
-      .join(', ');
-    throw new ActionRequiredError(
-      'hyperframes_doctor_action_required',
-      `Official HyperFrames doctor reports required local-render facts needing action: ${missing}.`,
-    );
-  }
-
-  const canonicalRepoRoot = await realpath(repoRoot);
-  let manifest;
-  const links = await installSkillLinks({
-    repoRoot,
-    appDir,
-    homeDir,
-    approveOccupied,
-    interactive,
-    confirmer,
-    previousManifest,
-    finalize: async (records) => {
-      manifest = {
-        schema_version: 1,
-        product_version: RELEASE_VERSION,
-        installed_at: new Date().toISOString(),
-        repo_root: canonicalRepoRoot,
-        records: records.map((entry) => ({
-          host: entry.host,
-          name: entry.name,
-          source: entry.source,
-          target: entry.target,
-          backup: entry.backup,
-          action: entry.action,
-        })),
-      };
-      const validated = validateInstallManifest(manifest, {
-        repoRoot: canonicalRepoRoot,
-        appDir,
-        homeDir,
+    const installedFfmpeg = await maybeInstallFfmpeg({
+      doctor: official.doctor,
+      interactive,
+      approveHomebrewFfmpeg,
+      confirmer,
+      env: childEnv,
+      runner,
+    });
+    if (installedFfmpeg) {
+      const rerun = await runOfficialJson(cli, ['doctor', '--json'], {
+        env: childEnv,
+        runner,
+        label: 'hyperframes_doctor',
       });
-      await assertInstallManifestFilesystem(validated.records, { appDir, homeDir });
-      await atomicWriteJson(manifestFile, manifest, { trustedRoot: appDir });
-    },
-  });
-  return {
-    status: 'installed',
-    authority: 'environment-setup-only-no-creative-or-quality-approval',
-    product_version: RELEASE_VERSION,
-    hyperframes_version: HYPERFRAMES_VERSION,
-    official_skills: official.skills.status,
-    official_doctor_top_level_ok: official.doctor.top_level_ok,
-    official_doctor_selected_local_render_ready:
-      official.doctor.selected_local_render_ready,
-    custom_skill_links: links.length,
-    backed_up: links.filter((entry) => entry.backup).length,
-  };
+      official = { ...official, doctor: normalizeOfficialDoctor(rerun.payload) };
+    }
+    if (!official.doctor.selected_local_render_ready) {
+      const missing = official.doctor.required
+        .filter((entry) => entry.status !== 'ok')
+        .map((entry) => entry.id)
+        .join(', ');
+      throw new ActionRequiredError(
+        'hyperframes_doctor_action_required',
+        `Official HyperFrames doctor reports required local-render facts needing action: ${missing}.`,
+      );
+    }
+
+    const canonicalRepoRoot = await realpath(repoRoot);
+    let manifest;
+    const links = await installSkillLinks({
+      repoRoot,
+      appDir,
+      homeDir,
+      approveOccupied,
+      interactive,
+      confirmer,
+      previousManifest,
+      additionalSources: official.sources,
+      finalize: async (records) => {
+        manifest = {
+          schema_version: 2,
+          product_version: RELEASE_VERSION,
+          installed_at: new Date().toISOString(),
+          repo_root: canonicalRepoRoot,
+          records: records.map((entry) => ({
+            host: entry.host,
+            name: entry.name,
+            source: entry.source,
+            target: entry.target,
+            backup: entry.backup,
+            action: entry.action,
+          })),
+        };
+        const validated = validateInstallManifest(manifest, {
+          repoRoot: canonicalRepoRoot,
+          appDir,
+          homeDir,
+        });
+        await assertInstallManifestFilesystem(validated.records, { appDir, homeDir });
+        await atomicWriteJson(manifestFile, manifest, { trustedRoot: appDir });
+      },
+    });
+    return {
+      status: 'installed',
+      authority: 'environment-setup-only-no-creative-or-quality-approval',
+      product_version: RELEASE_VERSION,
+      hyperframes_version: HYPERFRAMES_VERSION,
+      official_skills_commit: HYPERFRAMES_SKILLS_COMMIT,
+      official_skills: official.skills.status,
+      official_doctor_top_level_ok: official.doctor.top_level_ok,
+      official_doctor_selected_local_render_ready:
+        official.doctor.selected_local_render_ready,
+      official_skill_links: HYPERFRAMES_SKILL_NAMES.length * 2,
+      custom_skill_links: SKILL_NAMES.length * 2,
+      total_skill_links: links.length,
+      backed_up: links.filter((entry) => entry.backup).length,
+    };
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function main(argv) {
@@ -658,7 +1069,7 @@ async function main(argv) {
       `Installed erduo-hyperframes-broll ${report.product_version}.`,
       `HyperFrames ${report.hyperframes_version}: official Skills ${report.official_skills}.`,
       `Official doctor selected local render: ${report.official_doctor_selected_local_render_ready}.`,
-      `Custom Skill links: ${report.custom_skill_links}; backups: ${report.backed_up}.`,
+      `Skill links: ${report.total_skill_links} total (${report.official_skill_links} official, ${report.custom_skill_links} project); backups: ${report.backed_up}.`,
       'Installer authority: environment setup only; no creative, aesthetic, or quality approval.',
       '',
     ].join('\n'));

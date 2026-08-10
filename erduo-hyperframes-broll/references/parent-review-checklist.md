@@ -80,6 +80,15 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   APIs, component syntax, or frame-number timing.
 - Each Recipe names required capability IDs without claiming unverified
   cross-runtime support.
+- Shotcraft discovery began with statistics and category-filtered list or
+  directed search output; no stage loaded the full catalog or all card bodies.
+- Every shot has zero or one `patternRef`; an absent selection is represented
+  by omission, not a sentinel card.
+- Every selected card ID and style key resolves through the bundled query
+  command, `sourceRevision` equals the catalog's pinned 40-character upstream
+  Git commit, and the semantic reason and fallback are content-specific.
+- No Recipe contains upstream frame constants, TSX, Remotion APIs, audio
+  directions, branding, or demo-asset paths.
 
 ## Mandatory Assets and Pexels
 
@@ -101,6 +110,9 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   focal point, crop, safe area, and composition-use plan.
 - Every selected item also binds to its Shot Recipe and records objective media
   facts and adapter-relevant constraints without choosing a runtime API.
+- Every selected Shotcraft card was read individually; its required screenshot,
+  UI state, data, paired state, layer, mask, alpha, or depth inputs were
+  verified or its declared fallback was invoked.
 - Photographic material is not used as an unrelated title background.
 - Project-local fonts, sources, licenses, roles, and glyph needs are recorded.
 - No Pexels key appears in artifacts, arguments, logs, or handoff.
@@ -115,6 +127,13 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Every assigned Shot Recipe maps to a recorded HyperFrames runtime
   implementation decision;
   capability evidence and faithful variances are explicit.
+- Each selected Shotcraft card/style was resolved individually and implemented
+  from first principles as native HyperFrames source; no upstream TSX,
+  Remotion component, frame constant, demo media, font, sound, or project
+  configuration was copied or transpiled.
+- `patternRef` card ID, style key, pinned upstream Git commit, preserved card
+  constraints, and faithful implementation variances are traceable in the
+  Builder notes.
 - Exact shot windows and continuous block coverage are preserved.
 - Each shot implements its semantic purpose and visual logic.
 - Selected material participates meaningfully in the composition.
@@ -132,6 +151,8 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Every block is bound to the same production-ready `hyperframes` runtime;
   mixed or experimental runtime blocks were rejected.
 - Shot Recipe-to-runtime traceability is complete.
+- Shotcraft references are unchanged from Recipe through Builder and
+  Integration, and no unselected pattern was introduced.
 - `composition-identity.json` covers the declared production source/config,
   referenced local assets/fonts, and dependency locks with sorted relative
   paths, per-file SHA-256, and an aggregate SHA-256.

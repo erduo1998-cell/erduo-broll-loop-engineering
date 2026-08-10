@@ -26,6 +26,9 @@ Give each child:
 - the user goal and constraints relevant to that stage;
 - the selected runtime, capability-matrix decision, and relevant runtime
   contract or Shot Recipe locators;
+- for Director, Assets, and Builder, the bundled Shotcraft query command and
+  only the selected card/style locators needed by that stage; never the full
+  catalog or all card bodies;
 - the unique new output directory, default `master.mp4` H.264 MP4 at
   3840×2160, 30 fps, high quality, or the user's explicit alternative;
 - the shared Markdown handoff format;
@@ -82,15 +85,18 @@ Builders, overlap windows, or reduce planned density merely to use fewer
 agents. A short film may have one block.
 
 Pass only each block's validated runtime-neutral Shot Recipes, plus the
-selected runtime and capability decision. Builders record a one-to-one mapping
-from each recipe to its runtime-owned implementation. Do not let the Director
-embed runtime code or let a Builder silently weaken semantic results for
-runtime convenience. This release does not claim a bundled automatic adapter.
+selected runtime, capability decision, and selected Shotcraft cards. Builders
+resolve and read only a Recipe's one primary card/style, then record a
+one-to-one mapping from each recipe to its runtime-owned implementation and
+pattern reference. Do not let the Director embed runtime code, let a Builder
+silently weaken semantic results for runtime convenience, or treat an
+unselected card as authorization to change the shot. This release does not
+claim a bundled automatic adapter or a library of preverified components.
 
 ## Official HyperFrames loading
 
 Before any Builder reads or writes HyperFrames source, require a real load of
-the current official `hyperframes` Skill through the host's native Skill
+the release-pinned official `hyperframes` Skill through the host's native Skill
 mechanism. Require the Integrator to perform the same load before assembly and
 Render/Delivery before doctor, check, preview, or render.
 
@@ -109,7 +115,9 @@ doctor, check, update, preview, and render. A telemetry opt-in may change only
 the telemetry value; Pexels-key removal remains mandatory.
 
 Do not use a POSIX-only inline assignment or `env -u` as the contract. If the
-host cannot pass a demonstrably sanitized environment map, stop before spawn as
+host cannot inject or attest a demonstrably sanitized environment map, use the
+parent Skill's bundled `scripts/safe-spawn.mjs` as the only approved bounded
+no-log, no-shell bootstrap. If neither route is available, stop before spawn as
 `action-required`. Only a dedicated Pexels request may receive the credential,
 in the smallest available scope. Handoffs record only the environment-map
 capability, `pexels_key_removed_case_insensitively=true`, and the telemetry
@@ -136,8 +144,12 @@ Return issues to the owning stage:
 - environment and authorization to Onboarding;
 - film meaning, timing, visual direction, and material intent to Director;
 - runtime-neutral Recipe meaning and schema gaps to Director;
+- Shotcraft selection, semantic reason, style key, pinned upstream Git commit,
+  or fallback gaps to Director;
 - material, Pexels, download, provenance, crop, and font issues to Assets;
 - block source and block-owned visual implementation to its Builder;
+- selected-card native implementation and card-quality variances to its
+  Builder;
 - runtime implementation decisions and unsupported capabilities to its Builder,
   or to Onboarding when required adapter evidence is missing;
 - wrapper, resource conflicts, order, and integration-owned seams to

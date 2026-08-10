@@ -18,8 +18,8 @@ Key 不进入：
 ## 正常网络访问
 
 - Node.js 官方分发：仅在缺少 Node.js 22+ 时下载运行时和校验文件。
-- npm registry：`npm ci` 安装锁定的 HyperFrames 依赖。
-- GitHub 上的 HyperFrames 官方 Skill 来源：`skills update` 与 `skills check`。
+- npm registry：`npm ci` 安装锁定的 HyperFrames 与 Skills CLI 依赖。
+- GitHub 上的 HyperFrames 官方 Skill 来源：安装器精确拉取固定 commit，只在隔离 HOME 中运行第三方安装器，再以官方 `skills check --dir/--source` 验证；不会让它直接写真实 HOME。
 - HyperFrames 官方浏览器源：`browser ensure` 获取所需浏览器。
 - Pexels API 与 CDN：验证 Key、搜索和下载生产素材。
 - Homebrew：仅在用户明确授权安装 FFmpeg 时。
@@ -27,7 +27,7 @@ Key 不进入：
 
 Pexels 素材与生成素材的来源信息应写入当前生产目录，但凭据本身不得写入。用户负责确认外部服务条款、素材许可和隐私要求。
 
-`HYPERFRAMES_NO_TELEMETRY=1` 覆盖由本仓库安装、诊断和打包工具启动的子进程；公共生产 Skills 还要求宿主对每个非 Pexels 子进程应用同一显式环境映射。若宿主不能证明该映射已经传入，阶段会在启动前停止。用户在本发行包之外直接调用 HyperFrames 时，其网络和隐私行为受 HyperFrames 自身实现与政策约束。
+`HYPERFRAMES_NO_TELEMETRY=1` 覆盖由本仓库安装、诊断和打包工具启动的子进程；公共生产 Skills 还要求每个非 Pexels 子进程使用同一显式环境映射。宿主不能直接注入或证明该映射时，只允许使用随包的 `safe-spawn.mjs` 作为 bounded no-log、no-shell 启动边界；两条路径都不可用时，阶段才在启动前停止。用户在本发行包之外直接调用 HyperFrames 时，其网络和隐私行为受 HyperFrames 自身实现与政策约束。
 
 ## 诊断最小化
 

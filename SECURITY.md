@@ -15,8 +15,8 @@
 - 安装器不使用 `sudo`，不修改 shell profile，不静默覆盖已有 Skill。
 - Node.js 引导固定为官方 `v22.23.1`，归档文件名是安装器常量，并使用内置的 arm64/x64 SHA-256 校验；远程清单不能决定下载文件名或信任值。
 - 每次需要用户级 Node 时都新建唯一的版本、架构和 digest 目录并执行本轮刚验证的副本；旧 app-local Node 仅保留，不复用。
-- HyperFrames 固定为 `0.7.72`，完整 npm lock 与 registry integrity 随仓库发布，并用 `npm ci --ignore-scripts` 安装在用户应用数据目录。
-- runtime lock 的根依赖闭集只能包含固定版 HyperFrames；每个非根包都必须是 npm registry HTTPS tarball 且带合法 SHA-512 integrity，git、file、link、HTTP 和缺失 resolved 会失败关闭。
+- HyperFrames 固定为 `0.7.104`，完整 npm lock 与 registry integrity 随仓库发布，并用 `npm ci --ignore-scripts` 安装在用户应用数据目录。
+- runtime lock 的根依赖闭集只能包含固定版 HyperFrames 与 Skills CLI；每个非根包都必须是 npm registry HTTPS tarball 且带合法 SHA-512 integrity，git、file、link、HTTP 和缺失 resolved 会失败关闭。
 - 发布包只允许单 member、无尾随、CRC32/ISIZE 正确的规范化 gzip + 纯 ustar：压缩文件先经 regular-file、大小和短读检查；gzip 可选 metadata、PAX/GNU metadata、扩展属性、ACL、非固定 owner/mode/mtime、非零 body padding、AppleDouble、链接和特殊文件全部失败关闭。
 - Pexels Key 只能从环境变量、标准输入或隐藏交互进入；不接受 argv 中的 Key。
 - 非 Pexels 子进程使用显式环境映射，按大小写不敏感规则删除所有 `PEXELS_API_KEY` 变体并默认关闭 telemetry；不能证明隔离时不启动子进程。

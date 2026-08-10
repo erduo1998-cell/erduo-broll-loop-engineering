@@ -1,8 +1,9 @@
 {
   "name": "erduo-hyperframes-broll-runtime",
-  "version": "0.1.0-rc.2",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "hyperframes": "0.7.72"
+    "hyperframes": "0.7.104",
+    "skills": "1.5.22"
   }
 }

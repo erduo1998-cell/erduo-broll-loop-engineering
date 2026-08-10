@@ -16,6 +16,19 @@ Shot Recipes, and `../../references/runtime/capability-matrix.json` before
 authoring. The recipe is the source of semantic intent; the selected adapter
 owns runtime syntax and implementation.
 
+For an assigned Recipe with `patternRef`, resolve exactly that card and style
+from the installed Skill root:
+
+```text
+node scripts/query-shotcraft.mjs --card <card-id> --style <style-key>
+```
+
+Read no unselected card body and never load the full catalog. Use the card as
+quality and motion-grammar knowledge: preserve the selected style's semantic
+action, material assumptions, readable result state, hold, and known failure
+constraints while adapting timings to the Recipe's absolute milliseconds.
+The catalog does not supply a verified HyperFrames component.
+
 The production route in this release is `hyperframes`. Adapt each assigned
 runtime-neutral recipe into HyperFrames-owned source under the existing
 official Builder workflow without changing its shot window, semantic result,
@@ -23,6 +36,15 @@ material role, or readable hold. This is a traceable runtime implementation
 decision, not a claim that an automatic HyperFrames adapter is bundled. Record
 the recipe ID, capability IDs, implementation decision, and any faithful
 variance in `build-notes.md`.
+
+Implement selected patterns from first principles in native, deterministic,
+seekable HyperFrames source under the official Skill guidance. Do not copy or
+transpile upstream TSX, Remotion components, hooks, frame constants, demo
+assets, fonts, sounds, or project configuration. Only when the user explicitly
+requests migration of an existing Remotion implementation may a separate
+runtime-porting workflow inspect that source; it must use the applicable
+`remotion-to-hyperframes` guidance and lint/evidence gates, remain outside the
+canonical Recipe, and must not turn Remotion production availability on.
 
 `remotion` is experimental. Do not author a production block or claim
 compatibility from prose alone. If it is requested, require the matrix route,
@@ -34,7 +56,7 @@ to the current production Integrator or Render stage.
 ## Official HyperFrames requirement
 
 Before reading or writing any HyperFrames source, use the host's native Skill
-mechanism to load the current official `hyperframes` Skill. Follow its current
+mechanism to load the release-pinned official `hyperframes` Skill. Follow its
 routing and load the relevant official domain Skills, including composition,
 creative, animation, keyframe, media, and CLI guidance when the block needs
 them.
@@ -49,9 +71,13 @@ whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
 key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
 directly to the executable without a shell. Telemetry opt-in may change only
 the telemetry value; Pexels-key removal remains mandatory. Do not use
-shell-inline assignments or `env -u` as the contract. If the host cannot prove
-the sanitized map was passed, stop before spawn as `action-required`. This
-setting does not prove Skill loading or replace required CLI review.
+shell-inline assignments or `env -u` as the contract. If the host cannot inject
+or attest the sanitized map, invoke the command only through the parent Skill's
+bundled `scripts/safe-spawn.mjs` using the command form documented in the
+parent Skill. That launcher is the bounded no-log, no-shell trust
+boundary. If neither route is available, stop before spawn as
+`action-required`. This setting does not prove Skill loading or replace
+required CLI review.
 
 ## Inputs
 
@@ -80,6 +106,10 @@ Read the whole assigned block before writing source. For each shot:
 - keep screen copy selective and safe;
 - use the project-local font roles and actual font files;
 - connect intentionally to neighboring shots and block seams.
+- when `patternRef` exists, record its exact card ID, style key, source
+  revision as the pinned upstream Git commit, native implementation decision,
+  preserved constraints, and any faithful variance; when absent, do not force
+  a catalog pattern.
 
 Do not turn the plan into repeated cards, a long native-only passage, unrelated
 stock footage under titles, or ambient motion without informational purpose.
@@ -106,7 +136,8 @@ Deliver:
 The notes explain major creative choices, recipe-to-runtime implementation
 decisions, capability evidence, faithful implementation variances, material
 integration, typography, time coverage, seam behavior, official Skill loads,
-and actual CLI work.
+actual CLI work, and selected Shotcraft pattern traceability without copying
+card bodies.
 
 ## Completion
 
@@ -121,6 +152,7 @@ handoff points to the actual artifacts.
 Stop when the official HyperFrames Skill cannot be loaded, an assigned asset
 or font is missing, timing is contradictory, the source cannot satisfy current
 official rules, a recipe requires an unsupported capability, runtime evidence
-is missing, or the upstream creative decision is insufficient. Return the
-issue to the owning stage. Do not create placeholder media or redesign another
+is missing, a selected card, style, or pinned upstream Git commit cannot be
+resolved, or the upstream creative decision is insufficient. Return the issue
+to the owning stage. Do not create placeholder media or redesign another
 stage's work.

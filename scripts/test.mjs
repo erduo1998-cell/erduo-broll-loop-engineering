@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import {
   chmod,
   cp,
@@ -22,8 +24,13 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { createGzip, gunzipSync, gzipSync } from 'node:zlib';
 import {
+  HYPERFRAMES_SKILLS_COMMIT,
+  HYPERFRAMES_SKILL_NAMES,
+  HYPERFRAMES_VERSION,
+  INSTALL_SKILL_NAMES,
   RELEASE_VERSION,
   SKILL_NAMES,
+  SKILLS_CLI_VERSION,
   applicationDataDir,
   atomicWriteJson,
   normalizeOfficialDoctor,
@@ -34,6 +41,9 @@ import { collectDoctor } from './doctor.mjs';
 import { pexelsStatus, savePexelsKey } from './config.mjs';
 import {
   installSkillLinks,
+  isSupportedNodeVersion,
+  npmCliPath,
+  preparePinnedOfficialSkills,
   runInstall,
   validateRuntimeLock,
 } from './install.mjs';
@@ -45,14 +55,43 @@ import {
   verifyReleaseArchiveRaw,
 } from './package-release.mjs';
 import { validateRecipeDirectory } from '../erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs';
+import {
+  runSafeSpawn,
+  sanitizedEnvironment as sanitizedSkillEnvironment,
+} from '../erduo-hyperframes-broll/scripts/safe-spawn.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const RELEASE_PACKAGE_MODE = existsSync(path.join(root, 'SHA256SUMS.txt'));
 const runtimeReferenceRoot = path.join(
   root,
   'erduo-hyperframes-broll',
   'references',
   'runtime',
 );
+const shotcraftRoot = path.join(
+  root,
+  'erduo-hyperframes-broll',
+  'references',
+  'shotcraft',
+);
+const shotcraftQuery = path.join(
+  root,
+  'erduo-hyperframes-broll',
+  'scripts',
+  'query-shotcraft.mjs',
+);
+const safeSpawnScript = path.join(
+  root,
+  'erduo-hyperframes-broll',
+  'scripts',
+  'safe-spawn.mjs',
+);
+const shotcraftUpstream = Object.freeze({
+  repository: 'https://github.com/Vincentwei1021/video-shotcraft',
+  commit: '41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b',
+  libraryRevision: 'bdd94be16d60fa8f',
+  license: 'Apache-2.0',
+});
 const PEXELS_ENV_FIELD = ['PEXELS', 'API', 'KEY'].join('_');
 const PEXELS_ENV_FIELD_LOWER = PEXELS_ENV_FIELD.toLowerCase();
 const PEXELS_ENV_FIELD_MIXED = ['Pexels', 'Api', 'Key'].join('_');
@@ -118,6 +157,64 @@ async function entryExists(target) {
     if (error?.code === 'ENOENT') return false;
     throw error;
   }
+}
+
+async function writeMockPinnedRuntime(appDir) {
+  const runtimeModules = path.join(appDir, 'runtime', 'node_modules');
+  const hyperframesRoot = path.join(runtimeModules, 'hyperframes');
+  const skillsRoot = path.join(runtimeModules, 'skills');
+  await mkdir(path.join(hyperframesRoot, 'dist'), { recursive: true });
+  await mkdir(path.join(skillsRoot, 'dist'), { recursive: true });
+  await writeFile(path.join(hyperframesRoot, 'dist', 'cli.js'), '// fixture only\n', 'utf8');
+  await writeFile(path.join(skillsRoot, 'dist', 'cli.mjs'), '// fixture only\n', 'utf8');
+  await writeFile(
+    path.join(hyperframesRoot, 'package.json'),
+    `${JSON.stringify({ name: 'hyperframes', version: HYPERFRAMES_VERSION })}\n`,
+    'utf8',
+  );
+  await writeFile(
+    path.join(skillsRoot, 'package.json'),
+    `${JSON.stringify({ name: 'skills', version: SKILLS_CLI_VERSION })}\n`,
+    'utf8',
+  );
+}
+
+async function mockPinnedOfficialCommand(command, args, options) {
+  if (command === 'git' && args[0] === 'init') {
+    const source = args.at(-1);
+    await mkdir(source, { recursive: true });
+    await writeFile(
+      path.join(source, 'skills-manifest.json'),
+      `${JSON.stringify({ source: 'fixture', skills: {} })}\n`,
+      'utf8',
+    );
+    return { code: 0, stdout: '', stderr: '' };
+  }
+  if (command === 'git' && args.includes('rev-parse')) {
+    return { code: 0, stdout: `${HYPERFRAMES_SKILLS_COMMIT}\n`, stderr: '' };
+  }
+  if (args[1] === 'add' && args.includes('--agent') && args.includes('universal')) {
+    const store = path.join(options.env.HOME, '.agents', 'skills');
+    for (const name of HYPERFRAMES_SKILL_NAMES) {
+      const skill = path.join(store, name);
+      await mkdir(skill, { recursive: true });
+      await writeFile(path.join(skill, 'SKILL.md'), `---\nname: ${name}\ndescription: fixture\n---\n`, 'utf8');
+    }
+    return { code: 0, stdout: '', stderr: '' };
+  }
+  return null;
+}
+
+function expectedArchiveDirectoryCount() {
+  const directories = new Set(['.']);
+  for (const file of RELEASE_FILES) {
+    let directory = path.posix.dirname(file);
+    while (directory !== '.') {
+      directories.add(directory);
+      directory = path.posix.dirname(directory);
+    }
+  }
+  return directories.size;
 }
 
 async function manifestFor(records, repoRoot) {
@@ -374,6 +471,28 @@ test('official doctor evaluation gates on JSON payload facts, not process exit',
       : fact),
   });
   assert.equal(failed.selected_local_render_ready, false);
+  const pinnedUpdate = normalizeOfficialDoctor({
+    ...payload,
+    checks: payload.checks.map((fact) => fact.name === 'Version'
+      ? { ...fact, ok: false }
+      : fact),
+    _meta: {
+      version: HYPERFRAMES_VERSION,
+      latestVersion: '0.7.104',
+      updateAvailable: true,
+    },
+  });
+  assert.equal(pinnedUpdate.selected_local_render_ready, true);
+  assert.equal(pinnedUpdate.top_level_ok, false);
+  assert.equal(pinnedUpdate.installed_version, HYPERFRAMES_VERSION);
+  assert.equal(pinnedUpdate.update_available, true);
+  const unprovedVersion = normalizeOfficialDoctor({
+    ...payload,
+    checks: payload.checks.map((fact) => fact.name === 'Version'
+      ? { ...fact, ok: false }
+      : fact),
+  });
+  assert.equal(unprovedVersion.selected_local_render_ready, false);
   const sanitized = normalizeOfficialDoctor({
     ok: true,
     checks: [
@@ -510,6 +629,52 @@ test('the shared child-process wrapper sanitizes the actual spawned environment'
   assert.equal(child.hyperframes_no_telemetry, undefined);
 });
 
+test('bundled safe-spawn is a no-shell fallback when the host cannot inject an environment map', async () => {
+  const parent = {
+    PATH: process.env.PATH,
+    [PEXELS_ENV_FIELD]: 'uppercase-canary',
+    [PEXELS_ENV_FIELD_LOWER]: 'lowercase-canary',
+    [PEXELS_ENV_FIELD_MIXED]: 'mixedcase-canary',
+    HYPERFRAMES_NO_TELEMETRY: '0',
+    hyperframes_no_telemetry: 'lowercase-zero',
+  };
+  const child = sanitizedSkillEnvironment(parent);
+  assert.equal(child[PEXELS_ENV_FIELD], undefined);
+  assert.equal(child[PEXELS_ENV_FIELD_LOWER], undefined);
+  assert.equal(child[PEXELS_ENV_FIELD_MIXED], undefined);
+  assert.equal(child.HYPERFRAMES_NO_TELEMETRY, '1');
+  assert.equal(child.hyperframes_no_telemetry, undefined);
+  assert.throws(
+    () => sanitizedSkillEnvironment({ PATH: 'one', Path: 'two' }),
+    /case-insensitive environment collision/u,
+  );
+
+  let spawnCall;
+  const status = runSafeSpawn(['--', '/mock/tool', '--flag'], {
+    env: parent,
+    spawn: (executable, args, options) => {
+      spawnCall = { executable, args, options };
+      return { status: 7 };
+    },
+  });
+  assert.equal(status, 7);
+  assert.equal(spawnCall.executable, '/mock/tool');
+  assert.deepEqual(spawnCall.args, ['--flag']);
+  assert.equal(spawnCall.options.shell, false);
+  assert.equal(spawnCall.options.stdio, 'inherit');
+  assert.equal(spawnCall.options.env[PEXELS_ENV_FIELD], undefined);
+  assert.equal(spawnCall.options.env.HYPERFRAMES_NO_TELEMETRY, '1');
+
+  const actual = await execFileAsync(process.execPath, [
+    safeSpawnScript,
+    '--',
+    process.execPath,
+    '-e',
+    'process.stdout.write(JSON.stringify({pexels:Object.keys(process.env).some((key)=>key.toLowerCase()==="pexels_api_key"),telemetry:process.env.HYPERFRAMES_NO_TELEMETRY}))',
+  ], { env: parent, encoding: 'utf8' });
+  assert.deepEqual(JSON.parse(actual.stdout), { pexels: false, telemetry: '1' });
+});
+
 test('public documentation states telemetry defaults, network boundaries, and external HyperFrames scope', async () => {
   const documents = await Promise.all([
     'README.md',
@@ -552,15 +717,300 @@ test('public runtime claims keep HyperFrames default and Remotion experimental w
   assert.match(readme, /Remotion[^。\n]*(?:实验性契约|experimental)/iu);
   assert.match(readme, /不捆绑、不安装 Remotion/u);
   assert.match(readme, /Remotion 官方现行许可/u);
-  assert.match(readme, /本轮尚未吸收任何第三方镜头卡/u);
+  assert.match(readme, /152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件/u);
+  assert.match(readme, /不复制其 TSX、预览媒体、音频、纹理或运行时依赖/u);
   assert.match(support, /Remotion runtime \| experimental contract only/u);
   assert.match(support, /没有本项目端到端 Remotion 渲染/u);
-  assert.match(checklist, /未吸收第三方镜头卡/u);
+  assert.match(checklist, /不含 TSX、预览、音频、纹理、字体或其他上游媒体/u);
 
   for (const [name, text] of [['README.md', readme], ['SUPPORT-MATRIX.md', support]]) {
     assert.doesNotMatch(text, /(?:已完成|支持)(?:任意|全部|所有)[^。\n]*(?:Remotion|双端)[^。\n]*(?:转换|渲染)/u, name);
     assert.doesNotMatch(text, /(?:Remotion|双端)[^。\n]*(?:完全一致|全自动转换已完成|生产可用已验证)/u, name);
   }
+});
+
+test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique styles by hash', async () => {
+  const catalogPath = path.join(shotcraftRoot, 'catalog.json');
+  const manifestPath = path.join(shotcraftRoot, 'manifest.json');
+  const [catalogData, manifestData] = await Promise.all([
+    readFile(catalogPath),
+    readFile(manifestPath),
+  ]);
+  const catalog = JSON.parse(catalogData);
+  const manifest = JSON.parse(manifestData);
+  const patternSchema = JSON.parse(await readFile(
+    path.join(runtimeReferenceRoot, 'shot-pattern.schema.json'),
+    'utf8',
+  ));
+  const adaptationNotice = /byte-identical to the pinned upstream sources/u;
+  assert.equal(catalog.schemaVersion, 1);
+  assert.equal(manifest.schemaVersion, 1);
+  assert.deepEqual(catalog.upstream, shotcraftUpstream);
+  assert.deepEqual(manifest.upstream, shotcraftUpstream);
+  assert.match(catalog.adaptationNotice, adaptationNotice);
+  assert.equal(catalog.adaptationNotice, manifest.adaptationNotice);
+  assert.deepEqual(catalog.stats.cards, 152);
+  assert.deepEqual(catalog.stats.styles, 209);
+  assert.deepEqual(manifest.stats, { cards: 152, styles: 209 });
+  assert.equal(catalog.cards.length, 152);
+  assert.equal(manifest.cards.length, 152);
+  assert.equal(patternSchema.additionalProperties, false);
+  assert.equal(patternSchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  const requiredCardFields = [...patternSchema.required].toSorted();
+  const allowedCardFields = Object.keys(patternSchema.properties).toSorted();
+  assert.deepEqual(requiredCardFields, allowedCardFields);
+  assert.equal(patternSchema.$defs.style.additionalProperties, false);
+
+  const digest = (data) => createHash('sha256').update(data).digest('hex');
+  assert.equal(manifest.catalog.target,
+    'erduo-hyperframes-broll/references/shotcraft/catalog.json');
+  assert.equal(manifest.catalog.bytes, catalogData.length);
+  assert.equal(manifest.catalog.sha256, digest(catalogData));
+  assert.equal(
+    manifest.catalog.sha256,
+    '8cdd4fd0ba0ab6d01b42bfd108850cf2498119c198d1ab36522ffcb3955a3dfe',
+  );
+  const aggregateCardDigest = manifest.cards
+    .toSorted((left, right) => left.target.localeCompare(right.target))
+    .map((record) => `${record.sha256}  ${record.target}\n`)
+    .join('');
+  assert.equal(
+    digest(aggregateCardDigest),
+    'aea26bb63d9b3dbe235d0ff181b86edba95898b7b089a19414de3524dfa64f85',
+  );
+
+  const names = new Set();
+  const styleKeys = new Set();
+  const manifestByName = new Map(manifest.cards.map((card) => [card.name, card]));
+  assert.equal(manifestByName.size, 152);
+  for (const card of catalog.cards) {
+    assert.deepEqual(Object.keys(card).toSorted(), allowedCardFields, card.name);
+    for (const field of requiredCardFields) assert.notEqual(card[field], undefined, field);
+    assert.match(card.name, new RegExp(patternSchema.properties.name.pattern, 'u'));
+    assert.match(card.category, new RegExp(patternSchema.properties.category.pattern, 'u'));
+    assert.match(card.source, new RegExp(patternSchema.properties.source.pattern, 'u'));
+    assert.match(card.upstreamUrl, new RegExp(patternSchema.properties.upstreamUrl.pattern, 'u'));
+    assert.match(card.localSource, new RegExp(patternSchema.properties.localSource.pattern, 'u'));
+    assert.equal(new Set(card.tags).size, card.tags.length, card.name);
+    assert.equal(card.tags.length >= patternSchema.properties.tags.minItems, true, card.name);
+    assert.equal(names.has(card.name), false, card.name);
+    names.add(card.name);
+    const record = manifestByName.get(card.name);
+    assert.ok(record, card.name);
+    assert.equal(card.category, record.category);
+    assert.equal(card.source, record.source);
+    assert.equal(card.upstreamUrl, record.upstreamUrl);
+    assert.equal(card.localSource, `cards/${card.category}/${card.name}.md`);
+    assert.equal(
+      card.upstreamUrl,
+      `${shotcraftUpstream.repository}/blob/${shotcraftUpstream.commit}/${card.source}`,
+    );
+    const body = await readFile(path.join(root, record.target));
+    assert.equal(record.bytes, body.length, record.target);
+    assert.equal(record.sha256, digest(body), record.target);
+    for (const style of card.styles) {
+      const styleAllowed = Object.keys(patternSchema.$defs.style.properties);
+      assert.equal(Object.keys(style).every((key) => styleAllowed.includes(key)), true, style.key);
+      for (const field of patternSchema.$defs.style.required) {
+        assert.equal(typeof style[field], 'string', `${style.key}:${field}`);
+        assert.equal(style[field].length > 0, true, `${style.key}:${field}`);
+      }
+      assert.match(style.key, new RegExp(
+        patternSchema.$defs.style.properties.key.pattern,
+        'u',
+      ));
+      assert.equal(styleKeys.has(style.key), false, style.key);
+      styleKeys.add(style.key);
+    }
+  }
+  assert.equal(names.size, 152);
+  assert.equal(styleKeys.size, 209);
+
+  const attribution = await readFile(path.join(root, manifest.attribution.target));
+  assert.equal(manifest.attribution.bytes, attribution.length);
+  assert.equal(manifest.attribution.sha256, digest(attribution));
+  assert.equal(
+    manifest.attribution.sha256,
+    '3853b1a686e1ce3ad52884af392167c1e659a48da5b0d435f031386c738f1f0c',
+  );
+  const actualCardTargets = (await listPublicReleaseFiles(path.join(shotcraftRoot, 'cards')))
+    .map((file) => path.relative(root, file))
+    .toSorted();
+  assert.deepEqual(
+    actualCardTargets,
+    manifest.cards.map((card) => card.target).toSorted(),
+  );
+
+  if (!RELEASE_PACKAGE_MODE) {
+    const sync = await readFile(path.join(root, 'scripts', 'sync-video-shotcraft.mjs'), 'utf8');
+    assert.match(sync, /copyFileSync\(item\.sourcePath, item\.targetPath\)/u);
+    assert.match(sync, new RegExp(shotcraftUpstream.commit, 'u'));
+  }
+  const license = await readFile(
+    path.join(root, 'third_party', 'licenses', 'video-shotcraft-APACHE-2.0.txt'),
+  );
+  assert.equal(license.length, 11340);
+  assert.equal(
+    digest(license),
+    'b2ce9877a55547ada9b870150664d1468ff777e67cc9888806a73927d31c5771',
+  );
+  assert.equal(
+    RELEASE_FILES.some((file) => /\.(?:tsx?|jsx?|png|jpe?g|webp|gif|mp4|mov|wav|mp3)$/iu.test(file)),
+    false,
+  );
+});
+
+test('Shotcraft query keeps discovery concise and loads only an explicitly selected card', async () => {
+  const runQuery = async (...args) => execFileAsync(process.execPath, [shotcraftQuery, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  const stats = JSON.parse((await runQuery('--stats')).stdout);
+  assert.equal(stats.cards, 152);
+  assert.equal(stats.styles, 209);
+  assert.deepEqual(stats.upstream, shotcraftUpstream);
+
+  const multi = JSON.parse((await runQuery(
+    '--search', '急推 特写', '--category', 'camera',
+  )).stdout);
+  assert.equal(multi.results.some((card) => card.name === 'crash-zoom-punch'), true);
+  const single = JSON.parse((await runQuery('--search', '特写')).stdout);
+  assert.equal(single.results.some((card) => card.name === 'crash-zoom-punch'), true);
+  assert.equal(single.shown <= 20, true);
+  assert.equal('intention' in single.results[0], false);
+
+  await assert.rejects(
+    runQuery('--search', ' \t '),
+    (error) => /requires non-whitespace text/u.test(error?.stderr ?? ''),
+  );
+  const selected = (await runQuery(
+    '--card', 'crash-zoom-punch', '--style', 'crash-zoom-punch',
+  )).stdout;
+  assert.match(selected, new RegExp(
+    `${shotcraftUpstream.repository}/blob/${shotcraftUpstream.commit}/references/shots/camera/crash-zoom-punch.md`,
+    'u',
+  ));
+  assert.match(selected, /## Upstream card body/u);
+  assert.doesNotMatch(selected, /undefined/u);
+  await assert.rejects(
+    runQuery('--style', 'crash-zoom-punch'),
+    (error) => /requires --card/u.test(error?.stderr ?? ''),
+  );
+});
+
+test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as a manifest closure', async (t) => {
+  if (RELEASE_PACKAGE_MODE) {
+    t.skip('repository-only synchronization maintenance is not shipped in the release archive');
+    return;
+  }
+  const state = await isolated(t);
+  const source = path.join(state.base, 'upstream-fixture');
+  const mockBin = path.join(state.base, 'mock-bin');
+  const syncScript = path.join(root, 'scripts', 'sync-video-shotcraft.mjs');
+  const catalog = JSON.parse(await readFile(path.join(shotcraftRoot, 'catalog.json')));
+  await Promise.all([
+    mkdir(path.join(source, '.git'), { recursive: true }),
+    mkdir(path.join(source, 'gallery', 'api'), { recursive: true }),
+    mkdir(path.join(source, 'references', 'shots'), { recursive: true }),
+    mkdir(mockBin, { recursive: true }),
+  ]);
+  await writeFile(
+    path.join(source, 'gallery', 'api', 'library.json'),
+    `${JSON.stringify({ revision: catalog.upstream.libraryRevision, cards: catalog.cards })}\n`,
+  );
+  for (const card of catalog.cards) {
+    const sourceCard = path.join(source, ...card.source.split('/'));
+    await mkdir(path.dirname(sourceCard), { recursive: true });
+    await cp(path.join(shotcraftRoot, ...card.localSource.split('/')), sourceCard);
+  }
+  await cp(
+    path.join(shotcraftRoot, 'upstream-attribution.md'),
+    path.join(source, 'references', 'shots', 'ATTRIBUTION.md'),
+  );
+  const mockGit = path.join(mockBin, 'git');
+  await writeFile(mockGit, [
+    '#!/bin/sh',
+    'if [ "$1" = "rev-parse" ]; then',
+    `  printf '%s\\n' '${shotcraftUpstream.commit}'`,
+    '  exit 0',
+    'fi',
+    'if [ "$1" = "status" ]; then exit 0; fi',
+    'exit 2',
+    '',
+  ].join('\n'));
+  await chmod(mockGit, 0o755);
+  const env = { ...process.env, PATH: `${mockBin}:/usr/bin:/bin` };
+  const runSync = (destination) => execFileAsync(process.execPath, [
+    syncScript,
+    '--source', source,
+    '--destination', destination,
+  ], { cwd: root, env, encoding: 'utf8' });
+  const prepareDestination = async (name) => {
+    const destination = path.join(state.base, name);
+    await mkdir(
+      path.join(destination, 'erduo-hyperframes-broll', 'references'),
+      { recursive: true },
+    );
+    await writeFile(
+      path.join(destination, 'erduo-hyperframes-broll', 'SKILL.md'),
+      '---\nname: erduo-hyperframes-broll\ndescription: Fixture.\n---\n',
+    );
+    return destination;
+  };
+
+  const symlinkDestination = await prepareDestination('symlink-destination');
+  const outside = path.join(state.base, 'outside-shotcraft');
+  const sentinel = path.join(outside, 'sentinel.txt');
+  await mkdir(outside);
+  await writeFile(sentinel, 'must remain unchanged\n');
+  await symlink(
+    outside,
+    path.join(
+      symlinkDestination,
+      'erduo-hyperframes-broll',
+      'references',
+      'shotcraft',
+    ),
+    'dir',
+  );
+  await assert.rejects(
+    runSync(symlinkDestination),
+    (error) => error?.code === 1 && /must be a real directory/u.test(error?.stderr ?? ''),
+  );
+  assert.equal(await readFile(sentinel, 'utf8'), 'must remain unchanged\n');
+
+  const dirtyDestination = await prepareDestination('dirty-destination');
+  const dirtyShotcraft = path.join(
+    dirtyDestination,
+    'erduo-hyperframes-broll',
+    'references',
+    'shotcraft',
+  );
+  await mkdir(path.join(dirtyShotcraft, 'stale'), { recursive: true });
+  await writeFile(path.join(dirtyShotcraft, 'stale', 'extra.tsx'), 'private demo\n');
+  await writeFile(path.join(dirtyShotcraft, 'stale', 'extra.mp4'), 'not media\n');
+  const result = JSON.parse((await runSync(dirtyDestination)).stdout);
+  assert.deepEqual(result, {
+    status: 'synced',
+    cards: 152,
+    styles: 209,
+    categories: 10,
+    commit: shotcraftUpstream.commit,
+    libraryRevision: shotcraftUpstream.libraryRevision,
+  });
+  assert.equal(await entryExists(path.join(dirtyShotcraft, 'stale')), false);
+  const generatedManifest = JSON.parse(await readFile(
+    path.join(dirtyShotcraft, 'manifest.json'),
+  ));
+  const actual = (await listPublicReleaseFiles(dirtyShotcraft))
+    .map((file) => path.relative(dirtyDestination, file))
+    .toSorted();
+  assert.deepEqual(actual, [
+    generatedManifest.catalog.target,
+    generatedManifest.attribution.target,
+    ...generatedManifest.cards.map((card) => card.target),
+    'erduo-hyperframes-broll/references/shotcraft/manifest.json',
+  ].toSorted());
 });
 
 test('runtime recipe schema preserves a runtime-neutral integer-millisecond contract', async () => {
@@ -665,6 +1115,17 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
       'semantic.visual-state-transition',
       'semantic.readable-hold',
     ],
+    patternRef: {
+      cardId: 'crash-zoom-punch',
+      styleKey: 'crash-zoom-punch',
+      sourceRevision: shotcraftUpstream.commit,
+      semanticReason: 'The rapid push makes the new value the decisive focus.',
+      fallback: {
+        when: 'The push would reduce readability.',
+        strategy: 'simplify-motion',
+        preserve: ['result value', 'readable hold'],
+      },
+    },
   };
   const recipePath = path.join(recipeDirectory, 'S01.json');
   await writeFile(recipePath, `${JSON.stringify(recipe, null, 2)}\n`);
@@ -699,6 +1160,27 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
     validateRecipeDirectory(recipeDirectory),
     /unknown capability semantic\.not-registered/u,
   );
+
+  for (const [name, patternRef, expected] of [
+    [
+      'unknown card',
+      { ...recipe.patternRef, cardId: 'not-a-bundled-card' },
+      /unknown Shotcraft card not-a-bundled-card/u,
+    ],
+    [
+      'style outside card',
+      { ...recipe.patternRef, styleKey: 'ai-stream-response' },
+      /style ai-stream-response does not belong to card crash-zoom-punch/u,
+    ],
+    [
+      'source revision drift',
+      { ...recipe.patternRef, sourceRevision: '0'.repeat(40) },
+      /must equal bundled Shotcraft revision/u,
+    ],
+  ]) {
+    await writeFile(recipePath, `${JSON.stringify({ ...recipe, patternRef }, null, 2)}\n`);
+    await assert.rejects(validateRecipeDirectory(recipeDirectory), expected, name);
+  }
 });
 
 test('runtime capability matrix is closed, traceable, and makes no render-parity claim', async () => {
@@ -773,7 +1255,8 @@ test('runtime references and production Skills preserve the adapter evidence gat
   assert.match(contract, /Remotion is an experimental backend boundary/u);
   assert.match(contract, /does not install, authorize, configure, invoke, or render with\s+Remotion/u);
   assert.match(contract, /Do not claim Remotion\/HyperFrames visual parity, timing parity, or render\s+parity/u);
-  assert.match(contract, /Do not import shot cards/u);
+  assert.match(contract, /Treat `references\/shotcraft\/catalog\.json` and its card bodies as progressively\s+loaded knowledge/u);
+  assert.match(contract, /Pattern selection does not prove backend support/u);
   assert.match(contract, /Contract:[\s\S]*Backend:[\s\S]*Witness:[\s\S]*Comparison:/u);
   assert.match(concernMap, /do not treat a mechanical\s+TSX-to-HyperFrames rewrite as the compatibility layer/u);
   assert.match(concernMap, /must not be generalized into automatic\s+Remotion\/HyperFrames render parity/u);
@@ -1256,25 +1739,13 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   const runner = async (command, args, options) => {
     assert.equal(options.env.PEXELS_API_KEY, undefined);
     assert.equal(options.env.HYPERFRAMES_NO_TELEMETRY, '1');
-    calls.push({ command, args });
+    calls.push({ command, args, options });
     if (args.includes('ci') && args.includes('--ignore-scripts')) {
-      const cli = path.join(
-        appDir,
-        'runtime',
-        'node_modules',
-        'hyperframes',
-        'dist',
-        'cli.js',
-      );
-      await mkdir(path.dirname(cli), { recursive: true });
-      await writeFile(cli, '// mock only\n', 'utf8');
-      await writeFile(
-        path.join(appDir, 'runtime', 'node_modules', 'hyperframes', 'package.json'),
-        `${JSON.stringify({ name: 'hyperframes', version: '0.7.72' })}\n`,
-        'utf8',
-      );
+      await writeMockPinnedRuntime(appDir);
       return { code: 0, stdout: '', stderr: '' };
     }
+    const pinned = await mockPinnedOfficialCommand(command, args, options);
+    if (pinned) return pinned;
     if (args.includes('skills') && args.includes('check')) {
       return { code: 0, stdout: JSON.stringify({ ok: true, installed: [] }), stderr: '' };
     }
@@ -1311,8 +1782,18 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   });
   assert.equal(report.status, 'installed');
   assert.equal(report.custom_skill_links, SKILL_NAMES.length * 2);
+  assert.equal(report.official_skill_links, HYPERFRAMES_SKILL_NAMES.length * 2);
+  assert.equal(report.total_skill_links, INSTALL_SKILL_NAMES.length * 2);
   assert.equal(report.official_doctor_selected_local_render_ready, true);
-  assert.equal(calls.some(({ args }) => args.includes('skills') && args.includes('update')), true);
+  assert.equal(report.official_skills_commit, HYPERFRAMES_SKILLS_COMMIT);
+  const stagedAdd = calls.find(({ args }) => args[1] === 'add' && args.includes('--full-depth'));
+  assert.ok(stagedAdd);
+  assert.notEqual(stagedAdd.options.env.HOME, state.homeDir);
+  assert.equal(stagedAdd.options.env.HOME.startsWith(appDir), true);
+  assert.equal(stagedAdd.options.env.CODEX_HOME.startsWith(stagedAdd.options.env.HOME), true);
+  assert.equal(stagedAdd.options.env.CLAUDE_CONFIG_DIR.startsWith(stagedAdd.options.env.HOME), true);
+  assert.equal(calls.some(({ args }) => args[1] === 'add' && args.includes('--full-depth')), true);
+  assert.equal(calls.some(({ args }) => args.includes('skills') && args.includes('update')), false);
   assert.equal(calls.some(({ args }) => args.includes('skills') && args.includes('check')), true);
   assert.equal(calls.some(({ args }) => args.includes('browser') && args.includes('ensure')), true);
   assert.equal(calls.some(({ args }) => args.includes('doctor') && args.includes('--json')), true);
@@ -1324,9 +1805,102 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
     true,
   );
   const npmCi = calls.find(({ args }) => args.includes('ci'))?.args;
+  const npmCall = calls.find(({ args }) => args.includes('ci'));
   assert.ok(npmCi);
   assert.equal(npmCi.includes('--ignore-scripts'), true);
+  assert.equal(npmCi.includes('--prefix'), false);
+  assert.equal(npmCall.options.cwd, path.join(appDir, 'runtime'));
   assert.equal(npmCi.includes('install'), false);
+  const manifest = JSON.parse(await readFile(path.join(appDir, 'install-manifest.json'), 'utf8'));
+  assert.equal(manifest.schema_version, 2);
+  assert.equal(manifest.records.length, INSTALL_SKILL_NAMES.length * 2);
+  for (const name of HYPERFRAMES_SKILL_NAMES) {
+    for (const hostRoot of [
+      path.join(state.homeDir, '.codex', 'skills'),
+      path.join(state.homeDir, '.claude', 'skills'),
+    ]) {
+      const target = path.join(hostRoot, name);
+      assert.equal((await lstat(target)).isSymbolicLink(), true);
+    }
+  }
+});
+
+test('pinned official Skill staging rejects commit drift without writing host Skill roots', async (t) => {
+  const state = await isolated(t);
+  const appDir = applicationDataDir({
+    platform: 'darwin',
+    homeDir: state.homeDir,
+    env: state.env,
+  });
+  await mkdir(appDir, { recursive: true });
+  const runner = async (command, args, options) => {
+    assert.notEqual(options.env.HOME, state.homeDir);
+    const mocked = await mockPinnedOfficialCommand(command, args, options);
+    if (command === 'git' && args.includes('rev-parse')) {
+      return { code: 0, stdout: `${'0'.repeat(40)}\n`, stderr: '' };
+    }
+    return mocked ?? { code: 0, stdout: '', stderr: '' };
+  };
+  await assert.rejects(
+    preparePinnedOfficialSkills({
+      cli: path.join(appDir, 'runtime', 'mock-hyperframes.js'),
+      appDir,
+      homeDir: state.homeDir,
+      env: state.env,
+      runner,
+    }),
+    (error) => error?.code === 'hyperframes_skills_commit_mismatch',
+  );
+  for (const rootName of ['.codex', '.claude', '.agents']) {
+    assert.equal(await entryExists(path.join(state.homeDir, rootName, 'skills')), false);
+  }
+  assert.equal(await entryExists(path.join(appDir, 'official-skills')), false);
+  assert.equal(
+    (await readdir(appDir)).some((name) => name.startsWith('.official-skills-stage-')),
+    false,
+  );
+});
+
+test('pinned official Skill staging rejects symbolic links before the host transaction', async (t) => {
+  const state = await isolated(t);
+  const appDir = applicationDataDir({
+    platform: 'darwin',
+    homeDir: state.homeDir,
+    env: state.env,
+  });
+  await mkdir(appDir, { recursive: true });
+  const outside = path.join(state.base, 'outside-skill.md');
+  await writeFile(outside, 'outside\n', 'utf8');
+  const runner = async (command, args, options) => {
+    if (command === 'git' && args[0] === 'init') {
+      return mockPinnedOfficialCommand(command, args, options);
+    }
+    if (command === 'git' && args.includes('rev-parse')) {
+      return { code: 0, stdout: `${HYPERFRAMES_SKILLS_COMMIT}\n`, stderr: '' };
+    }
+    if (args[1] === 'add') {
+      const store = path.join(options.env.HOME, '.agents', 'skills');
+      for (const name of HYPERFRAMES_SKILL_NAMES) {
+        const skill = path.join(store, name);
+        await mkdir(skill, { recursive: true });
+        if (name === 'hyperframes') await symlink(outside, path.join(skill, 'SKILL.md'));
+        else await writeFile(path.join(skill, 'SKILL.md'), `---\nname: ${name}\n---\n`, 'utf8');
+      }
+      return { code: 0, stdout: '', stderr: '' };
+    }
+    return { code: 0, stdout: '', stderr: '' };
+  };
+  await assert.rejects(
+    preparePinnedOfficialSkills({
+      cli: path.join(appDir, 'runtime', 'mock-hyperframes.js'),
+      appDir,
+      homeDir: state.homeDir,
+      env: state.env,
+      runner,
+    }),
+    (error) => error?.code === 'official_skill_bundle_unsafe',
+  );
+  assert.equal(await entryExists(path.join(appDir, 'official-skills')), false);
 });
 
 test('runInstall rejects both duplicate doctor fact orders before installing Skill links', async (t) => {
@@ -1347,23 +1921,11 @@ test('runInstall rejects both duplicate doctor fact orders before installing Ski
         assert.equal(options.env[PEXELS_ENV_FIELD_MIXED], undefined);
         assert.equal(options.env.HYPERFRAMES_NO_TELEMETRY, '1');
         if (args.includes('ci')) {
-          const cli = path.join(
-            appDir,
-            'runtime',
-            'node_modules',
-            'hyperframes',
-            'dist',
-            'cli.js',
-          );
-          await mkdir(path.dirname(cli), { recursive: true });
-          await writeFile(cli, '// fixture only\n', 'utf8');
-          await writeFile(
-            path.join(appDir, 'runtime', 'node_modules', 'hyperframes', 'package.json'),
-            `${JSON.stringify({ name: 'hyperframes', version: '0.7.72' })}\n`,
-            'utf8',
-          );
+          await writeMockPinnedRuntime(appDir);
           return { code: 0, stdout: '', stderr: '' };
         }
+        const pinned = await mockPinnedOfficialCommand(command, args, options);
+        if (pinned) return pinned;
         if (args.includes('skills') && args.includes('check')) {
           return { code: 0, stdout: JSON.stringify({ ok: true, installed: [] }), stderr: '' };
         }
@@ -1435,7 +1997,10 @@ async function listPublicReleaseFiles(directory = root) {
 
 test('entire public release tree has no private path, original-author, private-sample, or obsolete architecture markers', async () => {
   assert.equal(await entryExists(path.join(root, 'STAGING-SOURCE.txt')), false);
-  assert.equal(await entryExists(path.join(root, 'SHA256SUMS.txt')), false);
+  assert.equal(
+    await entryExists(path.join(root, 'SHA256SUMS.txt')),
+    RELEASE_PACKAGE_MODE,
+  );
   const textFiles = (await listPublicReleaseFiles()).filter(
     (file) => path.extname(file).toLowerCase() !== '.jpg',
   );
@@ -1451,14 +2016,43 @@ test('entire public release tree has no private path, original-author, private-s
     ['script','-only'].join(''),
     ['awesome','-design','-md'].join(''),
     ['taste','-skill'].join(''),
-    ['video','-shotcraft'].join(''),
   ];
   for (const marker of forbidden) assert.equal(text.includes(marker), false, marker);
+
+  const sourceMarker = ['video','-shotcraft'].join('');
+  const sourceFiles = [];
+  for (const file of textFiles) {
+    if ((await readFile(file, 'utf8')).toLowerCase().includes(sourceMarker)) {
+      sourceFiles.push(path.relative(root, file));
+    }
+  }
+  const expectedSourceFiles = [
+    'CHANGELOG.md',
+    'README.md',
+    'RELEASE-CHECKLIST.md',
+    'SUPPORT-MATRIX.md',
+    'THIRD-PARTY-NOTICES.md',
+    'erduo-hyperframes-broll/references/runtime/shot-pattern.schema.json',
+    'erduo-hyperframes-broll/references/shotcraft/catalog.json',
+    'erduo-hyperframes-broll/references/shotcraft/manifest.json',
+    'scripts/package-release.mjs',
+    'scripts/test.mjs',
+  ];
+  if (!RELEASE_PACKAGE_MODE) expectedSourceFiles.push('scripts/sync-video-shotcraft.mjs');
+  if (RELEASE_PACKAGE_MODE) expectedSourceFiles.push('SHA256SUMS.txt');
+  assert.deepEqual(sourceFiles.toSorted(), expectedSourceFiles.toSorted());
 });
 
 test('Node bootstrap uses only fixed v22.23.1 archive names and built-in macOS digests', async () => {
   const installer = await readFile(path.join(root, 'Install.command'), 'utf8');
+  assert.equal(isSupportedNodeVersion('22.19.9'), false);
+  assert.equal(isSupportedNodeVersion('22.20.0'), true);
+  assert.equal(isSupportedNodeVersion('22.23.1'), true);
+  assert.equal(isSupportedNodeVersion('23.0.0'), true);
+  assert.equal(isSupportedNodeVersion('invalid'), false);
+  assert.match(installer, /NODE_MIN_VERSION='22\.20\.0'/u);
   assert.match(installer, /NODE_VERSION='22\.23\.1'/u);
+  assert.match(installer, /node_supported/u);
   assert.match(
     installer,
     /ef28d8fab2c0e4314522d4bb1b7173270aa3937e93b92cb7de79c112ac1fa953/u,
@@ -1487,6 +2081,26 @@ test('Node bootstrap uses only fixed v22.23.1 archive names and built-in macOS d
   assert.match(installer, /export "\$pexels_environment_name=\$captured_pexels_key"/u);
 });
 
+test('installer resolves npm from the selected Node sibling symlink used by Homebrew', async (t) => {
+  const state = await isolated(t);
+  const bin = path.join(state.base, 'runtime', 'bin');
+  const npmCli = path.join(state.base, 'npm', 'bin', 'npm-cli.js');
+  const nodeExecutable = path.join(bin, 'node');
+  await mkdir(bin, { recursive: true });
+  await mkdir(path.dirname(npmCli), { recursive: true });
+  await writeFile(nodeExecutable, 'node fixture\n');
+  await writeFile(npmCli, 'npm fixture\n');
+  await symlink(npmCli, path.join(bin, 'npm'));
+  assert.equal(
+    await npmCliPath({ env: {}, execPath: nodeExecutable }),
+    await realpath(npmCli),
+  );
+  await assert.rejects(
+    npmCliPath({ env: {}, execPath: path.join(state.base, 'missing', 'node') }),
+    (error) => error?.code === 'npm_unavailable',
+  );
+});
+
 test('Install.command exposes a Pexels key only to the dedicated config process', async (t) => {
   const state = await isolated(t);
   const mockNode = path.join(state.base, 'mock-node');
@@ -1499,7 +2113,7 @@ test('Install.command exposes a Pexels key only to the dedicated config process'
     'label=other',
     'version_output=',
     'case "${1:-}" in',
-    '  -p) label=node-major; version_output=22 ;;',
+    '  -e) label=node-version ;;',
     '  */scripts/install.mjs) label=install ;;',
     '  */scripts/config.mjs) label=config ;;',
     'esac',
@@ -1527,7 +2141,7 @@ test('Install.command exposes a Pexels key only to the dedicated config process'
   assert.equal(result.stdout.includes('uppercase-canary'), false);
   const rows = (await readFile(logFile, 'utf8')).trimEnd().split('\n')
     .map((line) => line.split('|'));
-  assert.deepEqual(rows.map(([label]) => label), ['node-major', 'install', 'config']);
+  assert.deepEqual(rows.map(([label]) => label), ['node-version', 'install', 'config']);
   for (const [label, upper, lower, mixed, telemetry, lowerTelemetry] of rows) {
     assert.equal(lower, '', label);
     assert.equal(mixed, '', label);
@@ -1649,7 +2263,7 @@ test('release tar subprocesses receive the same sanitized child environment', as
   });
   assert.equal(report.status, 'packaged');
   assert.deepEqual(calls, ['-cf', '-xzf']);
-  assert.equal(report.raw_archive.regular, 48);
+  assert.equal(report.raw_archive.regular, RELEASE_FILES.length + 1);
   assert.equal(report.raw_archive.appledouble, 0);
 });
 
@@ -2160,20 +2774,22 @@ test('archive size gates reject sparse compressed input before read/allocation a
   );
 });
 
-test('runtime lock pins the complete HyperFrames graph with integrity and reviewed scripts', async () => {
+test('runtime lock pins the complete HyperFrames and Skills CLI graph with integrity', async () => {
   const publicPackage = JSON.parse(await readFile(path.join(root, 'package.json')));
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.1.0-rc.2');
+  assert.equal(RELEASE_VERSION, '0.2.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
   assert.equal(lock.packages[''].version, RELEASE_VERSION);
-  assert.equal(packageJson.dependencies.hyperframes, '0.7.72');
+  assert.equal(packageJson.dependencies.hyperframes, '0.7.104');
+  assert.equal(packageJson.dependencies.skills, SKILLS_CLI_VERSION);
   assert.equal(lock.lockfileVersion, 3);
-  assert.equal(lock.packages[''].dependencies.hyperframes, '0.7.72');
-  assert.equal(lock.packages['node_modules/hyperframes'].version, '0.7.72');
+  assert.equal(lock.packages[''].dependencies.hyperframes, '0.7.104');
+  assert.equal(lock.packages['node_modules/hyperframes'].version, '0.7.104');
+  assert.equal(lock.packages['node_modules/skills'].version, SKILLS_CLI_VERSION);
   assert.equal(typeof lock.packages['node_modules/hyperframes'].integrity, 'string');
   const registryWithoutIntegrity = Object.entries(lock.packages)
     .filter(([name, value]) => name && value.resolved?.startsWith('https://registry.npmjs.org/')
@@ -2186,9 +2802,8 @@ test('runtime lock pins the complete HyperFrames graph with integrity and review
   assert.deepEqual(lifecycle, [
     'node_modules/@google/genai@1.52.0',
     'node_modules/esbuild@0.25.12',
-    'node_modules/onnxruntime-node@1.23.2',
+    'node_modules/onnxruntime-node@1.21.1',
     'node_modules/protobufjs@7.6.5',
-    'node_modules/sharp@0.34.5',
   ]);
 });
 
@@ -2222,7 +2837,7 @@ test('runtime lock validation fails closed for root and package-source tampering
     {
       name: 'legacy-lock-dependency-map',
       mutate(_packageJson, lock) {
-        lock.dependencies = { hyperframes: { version: '0.7.72' } };
+        lock.dependencies = { hyperframes: { version: '0.7.104' } };
       },
     },
     {
@@ -2247,14 +2862,14 @@ test('runtime lock validation fails closed for root and package-source tampering
       name: 'http-registry',
       mutate(_packageJson, lock) {
         lock.packages[packageName].resolved =
-          'http://registry.npmjs.org/hyperframes/-/hyperframes-0.7.72.tgz';
+          'http://registry.npmjs.org/hyperframes/-/hyperframes-0.7.104.tgz';
       },
     },
     {
       name: 'different-https-host',
       mutate(_packageJson, lock) {
         lock.packages[packageName].resolved =
-          'https://example.invalid/hyperframes-0.7.72.tgz';
+          'https://example.invalid/hyperframes-0.7.104.tgz';
       },
     },
     {
@@ -2318,13 +2933,13 @@ test('release packager accepts only the explicit tree and rejects media, SRT, en
   assert.equal(report.status, 'packaged');
   assert.equal(await entryExists(archive), true);
   assert.deepEqual(report.raw_archive, {
-    regular: 48,
-    directories: 23,
+    regular: RELEASE_FILES.length + 1,
+    directories: expectedArchiveDirectoryCount(),
     metadata: report.raw_archive.metadata,
     appledouble: 0,
     symlinks: 0,
     special: 0,
-    checksum_entries: 47,
+    checksum_entries: RELEASE_FILES.length,
   });
   const reproducibleArchive = path.join(state.base, 'release-reproducible.tar.gz');
   await buildRelease({ repoRoot: fixture, output: reproducibleArchive });
@@ -2333,6 +2948,33 @@ test('release packager accepts only the explicit tree and rejects media, SRT, en
     await readFile(archive),
     'canonical tar/gzip output must be byte-for-byte reproducible',
   );
+
+  const fixtureManifestPath = path.join(
+    fixture,
+    'erduo-hyperframes-broll',
+    'references',
+    'shotcraft',
+    'manifest.json',
+  );
+  const originalManifestText = await readFile(fixtureManifestPath, 'utf8');
+  const changedManifest = JSON.parse(originalManifestText);
+  const changedRecord = changedManifest.cards[0];
+  const changedCardPath = path.join(fixture, changedRecord.target);
+  const originalCard = await readFile(changedCardPath);
+  const changedCard = Buffer.concat([originalCard, Buffer.from('\nchanged together\n')]);
+  changedRecord.bytes = changedCard.length;
+  changedRecord.sha256 = createHash('sha256').update(changedCard).digest('hex');
+  await writeFile(changedCardPath, changedCard);
+  await writeFile(fixtureManifestPath, `${JSON.stringify(changedManifest, null, 2)}\n`);
+  await assert.rejects(
+    buildRelease({
+      repoRoot: fixture,
+      output: path.join(state.base, 'rejected-card-and-manifest-drift.tar.gz'),
+    }),
+    (error) => error?.code === 'release_shotcraft_manifest_invalid',
+  );
+  await writeFile(changedCardPath, originalCard);
+  await writeFile(fixtureManifestPath, originalManifestText);
 
   const extras = ['extra.jpg', 'captions.srt', '.env', 'secret.txt', 'unknown.bin'];
   for (const [index, name] of extras.entries()) {
@@ -2498,13 +3140,15 @@ test('private directory creation rejects an intermediate symbolic-link component
 });
 
 test('public release source contains the parent plus seven prompt stage Skills', async () => {
-  assert.equal(RELEASE_FILES.length, 47);
+  assert.equal(RELEASE_FILES.length, 206);
   const actualReleaseFiles = (await listPublicReleaseFiles())
     .map((file) => path.relative(root, file))
     .toSorted();
   assert.deepEqual(
     actualReleaseFiles,
-    [...RELEASE_FILES, ...REPOSITORY_ONLY_FILES].toSorted(),
+    (RELEASE_PACKAGE_MODE
+      ? [...RELEASE_FILES, 'SHA256SUMS.txt']
+      : [...RELEASE_FILES, ...REPOSITORY_ONLY_FILES]).toSorted(),
   );
   assert.equal(SKILL_NAMES.length, 8);
   const skillRoot = path.join(root, 'erduo-hyperframes-broll');
@@ -2524,7 +3168,13 @@ test('public release source contains the parent plus seven prompt stage Skills',
   const promptSurface = (await listPublicReleaseFiles(skillRoot))
     .map((file) => path.relative(skillRoot, file))
     .toSorted();
-  assert.equal(promptSurface.length, 26);
+  assert.deepEqual(
+    promptSurface,
+    RELEASE_FILES
+      .filter((file) => file.startsWith('erduo-hyperframes-broll/'))
+      .map((file) => file.slice('erduo-hyperframes-broll/'.length))
+      .toSorted(),
+  );
   assert.equal(
     promptSurface.every((file) => /\.(?:json|md|mjs|yaml)$/u.test(file)),
     true,
@@ -2536,5 +3186,22 @@ test('public release source contains the parent plus seven prompt stage Skills',
     const contents = await readFile(file, 'utf8');
     assert.match(contents, /^---\n/u);
     assert.match(contents, new RegExp(`^name:\\s*${name}\\s*$`, 'mu'));
+    assert.match(contents, /^description:\s*\S.+$/mu);
+    const frontmatter = contents.match(/^---\n([\s\S]*?)\n---\n/u)?.[1];
+    assert.ok(frontmatter, name);
+    assert.deepEqual(
+      frontmatter.split('\n').map((line) => line.split(':', 1)[0]).toSorted(),
+      ['description', 'name'],
+      name,
+    );
+  }
+
+  assert.equal(REPOSITORY_ONLY_FILES.includes('.github/workflows/ci.yml'), true);
+  if (!RELEASE_PACKAGE_MODE) {
+    const workflow = await readFile(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
+    assert.match(workflow, /actions\/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4/u);
+    assert.match(workflow, /actions\/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4/u);
+    assert.match(workflow, /run: npm test/u);
+    assert.doesNotMatch(workflow, /uses:\s*[^\n]+@v\d+/u);
   }
 });

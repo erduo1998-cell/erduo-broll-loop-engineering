@@ -13,8 +13,33 @@ runtime-neutral shot recipe. It does not change the default production chain.
 - Do not claim Remotion/HyperFrames visual parity, timing parity, or render
   parity. A later backend-and-witness milestone must validate each claim with
   real source, dependencies, licenses, renders, and comparison evidence.
-- Do not import shot cards, runtime source, media, fonts, sounds, or other
-  third-party artifacts through this contract.
+- The bundled Shotcraft catalog imports only pinned runtime-neutral card
+  knowledge and provenance under its recorded license. It excludes runtime
+  source, demos, previews, media, textures, fonts, sounds, and other upstream
+  runtime assets.
+
+## Shotcraft pattern references
+
+Treat `references/shotcraft/catalog.json` and its card bodies as progressively
+loaded knowledge, not production source. Start with catalog statistics, use a
+category-filtered list or directed search, then read only a selected card with
+`scripts/query-shotcraft.mjs`. Do not load the catalog or all cards into one
+agent context.
+
+A Shot Recipe may contain one optional `patternRef`. When present, it records
+one stable card ID, one style key belonging to that card, the catalog's pinned
+40-character upstream Git commit in `sourceRevision`, a content-specific
+semantic reason, and a runtime-neutral fallback. Omit `patternRef` when no card
+improves the shot; never use a sentinel `none` card. Pattern timing expressed
+as upstream frames is tuning history only and must be rewritten as absolute
+integer milliseconds inside the actual Recipe window.
+
+Pattern selection does not prove backend support. It does not add a Remotion
+backend, install an adapter, authorize copying TSX, or establish a verified
+HyperFrames component. The production Builder reads only the selected card and
+implements its motion grammar from first principles under the official
+HyperFrames Skills. Migrating existing Remotion source is a separate,
+user-requested porting workflow with its own lint and evidence gates.
 
 ## Separate semantic intent from runtime source
 

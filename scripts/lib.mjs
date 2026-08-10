@@ -19,8 +19,20 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 
 export const APP_NAME = 'erduo-hyperframes-broll';
-export const RELEASE_VERSION = '0.1.0-rc.2';
-export const HYPERFRAMES_VERSION = '0.7.72';
+export const RELEASE_VERSION = '0.2.0';
+export const HYPERFRAMES_VERSION = '0.7.104';
+export const SKILLS_CLI_VERSION = '1.5.22';
+export const HYPERFRAMES_SKILLS_COMMIT = 'c96b30c7174984e684620556ce871a285381ec60';
+export const HYPERFRAMES_SKILL_NAMES = Object.freeze([
+  'hyperframes',
+  'hyperframes-animation',
+  'hyperframes-cli',
+  'hyperframes-core',
+  'hyperframes-creative',
+  'hyperframes-keyframes',
+  'hyperframes-registry',
+  'media-use',
+]);
 export const SKILL_NAMES = Object.freeze([
   'erduo-hyperframes-broll',
   'broll-onboarding',
@@ -30,6 +42,10 @@ export const SKILL_NAMES = Object.freeze([
   'broll-master-integrate',
   'broll-render',
   'broll-shot-export',
+]);
+export const INSTALL_SKILL_NAMES = Object.freeze([
+  ...HYPERFRAMES_SKILL_NAMES,
+  ...SKILL_NAMES,
 ]);
 
 export class ActionRequiredError extends Error {
@@ -70,6 +86,14 @@ export function skillSourceFor(repoRoot, name) {
     : path.join(repoRoot, APP_NAME, 'stages', name);
 }
 
+export function officialSkillBundleRoot(appDir) {
+  return path.join(appDir, 'official-skills', HYPERFRAMES_SKILLS_COMMIT);
+}
+
+export function officialSkillSourceFor(appDir, name) {
+  return path.join(officialSkillBundleRoot(appDir), 'skills', name);
+}
+
 function invalidManifest() {
   return new ActionRequiredError(
     'install_manifest_invalid',
@@ -103,24 +127,29 @@ export function validateInstallManifest(manifest, {
   appDir,
   homeDir = os.homedir(),
 } = {}) {
-  if (!manifest || manifest.schema_version !== 1 || !Array.isArray(manifest.records)
+  const manifestSkillNames = manifest?.schema_version === 1
+    ? SKILL_NAMES
+    : (manifest?.schema_version === 2 ? INSTALL_SKILL_NAMES : null);
+  if (!manifest || !manifestSkillNames || !Array.isArray(manifest.records)
     || typeof manifest.repo_root !== 'string'
     || !path.isAbsolute(manifest.repo_root)
     || path.resolve(manifest.repo_root) !== manifest.repo_root
     || manifest.repo_root !== repoRoot
-    || manifest.records.length !== SKILL_NAMES.length * 2) {
+    || manifest.records.length !== manifestSkillNames.length * 2) {
     throw invalidManifest();
   }
 
   const expected = new Map();
   for (const { host, root } of hostSkillRoots({ homeDir })) {
-    for (const name of SKILL_NAMES) {
+    for (const name of manifestSkillNames) {
       const target = path.join(root, name);
       expected.set(`${host}:${name}`, {
         host,
         name,
         target,
-        source: skillSourceFor(repoRoot, name),
+        source: HYPERFRAMES_SKILL_NAMES.includes(name)
+          ? officialSkillSourceFor(appDir, name)
+          : skillSourceFor(repoRoot, name),
       });
     }
   }
@@ -312,10 +341,19 @@ export function normalizeOfficialDoctor(payload) {
       'Official HyperFrames doctor payload is missing ok/checks.',
     );
   }
-  const checks = payload.checks.map((fact, index) => ({
-    id: safeFactId(fact, index),
-    status: normalizedFactStatus(fact),
-  }));
+  const checks = payload.checks.map((fact, index) => {
+    const id = safeFactId(fact, index);
+    const rawStatus = normalizedFactStatus(fact);
+    const pinnedUpdateNotice = id === 'hyperframes-version'
+      && rawStatus === 'fail'
+      && payload?._meta?.version === HYPERFRAMES_VERSION
+      && payload?._meta?.updateAvailable === true;
+    return {
+      id,
+      status: pinnedUpdateNotice ? 'ok' : rawStatus,
+      ...(pinnedUpdateNotice ? { note: 'newer-version-available-pinned-version-confirmed' } : {}),
+    };
+  });
   const requiredIds = ['hyperframes-version', 'node', 'ffmpeg', 'ffprobe', 'chrome'];
   const required = requiredIds.map((id) => {
     const matches = checks.filter((entry) => entry.id === id);
@@ -329,6 +367,13 @@ export function normalizeOfficialDoctor(payload) {
   });
   return {
     top_level_ok: payload.ok,
+    installed_version: typeof payload?._meta?.version === 'string'
+      ? payload._meta.version
+      : null,
+    latest_version: typeof payload?._meta?.latestVersion === 'string'
+      ? payload._meta.latestVersion
+      : null,
+    update_available: payload?._meta?.updateAvailable === true,
     readiness_scope: 'required-local-render-facts-only',
     checks,
     required,

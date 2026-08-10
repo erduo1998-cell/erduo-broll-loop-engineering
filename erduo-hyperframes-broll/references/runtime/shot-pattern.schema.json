@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/shot-pattern.schema.json",
+  "title": "Runtime-neutral Shotcraft pattern",
+  "description": "One progressively loaded motion-pattern knowledge record. It describes selection and quality intent, not runtime source or verified component availability.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "summary",
+    "use",
+    "duration",
+    "energy",
+    "intention",
+    "category",
+    "tags",
+    "styles",
+    "source",
+    "upstreamUrl",
+    "localSource"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "use": {
+      "type": "string",
+      "minLength": 1
+    },
+    "duration": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Upstream tuning guidance only. Production timing is always rewritten as absolute SRT integer milliseconds in a Shot Recipe."
+    },
+    "energy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intention": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "styles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/style"
+      }
+    },
+    "source": {
+      "type": "string",
+      "pattern": "^references/shots/[a-z0-9-]+/[a-z0-9._-]+\\.md$"
+    },
+    "upstreamUrl": {
+      "type": "string",
+      "pattern": "^https://github\\.com/Vincentwei1021/video-shotcraft/blob/[0-9a-f]{40}/references/shots/[a-z0-9-]+/[a-z0-9._-]+\\.md$"
+    },
+    "localSource": {
+      "type": "string",
+      "pattern": "^cards/[a-z0-9-]+/[a-z0-9._-]+\\.md$"
+    }
+  },
+  "$defs": {
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "description"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "use": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

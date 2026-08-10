@@ -84,7 +84,7 @@ Through the host's native Skill mechanism, load:
 - `hyperframes`
 - `hyperframes-cli`
 
-Follow the current official guidance rather than remembered commands. Retain a
+Follow the release-pinned official guidance rather than remembered commands. Retain a
 host-native trace reference when available.
 
 For every non-Pexels command below, use the host's native spawn/process API to
@@ -94,36 +94,42 @@ collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass that map
 directly to the executable without a shell. A telemetry opt-in may change only
 the telemetry value; Pexels-key removal remains mandatory. Do not rely on a
 POSIX-only inline assignment or `env -u`, and do not persist settings to the
-user's shell profile. If the host cannot prove that it passed the sanitized map,
-stop before spawn as `action-required`. This contract applies to Node, npx,
-HyperFrames, browser descendants, package managers, FFmpeg, and FFprobe.
+user's shell profile. If the host cannot inject or attest the sanitized map,
+use the parent Skill's bundled `scripts/safe-spawn.mjs` as the only approved
+bounded no-log, no-shell bootstrap. If neither route is available, stop before
+spawn as `action-required`. This contract applies to Node, npx, HyperFrames,
+browser descendants, package managers, FFmpeg, and FFprobe.
 
 ### 6. Check official HyperFrames Skills
 
-Run:
+From the public release root, run:
 
 ```bash
-npx hyperframes skills check --json
+node scripts/doctor.mjs --json
 ```
 
-Invoke this command through the sanitized child map defined above; the command
-text intentionally contains no shell-specific environment syntax.
+Invoke this command through the sanitized child map defined above. The release
+doctor binds the official Skills check to the application-owned pinned source,
+then runs the official HyperFrames doctor. It does not contact the mutable
+remote Skill head for readiness.
 
-Skills check accesses the official GitHub Skill source. This is declared
-read-only network access during inspection.
-
-If the core set is incomplete or stale and repair is authorized, run:
+If the pinned core set is incomplete or changed and repair is authorized, rerun
+the public release installer from the same release root:
 
 ```bash
-npx hyperframes skills update
+./Install.command
 ```
 
-Skills update also accesses the official GitHub Skill source and modifies the
-installed Skill set, so it runs only in the authorized fresh repair Agent.
+The installer exact-fetches the fixed HyperFrames commit, runs the locked
+Skills CLI only inside an isolated HOME, verifies the exact eight-Skill core,
+and commits official plus project Skill links in one backup/rollback
+transaction. Then rerun the release doctor. Do not recreate a missing Skill
+from memory or run a third-party installer directly against the real HOME.
 
-Then rerun the Skills check. If the command cannot reach the official source,
-report the network or registry limitation. Do not recreate a missing Skill
-from memory.
+`npx hyperframes skills check --json` without `--source` is an optional
+canonical-remote maintenance check. Its result can inform an explicit upgrade
+decision, but it does not invalidate the reproducible pinned baseline by
+itself.
 
 The release installer owns registration of the public Skill set. Verify that
 the host can discover all eight:

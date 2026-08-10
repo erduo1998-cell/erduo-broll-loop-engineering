@@ -25,7 +25,7 @@ production-ready.
 ## Official HyperFrames requirement
 
 Before opening source or assembling blocks, use the host's native Skill
-mechanism to load the current official `hyperframes` Skill and the relevant
+mechanism to load the release-pinned official `hyperframes` Skill and the relevant
 official composition and CLI guidance.
 
 A handoff claim or CLI command alone does not replace the real Skill load.
@@ -38,9 +38,13 @@ whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
 key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
 directly to the executable without a shell. Telemetry opt-in may change only
 the telemetry value; Pexels-key removal remains mandatory. Do not use
-shell-inline assignments or `env -u` as the contract. If the host cannot prove
-the sanitized map was passed, stop before spawn as `action-required`. This
-setting does not prove Skill loading or replace the standard check.
+shell-inline assignments or `env -u` as the contract. If the host cannot inject
+or attest the sanitized map, invoke the command only through the parent Skill's
+bundled `scripts/safe-spawn.mjs` using the command form documented in the
+parent Skill. That launcher is the bounded no-log, no-shell trust
+boundary. If neither route is available, stop before spawn as
+`action-required`. This setting does not prove Skill loading or replace the
+standard check.
 
 ## Inputs
 
@@ -60,6 +64,9 @@ Confirm before assembly:
 - block and shot order matches the Director plan;
 - every shot maps one-for-one to its Shot Recipe and recorded runtime
   implementation decision;
+- every Recipe `patternRef`, when present, maps to the same card ID, style key,
+  and pinned upstream Git commit recorded by its Builder; no unselected
+  catalog pattern was introduced during implementation;
 - every block uses the same selected `hyperframes` runtime;
 - integer-millisecond coverage is continuous from zero through the final cue;
 - no shot is omitted, duplicated, overlapped, or retimed;

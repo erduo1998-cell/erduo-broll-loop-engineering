@@ -4,17 +4,17 @@
 
 **把一份 SRT 和可选的口播视频，交给一组协作 Agent，得到可编辑、可复查的 HyperFrames B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.1.0--rc.2-f97316)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
 
-[三分钟安装](#三分钟安装) · [第一次怎么用](#第一次怎么用) · [常见问题](#常见问题) · [联系作者](#联系作者)
+[三分钟安装](#三分钟安装) · [镜头能力目录](#镜头能力目录) · [第一次怎么用](#第一次怎么用) · [常见问题](#常见问题) · [联系作者](#联系作者)
 
 </div>
 
-> [!WARNING]
-> 当前是 `0.1.0-rc.2` 开源候选版，不是正式稳定版。macOS + Codex 已有当前架构的真实生产证据；全新用户安装回归、Claude Code 同输入对照、Windows 与剪映/CapCut GUI 实机验证仍未完成。请先看[支持范围](#支持范围)。
+> [!IMPORTANT]
+> `0.2.0` 是首个稳定开源版。稳定指公开的 Skill、安装、镜头能力目录与发布包契约进入语义化版本管理，不代表每张镜头卡都已经成为一个经过双运行时渲染验证的组件。当前生产渲染后端仍是 HyperFrames；Remotion 仍处于实验性适配契约。请先看[支持范围](#支持范围)。
 
 ## 它解决什么问题
 
@@ -61,13 +61,13 @@
 
 ## 渲染运行时边界
 
-当前默认且唯一具有本项目生产证据的渲染运行时仍是 **HyperFrames**。仓库正在建立运行时无关的 Shot Recipe、能力矩阵和适配契约，让同一份镜头意图未来可以分别由 HyperFrames 与 Remotion 后端实现；这项工作目前只是 **runtime-adapter foundation**，不是已经完成的双端渲染器。
+当前默认且唯一具有本项目生产证据的渲染运行时仍是 **HyperFrames**。仓库用运行时无关的 Shot Recipe、能力矩阵和适配契约冻结镜头意图，让同一份语义定义未来可以分别由 HyperFrames 与 Remotion 后端实现；这仍然不是已经完成的通用双端渲染器。
 
 - `hyperframes`：默认运行时，继续走现有 Builder、Integrator、预览与正式渲染链路。
 - `remotion`：仅有实验性契约，尚无本项目端到端渲染、视觉一致性或生产可用证据。
 - 本仓库不捆绑、不安装 Remotion，也不授予 Remotion 的使用许可。是否可以在你的个人、团队、公司或自动化场景中使用，应以 Remotion 官方现行许可为准。
 - 运行时能力必须逐项声明为可移植、运行时原生、互操作或不支持；实验性契约不代表所有 Remotion Composition 都能自动转换成 HyperFrames。
-- 本轮尚未吸收任何第三方镜头卡。镜头卡迁移必须等基础契约通过验证后，再逐卡提炼 Shot Recipe、实现适配器并分别验证。
+- `0.2.0` 收录来自 `video-shotcraft` 的完整卡片与风格索引，但只吸收文本化的镜头知识、检索元数据和来源证据；不复制其 TSX、预览媒体、音频、纹理或运行时依赖。
 
 因此，现有使用提示词不需要选择运行时；未明确进入将来的实验流程时，一律按 HyperFrames 执行。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
 
@@ -76,6 +76,33 @@
 ```bash
 node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs <shot-recipes-directory>
 ```
+
+## 镜头能力目录
+
+`0.2.0` 收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+
+请准确理解这里的“吸收”：
+
+- 已验证的是卡片数量、style 覆盖、唯一 ID、来源 commit、逐文件哈希、查询闭集和发布包闭集；
+- 上游卡片正文可能包含 Remotion、TSX 或其他实现参考；生产时只能提炼其中的镜头语义、素材需求、运动阶段和可读停留，再用目标运行时原生重实现；
+- **152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件**，也不等于 Remotion TSX 可以自动转换；
+- 实际镜头仍由 Director 选择、Assets 准备素材、Builder 根据目标运行时实现，并接受 HyperFrames 的 check、seek、预览和渲染验证；
+- 上游文本依据 Apache-2.0 原样收录并保留来源与完整许可；本仓库没有复制上游 TSX 或媒体资产。
+
+开发者和 Agent 应使用仓库提供的查询脚本，不要递归加载全部卡片。常见查询方式：
+
+```bash
+# 查看数量摘要
+node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --stats
+
+# 按语义查询，先取得候选摘要
+node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --search '急推 特写' --category camera
+
+# 已知稳定 card id 时只读取这一张
+node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --card <card-id>
+```
+
+`--search` 会把空白分隔的关键词按 AND 匹配；长句无结果时，改用一两个辨识度高的词重试，不要直接判定“没有合适卡片”。还可以用 `--list --category <category>` 枚举分类；已选定卡片后，可用 `--card <card-id> --style <style-key>` 限定该卡内部的 style。`--style` 不能独立反查。只有 `--card` 输出卡片全文，其余命令保持渐进式摘要。目录、卡片和逐文件哈希之间的绑定由测试与发布清单验证。完整许可证见 [`third_party/licenses/video-shotcraft-APACHE-2.0.txt`](third_party/licenses/video-shotcraft-APACHE-2.0.txt)，证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
 
 ## 使用前准备
 
@@ -94,7 +121,7 @@ node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs <shot-recipes-dir
 
 ### 不用提前准备
 
-- 不用自己安装 Node.js 22：缺失时安装器会安装固定版本到用户目录；
+- 不用自己安装 Node.js：缺失或低于 `22.20.0` 时，安装器会安装固定版本到用户目录；
 - 不用写 `design.md`：Director 会根据本期 SRT、目标和素材建立视觉方向；
 - 不用手工复制八个 Skill：安装器会同时安装父 Skill 与七个阶段 Skill；
 - 不用把 Pexels Key 发进聊天：安装器使用不回显输入并在保存前真实验证。
@@ -126,16 +153,18 @@ cd erduo-hyperframes-broll
 
 安装器会按顺序：
 
-1. 检查 Node.js 22 或更高版本；
+1. 检查 Node.js `22.20.0` 或更高版本；
 2. 必要时从 Node.js 官方固定目录下载 `v22.23.1`，按 CPU 架构校验内置 SHA-256，并安装到用户应用数据目录；
-3. 用 `npm ci --ignore-scripts` 安装锁定的 `hyperframes@0.7.72` 依赖图；
-4. 运行官方 `hyperframes skills update` 和 `skills check --json`；
+3. 用 `npm ci --ignore-scripts` 安装锁定的 `hyperframes@0.7.104` 与 `skills@1.5.22` 依赖图；
+4. 精确拉取 HyperFrames `c96b30c7174984e684620556ce871a285381ec60`，在隔离 HOME 中安装并用官方 `skills check --dir ... --source ... --json` 验证 8 个核心 Skill；
 5. 运行官方 `hyperframes browser ensure`；
 6. 运行并解析官方 `hyperframes doctor --json`；
-7. 把父 Skill 和七个阶段 Skill 安装到 Codex 与 Claude Code；
+7. 把 8 个官方 HyperFrames 核心 Skill、父 Skill 和七个阶段 Skill 一起纳入冲突确认、备份、链接和失败回滚事务，再安装到 Codex 与 Claude Code；
 8. 安全询问一次 Pexels Key，并在保存前做真实轻量验证。
 
-它不会使用 `sudo`，不会修改 shell profile，也不会静默覆盖不同的已有 Skill。发现冲突时，它会先列出冲突、请求一次授权，再做可恢复备份。
+它不会使用 `sudo`，不会修改 shell profile，也不会让第三方安装器直接写真实 HOME。发现不同的已有 Skill 时，它会先列出冲突、请求一次授权，再做可恢复备份；任一步失败都会逆序恢复已改变的目标。
+
+首次冷安装需要下载 HyperFrames 的完整锁定依赖、固定 Skill 源和浏览器，在普通网络下可能需要 10–20 分钟；每个网络阶段都有硬超时，固定 Git 拉取最多重试三次。失败后可直接重新运行，已完成的 npm 缓存和应用自有运行时会复用，安装器不会把半成品 Skill 链接进宿主。
 
 如果缺少 FFmpeg/FFprobe，只有在本机已经安装 Homebrew 且你明确同意时，安装器才会执行 `brew install ffmpeg`；它不会擅自安装 Homebrew。
 
@@ -228,7 +257,7 @@ Builder、Integrator 和 Render / Delivery 必须在各自独立上下文中真�
 | 现象 | 怎么处理 |
 | --- | --- |
 | 双击 `Install.command` 没反应 | Control 点击后选“打开”；仍不行就在终端输入 `bash `，把文件拖进去后回车 |
-| 提示 Node 版本太低 | 继续安装即可；安装器会准备用户级 Node.js 22，不替换系统 Node |
+| 提示 Node 版本太低 | 继续安装即可；低于 `22.20.0` 时安装器会准备用户级 Node.js `22.23.1`，不替换系统 Node |
 | 提示 FFmpeg 缺失 | 如果已有 Homebrew，同意安装器执行 `brew install ffmpeg`；否则先自行安装 FFmpeg，再重跑安装 |
 | Pexels 显示 `action-required` | 到 Pexels 官网申请 Key，然后重新运行安装器；不要把 Key发进聊天 |
 | Codex / Claude Code 找不到 Skill | 先彻底重启宿主，再运行 `node scripts/doctor.mjs`；同时确认安装后的仓库文件夹没有被移动或删除 |
@@ -268,9 +297,9 @@ git pull --ff-only
 
 | 环境 | 当前状态 |
 | --- | --- |
-| macOS + Codex | 当前提示词架构已有真实 forward-test 证据；RC 发布门仍待完成 |
-| macOS + Claude Code | 待同输入 RC 对照 |
-| macOS 首次安装 | release candidate，仍需全新用户环境验收 |
+| macOS + Codex | supported；已有当前提示词架构的真实生产证据 |
+| macOS + Claude Code | experimental；安装契约受测试覆盖，尚缺当前版本同输入端到端对照 |
+| macOS 首次安装 | supported installer；具体机器仍须先运行 doctor |
 | Windows | unverified |
 | 剪映 / CapCut 桌面 GUI | unverified |
 
@@ -280,11 +309,13 @@ git pull --ff-only
 
 本仓库自身不采集或发送遥测。安装、诊断、打包和公共生产 Skills 对其启动的非 Pexels 子进程使用显式安全环境映射，并默认设置 `HYPERFRAMES_NO_TELEMETRY=1`。
 
+当宿主不能直接注入或证明安全环境映射时，Skill 只允许通过随包提供的 `erduo-hyperframes-broll/scripts/safe-spawn.mjs` 启动命令。这个边界启动器不打印环境，拒绝大小写冲突，移除所有 `PEXELS_API_KEY` 大小写变体，并以 `shell: false` 启动目标程序；它不替代官方 Skill 加载、doctor、check 或结果审查。
+
 首次准备可能访问：
 
 - `nodejs.org`：必要时下载固定 Node.js；
 - npm registry：安装锁定的 HyperFrames 依赖；
-- GitHub 上的 HyperFrames 官方 Skill 来源：执行 `skills update` 与 `skills check`；
+- GitHub 上的 HyperFrames 官方 Skill 来源：安装器只拉取固定 commit，在隔离 staging 中安装并验证；日后用户明确执行官方远端更新命令时才检查更新；
 - HyperFrames 官方浏览器源：执行 `browser ensure`；
 - Pexels API 与 CDN：验证 Key、搜索和下载生产素材；
 - Homebrew：仅在你明确授权安装 FFmpeg 时。
@@ -323,7 +354,7 @@ npm test
 
 ## English quick start
 
-`erduo-hyperframes-broll` is a prompt-first parent/child Agent Skill for SRT-anchored HyperFrames B-roll. The current release candidate supports macOS as its validated baseline.
+`erduo-hyperframes-broll` 0.2.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored HyperFrames B-roll. HyperFrames on macOS is the supported production baseline; Remotion and Claude Code integration remain experimental, while Windows and desktop CapCut/Jianying imports are unverified.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-hyperframes-broll.git

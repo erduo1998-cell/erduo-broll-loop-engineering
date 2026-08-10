@@ -37,7 +37,7 @@ runtime contract. Missing, stale, or merely claimed local evidence is
 `action-required`; a capability marked unsupported is `unsupported`. Do not
 synthesize witness evidence or weaken the default HyperFrames requirements.
 
-Load the current official `hyperframes` and `hyperframes-cli` Skills through
+Load the release-pinned official `hyperframes` and `hyperframes-cli` Skills through
 the host's native Skill mechanism before using HyperFrames commands.
 
 Before every non-Pexels child process, use the host's native spawn/process API
@@ -46,10 +46,14 @@ whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
 key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
 directly to the executable without a shell. Telemetry opt-in may change only
 the telemetry value; Pexels-key removal remains mandatory. Do not use
-shell-inline assignments or `env -u` as the contract. If the host cannot prove
-the sanitized map was passed, stop before spawn as `action-required`. Do not
-modify the user's shell profile. This privacy setting neither proves the
-official Skill load nor replaces inspection of command results.
+shell-inline assignments or `env -u` as the contract. If the host cannot inject
+or attest the sanitized map, invoke the command only through the parent Skill's
+bundled `scripts/safe-spawn.mjs` using the command form documented in the
+parent Skill. That launcher is the bounded no-log, no-shell trust
+boundary. If neither route is available, stop before spawn as
+`action-required`. Do not modify the user's shell profile. This privacy setting
+neither proves the official Skill load nor replaces inspection of command
+results.
 
 Inspect the real environment. Do not accept file existence, a handoff claim, or
 process exit status as sufficient proof.
@@ -107,11 +111,14 @@ Its command always exits successfully, so read the top-level result and every
 individual finding. Classify optional capabilities only against the selected
 local delivery path; do not use a standing exemption list.
 
-Run the official Skills check. Both Skills check and Skills update access the
-official GitHub Skill source; treat that as declared network access and state it
-before the command. In inspection mode, only report a missing or stale core
-set. In authorized repair mode, use the official Skills update command, then
-rerun the check.
+Run the release doctor, which invokes the official Skills check against the
+application-owned pinned source and then invokes the official HyperFrames
+doctor. A missing or changed pinned core set is `action-required`. In an
+authorized repair Agent, rerun the release installer so the eight official
+Skills and eight project Skills share its backup and rollback transaction;
+do not let a third-party installer write the real HOME directly. A canonical
+remote `npx hyperframes skills check --json` is an optional maintenance check,
+not readiness evidence for this pinned release.
 
 If the doctor reports missing bundled Chrome, inspection mode records the
 repair. In authorized repair mode, use the official browser ensure command,

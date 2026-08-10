@@ -2,24 +2,28 @@
 
 ## 公共边界
 
-- [ ] 公共包只含根文档、安装/诊断工具和提示词型 Skill 表面。
+- [ ] 公共包只含根文档、安装/诊断工具、提示词型 Skill 表面和 manifest 明确列出的 Shotcraft 文本知识库。
 - [ ] 不含凭据、用户数据、私人路径、渲染产物、缓存、`node_modules` 或开发历史。
-- [ ] 原作者标识、私有样板名和旧工程架构术语静态扫描为零。
-- [ ] MIT 与第三方说明完整。
+- [ ] 私有样板名、旧工程架构术语和未声明来源静态扫描为零；Shotcraft 来源标识只出现在允许的归因与目录字段。
+- [ ] MIT、第三方说明与 `third_party/licenses/video-shotcraft-APACHE-2.0.txt` 完整。
 - [ ] 只对最终归档内容重新生成逐文件 SHA-256 清单；不得复用 staging 或历史清单，并在独立解压目录复核。
-- [ ] 只使用 `node scripts/package-release.mjs --output <外部绝对路径>` 打包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar 并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 48 个 regular、精确目录闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部 47 条摘要 47/47 一致，再完成独立解包复核。
+- [ ] 只使用 `node scripts/package-release.mjs --output <外部绝对路径>` 打包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar 并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 regular member 精确闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部摘要逐条一致，再完成独立解包复核。成员数量从白名单与 Shotcraft manifest 推导，不在文档中硬编码旧版本计数。
 - [ ] README、PRIVACY 与第三方说明明确：本仓库自身无遥测；包外直接调用 HyperFrames 时，其隐私行为受 HyperFrames 自身政策约束。
+- [ ] 宿主无环境映射注入能力时，bundled `safe-spawn.mjs` 的 no-log、大小写碰撞拒绝、Pexels Key 全变体移除、`shell: false` 与退出码传递均通过真实子进程回归。
 
 ## 首次运行
 
 - [ ] 在干净 macOS 用户环境双击 `Install.command` 完成。
-- [ ] 缺少 Node 时，只下载官方固定 `v22.23.1` 架构归档，内置 arm64/x64 SHA-256 校验通过，且未使用 sudo 或修改 shell profile。
-- [ ] 官方 `hyperframes@0.7.72` Skills update/check、browser ensure 与 doctor payload 解析完成。
+- [ ] 缺少 Node 或现有版本低于 `22.20.0` 时，只下载官方固定 `v22.23.1` 架构归档，内置 arm64/x64 SHA-256 校验通过，且未使用 sudo 或修改 shell profile。
+- [ ] 官方 `hyperframes@0.7.104` exact-SHA Skill staging/check、browser ensure 与 doctor payload 解析完成。
 - [ ] 安装与诊断启动的 npm、官方 HyperFrames、browser 和可选 Homebrew 子进程均强制 `HYPERFRAMES_NO_TELEMETRY=1` 且不继承 `PEXELS_API_KEY`。
 - [ ] 安装引导、打包 tar 和生产 Skills 启动的所有非 Pexels 子进程也使用显式环境映射，大小写不敏感地删除全部 Pexels Key 变量变体；不能证明映射时在 spawn 前停止。
-- [ ] 网络边界已公开：`npm ci` 访问 npm registry；Skills update/check 访问 GitHub 官方 Skill 来源；browser ensure 访问官方浏览器源。
-- [ ] `runtime/package-lock.json` 的根依赖和已锁包均为 `hyperframes@0.7.72`，registry 包 integrity 完整；安装命令是 `npm ci --ignore-scripts --no-audit --no-fund`。
+- [ ] 网络边界已公开：`npm ci` 访问 npm registry；exact-SHA shallow fetch 访问 GitHub 官方 Skill 来源；browser ensure 访问官方浏览器源。
+- [ ] `runtime/package-lock.json` 的根依赖只包含 `hyperframes@0.7.104` 与 `skills@1.5.22`，registry 包 integrity 完整；安装命令是 `npm ci --ignore-scripts --no-audit --no-fund`。
 - [ ] runtime lock 拒绝额外根依赖、git/file/link/HTTP、缺失 resolved、非 npm registry HTTPS tarball 和缺失或非法 integrity。
+- [ ] 固定 HyperFrames commit 已核验；第三方 Skills CLI 只写隔离 HOME；staged store 精确闭合 8 个核心 Skill且无 symlink/special file；官方 check 显式绑定 `--dir` 与 `--source`。
+- [ ] doctor 的版本更新提示只在 `_meta.version` 精确命中锁定版本时降为非阻断；版本不明/不符以及 Node、FFmpeg、FFprobe、Chrome 任一失败仍关闭。
+- [ ] 8 个官方 Skill 与 8 个本项目 Skill 共用一次占用确认、备份、链接、manifest commit 和失败逆序回滚事务；升级与卸载能恢复初始备份链。
 - [ ] FFmpeg 缺失路径只在 Homebrew 已存在并获一次授权时安装，否则清晰返回 action-required。
 - [ ] Codex 与 Claude Code 的父 Skill + 七个阶段 Skill 均安装；冲突安装有可恢复备份。
 - [ ] Pexels Key 通过隐藏输入或 stdin 配置、真实 API 验证、0600 原子保存，并且未进入 argv、日志或诊断。
@@ -32,7 +36,7 @@
 
 ## 生产验证
 
-- [ ] 从本 RC 执行一次全新 Codex 真实 SRT 端到端，完成官方 HyperFrames check、render 和媒体验证。
+- [ ] 从本版本执行一次全新 Codex 真实 SRT 端到端，完成官方 HyperFrames check、render 和媒体验证。
 - [ ] Claude Code 使用同输入独立执行并比较公开交付契约。
 - [ ] Assets/Pexels 固定阶段真实运行。
 - [ ] Builder、Integrator、Render/Delivery 的官方 HyperFrames Skill 加载有真实宿主 trace。
@@ -40,11 +44,23 @@
 - [ ] 用户已观看 master；技术成功没有被表述为审美通过。
 - [ ] Windows 与剪映 GUI 保持 `unverified`，除非已有对应实机证据。
 
-## Runtime adapter foundation
+## Runtime adapter 与 Shotcraft 知识层
 
 - [ ] Shot Recipe schema、能力矩阵、运行时映射文档与零依赖 Recipe 校验器均通过确定性校验，枚举、必填字段、时间包含关系、唯一 ID 和引用闭集无漂移。
 - [ ] 默认生产运行时仍为 HyperFrames；Remotion 只标记为 `experimental contract only`，未被安装器、runtime lock 或生产 Skill 暗中升级为默认依赖。
 - [ ] README、支持矩阵和 Skill 表面均没有把契约、示例或静态映射误称为已完成双端渲染、视觉一致或全自动转换。
 - [ ] Remotion 边界明确：本仓库不捆绑、不安装、不代为授权；使用者按 Remotion 官方现行许可判断自身场景。
-- [ ] 未吸收第三方镜头卡、代码、预览或媒体；后续引入必须逐卡记录来源、许可证、Shot Recipe、双端实现状态和真实验证证据。
+- [ ] `catalog.json` 固定上游 URL、commit `41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b`、library revision `bdd94be16d60fa8f` 与 Apache-2.0，并精确记录 152 张卡、209 个全局唯一 style key。
+- [ ] `manifest.json` 精确覆盖 catalog、归因文件和 152 张卡；每项 target、bytes 与 SHA-256 对实际 regular file 复算一致，且不存在 manifest 外卡片或卡片外 manifest 条目。
+- [ ] 卡片 name、文件路径和 catalog 引用一一对应；上游 source 与本地 localSource 均通过路径闭集验证。
+- [ ] 查询脚本的 stats、list、search 保持小型摘要，只允许 card 模式输出一张卡片全文；`--style` 只能随 `--card` 限定卡内 style，不存在一次输出完整卡库的默认路径。
+- [ ] 发布包包含 catalog、manifest、查询脚本、归因文件、152 张文本卡和完整 Apache-2.0 文本；不含 TSX、预览、音频、纹理、字体或其他上游媒体。
+- [ ] README、支持矩阵和 Skill 表面均明确：152 张卡片是可检索的运行时无关知识，不是 152 个已验证 HyperFrames 组件，也不代表完成 Remotion/HyperFrames 双端一致性。
 - [ ] 在支持矩阵提升 Remotion 状态前，至少为代表性 Recipe 留存真实 Remotion 与 HyperFrames 构建、渲染、关键时间点对比和限制记录。
+
+## 正式发布与回滚
+
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.2.0`。
+- [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
+- [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
+- [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

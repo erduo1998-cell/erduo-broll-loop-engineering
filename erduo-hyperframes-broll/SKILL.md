@@ -13,6 +13,11 @@ Act only as the Parent Producer. Read:
 - [handoff format](references/handoff-template.md)
 - [first-run onboarding](references/first-run-onboarding.md)
 
+The bundled Shotcraft catalog is runtime-neutral pattern knowledge. Discover it
+progressively through `scripts/query-shotcraft.mjs`; do not load the catalog or
+all card bodies into one context. A catalog entry is not a bundled Remotion
+component, HyperFrames component, adapter, render witness, or parity claim.
+
 ## Parent boundary
 
 The Parent may clarify the production goal, dispatch fresh agents, read
@@ -75,7 +80,7 @@ future production-available route lacks required local evidence, stop as
 never present the experimental adapter contract as a formal render backend.
 
 The onboarding Agent coordinates environment and authorization only. It must
-use the current official HyperFrames Skill and CLI guidance, actually run the
+use the release-pinned official HyperFrames Skill and CLI guidance, actually run the
 official HyperFrames doctor and Skills checks, and use the official browser
 command when Chrome repair is authorized. It must not substitute a
 project-specific doctor.
@@ -126,8 +131,18 @@ Builder, not the Director. No stage may claim that a recipe is portable merely
 because it can be described; portability is determined by the capability
 matrix and verified adapter evidence.
 
+For every semantic shot, require the Director to search the Shotcraft catalog
+with the bundled query command before deciding whether one primary pattern is
+useful. A shot may bind exactly one primary card and style, or use no pattern.
+A selected pattern requires a semantic reason, stable card ID, style key,
+pinned upstream Git commit, and runtime-neutral fallback in the Shot Recipe.
+The Director starts with statistics and a category-filtered list or directed
+search, then reads only the selected card body. It must not run an unfiltered
+list, force a decorative effect, or repeat one motion grammar merely because
+the catalog contains it.
+
 For the production-ready `hyperframes` route, require every Builder to load
-the current official `hyperframes` Skill through
+the release-pinned official `hyperframes` Skill through
 the host's native Skill mechanism before reading or writing HyperFrames source.
 Require the Integrator to load it before assembly and Render/Delivery to load
 it before doctor, check, preview, or render. A handoff claim or a CLI command
@@ -139,8 +154,13 @@ Require every stage to use the shared safe child-environment contract for all
 non-Pexels processes: an explicit host-native environment map, removal of every
 case variant of `PEXELS_API_KEY`, `HYPERFRAMES_NO_TELEMETRY=1` by default, and
 direct spawn without a shell. Only a dedicated Pexels request receives the key.
-If the host cannot prove this isolation, the owning stage stops before spawn as
-`action-required`.
+When the host API cannot inject or attest that map, use the parent Skill's
+bundled `scripts/safe-spawn.mjs` as the only approved bootstrap:
+`node <parent-skill-root>/scripts/safe-spawn.mjs -- <executable> [args...]`.
+The launcher is a bounded trust boundary: it never logs the environment,
+rejects case-insensitive collisions, removes every Pexels-key variant, sets
+telemetry off, and spawns directly without a shell. If neither route is
+available, the owning stage stops before spawn as `action-required`.
 
 All stages before the final official composition preview may proceed
 unattended after onboarding is ready. Formal render must pause for explicit
@@ -170,6 +190,10 @@ progress.
 - Give every shot a semantic reason, an audience-understanding goal, a clear
   focus, a visible change or deliberate stable state, readable information,
   and an intentional connection to neighboring shots.
+- Treat a Shotcraft pattern as optional motion knowledge, not a required
+  template. Use at most one primary pattern per shot, preserve its quality
+  constraints when selected, and let content-specific direction override a
+  merely attractive match.
 - Let sections establish, question, compare, explain, escalate, resolve,
   callback, or transition in the form the content needs. Develop motifs, vary
   density, and avoid accidental adjacent repetition.

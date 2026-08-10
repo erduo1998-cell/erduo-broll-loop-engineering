@@ -19,6 +19,7 @@ export HYPERFRAMES_NO_TELEMETRY=1
 ROOT_DIR="$(cd -- "$(dirname -- "$0")" && pwd -P)"
 APP_DIR="${HOME}/Library/Application Support/erduo-hyperframes-broll"
 NODE_BIN="${ERDUO_NODE_BIN:-}"
+NODE_MIN_VERSION='22.20.0'
 NODE_VERSION='22.23.1'
 
 finish() {
@@ -38,8 +39,15 @@ finish() {
 }
 trap finish EXIT
 
-node_major() {
-  "$1" -p 'Number(process.versions.node.split(".")[0])' 2>/dev/null || printf '0'
+node_supported() {
+  "$1" -e '
+    const current = process.versions.node.split(".").map(Number);
+    const minimum = process.argv[1].split(".").map(Number);
+    const supported = current.some((part, index) => part > minimum[index]
+      && current.slice(0, index).every((value, prefix) => value === minimum[prefix]))
+      || current.every((part, index) => part === minimum[index]);
+    process.exit(supported ? 0 : 1);
+  ' "$NODE_MIN_VERSION" >/dev/null 2>&1
 }
 
 ensure_plain_directory() {
@@ -144,8 +152,8 @@ if [ -z "$NODE_BIN" ] && command -v node >/dev/null 2>&1; then
   NODE_BIN="$(command -v node)"
 fi
 
-if [ -z "$NODE_BIN" ] || [ ! -x "$NODE_BIN" ] || [ "$(node_major "$NODE_BIN")" -lt 22 ]; then
-  printf '正在准备用户级 Node.js 22（不会修改系统 Node 或 shell profile）…\n'
+if [ -z "$NODE_BIN" ] || [ ! -x "$NODE_BIN" ] || ! node_supported "$NODE_BIN"; then
+  printf '正在准备用户级 Node.js %s（不会修改系统 Node 或 shell profile）…\n' "$NODE_VERSION"
   install_user_node
 fi
 
