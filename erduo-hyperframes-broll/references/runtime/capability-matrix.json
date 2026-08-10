@@ -1,0 +1,95 @@
+{
+  "matrixVersion": "1.0.0",
+  "scope": "Runtime routing for semantic shot recipes. Classification does not prove implementation or render parity.",
+  "defaultRuntime": "hyperframes",
+  "runtimes": {
+    "hyperframes": {
+      "maturity": "default-production",
+      "bundledByThisContract": false,
+      "productionAvailable": true,
+      "notes": "Production behavior remains governed by the official HyperFrames Skill and existing stage contracts."
+    },
+    "remotion": {
+      "maturity": "experimental-boundary",
+      "bundledByThisContract": false,
+      "installedByThisContract": false,
+      "authorizedByThisContract": false,
+      "productionAvailable": false,
+      "notes": "Dependencies, licenses, source, witnesses, and renders require a later explicit milestone."
+    }
+  },
+  "classifications": {
+    "portable": "A runtime-neutral semantic requirement intended for independent native implementation in both runtimes.",
+    "native-remotion": "A requirement intentionally owned by a Remotion implementation and not translated into HyperFrames source.",
+    "native-hyperframes": "A requirement intentionally owned by a HyperFrames implementation and not translated into Remotion source.",
+    "interop": "A boundary where one runtime hands a frozen artifact to the other instead of translating implementation code.",
+    "unsupported": "No approved deterministic route exists; stop or use an explicit Director-owned fallback."
+  },
+  "verificationStates": {
+    "contract-only": "The routing meaning is documented but no backend or render witness is claimed.",
+    "backend-verified": "The named backend implementation and dependency checks have passed.",
+    "witness-verified": "A reproducible runtime witness has rendered and passed its declared checks.",
+    "comparison-verified": "Both runtime witnesses have passed the declared cross-runtime comparison."
+  },
+  "unlistedCapabilityPolicy": "reject-before-build",
+  "contractOnlyPolicy": "Contract-only is the cross-runtime adapter evidence state. It does not disable the existing HyperFrames production workflow when hyperframesRoute is existing-production-workflow or existing-production-contract, and it never proves Remotion support.",
+  "renderParityClaimed": false,
+  "capabilities": [
+    {
+      "id": "semantic.integer-ms-window",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "A shot and its phases are anchored to absolute integer milliseconds from the SRT timeline.",
+      "hyperframesRoute": "existing-production-workflow",
+      "remotionRoute": "future-native-adapter"
+    },
+    {
+      "id": "semantic.visual-state-transition",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "A shot declares an initial state, visible change, result state, and focus order without runtime APIs.",
+      "hyperframesRoute": "existing-production-workflow",
+      "remotionRoute": "future-native-adapter"
+    },
+    {
+      "id": "semantic.readable-hold",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "Important visible information has an explicit integer-millisecond readability window.",
+      "hyperframesRoute": "existing-production-workflow",
+      "remotionRoute": "future-native-adapter"
+    },
+    {
+      "id": "runtime.remotion-react-source",
+      "classification": "native-remotion",
+      "verification": "contract-only",
+      "meaning": "React or TSX implementation remains in a Remotion-owned artifact and never enters the canonical recipe.",
+      "hyperframesRoute": "not-applicable",
+      "remotionRoute": "future-native-backend"
+    },
+    {
+      "id": "runtime.hyperframes-seekable-source",
+      "classification": "native-hyperframes",
+      "verification": "contract-only",
+      "meaning": "HyperFrames composition source remains in a HyperFrames-owned artifact and never enters the canonical recipe.",
+      "hyperframesRoute": "existing-production-contract",
+      "remotionRoute": "not-applicable"
+    },
+    {
+      "id": "interop.pre-rendered-media",
+      "classification": "interop",
+      "verification": "contract-only",
+      "meaning": "A verified frozen media artifact may cross a runtime boundary without translating its source implementation.",
+      "hyperframesRoute": "future-explicit-import",
+      "remotionRoute": "future-explicit-export"
+    },
+    {
+      "id": "runtime.ambient-react-state",
+      "classification": "unsupported",
+      "verification": "contract-only",
+      "meaning": "Behavior that depends on ambient mutable React state or effects without deterministic time reconstruction is not portable.",
+      "hyperframesRoute": "reject",
+      "remotionRoute": "reject-for-portable-recipe"
+    }
+  ]
+}

@@ -36,6 +36,10 @@ labels.
 - Ask once whether the user has images, videos, logos, screenshots, or other
   ordinary material. These inputs are optional.
 - Confirm the mode and explicit brand, content, audio, or privacy constraints.
+- Record the requested render runtime. Default to `hyperframes`. Treat
+  `remotion` only as an experimental adapter target under
+  [the runtime contract](references/runtime/runtime-contract.md); it is not a
+  production-ready delivery backend in this release.
 - When the user does not specify a delivery location, choose one new
   timestamped directory beside the SRT. Use the SRT basename plus
   `-broll-YYYYMMDD-HHMMSS`, adding a unique suffix if needed.
@@ -57,8 +61,18 @@ inspection-only mode before production.
 
 Fresh ready evidence must belong to the same production run and bind the same
 host, command `PATH`, official HyperFrames CLI version, target delivery
-filesystem, and Pexels validation state. Any change requires a new
-inspection-only Onboarding Agent.
+filesystem, selected runtime, runtime-capability evidence, and Pexels
+validation state. Any change requires a new inspection-only Onboarding Agent.
+
+For the default `hyperframes` runtime, preserve all existing official Skill,
+doctor, check, preview, and render requirements. If the user requests
+`remotion`, require Onboarding to compare the request with
+`references/runtime/capability-matrix.json` and verify the matrix route plus
+the exact adapter and witness evidence required by the runtime contract. Until
+that runtime is marked production-available, stop as `unsupported`; when a
+future production-available route lacks required local evidence, stop as
+`action-required`;
+never present the experimental adapter contract as a formal render backend.
 
 The onboarding Agent coordinates environment and authorization only. It must
 use the current official HyperFrames Skill and CLI guidance, actually run the
@@ -105,7 +119,15 @@ video searches, evaluate candidates, and freeze selected files locally. It may
 select zero Pexels items when none is suitable, but it may not skip the search
 or omit the explanation.
 
-Require every Builder to load the current official `hyperframes` Skill through
+The Director must author runtime-neutral Shot Recipes that conform to
+`references/runtime/shot-recipe.schema.json` and the runtime contract. Runtime
+APIs, component syntax, and backend implementation decisions belong to the
+Builder, not the Director. No stage may claim that a recipe is portable merely
+because it can be described; portability is determined by the capability
+matrix and verified adapter evidence.
+
+For the production-ready `hyperframes` route, require every Builder to load
+the current official `hyperframes` Skill through
 the host's native Skill mechanism before reading or writing HyperFrames source.
 Require the Integrator to load it before assembly and Render/Delivery to load
 it before doctor, check, preview, or render. A handoff claim or a CLI command
@@ -122,7 +144,10 @@ If the host cannot prove this isolation, the owning stage stops before spawn as
 
 All stages before the final official composition preview may proceed
 unattended after onboarding is ready. Formal render must pause for explicit
-user approval of that final preview.
+user approval of that final preview. The preview-pass Render Agent stops with
+an `action-required` handoff; after approval, dispatch a different fresh
+Render Agent that verifies the approval still binds the unchanged integrated
+composition, repeats preflight and check, and then renders.
 
 ## Review without taking over
 

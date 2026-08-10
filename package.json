@@ -14,6 +14,7 @@
     "config:status": "node scripts/config.mjs status",
     "uninstall:skills": "node scripts/uninstall.mjs",
     "package:release": "node scripts/package-release.mjs",
+    "validate:recipes": "node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs",
     "test": "node --test scripts/test.mjs"
   }
 }

@@ -4,9 +4,13 @@
 
 ## Unreleased
 
+- 新增 runtime-adapter foundation：用运行时无关 Shot Recipe、能力矩阵、映射文档和零依赖校验器冻结 HyperFrames/Remotion 的适配边界。
+- HyperFrames 继续作为默认且唯一具有本项目生产证据的运行时；Remotion 仅为实验性契约，不捆绑、不安装，也不代表已完成双端渲染或全自动转换。
+- 明确本轮尚未吸收第三方镜头卡；后续迁移必须逐卡实现、验证并记录许可证和证据。
+- 消除预览批准输入循环：预览 Agent 停止后，由新的 Render Agent 绑定未变更 composition 的批准证据并复检后渲染。
 - 重写中文 README，补充零基础安装、Pexels Key、三类使用提示词、运行停点、故障处理、更新、卸载和支持边界。
 - 新增中文八步流程图与作者联系方式；两项文档图片作为仓库展示资产，不进入严格白名单发布归档。
-- 保持发布归档 42 个源码文件、43 个 regular member 的确定性边界不变。
+- 发布归档随 runtime contract 与校验器调整为 47 个源码文件、48 个 regular member，并继续保持确定性白名单边界。
 
 ## 0.1.0-rc.2 — 2026-07-28
 

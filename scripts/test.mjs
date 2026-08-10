@@ -44,8 +44,15 @@ import {
   buildRelease,
   verifyReleaseArchiveRaw,
 } from './package-release.mjs';
+import { validateRecipeDirectory } from '../erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const runtimeReferenceRoot = path.join(
+  root,
+  'erduo-hyperframes-broll',
+  'references',
+  'runtime',
+);
 const PEXELS_ENV_FIELD = ['PEXELS', 'API', 'KEY'].join('_');
 const PEXELS_ENV_FIELD_LOWER = PEXELS_ENV_FIELD.toLowerCase();
 const PEXELS_ENV_FIELD_MIXED = ['Pexels', 'Api', 'Key'].join('_');
@@ -523,6 +530,313 @@ test('public documentation states telemetry defaults, network boundaries, and ex
     assert.match(text, /包外|发行包之外/u, name);
     assert.match(text, /HyperFrames 自身[^。\n]*政策约束/u, name);
   }
+});
+
+test('public runtime claims keep HyperFrames default and Remotion experimental without bundling it', async () => {
+  const publicPackage = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
+  const runtimePackage = JSON.parse(
+    await readFile(path.join(root, 'runtime', 'package.json'), 'utf8'),
+  );
+  const installedNames = [
+    ...Object.keys(publicPackage.dependencies ?? {}),
+    ...Object.keys(publicPackage.devDependencies ?? {}),
+    ...Object.keys(runtimePackage.dependencies ?? {}),
+    ...Object.keys(runtimePackage.devDependencies ?? {}),
+  ];
+  assert.equal(installedNames.some((name) => /remotion/iu.test(name)), false);
+
+  const readme = await readFile(path.join(root, 'README.md'), 'utf8');
+  const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
+  const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
+  assert.match(readme, /默认[^。\n]*HyperFrames/u);
+  assert.match(readme, /Remotion[^。\n]*(?:实验性契约|experimental)/iu);
+  assert.match(readme, /不捆绑、不安装 Remotion/u);
+  assert.match(readme, /Remotion 官方现行许可/u);
+  assert.match(readme, /本轮尚未吸收任何第三方镜头卡/u);
+  assert.match(support, /Remotion runtime \| experimental contract only/u);
+  assert.match(support, /没有本项目端到端 Remotion 渲染/u);
+  assert.match(checklist, /未吸收第三方镜头卡/u);
+
+  for (const [name, text] of [['README.md', readme], ['SUPPORT-MATRIX.md', support]]) {
+    assert.doesNotMatch(text, /(?:已完成|支持)(?:任意|全部|所有)[^。\n]*(?:Remotion|双端)[^。\n]*(?:转换|渲染)/u, name);
+    assert.doesNotMatch(text, /(?:Remotion|双端)[^。\n]*(?:完全一致|全自动转换已完成|生产可用已验证)/u, name);
+  }
+});
+
+test('runtime recipe schema preserves a runtime-neutral integer-millisecond contract', async () => {
+  const schema = JSON.parse(
+    await readFile(path.join(runtimeReferenceRoot, 'shot-recipe.schema.json'), 'utf8'),
+  );
+  assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  assert.equal(schema.type, 'object');
+  assert.equal(schema.additionalProperties, false);
+  assert.equal(schema.properties.schemaVersion.const, '1.0.0');
+  assert.deepEqual(
+    [...schema.required].toSorted(),
+    [
+      'materials',
+      'motion',
+      'readability',
+      'requiredCapabilities',
+      'schemaVersion',
+      'semantics',
+      'shotId',
+      'visualState',
+      'window',
+    ],
+  );
+  assert.equal(schema.properties.runtime, undefined);
+  assert.equal(schema.properties.fps, undefined);
+  assert.equal(schema.properties.frames, undefined);
+  assert.equal(schema.properties.requiredCapabilities.minItems, 1);
+  assert.equal(schema.properties.requiredCapabilities.uniqueItems, true);
+
+  const integerMillisecondFields = [];
+  function collectIntegerMillisecondFields(value, pointer = '#') {
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) {
+      const childPointer = `${pointer}/${key}`;
+      if (/Ms$/u.test(key)) {
+        integerMillisecondFields.push(childPointer);
+        assert.equal(child.type, 'integer', childPointer);
+        assert.equal(Number.isInteger(child.minimum), true, childPointer);
+      }
+      collectIntegerMillisecondFields(child, childPointer);
+    }
+  }
+  collectIntegerMillisecondFields(schema);
+  assert.deepEqual(integerMillisecondFields.toSorted(), [
+    '#/$defs/motionPhase/properties/endMs',
+    '#/$defs/motionPhase/properties/startMs',
+    '#/$defs/readability/properties/holdEndMs',
+    '#/$defs/readability/properties/holdStartMs',
+    '#/$defs/window/properties/endMs',
+    '#/$defs/window/properties/startMs',
+  ]);
+  assert.deepEqual(schema.$defs.window.required.toSorted(), ['endMs', 'startMs']);
+  assert.deepEqual(
+    schema.$defs.motionPhase.required.toSorted(),
+    ['endMs', 'intent', 'name', 'startMs', 'visibleChange'],
+  );
+  assert.deepEqual(
+    schema.$defs.readability.required.toSorted(),
+    ['holdEndMs', 'holdStartMs', 'readableItems'],
+  );
+});
+
+test('shot recipe validator accepts a valid recipe and rejects semantic or capability drift', async (t) => {
+  const state = await isolated(t);
+  const recipeDirectory = path.join(state.base, 'shot-recipes');
+  await mkdir(recipeDirectory);
+  const recipe = {
+    schemaVersion: '1.0.0',
+    shotId: 'S01',
+    window: { startMs: 0, endMs: 2000 },
+    semantics: {
+      purpose: 'Explain a change.',
+      audienceUnderstanding: 'The value increases.',
+      focus: 'Primary value',
+      visualLogic: 'Initial value becomes the result.',
+      neighborConnection: 'Continue from the preceding premise.',
+    },
+    visualState: {
+      initial: 'The initial value is visible.',
+      result: 'The result value is visible.',
+      focusOrder: ['label', 'value'],
+    },
+    motion: {
+      phases: [{
+        name: 'action',
+        startMs: 200,
+        endMs: 1200,
+        intent: 'Reveal the increase.',
+        visibleChange: 'The value changes from initial to result.',
+        easingIntent: 'decelerate',
+      }],
+    },
+    readability: {
+      holdStartMs: 1200,
+      holdEndMs: 2000,
+      readableItems: ['value'],
+    },
+    materials: [],
+    requiredCapabilities: [
+      'semantic.integer-ms-window',
+      'semantic.visual-state-transition',
+      'semantic.readable-hold',
+    ],
+  };
+  const recipePath = path.join(recipeDirectory, 'S01.json');
+  await writeFile(recipePath, `${JSON.stringify(recipe, null, 2)}\n`);
+  assert.deepEqual(await validateRecipeDirectory(recipeDirectory), {
+    status: 'valid',
+    recipes: 1,
+  });
+
+  await writeFile(recipePath, `${JSON.stringify({
+    ...recipe,
+    readability: { ...recipe.readability, holdEndMs: 2100 },
+  }, null, 2)}\n`);
+  await assert.rejects(
+    validateRecipeDirectory(recipeDirectory),
+    /hold window must stay inside the shot window/u,
+  );
+
+  await writeFile(recipePath, `${JSON.stringify({
+    ...recipe,
+    requiredCapabilities: ['runtime.ambient-react-state'],
+  }, null, 2)}\n`);
+  await assert.rejects(
+    validateRecipeDirectory(recipeDirectory),
+    /unsupported capability runtime\.ambient-react-state/u,
+  );
+
+  await writeFile(recipePath, `${JSON.stringify({
+    ...recipe,
+    requiredCapabilities: ['semantic.not-registered'],
+  }, null, 2)}\n`);
+  await assert.rejects(
+    validateRecipeDirectory(recipeDirectory),
+    /unknown capability semantic\.not-registered/u,
+  );
+});
+
+test('runtime capability matrix is closed, traceable, and makes no render-parity claim', async () => {
+  const matrix = JSON.parse(
+    await readFile(path.join(runtimeReferenceRoot, 'capability-matrix.json'), 'utf8'),
+  );
+  const classifications = [
+    'interop',
+    'native-hyperframes',
+    'native-remotion',
+    'portable',
+    'unsupported',
+  ];
+  const verificationStates = [
+    'backend-verified',
+    'comparison-verified',
+    'contract-only',
+    'witness-verified',
+  ];
+  assert.equal(matrix.matrixVersion, '1.0.0');
+  assert.equal(matrix.defaultRuntime, 'hyperframes');
+  assert.equal(matrix.runtimes.hyperframes.maturity, 'default-production');
+  assert.equal(matrix.runtimes.hyperframes.productionAvailable, true);
+  assert.equal(matrix.runtimes.remotion.maturity, 'experimental-boundary');
+  assert.equal(matrix.runtimes.remotion.bundledByThisContract, false);
+  assert.equal(matrix.runtimes.remotion.installedByThisContract, false);
+  assert.equal(matrix.runtimes.remotion.authorizedByThisContract, false);
+  assert.equal(matrix.runtimes.remotion.productionAvailable, false);
+  assert.equal(matrix.unlistedCapabilityPolicy, 'reject-before-build');
+  assert.match(matrix.contractOnlyPolicy, /does not disable the existing HyperFrames production workflow/u);
+  assert.equal(matrix.renderParityClaimed, false);
+  assert.deepEqual(Object.keys(matrix.classifications).toSorted(), classifications);
+  assert.deepEqual(Object.keys(matrix.verificationStates).toSorted(), verificationStates);
+
+  const capabilityIds = matrix.capabilities.map(({ id }) => id);
+  assert.equal(new Set(capabilityIds).size, capabilityIds.length);
+  assert.deepEqual(capabilityIds.toSorted(), [
+    'interop.pre-rendered-media',
+    'runtime.ambient-react-state',
+    'runtime.hyperframes-seekable-source',
+    'runtime.remotion-react-source',
+    'semantic.integer-ms-window',
+    'semantic.readable-hold',
+    'semantic.visual-state-transition',
+  ]);
+  for (const capability of matrix.capabilities) {
+    assert.ok(classifications.includes(capability.classification), capability.id);
+    assert.ok(verificationStates.includes(capability.verification), capability.id);
+    assert.equal(capability.verification, 'contract-only', capability.id);
+    assert.equal(typeof capability.hyperframesRoute, 'string', capability.id);
+    assert.equal(typeof capability.remotionRoute, 'string', capability.id);
+    assert.ok(capability.meaning.length > 0, capability.id);
+  }
+  for (const capabilityId of [
+    'semantic.integer-ms-window',
+    'semantic.readable-hold',
+    'semantic.visual-state-transition',
+  ]) {
+    const capability = matrix.capabilities.find(({ id }) => id === capabilityId);
+    assert.equal(capability.hyperframesRoute, 'existing-production-workflow');
+    assert.equal(capability.remotionRoute, 'future-native-adapter');
+  }
+});
+
+test('runtime references and production Skills preserve the adapter evidence gates', async () => {
+  const contract = await readFile(path.join(runtimeReferenceRoot, 'runtime-contract.md'), 'utf8');
+  const concernMap = await readFile(
+    path.join(runtimeReferenceRoot, 'remotion-hyperframes-map.md'),
+    'utf8',
+  );
+  assert.match(contract, /HyperFrames remains the default and only production backend/u);
+  assert.match(contract, /Remotion is an experimental backend boundary/u);
+  assert.match(contract, /does not install, authorize, configure, invoke, or render with\s+Remotion/u);
+  assert.match(contract, /Do not claim Remotion\/HyperFrames visual parity, timing parity, or render\s+parity/u);
+  assert.match(contract, /Do not import shot cards/u);
+  assert.match(contract, /Contract:[\s\S]*Backend:[\s\S]*Witness:[\s\S]*Comparison:/u);
+  assert.match(concernMap, /do not treat a mechanical\s+TSX-to-HyperFrames rewrite as the compatibility layer/u);
+  assert.match(concernMap, /must not be generalized into automatic\s+Remotion\/HyperFrames render parity/u);
+
+  const requiredReferences = {
+    'erduo-hyperframes-broll/SKILL.md': [
+      'references/runtime/runtime-contract.md',
+      'references/runtime/shot-recipe.schema.json',
+      'references/runtime/capability-matrix.json',
+    ],
+    'erduo-hyperframes-broll/stages/broll-onboarding/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+      '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-hyperframes-broll/stages/broll-director/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+      '../../references/runtime/shot-recipe.schema.json',
+      '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-hyperframes-broll/stages/broll-assets/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+    ],
+    'erduo-hyperframes-broll/stages/broll-master-build/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+      '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-hyperframes-broll/stages/broll-master-integrate/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+      '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-hyperframes-broll/stages/broll-render/SKILL.md': [
+      '../../references/runtime/runtime-contract.md',
+      '../../references/runtime/capability-matrix.json',
+    ],
+  };
+  for (const [file, references] of Object.entries(requiredReferences)) {
+    const text = await readFile(path.join(root, file), 'utf8');
+    for (const reference of references) assert.ok(text.includes(reference), `${file}: ${reference}`);
+  }
+
+  const onboardingReference = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'references', 'first-run-onboarding.md'),
+    'utf8',
+  );
+  assert.match(onboardingReference, /`unsupported`: the selected runtime/u);
+  const directorSkill = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-director', 'SKILL.md'),
+    'utf8',
+  );
+  assert.match(directorSkill, /parent Skill's bundled\s+`scripts\/validate-shot-recipes\.mjs`/u);
+  const renderSkill = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-render', 'SKILL.md'),
+    'utf8',
+  );
+  assert.match(renderSkill, /optional prior approval evidence/u);
+  assert.match(renderSkill, /dispatches a different fresh\s+Render\/Delivery Agent/u);
+  assert.match(renderSkill, /Recompute and compare the\s+Integrator's `composition-identity\.json`/u);
+  assert.doesNotMatch(renderSkill, /- explicit user approval of the official final composition preview/u);
+  const integratorSkill = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-master-integrate', 'SKILL.md'),
+    'utf8',
+  );
+  assert.match(integratorSkill, /aggregate SHA-256 of that canonical list/u);
 });
 
 test('every production command surface requires a portable case-insensitive child environment map', async () => {
@@ -1335,7 +1649,7 @@ test('release tar subprocesses receive the same sanitized child environment', as
   });
   assert.equal(report.status, 'packaged');
   assert.deepEqual(calls, ['-cf', '-xzf']);
-  assert.equal(report.raw_archive.regular, 43);
+  assert.equal(report.raw_archive.regular, 48);
   assert.equal(report.raw_archive.appledouble, 0);
 });
 
@@ -2004,13 +2318,13 @@ test('release packager accepts only the explicit tree and rejects media, SRT, en
   assert.equal(report.status, 'packaged');
   assert.equal(await entryExists(archive), true);
   assert.deepEqual(report.raw_archive, {
-    regular: 43,
-    directories: 21,
+    regular: 48,
+    directories: 23,
     metadata: report.raw_archive.metadata,
     appledouble: 0,
     symlinks: 0,
     special: 0,
-    checksum_entries: 42,
+    checksum_entries: 47,
   });
   const reproducibleArchive = path.join(state.base, 'release-reproducible.tar.gz');
   await buildRelease({ repoRoot: fixture, output: reproducibleArchive });
@@ -2184,7 +2498,7 @@ test('private directory creation rejects an intermediate symbolic-link component
 });
 
 test('public release source contains the parent plus seven prompt stage Skills', async () => {
-  assert.equal(RELEASE_FILES.length, 42);
+  assert.equal(RELEASE_FILES.length, 47);
   const actualReleaseFiles = (await listPublicReleaseFiles())
     .map((file) => path.relative(root, file))
     .toSorted();
@@ -2210,9 +2524,9 @@ test('public release source contains the parent plus seven prompt stage Skills',
   const promptSurface = (await listPublicReleaseFiles(skillRoot))
     .map((file) => path.relative(skillRoot, file))
     .toSorted();
-  assert.equal(promptSurface.length, 21);
+  assert.equal(promptSurface.length, 26);
   assert.equal(
-    promptSurface.every((file) => /\.(?:md|yaml)$/u.test(file)),
+    promptSurface.every((file) => /\.(?:json|md|mjs|yaml)$/u.test(file)),
     true,
   );
   for (const name of SKILL_NAMES) {

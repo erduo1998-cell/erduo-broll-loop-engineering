@@ -7,7 +7,7 @@
 - [ ] 原作者标识、私有样板名和旧工程架构术语静态扫描为零。
 - [ ] MIT 与第三方说明完整。
 - [ ] 只对最终归档内容重新生成逐文件 SHA-256 清单；不得复用 staging 或历史清单，并在独立解压目录复核。
-- [ ] 只使用 `node scripts/package-release.mjs --output <外部绝对路径>` 打包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar 并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 43 个 regular、精确目录闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部 42 条摘要 42/42 一致，再完成独立解包复核。
+- [ ] 只使用 `node scripts/package-release.mjs --output <外部绝对路径>` 打包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar 并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 48 个 regular、精确目录闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部 47 条摘要 47/47 一致，再完成独立解包复核。
 - [ ] README、PRIVACY 与第三方说明明确：本仓库自身无遥测；包外直接调用 HyperFrames 时，其隐私行为受 HyperFrames 自身政策约束。
 
 ## 首次运行
@@ -39,3 +39,12 @@
 - [ ] 最终 master 连续覆盖 SRT，分辨率、时长、帧率、音频策略和完整解码符合请求。
 - [ ] 用户已观看 master；技术成功没有被表述为审美通过。
 - [ ] Windows 与剪映 GUI 保持 `unverified`，除非已有对应实机证据。
+
+## Runtime adapter foundation
+
+- [ ] Shot Recipe schema、能力矩阵、运行时映射文档与零依赖 Recipe 校验器均通过确定性校验，枚举、必填字段、时间包含关系、唯一 ID 和引用闭集无漂移。
+- [ ] 默认生产运行时仍为 HyperFrames；Remotion 只标记为 `experimental contract only`，未被安装器、runtime lock 或生产 Skill 暗中升级为默认依赖。
+- [ ] README、支持矩阵和 Skill 表面均没有把契约、示例或静态映射误称为已完成双端渲染、视觉一致或全自动转换。
+- [ ] Remotion 边界明确：本仓库不捆绑、不安装、不代为授权；使用者按 Remotion 官方现行许可判断自身场景。
+- [ ] 未吸收第三方镜头卡、代码、预览或媒体；后续引入必须逐卡记录来源、许可证、Shot Recipe、双端实现状态和真实验证证据。
+- [ ] 在支持矩阵提升 Remotion 状态前，至少为代表性 Recipe 留存真实 Remotion 与 HyperFrames 构建、渲染、关键时间点对比和限制记录。

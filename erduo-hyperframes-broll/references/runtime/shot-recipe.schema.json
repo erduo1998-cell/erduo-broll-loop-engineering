@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/shot-recipe.schema.json",
+  "title": "Runtime-neutral shot recipe",
+  "description": "A semantic, integer-millisecond shot contract. Runtime source code and runtime-specific configuration do not belong in this document.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "shotId",
+    "window",
+    "semantics",
+    "visualState",
+    "motion",
+    "readability",
+    "materials",
+    "requiredCapabilities"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "shotId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "window": {
+      "$ref": "#/$defs/window"
+    },
+    "semantics": {
+      "$ref": "#/$defs/semantics"
+    },
+    "visualState": {
+      "$ref": "#/$defs/visualState"
+    },
+    "motion": {
+      "$ref": "#/$defs/motion"
+    },
+    "readability": {
+      "$ref": "#/$defs/readability"
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/materialRequirement"
+      }
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "description": "Capability IDs classified in capability-matrix.json. These are semantic requirements, not package names or runtime APIs.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[a-z0-9][a-z0-9.-]*$"
+      },
+      "uniqueItems": true
+    },
+    "fallback": {
+      "$ref": "#/$defs/fallback"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startMs",
+        "endMs"
+      ],
+      "properties": {
+        "startMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endMs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "audienceUnderstanding",
+        "focus",
+        "visualLogic",
+        "neighborConnection"
+      ],
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audienceUnderstanding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "focus": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visualLogic": {
+          "type": "string",
+          "minLength": 1
+        },
+        "neighborConnection": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selectiveCopy": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/copyItem"
+          }
+        }
+      }
+    },
+    "copyItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text",
+        "role"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "enum": [
+            "title",
+            "label",
+            "value",
+            "annotation",
+            "interface"
+          ]
+        }
+      }
+    },
+    "visualState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial",
+        "result",
+        "focusOrder"
+      ],
+      "properties": {
+        "initial": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result": {
+          "type": "string",
+          "minLength": 1
+        },
+        "focusOrder": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phases"
+      ],
+      "properties": {
+        "phases": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/motionPhase"
+          }
+        }
+      }
+    },
+    "motionPhase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "startMs",
+        "endMs",
+        "intent",
+        "visibleChange"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "enter",
+            "action",
+            "hold",
+            "exit"
+          ]
+        },
+        "startMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "intent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visibleChange": {
+          "type": "string",
+          "minLength": 1
+        },
+        "easingIntent": {
+          "enum": [
+            "linear",
+            "accelerate",
+            "decelerate",
+            "smooth",
+            "overshoot",
+            "step",
+            "deliberate-stillness"
+          ]
+        }
+      }
+    },
+    "readability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "holdStartMs",
+        "holdEndMs",
+        "readableItems"
+      ],
+      "properties": {
+        "holdStartMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "holdEndMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "readableItems": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "materialRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "acceptableKinds",
+        "required"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptableKinds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "image",
+              "video",
+              "logo",
+              "screenshot",
+              "data",
+              "text",
+              "font",
+              "native-structure"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "fallback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "when",
+        "strategy"
+      ],
+      "properties": {
+        "when": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategy": {
+          "enum": [
+            "simplify-motion",
+            "use-stable-state",
+            "substitute-material",
+            "return-to-director",
+            "stop-unsupported"
+          ]
+        },
+        "preserve": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

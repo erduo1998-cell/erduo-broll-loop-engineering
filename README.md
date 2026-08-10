@@ -59,6 +59,24 @@
 
 此外会保留可继续修改的 HyperFrames 源文件、阶段交接记录、素材与字体来源，以及客观媒体验证结果。
 
+## 渲染运行时边界
+
+当前默认且唯一具有本项目生产证据的渲染运行时仍是 **HyperFrames**。仓库正在建立运行时无关的 Shot Recipe、能力矩阵和适配契约，让同一份镜头意图未来可以分别由 HyperFrames 与 Remotion 后端实现；这项工作目前只是 **runtime-adapter foundation**，不是已经完成的双端渲染器。
+
+- `hyperframes`：默认运行时，继续走现有 Builder、Integrator、预览与正式渲染链路。
+- `remotion`：仅有实验性契约，尚无本项目端到端渲染、视觉一致性或生产可用证据。
+- 本仓库不捆绑、不安装 Remotion，也不授予 Remotion 的使用许可。是否可以在你的个人、团队、公司或自动化场景中使用，应以 Remotion 官方现行许可为准。
+- 运行时能力必须逐项声明为可移植、运行时原生、互操作或不支持；实验性契约不代表所有 Remotion Composition 都能自动转换成 HyperFrames。
+- 本轮尚未吸收任何第三方镜头卡。镜头卡迁移必须等基础契约通过验证后，再逐卡提炼 Shot Recipe、实现适配器并分别验证。
+
+因此，现有使用提示词不需要选择运行时；未明确进入将来的实验流程时，一律按 HyperFrames 执行。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
+
+开发者可以对 Director 生成的逐镜头 Recipe 目录运行零依赖校验：
+
+```bash
+node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs <shot-recipes-directory>
+```
+
 ## 使用前准备
 
 ### 必须准备

@@ -77,6 +77,11 @@ const SKILL_FILES = [
   'erduo-hyperframes-broll/references/parent-review-checklist.md',
   'erduo-hyperframes-broll/references/prompt-first-workflow.md',
   'erduo-hyperframes-broll/references/stage-orchestration.md',
+  'erduo-hyperframes-broll/references/runtime/capability-matrix.json',
+  'erduo-hyperframes-broll/references/runtime/remotion-hyperframes-map.md',
+  'erduo-hyperframes-broll/references/runtime/runtime-contract.md',
+  'erduo-hyperframes-broll/references/runtime/shot-recipe.schema.json',
+  'erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs',
   ...[
     'broll-onboarding',
     'broll-director',

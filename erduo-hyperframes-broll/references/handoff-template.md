@@ -34,6 +34,7 @@ Use one of:
 - `complete`
 - `needs-revision`
 - `action-required`
+- `unsupported`
 - `blocked`
 
 Do not use vague states such as “mostly complete” or “should work.”
@@ -55,11 +56,19 @@ For stages that spawned a non-Pexels process, record only the host environment
 map capability, `pexels_key_removed_case_insensitively=true`, and the telemetry
 setting. Never record any environment value.
 
+Also record the selected runtime and capability-matrix decision. For a
+non-default runtime, name the bounded adapter and witness evidence locators or
+the exact `action-required`/`unsupported` result. Never call experimental
+evidence production-ready.
+
 ### Director
 
 Include total cue coverage, film sections, semantic shot count, original visual
 direction, motif and density decisions, uncertain terms, material needs, and
-font roles.
+font roles. Include the validated `shot-recipes/` locator, per-file schema and
+bundled-validator results, one-to-one shot mapping, and required capability
+IDs. Confirm that Recipes use integer milliseconds and contain no
+runtime-specific APIs or component syntax.
 
 ### Assets and Pexels
 
@@ -69,18 +78,24 @@ composition-use plans, font files, sources, and licenses. When controllable
 generation is unavailable, say so and record that Pexels continued. Preserve
 separate real image and video search facts without inventing a fixed count.
 Confirm the credential was scoped only to dedicated Pexels requests.
+Include Shot Recipe bindings, objective media facts, and adapter-relevant
+constraints without selecting runtime APIs.
 
 ### Builder
 
 Include block ID and exact range, implemented shots, seam behavior, material
 and font use, official HyperFrames Skill-load trace reference when available,
-and actual CLI work.
+and actual CLI work. Include selected runtime, Recipe-to-runtime mapping,
+capability evidence, and faithful implementation variances.
 
 ### Integrator
 
 Include ordered blocks, continuous coverage, integration-owned changes,
 resource resolution, official Skill-load trace reference, and official
-standard-check result.
+standard-check result. Confirm one production-ready HyperFrames runtime binding
+and complete Recipe-to-runtime traceability. Include the
+`composition-identity.json` locator and aggregate SHA-256; never copy its full
+file list into the handoff.
 
 ### Render and delivery
 
@@ -90,6 +105,13 @@ unused attempt target, final master path, FFprobe facts, complete-decode result,
 and official Skill-load trace reference. A failed attempt records its partial
 file and remains failed; a retry belongs to a different fresh Agent and uses a
 new target.
+For a preview pass, record `action-required`, the preview locator, integrated
+composition-identity aggregate SHA-256, and absence of approval; omit
+render-only facts as not applicable. For a render pass, record the approval
+evidence and prove it binds the recomputed unchanged composition identity.
+Confirm that Onboarding, Integration, and the capability matrix bind the same
+production-ready HyperFrames runtime. Do not report an experimental witness as
+the master.
 
 ### Shot export
 

@@ -8,6 +8,19 @@ description: Check, preview, render, and technically verify one final SRT-anchor
 Act only as the Render and Delivery owner. Do not redesign shots, collect
 material, repair Builder source, or export individual shots.
 
+## Runtime route
+
+Read `../../references/runtime/runtime-contract.md` and
+`../../references/runtime/capability-matrix.json`. Formal delivery in this
+release accepts only an integrated project bound to the production-ready
+`hyperframes` runtime. Verify that the Integrator handoff and project retain
+one runtime binding and complete Shot Recipe-to-runtime traceability.
+
+`remotion` remains an experimental adapter target. Do not run a Remotion
+preview or render, substitute another command, or describe experimental
+witness output as the master. Stop as `unsupported` if a non-HyperFrames
+project reaches this stage.
+
 ## Official HyperFrames requirement
 
 Before doctor, check, preview, or render, use the host's native Skill mechanism
@@ -34,7 +47,9 @@ This setting does not prove Skill loading or replace result inspection.
 - Director film and shot plans
 - output profile, delivery directory, and audio policy
 - ready onboarding handoff
-- explicit user approval of the official final composition preview
+- optional prior approval evidence bound to this exact integrated composition;
+  it is absent on the preview pass
+- selected runtime and capability-matrix decision
 
 ## Preflight in the formal-render environment
 
@@ -56,6 +71,8 @@ Supplement doctor with real delivery facts:
 - target filename is unique and unused;
 - the command environment for formal render uses the same Node, HyperFrames,
   Chrome, FFmpeg, and FFprobe that were inspected.
+- the integrated project, Onboarding evidence, and runtime-capability decision
+  all bind the same production-ready `hyperframes` runtime.
 
 Prepare a missing dependency only through safe, authorized, delivery-local or
 official repair. Rerun doctor after repair. Do not call render as a diagnostic.
@@ -68,10 +85,18 @@ Warnings require investigation but block automatically only when the user or
 an explicit project requirement asks for strict behavior. Inspect relevant
 browser evidence for warnings that may represent a visible defect.
 
-After check succeeds, open the official final composition preview and obtain
-explicit user approval before formal render. This approval is mandatory under
-the official HyperFrames workflow. Unattended production ends at this pause.
-The preview is not a second master.
+After check succeeds, inspect whether valid approval evidence already binds
+this exact integrated composition and check result. Recompute and compare the
+Integrator's `composition-identity.json`; a path-set, file-hash, or aggregate
+digest difference is a project change. When valid approval does not exist,
+open the
+official final composition preview, write an `action-required` handoff with the
+preview locator and composition identity, and stop without rendering. The
+Parent obtains explicit user approval and dispatches a different fresh
+Render/Delivery Agent with that approval evidence. The new Agent repeats
+same-environment preflight, identity verification, and check; any project
+change invalidates approval and requires reintegration plus a new preview. The
+preview is not a second master.
 
 Confirm the final render arguments explicitly name:
 
@@ -127,14 +152,17 @@ Complete when the same-environment official doctor has been evaluated,
 delivery supplements are verified, official check succeeds, required preview
 approval is present, a formal attempt succeeds, exactly one final master is
 delivered without overwrite, FFprobe facts match the request, and complete
-decode finishes without error.
+decode finishes without error. The delivered project must retain complete
+Shot Recipe-to-runtime traceability.
 
 ## Stop
 
 Stop before render when the official Skill cannot be loaded, doctor did not
 actually run, a path-required doctor finding remains unresolved, output facts
 are unsafe, check retains a real error, preview approval is missing, or the
-final arguments are ambiguous.
+final arguments are ambiguous. Also stop when the selected runtime is not the
+production-ready `hyperframes` route, runtime bindings disagree, or Recipe
+traceability is incomplete.
 
 Stop the current Agent after a failed formal render and report the attempt
 honestly so the Parent can dispatch a fresh Render/Delivery Agent. Technical

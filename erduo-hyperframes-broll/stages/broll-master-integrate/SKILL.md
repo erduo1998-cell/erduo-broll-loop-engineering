@@ -9,6 +9,19 @@ Act only as the Integrator. Assemble the completed blocks and resolve
 integration-owned connections. Do not collect media, redesign block-owned
 shots, render the final master, or export shots.
 
+## Runtime route
+
+Read `../../references/runtime/runtime-contract.md` and
+`../../references/runtime/capability-matrix.json`. This release's production
+Integrator accepts only blocks whose selected runtime is `hyperframes` and
+whose Builder handoffs trace every shot to a validated runtime-neutral Recipe
+and HyperFrames-owned implementation decision. Reject mixed-runtime blocks.
+
+The Remotion adapter contract is experimental and is not an alternate formal
+assembly backend here. If a Remotion block arrives, stop as `unsupported`
+without converting it, wrapping it, rendering it to media, or presenting it as
+production-ready.
+
 ## Official HyperFrames requirement
 
 Before opening source or assembling blocks, use the host's native Skill
@@ -31,11 +44,13 @@ setting does not prove Skill loading or replace the standard check.
 
 ## Inputs
 
-- Director creative brief, visual direction, film plan, and full shot plan
+- Director creative brief, visual direction, film plan, full shot plan, and
+  validated Shot Recipes
 - Assets material and font plans
 - every expected Builder block and handoff
 - output profile and audio policy
 - ready onboarding handoff
+- selected runtime and capability-matrix decision
 
 ## Integrate
 
@@ -43,6 +58,9 @@ Confirm before assembly:
 
 - every expected contiguous block is present;
 - block and shot order matches the Director plan;
+- every shot maps one-for-one to its Shot Recipe and recorded runtime
+  implementation decision;
+- every block uses the same selected `hyperframes` runtime;
 - integer-millisecond coverage is continuous from zero through the final cue;
 - no shot is omitted, duplicated, overlapped, or retimed;
 - source names, resources, fonts, and composition identities do not conflict;
@@ -62,6 +80,15 @@ strict warning behavior only when the user or an explicit project requirement
 requires it. Inspect real browser evidence when a warning may represent a
 visible or runtime defect.
 
+After the successful check, freeze `composition-identity.json`. List every
+production-authored source/config file and every referenced local media, font,
+and dependency-lock file as a normalized project-relative path plus SHA-256;
+sort entries by path and record an aggregate SHA-256 of that canonical list.
+Exclude dependency directories, caches, logs, previews, and delivery outputs.
+This manifest is the identity to which preview approval binds. Any listed-file
+change or referenced-file-set change invalidates it and requires reintegration,
+check, preview, and approval again.
+
 Do not render the final master.
 
 ## Deliverables
@@ -76,18 +103,21 @@ Deliver:
 - `integration-notes.md`;
 - official check output or a bounded human-readable summary with its artifact
   locator;
+- `composition-identity.json`;
 - `handoff.md`.
 
 ## Completion
 
 Complete when the integrated project includes every block in order, continuous
 time coverage is preserved, resources and fonts resolve, seams are intentional,
-the official standard check has no unresolved error, and warnings with possible
-visible impact have been investigated.
+Recipe-to-runtime traceability is intact, the official standard check has no
+unresolved error, the composition identity manifest is complete, and warnings
+with possible visible impact have been investigated.
 
 ## Stop
 
 Stop when a required block is absent, time coverage conflicts, a block-owned
 defect prevents integration, resources cannot be resolved, the official Skill
-cannot be loaded, or the integrated project retains a real check error. Return
+cannot be loaded, runtime bindings are mixed or unsupported, Recipe traceability
+is missing, or the integrated project retains a real check error. Return
 the issue to the owning stage without rendering or rewriting its creative work.

@@ -6,8 +6,8 @@ description: Direct an SRT-anchored B-roll film from raw inputs into an original
 # B-roll Director
 
 Act only as the film Director. Understand the entire SRT before dividing it
-into shots. Do not collect media, write HyperFrames source, integrate blocks,
-render, or export.
+into shots. Do not collect media, write runtime-specific source, integrate
+blocks, render, or export.
 
 ## Inputs
 
@@ -17,9 +17,17 @@ render, or export.
 - user goal, audience, platform, output profile, and constraints
 - optional user images, videos, logos, screenshots, and ordinary references
 - ready onboarding handoff
+- selected runtime binding for traceability only
 
 Do not require or request a `design.md`, visual-specification file, preset, or
 private example.
+
+Read `../../references/runtime/runtime-contract.md`,
+`../../references/runtime/shot-recipe.schema.json`, and
+`../../references/runtime/capability-matrix.json`. The Director owns
+runtime-neutral intent only. Do not emit React, Remotion, HyperFrames, DOM,
+CSS, timeline-library, or adapter-specific APIs or component choices. Do not
+change the creative plan according to runtime convenience.
 
 Before every non-Pexels child process, use the host's native spawn/process API
 to copy the required environment into an explicit child map, remove every key
@@ -64,6 +72,20 @@ For every shot, decide:
 These are thinking prompts, not a mandatory component recipe or fixed motion
 sequence. Choose the structure that best explains the content.
 
+For every planned shot, author one Shot Recipe conforming to the schema. Use
+stable shot IDs shared with `shot-plan.md`; use integer milliseconds for every
+time value; state semantic goal, material roles, layout relationships,
+entry/action/result/hold behavior, readability requirements, and neighboring
+connections as observable outcomes. Keep frame numbers and runtime-specific
+implementation out of the recipe.
+
+A descriptive recipe is not proof that both runtimes support it. Record the
+required capability IDs defined by the capability matrix, but leave
+portability classification, adapter choice, and source implementation to the
+Builder. If the semantic requirement cannot be expressed by the current
+schema without naming a runtime primitive, stop and return the schema gap
+instead of embedding backend code.
+
 Treat a suspicious transcript term as low-confidence. Use a semantically safe
 generic expression unless a reliable source or the user confirms it, and
 record the uncertainty for downstream stages.
@@ -79,19 +101,26 @@ Write:
 - `broll-production/01-director/visual-direction.md`
 - `broll-production/01-director/film-plan.md`
 - `broll-production/01-director/shot-plan.md`
+- one schema-valid JSON object per shot under
+  `broll-production/01-director/shot-recipes/<shot-id>.json`
 - `broll-production/01-director/material-requests.md`
 - `broll-production/01-director/handoff.md`
 
 The visual direction must explain its content-based reasoning. The shot plan
 must map every cue, prove continuous coverage, and be implementable without
-inventing missing creative decisions.
+inventing missing creative decisions. Every file under `shot-recipes/` must
+validate against the repository schema, use its Shot ID as the filename, and
+match the shot plan one-for-one. Run the parent Skill's bundled
+`scripts/validate-shot-recipes.mjs` against the completed directory and record
+the result; successful JSON parsing alone is not contract validation.
 
 ## Completion
 
 Complete when the whole film is coherent, every cue belongs to a semantic shot,
 time coverage is continuous, visual and material intentions vary with content,
-font roles are planned, uncertainties are safe, and the Assets and Builder
-Agents have actionable inputs.
+font roles are planned, uncertainties are safe, the runtime-neutral recipes
+validate and match the plan, and the Assets and Builder Agents have actionable
+inputs.
 
 ## Stop
 

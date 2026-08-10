@@ -9,6 +9,28 @@ Act only as the author of one assigned contiguous block. Do not author another
 block, change the film plan, collect missing assets, assemble the master,
 render the final film, or export shots.
 
+## Runtime route
+
+Read `../../references/runtime/runtime-contract.md`, the validated Director
+Shot Recipes, and `../../references/runtime/capability-matrix.json` before
+authoring. The recipe is the source of semantic intent; the selected adapter
+owns runtime syntax and implementation.
+
+The production route in this release is `hyperframes`. Adapt each assigned
+runtime-neutral recipe into HyperFrames-owned source under the existing
+official Builder workflow without changing its shot window, semantic result,
+material role, or readable hold. This is a traceable runtime implementation
+decision, not a claim that an automatic HyperFrames adapter is bundled. Record
+the recipe ID, capability IDs, implementation decision, and any faithful
+variance in `build-notes.md`.
+
+`remotion` is experimental. Do not author a production block or claim
+compatibility from prose alone. If it is requested, require the matrix route,
+the exact adapter and witness evidence required by the runtime contract, and a
+matching Onboarding decision; otherwise stop as `action-required` or
+`unsupported`. Experimental evidence is not permission to pass a Remotion block
+to the current production Integrator or Render stage.
+
 ## Official HyperFrames requirement
 
 Before reading or writing any HyperFrames source, use the host's native Skill
@@ -35,15 +57,18 @@ setting does not prove Skill loading or replace required CLI review.
 
 - assigned block ID and contiguous integer-millisecond range
 - Director creative brief, visual direction, film plan, and assigned shots
+- validated runtime-neutral Shot Recipes for the assigned shots
 - Assets material plan, local media, fonts, and licenses
 - preceding and following block seam summaries
 - output profile and audio policy
 - ready onboarding handoff
+- selected runtime and capability-matrix decision
 
 ## Author the block
 
 Read the whole assigned block before writing source. For each shot:
 
+- preserve the assigned Shot Recipe ID and required capability IDs;
 - preserve its exact SRT window and semantic purpose;
 - choose a concrete composition that serves the audience-understanding goal;
 - establish a clear focus and attention path;
@@ -78,20 +103,24 @@ Deliver:
 - `build-notes.md`;
 - `handoff.md`.
 
-The notes explain major creative choices, material integration, typography,
-time coverage, seam behavior, official Skill loads, and actual CLI work.
+The notes explain major creative choices, recipe-to-runtime implementation
+decisions, capability evidence, faithful implementation variances, material
+integration, typography, time coverage, seam behavior, official Skill loads,
+and actual CLI work.
 
 ## Completion
 
 Complete when every assigned shot exists as real source, exact time coverage is
 preserved, selected material and fonts are used correctly, the block is
 seekable, seams are intentional, official checks show no unresolved
-block-owned error, and the handoff points to the actual artifacts.
+block-owned error, every recipe has a traceable runtime implementation, and the
+handoff points to the actual artifacts.
 
 ## Stop
 
 Stop when the official HyperFrames Skill cannot be loaded, an assigned asset
 or font is missing, timing is contradictory, the source cannot satisfy current
-official rules, or the upstream creative decision is insufficient. Return the
+official rules, a recipe requires an unsupported capability, runtime evidence
+is missing, or the upstream creative decision is insufficient. Return the
 issue to the owning stage. Do not create placeholder media or redesign another
 stage's work.

@@ -16,6 +16,28 @@
 - Shot files are created only after an explicit request and are cut from the
   verified master.
 
+## Runtime contract
+
+Default the selected runtime to `hyperframes`. It is the only
+production-ready build, integration, preview, and delivery route in this
+release. Read [the runtime contract](runtime/runtime-contract.md), validate
+Director recipes against `runtime/shot-recipe.schema.json`, and use
+`runtime/capability-matrix.json` as the authoritative support decision.
+
+`remotion` is an experimental adapter target. A request for it requires the
+matrix route plus exact, current adapter and witness evidence required by the
+runtime contract. A runtime not marked production-available is `unsupported`;
+a future production-available route with missing local evidence is
+`action-required`.
+Experimental evidence must never be presented as a production-ready backend or
+final master.
+
+The Director authors one runtime-neutral Shot Recipe per shot. The Assets
+stage preserves runtime-neutral material roles and objective media facts. The
+Builder owns the selected adapter and runtime source. Current Integrator and
+Render stages accept only the production-ready HyperFrames route. Describing a
+recipe is not evidence that both runtimes implement it.
+
 ## Environment onboarding
 
 Before production, require a current ready onboarding handoff for the exact
@@ -31,8 +53,9 @@ not a production or aesthetic stage.
 First dispatch an inspection-only Agent that makes no changes and returns one
 complete authorization request. After approval, dispatch a different fresh
 repair Agent. Ready evidence must bind the same production run, host, command
-`PATH`, official CLI version, target delivery filesystem, and Pexels validation
-state. Any change requires onboarding again.
+`PATH`, official CLI version, target delivery filesystem, selected runtime,
+runtime-capability decision, and Pexels validation state. Any change requires
+onboarding again.
 
 Onboarding may parse only the SRT's final cue end milliseconds for storage
 estimation. It does not interpret or direct the content.
@@ -117,6 +140,7 @@ whole film, and writes:
 - `visual-direction.md`
 - `film-plan.md`
 - `shot-plan.md`
+- one schema-valid JSON object per shot under `shot-recipes/<shot-id>.json`
 - `material-requests.md`
 - `handoff.md`
 
@@ -124,7 +148,9 @@ The visual direction arises from the current content, audience, goal, and
 optional material. It is not selected from a bundled theme. The shot plan must
 prove continuous time coverage, semantic grouping, whole-film development,
 material intentions, typography roles, density variation, motif development,
-adjacent variation, and safe handling of uncertain terms.
+adjacent variation, and safe handling of uncertain terms. The Recipe set uses
+integer milliseconds, validates against the repository schema, maps one-to-one
+to the shot plan, and contains no runtime APIs or component syntax.
 
 ## 2. Mandatory material collection
 
@@ -158,15 +184,18 @@ current official `hyperframes` Skill through the host's native Skill mechanism
 and follow the relevant official domain guidance.
 
 Each Builder authors only its assigned block, preserves exact time, uses real
-local material and fonts, integrates media with native structure, and explains
-its content-specific creative choices.
+local material and fonts, adapts the assigned runtime-neutral Recipes into
+HyperFrames-owned source, integrates media with native structure, and explains
+its content-specific creative and runtime implementation decisions. This does
+not claim that an automatic adapter is bundled.
 
 ## 4. Integration
 
 Dispatch a fresh Integrator Agent. Before opening source or assembling blocks,
 it must load the current official `hyperframes` Skill.
 
-It assembles all blocks in order, resolves integration-owned connections,
+It rejects mixed or non-HyperFrames runtime bindings, then assembles all blocks
+in order, resolves integration-owned connections,
 preserves continuous timing and whole-film development, and runs the official
 standard HyperFrames check. Errors block. Warnings require review and become
 blocking only when they reveal a real defect or the user explicitly requires
@@ -176,6 +205,7 @@ strict warning behavior.
 
 Dispatch a fresh Render and Delivery Agent. Before doctor, check, preview, or
 render, it must load the current official `hyperframes` Skill and CLI guidance.
+It rejects any non-HyperFrames or experimental project before formal work.
 
 In the exact formal-render environment it:
 
@@ -183,8 +213,8 @@ In the exact formal-render environment it:
 2. verifies delivery-directory writability, free space, unique target, and
    command-environment consistency;
 3. runs the official standard check;
-4. opens the official final composition preview and obtains explicit required
-   approval;
+4. when approval is absent, opens the official final composition preview,
+   records the composition identity, and stops with `action-required`;
 5. confirms explicit output profile, high quality, and audio policy;
 6. invokes one formal render;
 7. uses FFprobe and complete decode to report objective media facts.
@@ -194,7 +224,10 @@ Onboarding proves initial environment preparation; Render proves the actual
 formal-render environment.
 
 Unattended execution ends at the final preview. Formal render waits for user
-approval.
+approval. After approval, the Parent dispatches a different fresh Render Agent
+with evidence bound to the unchanged integrated composition. That Agent repeats
+preflight and check before formal render; a changed project requires a new
+preview and approval.
 
 One final master means one successfully verified delivered master, not one
 render attempt. A failed attempt and any partial file remain failed evidence.

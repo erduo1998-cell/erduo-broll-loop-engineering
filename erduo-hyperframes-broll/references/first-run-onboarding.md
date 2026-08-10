@@ -23,6 +23,7 @@ Identify:
 - operating system and architecture;
 - Skill root and production root;
 - delivery directory and intended output profile;
+- selected runtime, defaulting to `hyperframes`;
 - local render path;
 - current command environment;
 - whether the run is first use, post-migration, or a recheck.
@@ -30,10 +31,14 @@ Identify:
 Do not disclose private absolute paths in the handoff.
 
 Ready evidence is fresh only for the same production run, host, command
-`PATH`, official HyperFrames CLI version, target delivery filesystem, and
-Pexels validation state. Record these bindings safely. If any value changes,
-discard the earlier readiness conclusion and dispatch a new inspection-only
-Agent.
+`PATH`, official HyperFrames CLI version, target delivery filesystem, selected
+runtime, runtime-capability decision, and Pexels validation state. Record these
+bindings safely. If any value changes, discard the earlier readiness
+conclusion and dispatch a new inspection-only Agent.
+
+Read the runtime capability matrix before environment checks. A selected
+runtime whose `productionAvailable` value is false is `unsupported` for formal
+production in this release; stop without installing or probing that runtime.
 
 ### 2. Inspect before modifying
 
@@ -271,6 +276,8 @@ Do not interrupt separately for items already known in the same inspection.
   path.
 - `action-required`: an external account, secret, permission, package-manager
   decision, administrator action, or storage choice requires the user.
+- `unsupported`: the selected runtime or a required runtime capability has no
+  approved production route in the current capability matrix.
 - `blocked`: authorized repair failed or a required local capability remains
   unavailable.
 
@@ -285,7 +292,8 @@ Include:
 
 - onboarding mode and whether any modification occurred;
 - readiness bindings for run, host, command `PATH`, official CLI version,
-  delivery filesystem, and Pexels validation state;
+  delivery filesystem, selected runtime, runtime-capability decision, and
+  Pexels validation state;
 - target mode and output profile;
 - safe platform and architecture facts;
 - Node version result;

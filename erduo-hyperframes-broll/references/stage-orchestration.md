@@ -24,6 +24,8 @@ Give each child:
 - one stage responsibility;
 - production-root and input-artifact locators;
 - the user goal and constraints relevant to that stage;
+- the selected runtime, capability-matrix decision, and relevant runtime
+  contract or Shot Recipe locators;
 - the unique new output directory, default `master.mp4` H.264 MP4 at
   3840×2160, 30 fps, high quality, or the user's explicit alternative;
 - the shared Markdown handoff format;
@@ -33,6 +35,15 @@ Do not combine roles in one child or continue a blocked stage in the Parent.
 When review finds several issues owned by one stage, combine them into one
 revision request and re-dispatch that role as a fresh Agent. Keep unaffected
 Builder blocks when one block needs revision.
+
+Default the selected runtime to `hyperframes`. The Director still authors
+runtime-neutral Shot Recipes; the Builder owns runtime implementation. Treat
+`remotion` as experimental and require the matrix route plus exact adapter and
+witness evidence required by the runtime contract. A runtime not marked
+production-available is `unsupported`; a future production-available route
+with missing local evidence is `action-required`. Current production
+Integration and Render accept only HyperFrames, so experimental output cannot
+be promoted to a master.
 
 ## Onboarding
 
@@ -44,7 +55,8 @@ Dispatch Onboarding when:
   Pexels status may have changed;
 - no current ready handoff exists for this production and delivery path.
 - the production-run identity, host, command `PATH`, official HyperFrames CLI
-  version, target delivery filesystem, or Pexels validation state changed.
+  version, target delivery filesystem, selected runtime, runtime-capability
+  evidence, or Pexels validation state changed.
 
 First dispatch a fresh inspection-only Onboarding Agent. It must not modify the
 machine or configuration. The Parent asks the user for one grouped
@@ -68,6 +80,12 @@ Assign each Builder a bounded, contiguous semantic span. Place boundaries at
 clean chapter or meaning handoffs. Do not split one semantic shot across
 Builders, overlap windows, or reduce planned density merely to use fewer
 agents. A short film may have one block.
+
+Pass only each block's validated runtime-neutral Shot Recipes, plus the
+selected runtime and capability decision. Builders record a one-to-one mapping
+from each recipe to its runtime-owned implementation. Do not let the Director
+embed runtime code or let a Builder silently weaken semantic results for
+runtime convenience. This release does not claim a bundled automatic adapter.
 
 ## Official HyperFrames loading
 
@@ -117,8 +135,11 @@ Return issues to the owning stage:
 
 - environment and authorization to Onboarding;
 - film meaning, timing, visual direction, and material intent to Director;
+- runtime-neutral Recipe meaning and schema gaps to Director;
 - material, Pexels, download, provenance, crop, and font issues to Assets;
 - block source and block-owned visual implementation to its Builder;
+- runtime implementation decisions and unsupported capabilities to its Builder,
+  or to Onboarding when required adapter evidence is missing;
 - wrapper, resource conflicts, order, and integration-owned seams to
   Integrator;
 - formal environment, output arguments, render, and media verification to
@@ -130,7 +151,10 @@ progress. Stop for a missing authorization, unsupported host capability,
 irreconcilable constraint, or the same blocker recurring without progress.
 
 Formal render requires explicit approval of the official final composition
-preview. Unattended production ends at that pause.
+preview. Unattended production ends at that pause. The preview-pass Render
+Agent stops with an `action-required` handoff. After approval, dispatch a
+different fresh Render Agent; it verifies approval against the unchanged
+composition and repeats preflight and check before rendering.
 
 A failed render attempt belongs to the current Render/Delivery Agent. Preserve
 its evidence and partial target, then dispatch a different fresh Agent using a

@@ -10,12 +10,17 @@ film structure, write HyperFrames source, integrate blocks, render, or export.
 
 ## Inputs
 
-- Director creative brief, visual direction, film plan, shot plan, and material
-  requests
+- Director creative brief, visual direction, film plan, shot plan, validated
+  Shot Recipes, and material requests
 - optional user material
 - ready onboarding handoff
 - secure Pexels access
 - production root
+
+Read `../../references/runtime/runtime-contract.md` and preserve the
+runtime-neutral material roles defined by the Shot Recipes. Assets may record
+verified media facts and capability constraints, but must not choose adapter
+APIs, rewrite a recipe for one runtime, or claim cross-runtime support.
 
 Never print, log, serialize, or place the Pexels key in a command argument,
 handoff, path, or artifact.
@@ -66,6 +71,9 @@ For each selected visual item, record:
 - safe overlay area;
 - brightness, color temperature, depth, and movement;
 - relationship to titles, interface elements, or native structure;
+- objective dimensions, duration when applicable, codec/container when
+  applicable, alpha behavior, and any capability-matrix requirement that a
+  downstream adapter must verify;
 - why it is stronger than the alternatives.
 
 Treat Pexels material as composition material, not an unrelated background.
@@ -107,7 +115,8 @@ Write:
 Complete when user material was actually inspected, controllable generation
 was used or explicitly recorded as unavailable, real Pexels image and video
 searches ran, every selected file exists locally, every selection has a shot
-binding and composition-use plan, rejected routes are explained, and the
+and Shot Recipe binding plus a runtime-neutral composition-use plan, objective
+media constraints are recorded, rejected routes are explained, and the
 required fonts are local and licensed.
 
 ## Stop

@@ -11,6 +11,9 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   quality.
 - The output directory, attempt targets, and master path are unused.
 - No existing file or directory will be overwritten.
+- The selected runtime is recorded and defaults to `hyperframes`.
+- No experimental Remotion adapter or witness is described as a
+  production-ready delivery backend.
 
 ## Onboarding
 
@@ -41,7 +44,11 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - SRT reading was limited to the final cue end milliseconds for storage
   estimation.
 - Ready evidence binds the same production run, host, command `PATH`, official
-  CLI version, delivery filesystem, and Pexels validation state.
+  CLI version, delivery filesystem, selected runtime, runtime-capability
+  evidence, and Pexels validation state.
+- Any Remotion request was checked against the capability matrix and stopped
+  as `unsupported` because the current matrix does not mark that runtime
+  production-available.
 - Repairs were authorized, safe, reversible, and rechecked.
 - Human-only actions were grouped into one request.
 - The handoff contains no credential or private environment dump.
@@ -65,6 +72,14 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Uncertain transcript facts use safe wording.
 - Title, interface, and body font roles are planned.
 - Material requests are actionable.
+- Every file under `shot-recipes/` validates against the repository schema and
+  maps one-to-one to the shot plan.
+- The bundled Recipe validator ran on the complete directory; JSON parsing
+  alone was not presented as schema or semantic validation.
+- Recipe time values are integer milliseconds and contain no runtime-specific
+  APIs, component syntax, or frame-number timing.
+- Each Recipe names required capability IDs without claiming unverified
+  cross-runtime support.
 
 ## Mandatory Assets and Pexels
 
@@ -84,6 +99,8 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Every selected file exists locally.
 - Every selected item has a source, creator, shot binding, semantic role,
   focal point, crop, safe area, and composition-use plan.
+- Every selected item also binds to its Shot Recipe and records objective media
+  facts and adapter-relevant constraints without choosing a runtime API.
 - Photographic material is not used as an unrelated title background.
 - Project-local fonts, sources, licenses, roles, and glyph needs are recorded.
 - No Pexels key appears in artifacts, arguments, logs, or handoff.
@@ -95,6 +112,9 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   written.
 - Relevant official domain guidance was followed.
 - Real renderable HyperFrames source exists.
+- Every assigned Shot Recipe maps to a recorded HyperFrames runtime
+  implementation decision;
+  capability evidence and faithful variances are explicit.
 - Exact shot windows and continuous block coverage are preserved.
 - Each shot implements its semantic purpose and visual logic.
 - Selected material participates meaningfully in the composition.
@@ -109,6 +129,12 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 ## Integration
 
 - A fresh Integrator loaded the official `hyperframes` Skill before assembly.
+- Every block is bound to the same production-ready `hyperframes` runtime;
+  mixed or experimental runtime blocks were rejected.
+- Shot Recipe-to-runtime traceability is complete.
+- `composition-identity.json` covers the declared production source/config,
+  referenced local assets/fonts, and dependency locks with sorted relative
+  paths, per-file SHA-256, and an aggregate SHA-256.
 - Every expected block is present exactly once and in order.
 - Whole-film timing is continuous and unchanged.
 - Resources, composition identities, and fonts resolve.
@@ -123,6 +149,10 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 
 - A fresh Render/Delivery Agent loaded the official `hyperframes` Skill before
   doctor, check, preview, or render.
+- The integrated project, Onboarding evidence, and capability decision all bind
+  the production-ready `hyperframes` runtime.
+- No Remotion or experimental witness output was rendered or reported as the
+  final master.
 - Official doctor ran in the exact formal-render environment.
 - Its top-level result and relevant individual findings were interpreted.
 - Output-directory writability, target-specific free space, unique target, and
@@ -132,6 +162,9 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Relevant warnings were reviewed against browser evidence.
 - Official final composition preview was opened and explicit approval exists.
 - Unattended execution stopped at the preview until that approval.
+- The preview-pass Agent stopped without rendering; a different fresh Agent
+  received approval evidence bound to the unchanged integrated composition and
+  repeated identity verification, preflight, and check.
 - Final arguments explicitly name resolution, 30 fps unless otherwise
   requested, H.264 MP4 unless otherwise requested, high quality, audio policy,
   one unused attempt target, and the unused final master path.

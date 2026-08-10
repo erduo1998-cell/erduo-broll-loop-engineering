@@ -14,6 +14,7 @@ render, or export.
 - Skill root and intended production root
 - production-run identity and SRT locator
 - intended delivery directory and output profile
+- selected runtime, defaulting to `hyperframes`
 - current host and operating system
 - onboarding mode: `inspect` or `repair`
 - any previous onboarding handoff
@@ -21,6 +22,20 @@ render, or export.
   list
 
 ## Required approach
+
+Read `../../references/runtime/runtime-contract.md` and
+`../../references/runtime/capability-matrix.json`. Record the selected runtime
+as part of the environment binding. `hyperframes` is the only
+production-ready runtime in this release. `remotion` is an experimental
+adapter contract, not a formal delivery backend.
+
+If the selected runtime has `productionAvailable: false`, stop as
+`unsupported` before environment repair; do not install or probe it. For any
+future non-default runtime marked production-available, inspect the matrix
+route and the exact adapter version and witness evidence required by the
+runtime contract. Missing, stale, or merely claimed local evidence is
+`action-required`; a capability marked unsupported is `unsupported`. Do not
+synthesize witness evidence or weaken the default HyperFrames requirements.
 
 Load the current official `hyperframes` and `hyperframes-cli` Skills through
 the host's native Skill mechanism before using HyperFrames commands.
@@ -82,9 +97,10 @@ final cue end time as integer milliseconds. Do not interpret meaning, merge
 cues, create shots, or perform any Director work.
 
 Fresh evidence is valid only for the same production run, host, command
-`PATH`, official HyperFrames CLI version, target delivery filesystem, and
-Pexels validation state. Record these bindings without exposing private paths.
-If any binding changes, the evidence is stale and inspection must run again.
+`PATH`, official HyperFrames CLI version, target delivery filesystem, selected
+runtime, runtime-capability evidence, and Pexels validation state. Record these
+bindings without exposing private paths. If any binding changes, the evidence
+is stale and inspection must run again.
 
 The official doctor JSON is authoritative evidence about what it inspected.
 Its command always exits successfully, so read the top-level result and every
@@ -156,13 +172,16 @@ Record:
 - official Skills-check result;
 - discovery result for the root Skill and all seven stage Skills;
 - evidence binding for production run, host, command `PATH`, official CLI
-  version, delivery filesystem, and Pexels validation state;
+  version, delivery filesystem, selected runtime, runtime-capability evidence,
+  and Pexels validation state;
+- capability-matrix decision and concrete adapter/witness evidence, or the
+  exact missing/unsupported fact, for a requested non-default runtime;
 - final SRT cue end milliseconds used only for storage estimation;
 - directory writability, free-space assessment, and target availability;
 - Pexels status as `configured`, `configured-unverified`, or `missing`;
 - repairs performed and their verification;
 - human actions still required;
-- `ready`, `degraded`, `action-required`, or `blocked`;
+- `ready`, `degraded`, `action-required`, `unsupported`, or `blocked`;
 - host-native trace references for official Skill loads and commands when the
   host exposes them.
 
@@ -172,15 +191,20 @@ directory prefixes, or unrelated installed software.
 ## Completion
 
 Complete as `ready` only when every capability needed by the selected local
-production path is verified, all eight public Skills are discoverable, the
-delivery location is usable, and Pexels is securely configured for the same
-recorded validation state. `degraded` is acceptable only for a capability
-proved irrelevant to the selected path.
+production path is verified, the selected runtime is explicitly
+production-ready in the capability matrix, all eight public Skills are
+discoverable, the delivery location is usable, and Pexels is securely
+configured for the same recorded validation state. `degraded` is acceptable
+only for a capability proved irrelevant to the selected path.
 
 ## Stop
 
 Stop as `action-required` when an external account, key, permission, package
 manager, administrator action, or storage decision cannot be safely automated.
+Stop as `unsupported` when the selected runtime is not production-available or
+the capability matrix says the requested route is unsupported. For a future
+production-available non-default runtime, stop as `action-required` when its
+required local adapter or witness evidence is missing.
 
 Stop as `blocked` when an authorized repair fails, the official Skills cannot
 be obtained, a required executable remains unusable, Chrome is blocked by the
