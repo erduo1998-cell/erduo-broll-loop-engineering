@@ -1,0 +1,1142 @@
+{
+  "schemaVersion": 1,
+  "upstream": {
+    "repository": "https://github.com/Vincentwei1021/video-shotcraft",
+    "commit": "41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b",
+    "license": "Apache-2.0"
+  },
+  "scope": "Pinned Remotion TS/TSX reference implementations and non-media layout JSON. These are adaptation inputs, not preinstalled target-project components.",
+  "stats": {
+    "cards": 152,
+    "sourceFiles": 218
+  },
+  "sharedSources": [
+    "remotion-sources/demos/_fixtures/Fixtures.tsx",
+    "remotion-sources/demos/_fixtures/Motion.tsx"
+  ],
+  "cards": [
+    {
+      "name": "ai-stream-response",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/ai-stream-response/StreamResponse.tsx"
+      ]
+    },
+    {
+      "name": "assemble-then-type-flyin",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/assemble-then-type-flyin/AssembleThenTypeFlyin.tsx"
+      ]
+    },
+    {
+      "name": "aurora-bloom-bg-flip",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/aurora-bloom-bg-flip/AuroraBloomBgFlip.tsx"
+      ]
+    },
+    {
+      "name": "autolayout-gap-dial",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/autolayout-gap-dial/AutolayoutGapDial.tsx"
+      ]
+    },
+    {
+      "name": "avatar-bracket-carousel",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/avatar-bracket-carousel/AvatarBracketCarousel.tsx"
+      ]
+    },
+    {
+      "name": "avatar-grid-radial-build-colorize",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/avatar-grid-radial-build-colorize/AvatarGridRadialBuildColorize.tsx"
+      ]
+    },
+    {
+      "name": "basic-3d-scene",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/basic-3d-scene/Basic3DScene.tsx"
+      ]
+    },
+    {
+      "name": "beat-cut-moves",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/beat-cut-moves/BeatCutAccelerando.tsx",
+        "remotion-sources/demos/rhythm/beat-cut-moves/PaparazziFlash.tsx"
+      ]
+    },
+    {
+      "name": "beat-step-list-theme-cycle",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/beat-step-list-theme-cycle/BeatStepListThemeCycle.tsx"
+      ]
+    },
+    {
+      "name": "before-after-slider-scrub",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/before-after-slider-scrub/BeforeAfterSliderScrub.tsx"
+      ]
+    },
+    {
+      "name": "bezier-source-converge-merge",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx"
+      ]
+    },
+    {
+      "name": "blur-slide",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/blur-slide/BlurSlide.tsx"
+      ]
+    },
+    {
+      "name": "bottom-push-stack-wipe",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx"
+      ]
+    },
+    {
+      "name": "brace-expand",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/brace-expand/BraceExpand.tsx"
+      ]
+    },
+    {
+      "name": "brand-frame-snap",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/brand-frame-snap/BrandFrameSnap.tsx"
+      ]
+    },
+    {
+      "name": "brand-ink-open",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/template/src/aifl/live/SceneOpen.tsx"
+      ]
+    },
+    {
+      "name": "bubble-swarm-takeover",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx"
+      ]
+    },
+    {
+      "name": "canvas-materialize-moves",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/canvas-materialize-moves/DiagramCascadeBuild.tsx",
+        "remotion-sources/demos/interaction/canvas-materialize-moves/PanelToCanvasMaterialize.tsx"
+      ]
+    },
+    {
+      "name": "card-flip-reveal",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/card-flip-reveal/CardFlipReveal.tsx"
+      ]
+    },
+    {
+      "name": "card-flock-tumble",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/card-flock-tumble/CardFlockTumble.tsx"
+      ]
+    },
+    {
+      "name": "card-stack",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/card-stack/CardStack.tsx"
+      ]
+    },
+    {
+      "name": "carousel-3d",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/carousel-3d/Carousel3D.tsx"
+      ]
+    },
+    {
+      "name": "cel-flash-stomp",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/cel-flash-stomp/CelFlashStomp.tsx"
+      ]
+    },
+    {
+      "name": "chart-live-moves",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/chart-live-moves/AxisRescaleShockV2.tsx",
+        "remotion-sources/demos/data/chart-live-moves/OscilloscopeStreamV2.tsx",
+        "remotion-sources/demos/data/chart-live-moves/UnitDotSwarmRegroupV2.tsx"
+      ]
+    },
+    {
+      "name": "chip-grid-single-select-blackout",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/chip-grid-single-select-blackout/ChipGridSingleSelectBlackout.tsx"
+      ]
+    },
+    {
+      "name": "chip-lift-to-user-pill",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/chip-lift-to-user-pill/ChipLiftToUserPill.tsx"
+      ]
+    },
+    {
+      "name": "circle-match-iris",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/circle-match-iris/CircleMatchIris.tsx"
+      ]
+    },
+    {
+      "name": "cloner-depth-echo",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/cloner-depth-echo/ClonerDepthEcho.tsx"
+      ]
+    },
+    {
+      "name": "collab-cursor-moves",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/collab-cursor-moves/CursorCastEnsemble.tsx",
+        "remotion-sources/demos/interaction/collab-cursor-moves/CursorDialogueDuet.tsx"
+      ]
+    },
+    {
+      "name": "color-block-step-wipe",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx"
+      ]
+    },
+    {
+      "name": "command-palette-summon",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/command-palette-summon/CommandPaletteSummon.tsx"
+      ]
+    },
+    {
+      "name": "countdown-arc-scatter",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx"
+      ]
+    },
+    {
+      "name": "counter-confetti",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/counter-confetti/CounterConfetti.tsx"
+      ]
+    },
+    {
+      "name": "crane-rise-reveal",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/crane-rise-reveal/CraneRiseReveal.tsx"
+      ]
+    },
+    {
+      "name": "crash-zoom-punch",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/crash-zoom-punch/CrashImpactReal.tsx",
+        "remotion-sources/demos/camera/crash-zoom-punch/CrashZoomReal.tsx"
+      ]
+    },
+    {
+      "name": "cube-navigation",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/cube-navigation/CubeNavigation.tsx"
+      ]
+    },
+    {
+      "name": "cursor-flyover",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/cursor-flyover/CursorFlyover.tsx"
+      ]
+    },
+    {
+      "name": "dashboard-glow-highlight-pill",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/dashboard-glow-highlight-pill/DashboardGlowHighlightPill.tsx"
+      ]
+    },
+    {
+      "name": "dataviz-landscape-open",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/dataviz-landscape-open/DatavizLandscapeOpen.tsx"
+      ]
+    },
+    {
+      "name": "deck-deal-flyin",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/template/src/aifl/live/SceneFlyIn.tsx"
+      ]
+    },
+    {
+      "name": "depth-layer-moves",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/depth-layer-moves/DollyZoomReal.tsx",
+        "remotion-sources/demos/camera/depth-layer-moves/MultiplaneReal.tsx"
+      ]
+    },
+    {
+      "name": "doc-park-left-pill-deal",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/doc-park-left-pill-deal/DocParkLeftPillDeal.tsx"
+      ]
+    },
+    {
+      "name": "document-typewriter-reveal",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/template/src/aifl/Main.tsx",
+        "remotion-sources/template/src/aifl/live/SceneWbr.tsx"
+      ]
+    },
+    {
+      "name": "draw-svg-trace",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/draw-svg-trace/DrawSvgTrace.tsx"
+      ]
+    },
+    {
+      "name": "edit-hook-moves",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/demos/outro/edit-hook-moves/LogoStingButton.tsx"
+      ]
+    },
+    {
+      "name": "element-body-moves",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/element-body-moves/AxialStretch.tsx",
+        "remotion-sources/demos/ui-entrance/element-body-moves/ContactShadowLift.tsx"
+      ]
+    },
+    {
+      "name": "floating-glossy-label-pills",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx"
+      ]
+    },
+    {
+      "name": "flying-words",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/flying-words/FlyingWords.tsx"
+      ]
+    },
+    {
+      "name": "fracture",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/fracture/Fracture.tsx"
+      ]
+    },
+    {
+      "name": "fui-hud-moves",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/fui-hud-moves/LineUnfoldPanel.tsx",
+        "remotion-sources/demos/effects/fui-hud-moves/ReticleLockOn.tsx"
+      ]
+    },
+    {
+      "name": "gauge-readout-moves",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/gauge-readout-moves/NeedleSweepSelftest.tsx",
+        "remotion-sources/demos/data/gauge-readout-moves/TapeScrollFixedPointer.tsx"
+      ]
+    },
+    {
+      "name": "glass-pill-dictation-typing",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/glass-pill-dictation-typing/GlassPillDictationTyping.tsx"
+      ]
+    },
+    {
+      "name": "glitch-cycle",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/glitch-cycle/GlitchCycle.tsx"
+      ]
+    },
+    {
+      "name": "glow-flyline-moves",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/glow-flyline-moves/FlylineArc.tsx",
+        "remotion-sources/demos/effects/glow-flyline-moves/GlowOrbAmbient.tsx",
+        "remotion-sources/demos/effects/glow-flyline-moves/OrbFlylineRelay.tsx"
+      ]
+    },
+    {
+      "name": "gradient-transition",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/gradient-transition/GradientTransition.tsx"
+      ]
+    },
+    {
+      "name": "gradient-word-sweep",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/gradient-word-sweep/GradientWordSweep.tsx"
+      ]
+    },
+    {
+      "name": "grain-dissolve",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/demos/outro/grain-dissolve/GrainDissolve.tsx"
+      ]
+    },
+    {
+      "name": "graze-face-tour",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/graze-face-tour/GrazeFaceTour.tsx"
+      ]
+    },
+    {
+      "name": "hashtag-to-pill-materialize",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/hashtag-to-pill-materialize/HashtagToPillMaterialize.tsx"
+      ]
+    },
+    {
+      "name": "hatch-depth",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/hatch-depth/HatchDepth.tsx"
+      ]
+    },
+    {
+      "name": "icon-field-colorize",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/icon-field-colorize/IconFieldColorize.tsx"
+      ]
+    },
+    {
+      "name": "icon-performance-moves",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/icon-performance-moves/AttentionBounce.tsx",
+        "remotion-sources/demos/effects/icon-performance-moves/PopBurstConfirm.tsx"
+      ]
+    },
+    {
+      "name": "impact-feedback",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/impact-feedback/AnimeImpact.tsx",
+        "remotion-sources/demos/effects/impact-feedback/HitCounter.tsx"
+      ]
+    },
+    {
+      "name": "input-trigger-moves",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/input-trigger-moves/CursorPerformancePunchIn.tsx",
+        "remotion-sources/demos/interaction/input-trigger-moves/KeycapSmashCut.tsx"
+      ]
+    },
+    {
+      "name": "integration-hub-map",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/integration-hub-map/IntegrationHubMap.tsx"
+      ]
+    },
+    {
+      "name": "letterspace-materialize",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/letterspace-materialize/LetterspaceMaterialize.tsx"
+      ]
+    },
+    {
+      "name": "light-play-moves",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/light-play-moves/HalationBloom.tsx",
+        "remotion-sources/demos/effects/light-play-moves/SheenSweepRetry.tsx",
+        "remotion-sources/demos/effects/light-play-moves/SpotlightSweepReveal.tsx"
+      ]
+    },
+    {
+      "name": "line-boil",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/line-boil/LineBoil.tsx"
+      ]
+    },
+    {
+      "name": "line-carry-transition",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/line-carry-transition/LineCarryTransition.tsx"
+      ]
+    },
+    {
+      "name": "list-reveal",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/list-reveal/ListReveal.tsx"
+      ]
+    },
+    {
+      "name": "list-stack-press",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/template/src/aifl/live/ScenePapers.tsx"
+      ]
+    },
+    {
+      "name": "logo-shrink-wordmark-lockup",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx"
+      ]
+    },
+    {
+      "name": "magician-card-flourish",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/magician-card-flourish/MagicianCardFlourish.tsx"
+      ]
+    },
+    {
+      "name": "marker-underline-title",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx"
+      ]
+    },
+    {
+      "name": "montage-rhythm-moves",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/montage-rhythm-moves/DominoCascade.tsx",
+        "remotion-sources/demos/rhythm/montage-rhythm-moves/DropBlackoutSlam.tsx",
+        "remotion-sources/demos/rhythm/montage-rhythm-moves/WrightTripleCut.tsx"
+      ]
+    },
+    {
+      "name": "morph-from-primitive",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/morph-from-primitive/MorphFromPrimitive.tsx"
+      ]
+    },
+    {
+      "name": "mosaic-reframe",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/mosaic-reframe/MosaicReframe.tsx"
+      ]
+    },
+    {
+      "name": "neon-frame-forerun",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/neon-frame-forerun/NeonFrameForerun.tsx"
+      ]
+    },
+    {
+      "name": "neon-frame-orbit-drop",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/neon-frame-orbit-drop/NeonFrameForerunOrbit.tsx"
+      ]
+    },
+    {
+      "name": "neon-triple-marquee",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/demos/outro/neon-triple-marquee/NeonTripleMarquee.tsx"
+      ]
+    },
+    {
+      "name": "odometer-digit-roll",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/odometer-digit-roll/OdometerDigitRoll.tsx"
+      ]
+    },
+    {
+      "name": "outline-word-fill",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/outline-word-fill/OutlineWordFill.tsx"
+      ]
+    },
+    {
+      "name": "outro-group-photo-launch",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/template/src/aifl/Main.tsx",
+        "remotion-sources/template/src/aifl/live/SceneOutroLive.tsx"
+      ]
+    },
+    {
+      "name": "overhead-camera-moves",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/overhead-camera-moves/OverheadTabletopDrop.tsx",
+        "remotion-sources/demos/camera/overhead-camera-moves/TiltReveal.tsx"
+      ]
+    },
+    {
+      "name": "page-turn-transitions",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/page-turn-transitions/BarnDoorSplit.tsx",
+        "remotion-sources/demos/transition/page-turn-transitions/CubeRotate.tsx"
+      ]
+    },
+    {
+      "name": "page-waterfall-wall",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/page-waterfall-wall/PageWaterfallWall.tsx",
+        "remotion-sources/demos/ui-entrance/page-waterfall-wall/VerticalTicker.tsx"
+      ]
+    },
+    {
+      "name": "panel-grid-moves",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/panel-grid-moves/ComicPanelSplit.tsx",
+        "remotion-sources/demos/rhythm/panel-grid-moves/FlipGridReflow.tsx",
+        "remotion-sources/demos/rhythm/panel-grid-moves/GridFlashMosaic.tsx"
+      ]
+    },
+    {
+      "name": "paper-craft-moves",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/paper-craft-moves/MaskingTapeSlap.tsx",
+        "remotion-sources/demos/ui-entrance/paper-craft-moves/PopupBookRise.tsx"
+      ]
+    },
+    {
+      "name": "paper-plane-messenger",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/paper-plane-messenger/PaperPlaneMessenger.tsx"
+      ]
+    },
+    {
+      "name": "paper-title-card",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/template/src/aifl/PaperTitleCard.tsx"
+      ]
+    },
+    {
+      "name": "particle-celebrate-hits",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx",
+        "remotion-sources/demos/data/particle-celebrate-hits/CounterTickSparks.tsx"
+      ]
+    },
+    {
+      "name": "particle-sand-fill",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/particle-sand-fill/ParticleSandFill.tsx"
+      ]
+    },
+    {
+      "name": "picker-carousel-feature-cycle",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/picker-carousel-feature-cycle/PickerCarouselFeatureCycle.tsx"
+      ]
+    },
+    {
+      "name": "pill-chip-slot-cycle-handled",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/pill-chip-slot-cycle-handled/PillChipSlotCycleHandled.tsx"
+      ]
+    },
+    {
+      "name": "pill-slot-cycle",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/pill-slot-cycle/PillSlotCycle.tsx"
+      ]
+    },
+    {
+      "name": "print-texture-transitions",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/print-texture-transitions/InkBleedReveal.tsx"
+      ]
+    },
+    {
+      "name": "product-card-progressive-assemble",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/product-card-progressive-assemble/ProductCardProgressiveAssemble.tsx"
+      ]
+    },
+    {
+      "name": "quad-split-parallel-scenes",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/quad-split-parallel-scenes/QuadSplitParallelScenes.tsx"
+      ]
+    },
+    {
+      "name": "radial-ripple-phone-chips",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/radial-ripple-phone-chips/RadialRipplePhoneChips.tsx"
+      ]
+    },
+    {
+      "name": "radial-wave",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/radial-wave/RadialWave.tsx"
+      ]
+    },
+    {
+      "name": "research-card-stack-scroll",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx"
+      ]
+    },
+    {
+      "name": "rhythm-interrupt-moves",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/rhythm-interrupt-moves/JumpCutPunchIn.tsx",
+        "remotion-sources/demos/rhythm/rhythm-interrupt-moves/StrobeBlackFrames.tsx"
+      ]
+    },
+    {
+      "name": "riso-print-hits",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/riso-print-hits/RisoBeatPump.tsx",
+        "remotion-sources/demos/effects/riso-print-hits/RisoMisregistrationHit.tsx"
+      ]
+    },
+    {
+      "name": "row-embed",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/template/src/aifl/live/SceneDetail.tsx"
+      ]
+    },
+    {
+      "name": "runway-ground-skim",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/runway-ground-skim/RunwayGroundSkim.tsx"
+      ]
+    },
+    {
+      "name": "sakuga-timing-shift",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/sakuga-timing-shift/SakugaTimingShift.tsx"
+      ]
+    },
+    {
+      "name": "scan-bracket-sweep",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/scan-bracket-sweep/ScanBracketSweep.tsx"
+      ]
+    },
+    {
+      "name": "scanline-annotate-focus",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/scanline-annotate-focus/ScanlineAnnotateFocus.tsx"
+      ]
+    },
+    {
+      "name": "scanline-assemble-flyin",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/scanline-assemble-flyin/ScanlineAssembleFlyin.tsx"
+      ]
+    },
+    {
+      "name": "scramble",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/scramble/Scramble.tsx"
+      ]
+    },
+    {
+      "name": "scroll-brake-moves",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/scroll-brake-moves/BrakeReticleLock.tsx",
+        "remotion-sources/demos/data/scroll-brake-moves/ChangelogScrollBrake.tsx"
+      ]
+    },
+    {
+      "name": "segmented-thumb-hero",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/segmented-thumb-hero/SegmentedThumbHero.tsx"
+      ]
+    },
+    {
+      "name": "shot-transitions",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/shot-transitions/MaskWipeReal.tsx",
+        "remotion-sources/demos/transition/shot-transitions/PortalWipeV2.tsx",
+        "remotion-sources/demos/transition/shot-transitions/WhipBrakeReal.tsx",
+        "remotion-sources/demos/transition/shot-transitions/WhipPanReal.tsx"
+      ]
+    },
+    {
+      "name": "skeleton-reveal",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/skeleton-reveal/SkeletonReveal.tsx"
+      ]
+    },
+    {
+      "name": "slam-entrance-moves",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/slam-entrance-moves/ImpactBurstKit.tsx",
+        "remotion-sources/demos/effects/slam-entrance-moves/KanadaPerspectiveSnap.tsx",
+        "remotion-sources/demos/effects/slam-entrance-moves/ScoreSlam.tsx"
+      ]
+    },
+    {
+      "name": "smear-multiples",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/smear-multiples/SmearMultiples.tsx"
+      ]
+    },
+    {
+      "name": "space-camera-moves",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/space-camera-moves/DroneDiveLanding.tsx",
+        "remotion-sources/demos/camera/space-camera-moves/ExplodedView.tsx"
+      ]
+    },
+    {
+      "name": "spectrum-morph-ui",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/spectrum-morph-ui/SpectrumMorphUi.tsx"
+      ]
+    },
+    {
+      "name": "speed-ramp-freeze",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/speed-ramp-freeze/FreezeAnnotateReal.tsx",
+        "remotion-sources/demos/rhythm/speed-ramp-freeze/SpeedRampReal.tsx"
+      ]
+    },
+    {
+      "name": "split-flap-title",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/split-flap-title/SplitFlapFlip.tsx"
+      ]
+    },
+    {
+      "name": "spotlight-hero-card",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/template/src/aifl/live/SceneOpen.tsx"
+      ]
+    },
+    {
+      "name": "spotlight-sweep-moves",
+      "category": "effects",
+      "sources": [
+        "remotion-sources/demos/effects/spotlight-sweep-moves/CornerSpotlightReveal.tsx",
+        "remotion-sources/demos/effects/spotlight-sweep-moves/GlowWakeSleepPanel.tsx",
+        "remotion-sources/demos/effects/spotlight-sweep-moves/SlideSpotlightPan.tsx"
+      ]
+    },
+    {
+      "name": "steep-tilt-glide",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/steep-tilt-glide/SteepTiltGlide.tsx"
+      ]
+    },
+    {
+      "name": "stroke-segment-build",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/stroke-segment-build/StrokeSegmentBuild.tsx"
+      ]
+    },
+    {
+      "name": "svg-shape-morph",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/svg-shape-morph/SvgShapeMorph.tsx"
+      ]
+    },
+    {
+      "name": "tear-streak-transitions",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/tear-streak-transitions/GlitchDisplace.tsx"
+      ]
+    },
+    {
+      "name": "tension-camera-moves",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/tension-camera-moves/BulletTimeFreezeOrbit.tsx",
+        "remotion-sources/demos/camera/tension-camera-moves/DutchRollToLevel.tsx",
+        "remotion-sources/demos/camera/tension-camera-moves/PullBackIsolation.tsx",
+        "remotion-sources/demos/camera/tension-camera-moves/SlowPushIn.tsx"
+      ]
+    },
+    {
+      "name": "terminal-3d",
+      "category": "camera",
+      "sources": [
+        "remotion-sources/demos/camera/terminal-3d/Terminal3D.tsx"
+      ]
+    },
+    {
+      "name": "text-as-mask",
+      "category": "opening",
+      "sources": [
+        "remotion-sources/demos/opening/text-as-mask/TextAsMask.tsx"
+      ]
+    },
+    {
+      "name": "text-column-converge",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/text-column-converge/TextColumnConverge.tsx"
+      ]
+    },
+    {
+      "name": "theme-switch-moves",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/theme-switch-moves/PaletteThemeRipple.tsx",
+        "remotion-sources/demos/interaction/theme-switch-moves/ThemeSweepToggle.tsx"
+      ]
+    },
+    {
+      "name": "timeline-travel",
+      "category": "data",
+      "sources": [
+        "remotion-sources/demos/data/timeline-travel/TimelineTravel.tsx"
+      ]
+    },
+    {
+      "name": "title-demote-to-label",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/title-demote-to-label/TitleDemoteToLabel.tsx"
+      ]
+    },
+    {
+      "name": "trailer-grammar-moves",
+      "category": "rhythm",
+      "sources": [
+        "remotion-sources/demos/rhythm/trailer-grammar-moves/CardFootageCadence.tsx",
+        "remotion-sources/demos/rhythm/trailer-grammar-moves/SmashCut.tsx",
+        "remotion-sources/demos/rhythm/trailer-grammar-moves/TrailerBumper.tsx"
+      ]
+    },
+    {
+      "name": "transition-hidden-cut",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/transition-hidden-cut/InvisibleCut.tsx",
+        "remotion-sources/demos/transition/transition-hidden-cut/LightLeakBurn.tsx",
+        "remotion-sources/demos/transition/transition-hidden-cut/VersusSlam.tsx"
+      ]
+    },
+    {
+      "name": "transition-travel",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/transition-travel/LetterformZoom.tsx",
+        "remotion-sources/demos/transition/transition-travel/SharedElementMorph.tsx"
+      ]
+    },
+    {
+      "name": "type-and-filter",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/template/src/aifl/live/SceneFlyIn.tsx"
+      ]
+    },
+    {
+      "name": "type-assembly-moves",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/type-assembly-moves/LetterformDriftAssembly.tsx",
+        "remotion-sources/demos/typography/type-assembly-moves/SplitTextStagger.tsx",
+        "remotion-sources/demos/typography/type-assembly-moves/TextOnPath.tsx",
+        "remotion-sources/demos/typography/type-assembly-moves/TrackingExpandReveal.tsx"
+      ]
+    },
+    {
+      "name": "type-entrance-moves",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/type-entrance-moves/LetterDropPhysics.tsx",
+        "remotion-sources/demos/typography/type-entrance-moves/ScrambleDecode.tsx"
+      ]
+    },
+    {
+      "name": "type-rhythm-sync",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/type-rhythm-sync/FontWeightPump.tsx",
+        "remotion-sources/demos/typography/type-rhythm-sync/KaraokeFillSync.tsx"
+      ]
+    },
+    {
+      "name": "typewriter-moves",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/typewriter-moves/TerminalTypewriter.tsx",
+        "remotion-sources/demos/typography/typewriter-moves/TypewriterErrorRetype.tsx"
+      ]
+    },
+    {
+      "name": "typing-code-block",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/typing-code-block/TypingCodeBlock.tsx"
+      ]
+    },
+    {
+      "name": "ui-strip-away-outro",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/demos/outro/ui-strip-away-outro/UiStripAwayOutro.tsx"
+      ]
+    },
+    {
+      "name": "ui-to-brand-morph",
+      "category": "outro",
+      "sources": [
+        "remotion-sources/demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx",
+        "remotion-sources/demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx"
+      ]
+    },
+    {
+      "name": "value-stagger-gradient",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/value-stagger-gradient/ValueStaggerGradient.tsx"
+      ]
+    },
+    {
+      "name": "vertical-word-roll-blur-cycle",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/vertical-word-roll-blur-cycle/VerticalWordRollBlurCycle.tsx"
+      ]
+    },
+    {
+      "name": "voice-waveform-live",
+      "category": "interaction",
+      "sources": [
+        "remotion-sources/demos/interaction/voice-waveform-live/VoiceWaveformLive.tsx"
+      ]
+    },
+    {
+      "name": "wall-reveal-moves",
+      "category": "ui-entrance",
+      "sources": [
+        "remotion-sources/demos/ui-entrance/wall-reveal-moves/BentoLightUp.tsx",
+        "remotion-sources/demos/ui-entrance/wall-reveal-moves/GridWaveFlip.tsx",
+        "remotion-sources/demos/ui-entrance/wall-reveal-moves/WireframeDrawOn.tsx"
+      ]
+    },
+    {
+      "name": "white-flash-logo-simplify-cut",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/white-flash-logo-simplify-cut/WhiteFlashLogoSimplifyCut.tsx"
+      ]
+    },
+    {
+      "name": "wipe-transitions",
+      "category": "transition",
+      "sources": [
+        "remotion-sources/demos/transition/wipe-transitions/BlindsSlice.tsx",
+        "remotion-sources/demos/transition/wipe-transitions/ClockWipe.tsx"
+      ]
+    },
+    {
+      "name": "word-relay-filmstrip",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx"
+      ]
+    },
+    {
+      "name": "word-relay-geometry",
+      "category": "typography",
+      "sources": [
+        "remotion-sources/demos/typography/word-relay-geometry/WordRelayGeometry.tsx"
+      ]
+    }
+  ]
+}

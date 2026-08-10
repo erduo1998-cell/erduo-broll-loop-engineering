@@ -1,6 +1,6 @@
 {
-  "matrixVersion": "1.0.0",
-  "scope": "Runtime routing for semantic shot recipes. Classification does not prove implementation or render parity.",
+  "matrixVersion": "2.0.0",
+  "scope": "Runtime routing for semantic shot recipes across independent HyperFrames and Remotion production backends. Classification does not prove visual or render parity.",
   "defaultRuntime": "hyperframes",
   "runtimes": {
     "hyperframes": {
@@ -10,12 +10,13 @@
       "notes": "Production behavior remains governed by the official HyperFrames Skill and existing stage contracts."
     },
     "remotion": {
-      "maturity": "experimental-boundary",
+      "maturity": "production-route",
       "bundledByThisContract": false,
       "installedByThisContract": false,
       "authorizedByThisContract": false,
-      "productionAvailable": false,
-      "notes": "Dependencies, licenses, source, witnesses, and renders require a later explicit milestone."
+      "productionAvailable": true,
+      "readinessGate": "project-local-locked-dependencies-and-cli-evidence",
+      "notes": "The Agent workflow can author, integrate, preview, and render native Remotion projects. The target project must directly declare and locally install matching remotion and @remotion/cli versions, and its local CLI must pass a real version probe."
     }
   },
   "patternKnowledge": {
@@ -24,9 +25,9 @@
     "runtimeNeutral": true,
     "selectionCardinality": "zero-or-one-primary-pattern-per-shot",
     "hyperframesComponentsVerified": false,
-    "remotionBackendAdded": false,
+    "remotionBackendAdded": true,
     "renderParityClaimed": false,
-    "notes": "Catalog cards guide semantic selection and independent native implementation. They are not runtime capabilities, components, adapters, or witnesses."
+    "notes": "Catalog cards guide semantic selection and independent native implementation. The pinned TSX subset is auditable adaptation input for selected Remotion cards, not bundled runtime components, production imports, or cross-runtime witnesses."
   },
   "classifications": {
     "portable": "A runtime-neutral semantic requirement intended for independent native implementation in both runtimes.",
@@ -42,7 +43,7 @@
     "comparison-verified": "Both runtime witnesses have passed the declared cross-runtime comparison."
   },
   "unlistedCapabilityPolicy": "reject-before-build",
-  "contractOnlyPolicy": "Contract-only is the cross-runtime adapter evidence state. It does not disable the existing HyperFrames production workflow when hyperframesRoute is existing-production-workflow or existing-production-contract, and it never proves Remotion support.",
+  "contractOnlyPolicy": "Contract-only is a capability-evidence state and never proves cross-runtime parity. It does not disable the existing HyperFrames production workflow. A named existing-production-workflow or native-production-workflow remains an independently implemented production route, subject to that runtime's readiness gate.",
   "renderParityClaimed": false,
   "capabilities": [
     {
@@ -51,7 +52,7 @@
       "verification": "contract-only",
       "meaning": "A shot and its phases are anchored to absolute integer milliseconds from the SRT timeline.",
       "hyperframesRoute": "existing-production-workflow",
-      "remotionRoute": "future-native-adapter"
+      "remotionRoute": "native-production-workflow"
     },
     {
       "id": "semantic.visual-state-transition",
@@ -59,7 +60,7 @@
       "verification": "contract-only",
       "meaning": "A shot declares an initial state, visible change, result state, and focus order without runtime APIs.",
       "hyperframesRoute": "existing-production-workflow",
-      "remotionRoute": "future-native-adapter"
+      "remotionRoute": "native-production-workflow"
     },
     {
       "id": "semantic.readable-hold",
@@ -67,15 +68,15 @@
       "verification": "contract-only",
       "meaning": "Important visible information has an explicit integer-millisecond readability window.",
       "hyperframesRoute": "existing-production-workflow",
-      "remotionRoute": "future-native-adapter"
+      "remotionRoute": "native-production-workflow"
     },
     {
       "id": "runtime.remotion-react-source",
       "classification": "native-remotion",
-      "verification": "contract-only",
+      "verification": "backend-verified",
       "meaning": "React or TSX implementation remains in a Remotion-owned artifact and never enters the canonical recipe.",
       "hyperframesRoute": "not-applicable",
-      "remotionRoute": "future-native-backend"
+      "remotionRoute": "native-production-workflow"
     },
     {
       "id": "runtime.hyperframes-seekable-source",

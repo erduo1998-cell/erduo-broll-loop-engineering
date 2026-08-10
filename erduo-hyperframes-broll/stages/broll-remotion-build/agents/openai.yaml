@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Remotion Block Builder"
+  short_description: "Build one deterministic block in Remotion."
+  default_prompt: "Use $broll-remotion-build to turn this assigned Shot Recipe block and frozen assets into a deterministic runnable Remotion project."

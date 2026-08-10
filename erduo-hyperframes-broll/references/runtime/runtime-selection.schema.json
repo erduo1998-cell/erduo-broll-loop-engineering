@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-hyperframes-broll/blob/main/erduo-hyperframes-broll/references/runtime/runtime-selection.schema.json",
+  "title": "B-roll runtime selection",
+  "description": "Machine-readable result of bounded runtime routing. Default routing is read-only; an explicitly authorized Onboarding probe may execute the local Remotion CLI and records that fact. It does not replace full onboarding.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "status",
+    "selectedRuntime",
+    "selectionSource",
+    "projectKind",
+    "productionRouteAvailable",
+    "readiness",
+    "reasonCodes",
+    "evidence",
+    "safety"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "status": { "enum": ["selected", "action-required"] },
+    "selectedRuntime": { "type": ["string", "null"], "enum": ["hyperframes", "remotion", null] },
+    "selectionSource": { "type": ["string", "null"], "enum": ["explicit", "detected", "default", null] },
+    "projectKind": { "enum": ["existing", "new"] },
+    "productionRouteAvailable": { "type": "boolean" },
+    "readiness": { "enum": ["ready", "action-required"] },
+    "reasonCodes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["remotion", "hyperframes"],
+      "properties": {
+        "remotion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["signals", "dependencyEvidence", "cliEvidence"],
+          "properties": {
+            "signals": { "$ref": "#/$defs/signals" },
+            "dependencyEvidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["declaredRemotion", "declaredCli", "installedRemotion", "installedCli"],
+              "properties": {
+                "declaredRemotion": { "type": "boolean" },
+                "declaredCli": { "type": "boolean" },
+                "installedRemotion": { "$ref": "#/$defs/installedPackage" },
+                "installedCli": { "$ref": "#/$defs/installedPackage" }
+              }
+            },
+            "cliEvidence": {
+              "type": "object",
+              "required": ["attempted", "available", "passed", "reason"],
+              "properties": {
+                "attempted": { "type": "boolean" },
+                "available": { "type": "boolean" },
+                "passed": { "type": "boolean" },
+                "reason": { "type": "string" },
+                "exitCode": { "type": ["integer", "null"] },
+                "signal": { "type": ["string", "null"] },
+                "version": { "type": ["string", "null"], "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" },
+                "errorCode": { "type": "string" }
+              }
+            }
+          }
+        },
+        "hyperframes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["signals"],
+          "properties": { "signals": { "$ref": "#/$defs/signals" } }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["readOnlyDetection", "localCliExecuted", "followedSymlinksDuringScan", "shellUsed", "directoryNameHeuristicUsed", "scannedFileCount", "scanLimits"],
+      "properties": {
+        "readOnlyDetection": { "type": "boolean" },
+        "localCliExecuted": { "type": "boolean" },
+        "followedSymlinksDuringScan": { "const": false },
+        "shellUsed": { "const": false },
+        "directoryNameHeuristicUsed": { "const": false },
+        "scannedFileCount": { "type": "integer", "minimum": 0, "maximum": 2000 },
+        "scanLimits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxDepth", "maxFiles", "maxFileBytes"],
+          "properties": {
+            "maxDepth": { "const": 6 },
+            "maxFiles": { "const": 2000 },
+            "maxFileBytes": { "const": 524288 }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "localCliExecuted": { "const": true } }, "required": ["localCliExecuted"] },
+          "then": { "properties": { "readOnlyDetection": { "const": false } } },
+          "else": { "properties": { "readOnlyDetection": { "const": true } } }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "locator", "detail"],
+      "properties": {
+        "kind": { "enum": ["dependency", "script", "config", "composition-source"] },
+        "locator": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/signal" }
+    },
+    "installedPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installed", "version", "locator"],
+      "properties": {
+        "installed": { "type": "boolean" },
+        "version": { "type": ["string", "null"] },
+        "locator": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

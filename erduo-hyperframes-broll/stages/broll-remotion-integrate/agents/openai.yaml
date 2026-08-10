@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Remotion Master Integrator"
+  short_description: "Assemble Remotion blocks into one master."
+  default_prompt: "Use $broll-remotion-integrate to assemble all verified Remotion blocks, render integration evidence, and freeze the approval identity."

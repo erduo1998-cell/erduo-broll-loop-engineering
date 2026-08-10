@@ -1,22 +1,30 @@
 # Runtime-neutral shot contract
 
-Use this reference only when authoring, classifying, adapting, or reviewing a
-runtime-neutral shot recipe. It does not change the default production chain.
+Use this reference when selecting, authoring, adapting, or reviewing one of
+the two independent production backends for a runtime-neutral shot recipe.
 
-## Current release boundary
+## Production boundary
 
-- HyperFrames remains the default and only production backend established by
-  this release.
-- Remotion is an experimental backend boundary, not a bundled backend. This
-  Skill does not install, authorize, configure, invoke, or render with
-  Remotion.
+- HyperFrames remains the default production backend for a genuinely new
+  project whose user did not choose a runtime.
+- Remotion is an independent production backend selected by explicit user
+  choice or unambiguous existing-project evidence. It is not a translation
+  through HyperFrames.
+- Run and preserve the deterministic router described in
+  [runtime-selection.md](runtime-selection.md) before onboarding. Explicit
+  choice wins; mixed evidence is `action-required`; never infer from a
+  directory name.
+- Remotion selection is not readiness. Require direct declarations and local
+  installations of matching `remotion` and `@remotion/cli` versions plus a
+  successful project-local CLI version probe. Never download a CLI during
+  detection or substitute a global executable.
 - Do not claim Remotion/HyperFrames visual parity, timing parity, or render
-  parity. A later backend-and-witness milestone must validate each claim with
-  real source, dependencies, licenses, renders, and comparison evidence.
-- The bundled Shotcraft catalog imports only pinned runtime-neutral card
-  knowledge and provenance under its recorded license. It excludes runtime
-  source, demos, previews, media, textures, fonts, sounds, and other upstream
-  runtime assets.
+  parity. Each route must prove its own source, dependency, preview, render,
+  and media facts. Cross-runtime parity requires a separate comparison.
+- The bundled Shotcraft catalog imports pinned runtime-neutral card knowledge
+  and separately manifest-pinned Remotion reference TSX under Apache-2.0. The
+  reference source is not installed or executed in place and includes no
+  dependency tree, preview media, external textures, fonts, or sounds.
 
 ## Shotcraft pattern references
 
@@ -34,12 +42,15 @@ improves the shot; never use a sentinel `none` card. Pattern timing expressed
 as upstream frames is tuning history only and must be rewritten as absolute
 integer milliseconds inside the actual Recipe window.
 
-Pattern selection does not prove backend support. It does not add a Remotion
-backend, install an adapter, authorize copying TSX, or establish a verified
-HyperFrames component. The production Builder reads only the selected card and
-implements its motion grammar from first principles under the official
-HyperFrames Skills. Migrating existing Remotion source is a separate,
-user-requested porting workflow with its own lint and evidence gates.
+Pattern selection does not prove backend support, install dependencies, or
+establish a verified component. The selected runtime's Builder reads only the
+selected card and implements its motion grammar natively. A HyperFrames
+Builder follows the official HyperFrames Skills. A Remotion Builder may adapt
+only the selected card's manifest-pinned reference TSX into the production
+project, must replace missing media with Assets-stage files, and must preserve
+Apache-2.0 attribution when substantial source remains. It never imports or
+executes production code from the installed Skill directory. Migrating
+existing source between runtimes remains a separate user-requested workflow.
 
 ## Separate semantic intent from runtime source
 
@@ -93,22 +104,20 @@ classification per listed capability:
   the implementation;
 - `unsupported`: no approved deterministic route exists.
 
-Classification is routing metadata, not evidence that an adapter works. Check
-the entry's verification state. A contract-only or unverified entry cannot
-support a cross-runtime compatibility claim. It does not disable the existing
-HyperFrames production workflow when the entry's `hyperframesRoute` explicitly
-names `existing-production-workflow` or `existing-production-contract`; that
-route is a manual, runtime-owned implementation under the existing production
-Skills, not evidence that an automatic adapter or Remotion equivalent exists.
+Classification is routing metadata, not evidence of parity. Check the entry's
+verification state. A contract-only entry cannot support a cross-runtime
+compatibility claim. A named `existing-production-workflow` or
+`native-production-workflow` is an independent runtime-owned implementation;
+it does not prove an automatic adapter or equivalence with the other backend.
 
 Reject a recipe before build when it names an absent capability, requires an
 unsupported capability, or targets a runtime that the capability cannot
 serve. Do not silently simplify. Use the recipe's declared fallback or return
 the decision to the Director.
 
-## Adapter obligations
+## Backend obligations
 
-An eventual runtime adapter must:
+Every runtime-owned Builder and Integrator must:
 
 1. validate the recipe and its integer-millisecond invariants;
 2. resolve every required capability against the matrix;
@@ -118,8 +127,14 @@ An eventual runtime adapter must:
 5. keep runtime source, configuration, dependency locks, and build evidence in
    its own output area;
 6. report unsupported or lossy mappings instead of inventing equivalence;
-7. record the runtime version, adapter version, time-conversion policy, and
-   exact recipe identity used.
+7. record the runtime version, stage-contract version, time-conversion policy,
+   and exact recipe identity used.
+
+For Remotion, convert each absolute millisecond boundary with the project FPS
+and one declared deterministic rounding policy. Use Remotion's frame-driven
+APIs, register the final Composition explicitly, run TypeScript/build checks,
+and use only the verified project-local CLI for stills and rendering. Do not
+write frames back into the canonical Recipe.
 
 Use [remotion-hyperframes-map.md](remotion-hyperframes-map.md) only while
 designing or reviewing an adapter. It is a concern map, not executable porting
@@ -127,16 +142,19 @@ instructions.
 
 ## Evidence gates
 
-Keep these milestones separate:
+Keep these claims separate:
 
-1. **Contract:** schema, classification vocabulary, and review rules exist.
-2. **Backend:** an adapter and its dependencies are explicitly added, licensed,
-   installed, and tested.
-3. **Witness:** the same recipe has real runtime-owned implementations and
-   reproducible renders for the claimed route.
-4. **Comparison:** objective timing, seek, media, and visual checks have run;
-   accepted differences are documented.
+1. **Selection:** router output identifies one runtime without guessing.
+2. **Readiness:** required local dependencies, CLI, renderer, media tools, and
+   permissions are proven for that runtime.
+3. **Backend:** the selected runtime owns deterministic source, integration,
+   preview, and render commands for the exact Recipes.
+4. **Witness:** that runtime's real composition renders reproducibly and passes
+   its declared technical checks.
+5. **Comparison:** only when requested, both runtime witnesses pass objective
+   timing, seek, media, and visual comparisons with accepted differences
+   documented.
 
-This release establishes only the contract milestone. Until later milestones
-are present, keep HyperFrames production behavior unchanged and describe
-Remotion support as experimental and unavailable for production.
+This release establishes independent production routes, not automatic source
+translation or visual parity. A failure in one route must not be hidden by
+silently switching to the other.

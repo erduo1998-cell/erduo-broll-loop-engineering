@@ -23,9 +23,9 @@
 - [ ] runtime lock 拒绝额外根依赖、git/file/link/HTTP、缺失 resolved、非 npm registry HTTPS tarball 和缺失或非法 integrity。
 - [ ] 固定 HyperFrames commit 已核验；第三方 Skills CLI 只写隔离 HOME；staged store 精确闭合 8 个核心 Skill且无 symlink/special file；官方 check 显式绑定 `--dir` 与 `--source`。
 - [ ] doctor 的版本更新提示只在 `_meta.version` 精确命中锁定版本时降为非阻断；版本不明/不符以及 Node、FFmpeg、FFprobe、Chrome 任一失败仍关闭。
-- [ ] 8 个官方 Skill 与 8 个本项目 Skill 共用一次占用确认、备份、链接、manifest commit 和失败逆序回滚事务；升级与卸载能恢复初始备份链。
+- [ ] 8 个官方 Skill 与 11 个本项目 Skill 共用一次占用确认、备份、链接、manifest schema 3 commit 和失败逆序回滚事务；升级与卸载能读取历史 schema 1/2 并恢复初始备份链。
 - [ ] FFmpeg 缺失路径只在 Homebrew 已存在并获一次授权时安装，否则清晰返回 action-required。
-- [ ] Codex 与 Claude Code 的父 Skill + 七个阶段 Skill 均安装；冲突安装有可恢复备份。
+- [ ] Codex 与 Claude Code 的父 Skill + 十个阶段 Skill 均安装；冲突安装有可恢复备份。
 - [ ] Pexels Key 通过隐藏输入或 stdin 配置、真实 API 验证、0600 原子保存，并且未进入 argv、日志或诊断。
 - [ ] Pexels 配置读取与写入都拒绝 home 到配置目录链上的任何中间符号链接。
 - [ ] 官方 doctor 五个必需本地渲染事实各恰好一次；重复或缺失 payload 被拒绝，顶层 `ok=false` 不会把完整的限定本地渲染事实误判为缺失。
@@ -47,20 +47,23 @@
 ## Runtime adapter 与 Shotcraft 知识层
 
 - [ ] Shot Recipe schema、能力矩阵、运行时映射文档与零依赖 Recipe 校验器均通过确定性校验，枚举、必填字段、时间包含关系、唯一 ID 和引用闭集无漂移。
-- [ ] 默认生产运行时仍为 HyperFrames；Remotion 只标记为 `experimental contract only`，未被安装器、runtime lock 或生产 Skill 暗中升级为默认依赖。
-- [ ] README、支持矩阵和 Skill 表面均没有把契约、示例或静态映射误称为已完成双端渲染、视觉一致或全自动转换。
-- [ ] Remotion 边界明确：本仓库不捆绑、不安装、不代为授权；使用者按 Remotion 官方现行许可判断自身场景。
+- [ ] Runtime Router 遵循显式选择优先、既有项目证据识别、双信号停止和空白新项目默认 HyperFrames；目录名不作为判断依据。
+- [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；只有获得 Remotion 修复与本地执行授权后的 fresh Onboarding repair Agent 才使用 `--probe-cli`，并记录非只读执行事实与最小 allowlist 子环境。
+- [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
+- [ ] 本仓库安装器和 runtime lock 不包含 Remotion；不得使用全局 Remotion 或允许临时下载的 `npx` 作为 readiness 证据。
+- [ ] README、支持矩阵和 Skill 表面均没有把独立双后端误称为自动互转、双端视觉一致或任意既有工程兼容。
+- [ ] Remotion 边界明确：项目本地使用不等于本仓库代为授权；使用者按 Remotion 官方现行许可判断自身场景。
 - [ ] `catalog.json` 固定上游 URL、commit `41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b`、library revision `bdd94be16d60fa8f` 与 Apache-2.0，并精确记录 152 张卡、209 个全局唯一 style key。
 - [ ] `manifest.json` 精确覆盖 catalog、归因文件和 152 张卡；每项 target、bytes 与 SHA-256 对实际 regular file 复算一致，且不存在 manifest 外卡片或卡片外 manifest 条目。
 - [ ] 卡片 name、文件路径和 catalog 引用一一对应；上游 source 与本地 localSource 均通过路径闭集验证。
 - [ ] 查询脚本的 stats、list、search 保持小型摘要，只允许 card 模式输出一张卡片全文；`--style` 只能随 `--card` 限定卡内 style，不存在一次输出完整卡库的默认路径。
-- [ ] 发布包包含 catalog、manifest、查询脚本、归因文件、152 张文本卡和完整 Apache-2.0 文本；不含 TSX、预览、音频、纹理、字体或其他上游媒体。
+- [ ] 发布包包含 catalog、manifest、查询脚本、归因文件、152 张文本卡、Remotion source manifest 精确声明的源码子集和完整 Apache-2.0 文本；不含 manifest 外 TSX、预览媒体、音频、字体或运行时依赖。
 - [ ] README、支持矩阵和 Skill 表面均明确：152 张卡片是可检索的运行时无关知识，不是 152 个已验证 HyperFrames 组件，也不代表完成 Remotion/HyperFrames 双端一致性。
-- [ ] 在支持矩阵提升 Remotion 状态前，至少为代表性 Recipe 留存真实 Remotion 与 HyperFrames 构建、渲染、关键时间点对比和限制记录。
+- [ ] Remotion 后段至少通过目标项目精确依赖、local CLI、Composition 注册、类型检查、stills/preview、正式 render 与 ffprobe 契约；跨后端视觉对比仍须另行留存 witness 才能声明。
 
 ## 正式发布与回滚
 
-- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.2.0`。
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.3.0`。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
 - [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

@@ -12,6 +12,7 @@ import {
   symlink,
   unlink,
 } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
@@ -1008,7 +1009,7 @@ export async function runInstall({
       additionalSources: official.sources,
       finalize: async (records) => {
         manifest = {
-          schema_version: 2,
+          schema_version: 3,
           product_version: RELEASE_VERSION,
           installed_at: new Date().toISOString(),
           repo_root: canonicalRepoRoot,
@@ -1076,7 +1077,7 @@ async function main(argv) {
 }
 
 const isMain = process.argv[1]
-  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
 if (isMain) {
   try {
     await main(process.argv.slice(2));

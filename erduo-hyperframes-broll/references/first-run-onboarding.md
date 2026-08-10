@@ -24,6 +24,7 @@ Identify:
 - Skill root and production root;
 - delivery directory and intended output profile;
 - selected runtime, defaulting to `hyperframes`;
+- validated runtime-selection artifact;
 - local render path;
 - current command environment;
 - whether the run is first use, post-migration, or a recheck.
@@ -31,14 +32,17 @@ Identify:
 Do not disclose private absolute paths in the handoff.
 
 Ready evidence is fresh only for the same production run, host, command
-`PATH`, official HyperFrames CLI version, target delivery filesystem, selected
+`PATH`, selected runtime CLI version, target delivery filesystem, selected
 runtime, runtime-capability decision, and Pexels validation state. Record these
 bindings safely. If any value changes, discard the earlier readiness
 conclusion and dispatch a new inspection-only Agent.
 
-Read the runtime capability matrix before environment checks. A selected
-runtime whose `productionAvailable` value is false is `unsupported` for formal
-production in this release; stop without installing or probing that runtime.
+Read the runtime selection contract and capability matrix before environment
+checks. Generate the selection artifact with the bundled detector. Honor an
+explicit runtime first; otherwise require unambiguous real project evidence.
+Mixed evidence is `action-required`, while a genuinely new project defaults
+to HyperFrames. A selected runtime whose `productionAvailable` value is false
+is `unsupported`; do not silently switch runtimes.
 
 ### 2. Inspect before modifying
 
@@ -59,7 +63,7 @@ meaning, merge cues, create sections or shots, or write Director artifacts.
 
 ### 4. Check Node
 
-The official HyperFrames CLI requires Node.js 22 or newer.
+Both release-pinned production routes require Node.js 22 or newer.
 
 Run a real Node version query and parse the result. Command availability alone
 is insufficient.
@@ -79,13 +83,17 @@ If no trusted, authorized installation path exists, stop as
 
 ### 5. Load official guidance
 
-Through the host's native Skill mechanism, load:
+For HyperFrames, through the host's native Skill mechanism, load:
 
 - `hyperframes`
 - `hyperframes-cli`
 
 Follow the release-pinned official guidance rather than remembered commands. Retain a
 host-native trace reference when available.
+
+For Remotion, do not load HyperFrames guidance as runtime evidence. Bind the
+inspection to the selected project's direct `remotion` and `@remotion/cli`
+declarations, locally installed matching versions, and project-local CLI.
 
 For every non-Pexels command below, use the host's native spawn/process API to
 copy the required environment into an explicit child map, remove every key whose
@@ -100,7 +108,51 @@ bounded no-log, no-shell bootstrap. If neither route is available, stop before
 spawn as `action-required`. This contract applies to Node, npx, HyperFrames,
 browser descendants, package managers, FFmpeg, and FFprobe.
 
-### 6. Check official HyperFrames Skills
+### 6. Check the selected runtime
+
+For Remotion, require all of the following before creative production:
+
+- `package.json` directly declares `remotion` and `@remotion/cli`;
+- both packages are installed locally at the same concrete version;
+- the bundled router's project-local `remotion versions` direct-spawn probe
+  passed without a shell, reported package alignment, and named the exact
+  shared version;
+- no global CLI, network-fetched `npx`, transitive dependency, or lockfile-only
+  entry is used as a substitute;
+- the exact local CLI's Chrome path is usable;
+- FFmpeg and FFprobe execute in the same command environment;
+- an existing project has a discoverable registered Composition, or a new
+  project records that registration as Builder/Integrator work rather than
+  pretending it already exists.
+
+Initial routing and inspection must not execute the project-local CLI. After
+the user approves the exact repair and local project execution, the fresh
+repair Agent runs the detector with `--probe-cli`; only that authorized result
+can supply the CLI evidence above. Its child environment is a minimal
+allowlist, not the full parent environment.
+
+Missing declared/installed dependencies or CLI evidence is
+`action-required`. Inspection mode reports the exact missing facts without
+installing them. A fresh repair Agent may run the project's approved package
+manager only when the user explicitly authorizes the dependency change, then
+must rerun the detector and local CLI probe. Skip the HyperFrames-only Skills,
+doctor, and browser commands below for a Remotion run.
+
+For a genuinely new project explicitly selected as Remotion, this initial
+`action-required` readiness is expected and does not reopen runtime selection.
+Inspection reads `remotion-backend.md`, shows the official Remotion licensing
+page, and groups intended-use confirmation with authorization for the exact
+local package bootstrap. A different fresh repair Agent then creates only the
+minimal exact `package.json`, `package-lock.json`, dependency tree, and empty
+application directories in the new unused production project root. It must
+inspect lock sources before `npm ci`, rerun the detector and local CLI probe,
+and roll back newly created bootstrap files on failure. Composition
+registration and video source remain Builder/Integrator work. Do not require
+the user to install packages manually.
+
+For HyperFrames, continue with the release-pinned checks below.
+
+#### Check official HyperFrames Skills
 
 From the public release root, run:
 
@@ -132,7 +184,7 @@ decision, but it does not invalidate the reproducible pinned baseline by
 itself.
 
 The release installer owns registration of the public Skill set. Verify that
-the host can discover all eight:
+the host can discover all eleven:
 
 - `erduo-hyperframes-broll`
 - `broll-onboarding`
@@ -142,11 +194,14 @@ the host can discover all eight:
 - `broll-master-integrate`
 - `broll-render`
 - `broll-shot-export`
+- `broll-remotion-build`
+- `broll-remotion-integrate`
+- `broll-remotion-render`
 
 Onboarding must not create registration itself. Missing discovery is
 `action-required` for the release installer or host installation workflow.
 
-### 7. Run official doctor
+#### Run official HyperFrames doctor
 
 Run:
 
@@ -173,7 +228,7 @@ unused.
 
 Do not use a fixed exception list or infer success from the process exit code.
 
-### 8. Repair Chrome through the official command
+#### Repair HyperFrames Chrome through the official command
 
 When doctor reports missing bundled Chrome, inspection mode records the
 repair. In an authorized fresh repair Agent, run:
@@ -189,7 +244,7 @@ the host limitation. Do not repeatedly reinstall Chrome or construct another
 renderer. Ask the user to choose an available non-restricted, Docker, or cloud
 path when appropriate.
 
-### 9. Check FFmpeg and FFprobe
+### 7. Check FFmpeg and FFprobe
 
 Doctor supplies the primary facts. Also confirm both tools execute in the same
 command environment production will use.
@@ -203,7 +258,7 @@ When missing:
 
 FFmpeg does not substitute for FFprobe.
 
-### 10. Check directories and storage
+### 8. Check directories and storage
 
 For the production and delivery directories:
 
@@ -223,7 +278,7 @@ permissions on user-owned paths. Do not delete files to recover space.
 When space is insufficient or cannot be judged safely, ask the user to free
 space or select another location.
 
-### 11. Check Pexels access safely
+### 9. Check Pexels access safely
 
 Resolve only whether `PEXELS_API_KEY` is securely configured. Never print,
 echo, serialize, or place the value in:
@@ -255,7 +310,7 @@ Onboarding may report `configured-unverified` when it can prove secure
 presence but cannot test authentication without exposing the value. The
 mandatory Assets Agent validates access through its real Pexels searches.
 
-### 12. Group external authorization
+### 10. Group external authorization
 
 Before repair, present one consolidated request covering every currently known
 human decision:
@@ -268,7 +323,7 @@ human decision:
 - system permission or restricted-directory access;
 - storage cleanup or alternate location;
 - optional Docker, proxy, certificate, or cloud authentication.
-- release-installer or host action when any of the eight public Skills is not
+- release-installer or host action when any of the eleven public Skills is not
   discoverable.
 
 Do not interrupt separately for items already known in the same inspection.
@@ -276,7 +331,7 @@ Do not interrupt separately for items already known in the same inspection.
 ## Status meanings
 
 - `ready`: every capability required by the selected local production path is
-  verified, all eight public Skills are discoverable, the directories are
+  verified, all eleven public Skills are discoverable, the directories are
   usable, and Pexels is securely configured for the recorded validation state.
 - `degraded`: a capability is unavailable but proved irrelevant to the selected
   path.
@@ -297,15 +352,19 @@ Write `broll-production/00-onboarding/environment-handoff.md`.
 Include:
 
 - onboarding mode and whether any modification occurred;
-- readiness bindings for run, host, command `PATH`, official CLI version,
+- readiness bindings for run, host, command `PATH`, selected runtime CLI version,
   delivery filesystem, selected runtime, runtime-capability decision, and
   Pexels validation state;
+- runtime-selection status, source, reason codes, and relative evidence
+  locators;
 - target mode and output profile;
 - safe platform and architecture facts;
 - Node version result;
-- HyperFrames CLI and Skills status;
-- host discovery of the root Skill and all seven stage Skills;
-- official doctor top-level result and selected-path findings;
+- selected runtime dependency and CLI status; for HyperFrames, official Skills
+  status; for Remotion, matching local package versions and CLI probe status;
+- host discovery of the root Skill and all ten stage Skills;
+- for HyperFrames, official doctor top-level result and selected-path findings;
+  for Remotion, local CLI, Chrome, TypeScript, FFmpeg, and FFprobe findings;
 - FFmpeg, FFprobe, and Chrome status;
 - production and delivery-directory status;
 - free-space assessment and unique-target result;

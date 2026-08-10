@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { lstat, realpath } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -177,7 +178,7 @@ async function main(argv) {
 }
 
 const isMain = process.argv[1]
-  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
 if (isMain) {
   try {
     await main(process.argv.slice(2));

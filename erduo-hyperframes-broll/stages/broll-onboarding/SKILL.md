@@ -15,6 +15,7 @@ render, or export.
 - production-run identity and SRT locator
 - intended delivery directory and output profile
 - selected runtime, defaulting to `hyperframes`
+- validated runtime-selection JSON from the bundled detector
 - current host and operating system
 - onboarding mode: `inspect` or `repair`
 - any previous onboarding handoff
@@ -24,21 +25,27 @@ render, or export.
 ## Required approach
 
 Read `../../references/runtime/runtime-contract.md` and
-`../../references/runtime/capability-matrix.json`. Record the selected runtime
-as part of the environment binding. `hyperframes` is the only
-production-ready runtime in this release. `remotion` is an experimental
-adapter contract, not a formal delivery backend.
+`../../references/runtime/capability-matrix.json`, plus
+`../../references/runtime/runtime-selection.md`. Verify the supplied selection
+against `../../references/runtime/runtime-selection.schema.json` and record it
+as part of the environment binding. Rerun the detector when its project root,
+explicit choice, or evidence changed. Mixed evidence without an explicit
+choice is `action-required`; do not resolve it by counting signals.
+Inspection mode uses the detector without `--probe-cli` and therefore never
+executes project-local code. Only after the user authorizes the exact Remotion
+repair and local execution may the fresh repair Agent rerun it with
+`--probe-cli`; record `readOnlyDetection: false` and `localCliExecuted: true`.
 
-If the selected runtime has `productionAvailable: false`, stop as
-`unsupported` before environment repair; do not install or probe it. For any
-future non-default runtime marked production-available, inspect the matrix
-route and the exact adapter version and witness evidence required by the
-runtime contract. Missing, stale, or merely claimed local evidence is
-`action-required`; a capability marked unsupported is `unsupported`. Do not
-synthesize witness evidence or weaken the default HyperFrames requirements.
+Both `hyperframes` and `remotion` are production routes. A selected runtime
+whose matrix route is unavailable is `unsupported`. Missing, stale, or merely
+claimed local readiness evidence is `action-required`; an unsupported required
+capability is `unsupported`. Do not synthesize evidence or silently switch
+runtimes.
 
-Load the release-pinned official `hyperframes` and `hyperframes-cli` Skills through
-the host's native Skill mechanism before using HyperFrames commands.
+For HyperFrames only, load the release-pinned official `hyperframes` and
+`hyperframes-cli` Skills through the host's native Skill mechanism before
+using HyperFrames commands. For Remotion, use only the project-local locked
+dependencies and CLI; a global CLI or an `npx` download is not evidence.
 
 Before every non-Pexels child process, use the host's native spawn/process API
 to copy the required environment into an explicit child map, remove every key
@@ -65,22 +72,37 @@ complete repair and authorization request.
 Repair mode must run in a different fresh Agent. Perform only the approved
 repairs, then repeat the full inspection in that Agent.
 
-Check:
+Check for both runtimes:
 
 - Node.js is version 22 or newer;
-- the project-resolved HyperFrames CLI is available;
-- the official core HyperFrames Skills are complete and current;
 - FFmpeg and FFprobe both execute in the command environment production will
   use;
-- the official HyperFrames doctor was actually run with JSON output;
-- every doctor finding relevant to local production, including Chrome, is
-  usable;
 - the production and delivery directories are writable;
 - the target filesystem has sufficient free space for the declared work;
 - the intended target file is unused;
 - Pexels access is securely configured without exposing the credential.
 
-Verify that the host can discover all eight public Skills installed by the
+For HyperFrames, additionally check:
+
+- the project-resolved HyperFrames CLI is available;
+- the official core HyperFrames Skills are complete and current;
+- the official HyperFrames doctor actually ran with JSON output;
+- every doctor finding relevant to local production, including Chrome, is
+  usable.
+
+For Remotion, additionally check:
+
+- `package.json` directly declares exact or lock-resolved `remotion` and
+  `@remotion/cli` dependencies;
+- both are locally installed at the same concrete version;
+- the project-local `node_modules/.bin/remotion versions` probe actually
+  succeeds by direct spawn without a shell, reports aligned packages, and
+  names their exact shared version;
+- the project's TypeScript/build entry and registered Composition are
+  discoverable or, for a new authorized project, are assigned to the Builder;
+- Chrome required by that exact local Remotion CLI is usable.
+
+Verify that the host can discover all eleven public Skills installed by the
 release installer:
 
 - `erduo-hyperframes-broll`
@@ -91,6 +113,9 @@ release installer:
 - `broll-master-integrate`
 - `broll-render`
 - `broll-shot-export`
+- `broll-remotion-build`
+- `broll-remotion-integrate`
+- `broll-remotion-render`
 
 Onboarding does not register these Skills itself. Missing registration is
 `action-required` and belongs to the release installer or host installation
@@ -101,17 +126,17 @@ final cue end time as integer milliseconds. Do not interpret meaning, merge
 cues, create shots, or perform any Director work.
 
 Fresh evidence is valid only for the same production run, host, command
-`PATH`, official HyperFrames CLI version, target delivery filesystem, selected
+`PATH`, selected runtime CLI version, target delivery filesystem, selected
 runtime, runtime-capability evidence, and Pexels validation state. Record these
 bindings without exposing private paths. If any binding changes, the evidence
 is stale and inspection must run again.
 
-The official doctor JSON is authoritative evidence about what it inspected.
+For HyperFrames, the official doctor JSON is authoritative evidence about what it inspected.
 Its command always exits successfully, so read the top-level result and every
 individual finding. Classify optional capabilities only against the selected
 local delivery path; do not use a standing exemption list.
 
-Run the release doctor, which invokes the official Skills check against the
+For HyperFrames, run the release doctor, which invokes the official Skills check against the
 application-owned pinned source and then invokes the official HyperFrames
 doctor. A missing or changed pinned core set is `action-required`. In an
 authorized repair Agent, rerun the release installer so the eight official
@@ -120,7 +145,7 @@ do not let a third-party installer write the real HOME directly. A canonical
 remote `npx hyperframes skills check --json` is an optional maintenance check,
 not readiness evidence for this pinned release.
 
-If the doctor reports missing bundled Chrome, inspection mode records the
+If the HyperFrames doctor reports missing bundled Chrome, inspection mode records the
 repair. In authorized repair mode, use the official browser ensure command,
 then rerun doctor. Do not install an arbitrary browser as a substitute.
 
@@ -137,14 +162,31 @@ user's one-time authorization.
   impersonate administrator approval.
 - Create or repair only application-owned directories. Do not recursively
   change permissions on user-owned directories.
+- For a genuinely new project explicitly selected as Remotion, read
+  `../../references/remotion-backend.md`. Inspection mode must include the
+  official Remotion licensing-page review, intended-use confirmation, exact
+  project-local package set, lock creation, registry/source inspection, and
+  clean install in one grouped authorization request. After that confirmation
+  and authorization, a fresh repair Agent may create only the minimal runtime
+  shell in the new unused production project root: exact `package.json`,
+  `package-lock.json`, local dependency tree, and required empty application
+  directories. It must not author a Composition, shot source, assets, or other
+  Builder artifacts. Rerun the detector and local CLI probe; rollback newly
+  created bootstrap files if verification fails before any Builder owns them.
+- For an existing Remotion project with missing or mismatched dependencies,
+  inspection must report the exact proposed package and lock changes. Apply
+  them only after explicit authorization and license confirmation; never
+  require the user to install packages manually when the approved repair Agent
+  can perform the bounded local change.
 - Never delete files to recover disk space. Ask the user to free space or
   choose another location.
 - Treat a host sandbox that prevents Chrome from starting as a host
   limitation, not an installation problem. Do not build a substitute
   renderer.
 
-After any repair, repeat the affected check and rerun official doctor in the
-same command environment.
+After any repair, repeat the affected check and rerun the selected runtime's
+full preflight in the same command environment. HyperFrames preflight includes
+official doctor.
 
 ## Human-only actions
 
@@ -175,9 +217,10 @@ Record:
 
 - host and operating-system facts without private paths;
 - the actual Node, HyperFrames, FFmpeg, FFprobe, and Chrome findings;
-- official doctor top-level and relevant individual results;
+- for HyperFrames, official doctor top-level and relevant individual results;
+  for Remotion, the local CLI, Chrome, TypeScript, FFmpeg, and FFprobe facts;
 - official Skills-check result;
-- discovery result for the root Skill and all seven stage Skills;
+- discovery result for the root Skill and all ten stage Skills;
 - evidence binding for production run, host, command `PATH`, official CLI
   version, delivery filesystem, selected runtime, runtime-capability evidence,
   and Pexels validation state;
@@ -199,9 +242,10 @@ directory prefixes, or unrelated installed software.
 
 Complete as `ready` only when every capability needed by the selected local
 production path is verified, the selected runtime is explicitly
-production-ready in the capability matrix, all eight public Skills are
-discoverable, the delivery location is usable, and Pexels is securely
-configured for the same recorded validation state. `degraded` is acceptable
+production-ready in the capability matrix, all eleven public Skills are
+discoverable, the selected runtime's own dependency and CLI evidence is real,
+the delivery location is usable, and Pexels is securely configured for the
+same recorded validation state. `degraded` is acceptable
 only for a capability proved irrelevant to the selected path.
 
 ## Stop
@@ -209,14 +253,19 @@ only for a capability proved irrelevant to the selected path.
 Stop as `action-required` when an external account, key, permission, package
 manager, administrator action, or storage decision cannot be safely automated.
 Stop as `unsupported` when the selected runtime is not production-available or
-the capability matrix says the requested route is unsupported. For a future
-production-available non-default runtime, stop as `action-required` when its
-required local adapter or witness evidence is missing.
+the capability matrix says the requested route is unsupported. Stop as
+`action-required` when Remotion is selected but its declared dependencies,
+installed matching versions, or local CLI probe is missing. An existing
+project with no Composition route is also `action-required`. A genuinely new
+project whose verified bootstrap handoff explicitly assigns Composition
+authoring and registration to the Remotion Builder/Integrator may complete
+Onboarding as `ready`; absence of not-yet-authored composition source is not a
+bootstrap blocker.
 
-Stop as `blocked` when an authorized repair fails, the official Skills cannot
-be obtained, a required executable remains unusable, Chrome is blocked by the
-host, the delivery path remains unsafe, or the credential cannot be configured
-without exposure.
+Stop as `blocked` when an authorized repair fails, the selected runtime's
+required Skills or locked dependencies cannot be obtained, a required
+executable remains unusable, Chrome is blocked by the host, the delivery path
+remains unsafe, or the credential cannot be configured without exposure.
 
-This handoff supports onboarding only. Render/Delivery must run official doctor
-again in the exact formal-render environment.
+This handoff supports onboarding only. Render/Delivery must run the selected
+runtime's complete preflight again in the exact formal-render environment.
