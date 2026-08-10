@@ -7,6 +7,7 @@ import {
   rename,
   unlink,
 } from 'node:fs/promises';
+import { realpathSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -107,6 +108,7 @@ export async function runUninstall({
     restored: results.filter((entry) => entry.action.includes('restored')).length,
     config_preserved: true,
     hyperframes_runtime_preserved: true,
+    remotion_projects_preserved: true,
     results,
   };
   if (report.skipped !== 0) {
@@ -125,6 +127,7 @@ export async function runUninstall({
       restored: report.restored,
       config_preserved: true,
       hyperframes_runtime_preserved: true,
+      remotion_projects_preserved: true,
     },
     { trustedRoot: appDir },
   );
@@ -139,11 +142,11 @@ async function main(argv) {
   const report = await runUninstall();
   process.stdout.write(argv.includes('--json')
     ? `${JSON.stringify(report)}\n`
-    : `Uninstalled ${report.removed} owned Skill links; restored ${report.restored}; skipped ${report.skipped}. Private configuration and the shared HyperFrames runtime were preserved.\n`);
+    : `Uninstalled ${report.removed} owned Skill links; restored ${report.restored}; skipped ${report.skipped}. Private configuration, the shared HyperFrames runtime, and user Remotion projects were preserved.\n`);
 }
 
 const isMain = process.argv[1]
-  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url));
 if (isMain) {
   try {
     await main(process.argv.slice(2));

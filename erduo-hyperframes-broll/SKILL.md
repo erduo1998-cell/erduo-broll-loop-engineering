@@ -1,6 +1,6 @@
 ---
 name: erduo-hyperframes-broll
-description: Create editable, SRT-anchored B-roll through a Parent Producer and fresh isolated stage agents. Use for talking-head B-roll from an edited video plus SRT, or faceless B-roll from an SRT, with first-run environment onboarding, mandatory material collection, semantic HyperFrames building, one final master, technical delivery, and optional master-derived shot export.
+description: Create editable, SRT-anchored B-roll through a Parent Producer and fresh isolated stage agents. Use for talking-head B-roll from an edited video plus SRT, or faceless B-roll from an SRT, with deterministic HyperFrames-or-Remotion routing, first-run environment onboarding, mandatory material collection, runtime-neutral direction, one final master, technical delivery, and optional master-derived shot export.
 ---
 
 # Erduo HyperFrames B-roll
@@ -12,6 +12,9 @@ Act only as the Parent Producer. Read:
 - [parent review checklist](references/parent-review-checklist.md)
 - [handoff format](references/handoff-template.md)
 - [first-run onboarding](references/first-run-onboarding.md)
+- [runtime selection contract](references/runtime/runtime-selection.md)
+- [runtime-neutral shot and backend contract](references/runtime/runtime-contract.md)
+- [runtime capability matrix](references/runtime/capability-matrix.json)
 
 The bundled Shotcraft catalog is runtime-neutral pattern knowledge. Discover it
 progressively through `scripts/query-shotcraft.mjs`; do not load the catalog or
@@ -41,10 +44,30 @@ labels.
 - Ask once whether the user has images, videos, logos, screenshots, or other
   ordinary material. These inputs are optional.
 - Confirm the mode and explicit brand, content, audio, or privacy constraints.
-- Record the requested render runtime. Default to `hyperframes`. Treat
-  `remotion` only as an experimental adapter target under
-  [the runtime contract](references/runtime/runtime-contract.md); it is not a
-  production-ready delivery backend in this release.
+- Select the render runtime before onboarding. Run
+  `node <skill-root>/scripts/detect-runtime.mjs --project <project-root> --json`.
+  When the user explicitly chose `hyperframes` or `remotion`, also pass that
+  value with `--runtime`; an explicit choice outranks detected project signals.
+  Otherwise use concrete package, config, and composition evidence. Mixed
+  runtime evidence or an existing project with no runtime evidence is
+  `action-required`; do not guess from a directory name. A genuinely new
+  project with no explicit choice defaults to `hyperframes`.
+- Preserve the router JSON as the runtime-selection artifact and validate it
+  against `references/runtime/runtime-selection.schema.json`. Selection does
+  not replace onboarding. A selected Remotion route is ready only when the
+  project declares matching `remotion` and `@remotion/cli` dependencies, both
+  are locally installed at the same version, and the project-local Remotion
+  CLI returns real version evidence without a shell.
+- Treat `status: selected` as permission to enter inspection-only Onboarding
+  even when `readiness: action-required`. This is the normal state for a new
+  project explicitly routed to Remotion: Onboarding proposes the exact local
+  bootstrap, obtains one grouped authorization and Remotion-license
+  confirmation, then a fresh repair Agent creates and verifies it. Only router
+  `status: action-required` pauses for a runtime choice.
+- Initial routing never uses `--probe-cli` or executes project-local code.
+  After the user approves the grouped Remotion repair and local execution, the
+  fresh Onboarding repair Agent reruns the same detector with `--probe-cli` to
+  obtain local CLI readiness evidence.
 - When the user does not specify a delivery location, choose one new
   timestamped directory beside the SRT. Use the SRT basename plus
   `-broll-YYYYMMDD-HHMMSS`, adding a unique suffix if needed.
@@ -65,25 +88,25 @@ fresh `ready` evidence, dispatch a fresh `broll-onboarding` Agent in
 inspection-only mode before production.
 
 Fresh ready evidence must belong to the same production run and bind the same
-host, command `PATH`, official HyperFrames CLI version, target delivery
+host, command `PATH`, selected runtime CLI version, target delivery
 filesystem, selected runtime, runtime-capability evidence, and Pexels
 validation state. Any change requires a new inspection-only Onboarding Agent.
 
 For the default `hyperframes` runtime, preserve all existing official Skill,
-doctor, check, preview, and render requirements. If the user requests
-`remotion`, require Onboarding to compare the request with
-`references/runtime/capability-matrix.json` and verify the matrix route plus
-the exact adapter and witness evidence required by the runtime contract. Until
-that runtime is marked production-available, stop as `unsupported`; when a
-future production-available route lacks required local evidence, stop as
-`action-required`;
-never present the experimental adapter contract as a formal render backend.
+doctor, check, preview, and render requirements. For `remotion`, require
+Onboarding to verify the selected production route, locked local dependency
+versions, the project-local CLI probe, FFmpeg/FFprobe, Chrome used by Remotion,
+and the exact Builder/Integrator/Render evidence required by the runtime
+contract. Missing local dependency or CLI evidence is `action-required`.
+Neither route may reuse the other route's readiness evidence.
 
-The onboarding Agent coordinates environment and authorization only. It must
-use the release-pinned official HyperFrames Skill and CLI guidance, actually run the
-official HyperFrames doctor and Skills checks, and use the official browser
-command when Chrome repair is authorized. It must not substitute a
-project-specific doctor.
+The onboarding Agent coordinates environment and authorization only. On the
+HyperFrames route it must use the release-pinned official HyperFrames Skill
+and CLI guidance, actually run the official HyperFrames doctor and Skills
+checks, and use the official browser command when Chrome repair is authorized.
+On the Remotion route it must use the verified project-local dependencies and
+CLI checks instead. It must not substitute one runtime's doctor or CLI evidence
+for the other.
 
 The first Onboarding Agent must not modify the machine or configuration. It
 returns one complete repair and authorization request. After one explicit user
@@ -105,18 +128,26 @@ environment mechanism. If Pexels is not configured, onboarding is
 once and explain the required action.
 
 Onboarding success does not replace the Render/Delivery Agent's required
-same-environment doctor run immediately before formal rendering.
+same-environment selected-runtime preflight immediately before formal
+rendering; HyperFrames preflight includes official doctor.
 
-## Dispatch the fixed production chain
+## Dispatch the selected production chain
 
 After onboarding is `ready`, use fresh agents in this order:
 
 1. `broll-director`
 2. `broll-assets`
-3. one or more `broll-master-build` agents, one per contiguous semantic block
-4. `broll-master-integrate`
-5. `broll-render`
-6. `broll-shot-export` only after an explicit user request
+3. branch on the unchanged runtime selection:
+   - HyperFrames: one or more `broll-master-build` agents, then
+     `broll-master-integrate`, then `broll-render`;
+   - Remotion: one or more `broll-remotion-build` agents, then
+     `broll-remotion-integrate`, then `broll-remotion-render`.
+4. `broll-shot-export` only after an explicit user request
+
+Do not dispatch both backend chains, route a Remotion run through the
+HyperFrames stages, or switch runtimes after a backend failure. Director,
+Assets, canonical Shot Recipes, and optional master-derived export remain
+shared.
 
 Assets and Pexels collection is mandatory. The Assets Agent must inspect user
 material, consider controllable generation, perform real Pexels image and
@@ -141,7 +172,7 @@ search, then reads only the selected card body. It must not run an unfiltered
 list, force a decorative effect, or repeat one motion grammar merely because
 the catalog contains it.
 
-For the production-ready `hyperframes` route, require every Builder to load
+For the `hyperframes` route, require every Builder to load
 the release-pinned official `hyperframes` Skill through
 the host's native Skill mechanism before reading or writing HyperFrames source.
 Require the Integrator to load it before assembly and Render/Delivery to load
@@ -149,6 +180,13 @@ it before doctor, check, preview, or render. A handoff claim or a CLI command
 alone does not replace a real Skill load. Retain the available host-native
 trace reference; if the host exposes no inspectable trace, report that
 limitation honestly.
+
+For the `remotion` route, require every Builder, the Integrator, and
+Render/Delivery to follow the native Remotion contracts owned by their stage.
+They must invoke only the verified project-local CLI, keep React/TSX and frame
+conversion outside canonical Shot Recipes, and record the exact Remotion
+version and integer-millisecond-to-frame rounding policy. Do not invoke
+HyperFrames doctor, check, preview, or render as evidence for a Remotion run.
 
 Require every stage to use the shared safe child-environment contract for all
 non-Pexels processes: an explicit host-native environment map, removal of every

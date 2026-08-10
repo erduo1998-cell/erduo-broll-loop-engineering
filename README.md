@@ -2,9 +2,9 @@
 
 # Erduo HyperFrames B-roll
 
-**把一份 SRT 和可选的口播视频，交给一组协作 Agent，得到可编辑、可复查的 HyperFrames B-roll Master。**
+**把一份 SRT 和可选的口播视频交给一组协作 Agent，由前置路由选择 HyperFrames 或 Remotion，得到可编辑、可复查的 B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.2.0-16a34a)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -14,16 +14,17 @@
 </div>
 
 > [!IMPORTANT]
-> `0.2.0` 是首个稳定开源版。稳定指公开的 Skill、安装、镜头能力目录与发布包契约进入语义化版本管理，不代表每张镜头卡都已经成为一个经过双运行时渲染验证的组件。当前生产渲染后端仍是 HyperFrames；Remotion 仍处于实验性适配契约。请先看[支持范围](#支持范围)。
+> `0.3.0` 增加可执行的双后端路由与独立 Remotion 后段。稳定指公开的 Skill、安装、路由和发布包契约进入语义化版本管理；不表示同一镜头在两个运行时中天然视觉一致，也不表示任意既有 Remotion 工程都能自动修复。请先看[支持范围](#支持范围)。
 
 ## 它解决什么问题
 
-做口播 B-roll，难点通常不是“生成一个画面”，而是让整条片子的分镜、素材、动效、时间和交付持续对齐。这个 Skill 把工作拆给八个职责明确的 Agent：
+做口播 B-roll，难点通常不是“生成一个画面”，而是让整条片子的分镜、素材、动效、时间和交付持续对齐。这个 Skill 把工作拆给一个共用前段和两套独立后段：
 
 - 读懂 SRT，按语义分镜，而不是一句字幕配一个镜头；
 - 优先使用你的图片、视频、Logo 和截图，再评估可控生成与 Pexels 素材；
 - 把长片拆成多个连续区块，由独立 Builder 并行构建；
-- 使用当前官方 HyperFrames Skill 完成可编辑的 HTML 视频工程；
+- 在任务开始时按用户选择和真实项目证据确定 HyperFrames 或 Remotion；
+- HyperFrames 使用锁定的官方 Skill；Remotion 只使用目标项目本地锁定的 CLI 与依赖；
 - 整合后先给你看最终预览，得到明确同意才正式渲染；
 - 默认交付一个经过分辨率、时长、连续覆盖和解码检查的 4K Master。
 
@@ -57,19 +58,27 @@
 | 背景音乐 | 不自动添加 | 无人出镜模式默认静音 |
 | 逐镜头文件 | 默认不导出 | 你明确要求后，才从已验证 Master 派生 |
 
-此外会保留可继续修改的 HyperFrames 源文件、阶段交接记录、素材与字体来源，以及客观媒体验证结果。
+此外会保留可继续修改的目标运行时源文件、阶段交接记录、素材与字体来源，以及客观媒体验证结果。
 
 ## 渲染运行时边界
 
-当前默认且唯一具有本项目生产证据的渲染运行时仍是 **HyperFrames**。仓库用运行时无关的 Shot Recipe、能力矩阵和适配契约冻结镜头意图，让同一份语义定义未来可以分别由 HyperFrames 与 Remotion 后端实现；这仍然不是已经完成的通用双端渲染器。
+仓库先用运行时无关的 Shot Recipe 冻结镜头意图，再由 Runtime Router 在进入构建前只选择一条后段。两条后段独立实现，不把 Remotion 先转换为 HyperFrames，也不在同一生产目录混用两套生命周期。
 
-- `hyperframes`：默认运行时，继续走现有 Builder、Integrator、预览与正式渲染链路。
-- `remotion`：仅有实验性契约，尚无本项目端到端渲染、视觉一致性或生产可用证据。
-- 本仓库不捆绑、不安装 Remotion，也不授予 Remotion 的使用许可。是否可以在你的个人、团队、公司或自动化场景中使用，应以 Remotion 官方现行许可为准。
-- 运行时能力必须逐项声明为可移植、运行时原生、互操作或不支持；实验性契约不代表所有 Remotion Composition 都能自动转换成 HyperFrames。
-- `0.2.0` 收录来自 `video-shotcraft` 的完整卡片与风格索引，但只吸收文本化的镜头知识、检索元数据和来源证据；不复制其 TSX、预览媒体、音频、纹理或运行时依赖。
+- 用户明确说 `hyperframes` 或 `remotion` 时，以用户选择为准。
+- 现有项目按真实特征判断；同时命中两类特征时停止并请用户选择，不静默猜测。
+- 空白新项目且用户未指定时默认 HyperFrames。
+- `hyperframes` 走现有 Master Build → Integrate → Render 链路。
+- `remotion` 走 Remotion Build → Integrate → Render 链路；已有项目必须能证明本地精确版本和 local CLI，新项目由该后段显式 scaffold 并生成 lockfile。
+- 安装器不会把 Remotion 加入共享 runtime 或全局安装。Remotion 的许可、依赖与执行范围属于用户选择的目标项目。
+- 运行时选择不构成视觉一致性声明，也不表示任意 Remotion Composition 可以自动转换成 HyperFrames。
 
-因此，现有使用提示词不需要选择运行时；未明确进入将来的实验流程时，一律按 HyperFrames 执行。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
+可直接检查一个项目的路由结果：
+
+```bash
+node erduo-hyperframes-broll/scripts/detect-runtime.mjs --project <项目目录> --json
+```
+
+也可显式追加 `--runtime hyperframes` 或 `--runtime remotion`。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
 
 开发者可以对 Director 生成的逐镜头 Recipe 目录运行零依赖校验：
 
@@ -79,15 +88,15 @@ node erduo-hyperframes-broll/scripts/validate-shot-recipes.mjs <shot-recipes-dir
 
 ## 镜头能力目录
 
-`0.2.0` 收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+`0.3.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
 
 请准确理解这里的“吸收”：
 
 - 已验证的是卡片数量、style 覆盖、唯一 ID、来源 commit、逐文件哈希、查询闭集和发布包闭集；
-- 上游卡片正文可能包含 Remotion、TSX 或其他实现参考；生产时只能提炼其中的镜头语义、素材需求、运动阶段和可读停留，再用目标运行时原生重实现；
+- 上游卡片正文用于两个后端的镜头语义；Remotion Builder 还可以只读取所选卡片 manifest 绑定的固定 TSX 来源作为改编参考，但必须替换 fixture/媒体并写入独立目标项目，不能在运行时直接导入参考树；
 - **152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件**，也不等于 Remotion TSX 可以自动转换；
-- 实际镜头仍由 Director 选择、Assets 准备素材、Builder 根据目标运行时实现，并接受 HyperFrames 的 check、seek、预览和渲染验证；
-- 上游文本依据 Apache-2.0 原样收录并保留来源与完整许可；本仓库没有复制上游 TSX 或媒体资产。
+- 实际镜头仍由 Director 选择、Assets 准备素材、目标后段 Builder 原生实现，并接受该运行时的检查、预览和渲染验证；
+- 上游文本及 Remotion 来源子集依据 Apache-2.0 收录并保留逐文件来源和哈希；发布包不携带上游预览媒体、音频、字体、纹理或 Remotion 运行时依赖。
 
 开发者和 Agent 应使用仓库提供的查询脚本，不要递归加载全部卡片。常见查询方式：
 
@@ -123,7 +132,7 @@ node erduo-hyperframes-broll/scripts/query-shotcraft.mjs --card <card-id>
 
 - 不用自己安装 Node.js：缺失或低于 `22.20.0` 时，安装器会安装固定版本到用户目录；
 - 不用写 `design.md`：Director 会根据本期 SRT、目标和素材建立视觉方向；
-- 不用手工复制八个 Skill：安装器会同时安装父 Skill 与七个阶段 Skill；
+- 不用手工复制十一个 Skill：安装器会同时安装父 Skill、七个原有阶段 Skill和三个 Remotion 后段 Skill；
 - 不用把 Pexels Key 发进聊天：安装器使用不回显输入并在保存前真实验证。
 
 ## 三分钟安装
@@ -159,7 +168,7 @@ cd erduo-hyperframes-broll
 4. 精确拉取 HyperFrames `c96b30c7174984e684620556ce871a285381ec60`，在隔离 HOME 中安装并用官方 `skills check --dir ... --source ... --json` 验证 8 个核心 Skill；
 5. 运行官方 `hyperframes browser ensure`；
 6. 运行并解析官方 `hyperframes doctor --json`；
-7. 把 8 个官方 HyperFrames 核心 Skill、父 Skill 和七个阶段 Skill 一起纳入冲突确认、备份、链接和失败回滚事务，再安装到 Codex 与 Claude Code；
+7. 把 8 个官方 HyperFrames 核心 Skill、父 Skill和十个阶段 Skill一起纳入冲突确认、备份、链接和失败回滚事务，再安装到 Codex 与 Claude Code；Remotion 不进入共享 runtime；
 8. 安全询问一次 Pexels Key，并在保存前做真实轻量验证。
 
 它不会使用 `sudo`，不会修改 shell profile，也不会让第三方安装器直接写真实 HOME。发现不同的已有 Skill 时，它会先列出冲突、请求一次授权，再做可恢复备份；任一步失败都会逆序恢复已改变的目标。
@@ -222,6 +231,15 @@ SRT：<把文件拖进对话或填写路径>
 Logo 和产品截图已经附上。正式渲染前给我看最终预览。
 ```
 
+### 场景 D：明确使用 Remotion 后段
+
+```text
+用 erduo-hyperframes-broll 处理这个 SRT，后段明确使用 Remotion。
+项目目录：<现有 Remotion 项目或准备创建新项目的空目录>
+先完成 runtime 路由和本地依赖证据检查；不要全局安装 Remotion。
+持续推进到最终预览，再叫我确认正式渲染。
+```
+
 ### 运行中什么时候会找你
 
 正常情况下只有两个停点：
@@ -237,20 +255,20 @@ Pexels 账号注册、API Key 获取、系统权限、管理员批准、磁盘�
 | --- | --- | --- |
 | Parent Producer | 明确目标、派发、读交接、审查、把返工交回责任阶段 | 不亲自生产文件或假装子 Agent |
 | Onboarding | 检查环境，汇总授权，执行你批准的安全修复 | 不做分镜和创作 |
+| Runtime Router | 在构建前只选择一个后端并冻结路由证据 | 不把两个后端混跑，不凭偏好覆盖用户选择 |
 | Director | 理解 SRT、分段、建立原创视觉方向和镜头意图 | 不下载素材、不写最终工程 |
 | Assets | 检查用户素材、评估可控生成、真实搜索 Pexels 并冻结候选 | 不拿无关素材充背景 |
-| Master Build | 每个独立 Builder 构建一个连续语义区块 | 不改其他 Builder 的区块 |
-| Integrator | 整合全部区块并形成最终预览 | 不偷偷重写各区块创意 |
-| Render / Delivery | 同环境复检、正式渲染、解码和媒体验证 | 未经预览批准不正式渲染 |
+| HyperFrames Build / Integrate / Render | 用锁定的官方 Skill 构建、整合、预览与交付 | 不接管已选择的 Remotion 项目 |
+| Remotion Build / Integrate / Render | 用目标项目本地锁定依赖构建 Composition、整合并交付 | 不全局安装 Remotion，不调用 HyperFrames 代渲染 |
 | Shot Export | 按需从已验证 Master 导出逐镜头文件 | 不重新独立渲染镜头 |
 
 固定素材优先级：
 
 ```text
-用户素材 → 可控生成 → Pexels → HyperFrames 原生结构辅助
+用户素材 → 可控生成 → Pexels → 目标运行时原生结构辅助
 ```
 
-Builder、Integrator 和 Render / Delivery 必须在各自独立上下文中真实加载当前官方 `hyperframes` Skill。单纯声称“已加载”或只运行 CLI 都不能替代真实 Skill 加载。
+HyperFrames 后段必须在各自独立上下文中真实加载发行版锁定的官方 `hyperframes` Skill。Remotion 后段必须读取目标项目的 package/lock、验证 project-local CLI，再按自身契约执行；全局 `remotion`、`npx` 自动下载或 PATH 上的偶然命令都不能作为 readiness 证据。
 
 ## 常见问题
 
@@ -262,6 +280,8 @@ Builder、Integrator 和 Render / Delivery 必须在各自独立上下文中真�
 | Pexels 显示 `action-required` | 到 Pexels 官网申请 Key，然后重新运行安装器；不要把 Key发进聊天 |
 | Codex / Claude Code 找不到 Skill | 先彻底重启宿主，再运行 `node scripts/doctor.mjs`；同时确认安装后的仓库文件夹没有被移动或删除 |
 | 已经有同名 Skill | 安装器会列出冲突，得到一次授权后备份旧安装，再原子替换；不会静默覆盖 |
+| 同时检测到 HyperFrames 和 Remotion | Runtime Router 会停止，请明确指定本次使用 `hyperframes` 或 `remotion` |
+| Remotion 项目提示依赖未就绪 | Onboarding 会汇总一次 Remotion 许可确认与项目内依赖安装授权；你确认后由新的修复 Agent 创建精确 package/lock、执行 `npm ci` 并验证 local CLI，不需要你手工安装，也不会全局安装或让 `npx` 临时下载 |
 | 预览不满意 | 说明具体镜头、时间点和问题；Parent 会把返工交给责任阶段，不会整条片子盲目重做 |
 | 想导出每个镜头 | 等 Master 验证通过后明确说“从已验证 Master 导出逐镜头文件” |
 | Windows 能不能用 | 当前未验证，不建议把首次使用押在 Windows 上 |
@@ -279,7 +299,7 @@ node scripts/doctor.mjs
 node scripts/uninstall.mjs
 ```
 
-卸载默认保留私有配置和共享 HyperFrames runtime。完整行为与安全边界见[隐私说明](PRIVACY.md)和[安全策略](SECURITY.md)。
+卸载默认保留私有配置、共享 HyperFrames runtime 和用户目标目录中的 Remotion 项目。完整行为与安全边界见[隐私说明](PRIVACY.md)和[安全策略](SECURITY.md)。
 
 ## 更新
 
@@ -300,6 +320,7 @@ git pull --ff-only
 | macOS + Codex | supported；已有当前提示词架构的真实生产证据 |
 | macOS + Claude Code | experimental；安装契约受测试覆盖，尚缺当前版本同输入端到端对照 |
 | macOS 首次安装 | supported installer；具体机器仍须先运行 doctor |
+| Remotion 后段 | project-local supported workflow；必须通过目标项目本地依赖与 CLI readiness |
 | Windows | unverified |
 | 剪映 / CapCut 桌面 GUI | unverified |
 
@@ -354,7 +375,7 @@ npm test
 
 ## English quick start
 
-`erduo-hyperframes-broll` 0.2.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored HyperFrames B-roll. HyperFrames on macOS is the supported production baseline; Remotion and Claude Code integration remain experimental, while Windows and desktop CapCut/Jianying imports are unverified.
+`erduo-hyperframes-broll` 0.3.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a deterministic front router and independent HyperFrames and Remotion backends. New projects default to HyperFrames. Remotion uses only exact, project-local dependencies and CLI evidence; it is never installed globally by this installer. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-hyperframes-broll.git
@@ -369,4 +390,4 @@ Use erduo-hyperframes-broll to turn this SRT into a faceless B-roll master.
 Continue unattended until the final preview requires my approval.
 ```
 
-Talking-head mode also needs the matching edited video. The installer provisions the pinned local runtime, official HyperFrames Skills and browser, installs the parent plus seven stage Skills, and securely offers one-time Pexels configuration. It never uses `sudo` or edits your shell profile.
+Talking-head mode also needs the matching edited video. The installer provisions the pinned HyperFrames runtime, official HyperFrames Skills and browser, installs the parent plus ten stage Skills, and securely offers one-time Pexels configuration. It does not install Remotion globally, use `sudo`, or edit your shell profile.

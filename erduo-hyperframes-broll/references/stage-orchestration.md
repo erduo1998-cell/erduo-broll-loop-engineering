@@ -7,9 +7,12 @@
 | Environment | Onboarding Agent | `broll-production/00-onboarding/` | handoff and relevant official environment facts |
 | Direction | Director Agent | `broll-production/01-director/` | handoff and relevant plans |
 | Material | Assets and Pexels Agent | `broll-production/02-assets/` | handoff, search record, inventory, and material plan |
-| Blocks | one Builder Agent per contiguous block | `broll-production/03-build/<block-id>/` | handoff, notes, and source portions needed for a stated question |
-| Assembly | Integrator Agent | `broll-production/04-integrate/` | handoff, integration notes, official check, and relevant project portions |
-| Master | Render and Delivery Agent | `broll-production/05-delivery/` | handoff, preflight, preview approval, final arguments, and media facts |
+| HyperFrames blocks | one `broll-master-build` Agent per contiguous block | `broll-production/03-build/<block-id>/` | handoff, notes, and source portions needed for a stated question |
+| Remotion blocks | one `broll-remotion-build` Agent per contiguous block | `broll-production/03-remotion-build/<block-id>/` | handoff, manifest, native source evidence, and bounded QA |
+| HyperFrames assembly | `broll-master-integrate` Agent | `broll-production/04-integrate/` | handoff, integration notes, official check, and relevant project portions |
+| Remotion assembly | `broll-remotion-integrate` Agent | `broll-production/04-remotion-integrate/` | handoff, registered Composition, identity, preview, and media facts |
+| HyperFrames master | `broll-render` Agent | `broll-production/05-delivery/` | handoff, preflight, preview approval, final arguments, and media facts |
+| Remotion master | `broll-remotion-render` Agent | `broll-production/05-remotion-delivery/` | handoff, local CLI preflight, preview approval, final arguments, and media facts |
 | Shot files | Shot Export Agent, only on request | `broll-production/06-shot-export/` | handoff, export index, and media facts |
 
 Every production action belongs to its stage Agent. The Parent does not create
@@ -26,6 +29,7 @@ Give each child:
 - the user goal and constraints relevant to that stage;
 - the selected runtime, capability-matrix decision, and relevant runtime
   contract or Shot Recipe locators;
+- the validated runtime-selection artifact and its evidence bindings;
 - for Director, Assets, and Builder, the bundled Shotcraft query command and
   only the selected card/style locators needed by that stage; never the full
   catalog or all card bodies;
@@ -39,14 +43,15 @@ When review finds several issues owned by one stage, combine them into one
 revision request and re-dispatch that role as a fresh Agent. Keep unaffected
 Builder blocks when one block needs revision.
 
-Default the selected runtime to `hyperframes`. The Director still authors
-runtime-neutral Shot Recipes; the Builder owns runtime implementation. Treat
-`remotion` as experimental and require the matrix route plus exact adapter and
-witness evidence required by the runtime contract. A runtime not marked
-production-available is `unsupported`; a future production-available route
-with missing local evidence is `action-required`. Current production
-Integration and Render accept only HyperFrames, so experimental output cannot
-be promoted to a master.
+Select the runtime before onboarding with the bundled detector and runtime
+selection contract. Explicit user choice wins. Otherwise select from concrete
+package, config, and composition evidence; mixed evidence is
+`action-required`, and only a genuinely new project defaults to `hyperframes`.
+The Director and Assets stages remain shared and runtime-neutral. After Assets,
+dispatch the selected runtime's Builder, Integrator, preview, and render
+contracts. A runtime not marked production-available is `unsupported`;
+missing local readiness evidence is `action-required`. Never silently switch
+backends after a failure.
 
 ## Onboarding
 
@@ -57,7 +62,7 @@ Dispatch Onboarding when:
 - Node, HyperFrames, Skills, FFmpeg, FFprobe, Chrome, permissions, storage, or
   Pexels status may have changed;
 - no current ready handoff exists for this production and delivery path.
-- the production-run identity, host, command `PATH`, official HyperFrames CLI
+- the production-run identity, host, command `PATH`, selected runtime CLI
   version, target delivery filesystem, selected runtime, runtime-capability
   evidence, or Pexels validation state changed.
 
@@ -68,7 +73,7 @@ repair Agent. The repair Agent performs only approved work and repeats the full
 inspection.
 
 The release installer owns initial registration. Onboarding verifies that the
-root Skill and all seven stage Skills are discoverable; it does not create
+root Skill and all ten stage Skills are discoverable; it does not create
 their host registration.
 
 Onboarding may parse only the final SRT cue end milliseconds for
@@ -91,7 +96,9 @@ one-to-one mapping from each recipe to its runtime-owned implementation and
 pattern reference. Do not let the Director embed runtime code, let a Builder
 silently weaken semantic results for runtime convenience, or treat an
 unselected card as authorization to change the shot. This release does not
-claim a bundled automatic adapter or a library of preverified components.
+claim automatic source translation or a library of preverified components.
+Manifest-pinned Shotcraft TSX is auditable reference source only, never an
+installed component or an in-place production import.
 
 ## Official HyperFrames loading
 
@@ -126,6 +133,27 @@ nor replace command and result review.
 
 Official Skills check and update access the official GitHub Skill source. This
 network access must be declared; update still requires repair authorization.
+
+## Native Remotion execution
+
+For a selected Remotion route, every Builder, the Integrator, and
+Render/Delivery use only the exact project-local CLI proven by Onboarding.
+They must record matching `remotion` and `@remotion/cli` versions, the
+millisecond-to-frame rounding policy, registered Composition ID, source entry,
+and actual check/still/render evidence. Run the executable directly without a
+shell through the same sanitized child environment contract. Do not invoke
+HyperFrames Skills, doctor, check, preview, or render as evidence for this
+route.
+
+The Remotion Builder authors native deterministic React/TSX from the assigned
+runtime-neutral Recipes and selected card semantics. The Integrator registers
+one ordered Composition and proves continuous frame coverage. Render/Delivery
+uses a real project-local still or Studio artifact for the approval pause,
+then renders an unused target and verifies it with FFprobe and complete decode.
+These stages may adapt a selected card's manifest-pinned reference TSX into
+the production project with the required Apache-2.0 attribution. They must not
+execute or import it in place, claim it is a ready component, or invent media,
+fonts, sounds, textures, or dependencies that the reference set excludes.
 
 ## Pass artifacts and review evidence
 

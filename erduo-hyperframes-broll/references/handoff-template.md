@@ -47,8 +47,8 @@ Include sanitized Node, HyperFrames, Skills, FFmpeg, FFprobe, Chrome,
 permission, free-space, target, and Pexels status. State whether official
 doctor actually ran in the same command environment inspected by onboarding.
 State `inspect` or `repair`, whether the Agent modified anything, and the
-production-run, host, command `PATH`, official CLI version, delivery filesystem,
-and Pexels-state bindings. Include discovery of the root Skill and all seven
+production-run, host, command `PATH`, selected runtime CLI version, delivery filesystem,
+and Pexels-state bindings. Include discovery of the root Skill and all ten
 stage Skills, plus the final SRT cue end milliseconds used only for storage
 estimation. Missing Pexels configuration is `action-required`.
 Never include a key, environment dump, home prefix, or raw command output.
@@ -57,9 +57,10 @@ map capability, `pexels_key_removed_case_insensitively=true`, and the telemetry
 setting. Never record any environment value.
 
 Also record the selected runtime and capability-matrix decision. For a
-non-default runtime, name the bounded adapter and witness evidence locators or
-the exact `action-required`/`unsupported` result. Never call experimental
-evidence production-ready.
+non-default runtime, name its dependency, CLI, composition-route, and witness
+evidence locators or the exact `action-required`/`unsupported` result. Include
+the router status, selection source, reason codes, and relative evidence
+locators. Never let runtime selection stand in for readiness.
 
 ### Director
 
@@ -95,16 +96,23 @@ and font use, official HyperFrames Skill-load trace reference when available,
 and actual CLI work. Include selected runtime, Recipe-to-runtime mapping,
 capability evidence, and faithful implementation variances.
 Include selected Shotcraft card/style/pinned-upstream-commit resolution, native
-HyperFrames implementation decisions, preserved quality constraints, and
-faithful variances. State explicitly that no upstream TSX or runtime asset was
-copied.
+runtime implementation decisions, preserved quality constraints, and faithful
+variances. For HyperFrames, retain the official Skill evidence. For Remotion,
+record matching local dependency versions, Composition ownership, and the
+integer-millisecond-to-frame rounding policy. When reference TSX was adapted,
+record its manifest-pinned upstream paths and Apache-2.0 attribution; otherwise
+state that implementation was original or used the declared fallback. Never
+claim that excluded media, font, sound, texture, or dependency assets were
+bundled.
 
 ### Integrator
 
 Include ordered blocks, continuous coverage, integration-owned changes,
-resource resolution, official Skill-load trace reference, and official
-standard-check result. Confirm one production-ready HyperFrames runtime binding
-and complete Recipe-to-runtime traceability. Include the
+resource resolution, selected-runtime check evidence, and applicable official
+Skill-load trace reference. Confirm one production-ready runtime binding and
+complete Recipe-to-runtime traceability. For Remotion, include the registered
+Composition ID, source entry, FPS, frame-total calculation, and local CLI
+version. Include the
 `composition-identity.json` locator and aggregate SHA-256; never copy its full
 file list into the handoff.
 Confirm selected pattern references match the Director Recipes and Builder
@@ -112,19 +120,22 @@ records and that no unselected card was introduced during integration.
 
 ### Render and delivery
 
-Include same-environment official doctor result, delivery supplements, standard
-check, explicit preview approval, final render arguments, attempt identity,
-unused attempt target, final master path, FFprobe facts, complete-decode result,
-and official Skill-load trace reference. A failed attempt records its partial
-file and remains failed; a retry belongs to a different fresh Agent and uses a
-new target.
+Include the selected runtime's same-environment preflight, delivery
+supplements, standard check, explicit preview approval, final render arguments,
+attempt identity, unused attempt target, final master path, FFprobe facts, and
+complete-decode result. For HyperFrames include official doctor and Skill-load
+trace evidence; for Remotion include local dependency, CLI, registered
+Composition, typecheck, and still evidence. A failed attempt records its
+partial file and remains failed; a retry belongs to a different fresh Agent
+and uses a new target.
 For a preview pass, record `action-required`, the preview locator, integrated
 composition-identity aggregate SHA-256, and absence of approval; omit
 render-only facts as not applicable. For a render pass, record the approval
 evidence and prove it binds the recomputed unchanged composition identity.
-Confirm that Onboarding, Integration, and the capability matrix bind the same
-production-ready HyperFrames runtime. Do not report an experimental witness as
-the master.
+Confirm that Runtime Selection, Onboarding, Integration, and the capability
+matrix bind the same production-ready runtime. For Remotion, include the exact
+local CLI version and Composition ID used by still/preview and render. Never
+report one runtime's evidence as proof for the other.
 
 ### Shot export
 

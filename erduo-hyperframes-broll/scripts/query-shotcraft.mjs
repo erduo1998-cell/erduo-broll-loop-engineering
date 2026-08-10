@@ -88,12 +88,31 @@ const options = parseArgs(process.argv.slice(2));
 const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const shotcraftRoot = resolve(skillRoot, "references", "shotcraft");
 const catalogPath = resolve(shotcraftRoot, "catalog.json");
+const remotionIndexPath = resolve(
+  shotcraftRoot,
+  "remotion-sources",
+  "index.json",
+);
 
 let catalog;
+let remotionIndex;
 try {
   catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
+  remotionIndex = JSON.parse(readFileSync(remotionIndexPath, "utf8"));
 } catch (error) {
-  fail(`cannot load references/shotcraft/catalog.json: ${error.message}`);
+  fail(`cannot load Shotcraft catalog and Remotion source index: ${error.message}`);
+}
+if (
+  remotionIndex.upstream?.commit !== catalog.upstream?.commit
+  || remotionIndex.stats?.cards !== catalog.stats?.cards
+) {
+  fail("Remotion source index does not match the pinned Shotcraft catalog");
+}
+const remotionCards = new Map(
+  remotionIndex.cards.map((entry) => [entry.name, entry]),
+);
+if (remotionCards.size !== catalog.stats.cards) {
+  fail("Remotion source index does not close over every Shotcraft card");
 }
 
 const categories = new Set(catalog.stats.categories.map((item) => item.name));
@@ -112,6 +131,7 @@ if (options.stats) {
       styles: catalog.stats.styles,
       categories: catalog.stats.categories,
       upstream: catalog.upstream,
+      remotionReferenceSources: remotionIndex.stats.sourceFiles,
     })}\n`,
   );
 }
@@ -191,6 +211,10 @@ if (options.style && selectedStyles.length === 0) {
       .join(", ")}`,
   );
 }
+const remotionCard = remotionCards.get(card.name);
+if (!remotionCard || remotionCard.sources.length === 0) {
+  fail(`Remotion source index has no reference source for ${card.name}`);
+}
 
 const cardPath = resolve(shotcraftRoot, ...card.localSource.split("/"));
 if (!cardPath.startsWith(`${shotcraftRoot}${sep}`)) {
@@ -220,6 +244,14 @@ const header = [
   `- Local source: ${card.localSource}`,
   `- Upstream source: ${card.source}`,
   `- Upstream URL: ${card.upstreamUrl}`,
+  "",
+  "## Pinned Remotion reference sources",
+  "",
+  ...remotionCard.sources.map(
+    (source) => `- references/shotcraft/${source}`,
+  ),
+  "",
+  "Read only these selected-card sources and their required local imports. Replace any media dependency with Assets-stage frozen material; a source listing is not a registered component or render witness.",
   "",
   "## Catalog styles",
   "",

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process';
+import { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,7 +44,7 @@ export function runSafeSpawn(argv, { env = process.env, spawn = spawnSync } = {}
 }
 
 if (process.argv[1]
-  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   try {
     process.exitCode = runSafeSpawn(process.argv.slice(2));
   } catch (error) {

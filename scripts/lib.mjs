@@ -19,7 +19,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 
 export const APP_NAME = 'erduo-hyperframes-broll';
-export const RELEASE_VERSION = '0.2.0';
+export const RELEASE_VERSION = '0.3.0';
 export const HYPERFRAMES_VERSION = '0.7.104';
 export const SKILLS_CLI_VERSION = '1.5.22';
 export const HYPERFRAMES_SKILLS_COMMIT = 'c96b30c7174984e684620556ce871a285381ec60';
@@ -33,7 +33,7 @@ export const HYPERFRAMES_SKILL_NAMES = Object.freeze([
   'hyperframes-registry',
   'media-use',
 ]);
-export const SKILL_NAMES = Object.freeze([
+export const LEGACY_SKILL_NAMES = Object.freeze([
   'erduo-hyperframes-broll',
   'broll-onboarding',
   'broll-director',
@@ -43,10 +43,25 @@ export const SKILL_NAMES = Object.freeze([
   'broll-render',
   'broll-shot-export',
 ]);
+export const REMOTION_SKILL_NAMES = Object.freeze([
+  'broll-remotion-build',
+  'broll-remotion-integrate',
+  'broll-remotion-render',
+]);
+export const SKILL_NAMES = Object.freeze([
+  ...LEGACY_SKILL_NAMES,
+  ...REMOTION_SKILL_NAMES,
+]);
 export const INSTALL_SKILL_NAMES = Object.freeze([
   ...HYPERFRAMES_SKILL_NAMES,
   ...SKILL_NAMES,
 ]);
+
+const INSTALL_MANIFEST_SKILLS_BY_SCHEMA = Object.freeze(new Map([
+  [1, LEGACY_SKILL_NAMES],
+  [2, Object.freeze([...HYPERFRAMES_SKILL_NAMES, ...LEGACY_SKILL_NAMES])],
+  [3, INSTALL_SKILL_NAMES],
+]));
 
 export class ActionRequiredError extends Error {
   constructor(code, message) {
@@ -127,9 +142,7 @@ export function validateInstallManifest(manifest, {
   appDir,
   homeDir = os.homedir(),
 } = {}) {
-  const manifestSkillNames = manifest?.schema_version === 1
-    ? SKILL_NAMES
-    : (manifest?.schema_version === 2 ? INSTALL_SKILL_NAMES : null);
+  const manifestSkillNames = INSTALL_MANIFEST_SKILLS_BY_SCHEMA.get(manifest?.schema_version);
   if (!manifest || !manifestSkillNames || !Array.isArray(manifest.records)
     || typeof manifest.repo_root !== 'string'
     || !path.isAbsolute(manifest.repo_root)

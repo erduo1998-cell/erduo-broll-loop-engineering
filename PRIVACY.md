@@ -2,7 +2,7 @@
 
 ## 本地数据
 
-SRT、口播视频、用户素材、HyperFrames 源码、阶段 handoff 和渲染产物默认保留在用户选择的本地工作目录。本仓库自身不包含遥测，不会主动上传这些文件。安装、诊断、打包和公共生产 Skills 对其启动的非 Pexels 子进程使用显式环境映射，按 ASCII 大小写不敏感规则移除 `PEXELS_API_KEY` 的全部拼写变体，并默认设置 `HYPERFRAMES_NO_TELEMETRY=1`；只有 Pexels 凭据验证与素材阶段的专用 Pexels 请求会在最小作用域读取该 Key。
+SRT、口播视频、用户素材、HyperFrames/Remotion 源码、阶段 handoff 和渲染产物默认保留在用户选择的本地工作目录。本仓库自身不包含遥测，不会主动上传这些文件。安装、诊断、打包和公共生产 Skills 对其启动的非 Pexels 子进程使用显式环境映射，按 ASCII 大小写不敏感规则移除 `PEXELS_API_KEY` 的全部拼写变体，并默认设置 `HYPERFRAMES_NO_TELEMETRY=1`；只有 Pexels 凭据验证与素材阶段的专用 Pexels 请求会在最小作用域读取该 Key。
 
 ## 凭据
 
@@ -19,6 +19,7 @@ Key 不进入：
 
 - Node.js 官方分发：仅在缺少 Node.js 22+ 时下载运行时和校验文件。
 - npm registry：`npm ci` 安装锁定的 HyperFrames 与 Skills CLI 依赖。
+- 目标项目 npm registry：只有用户选择 Remotion 且需要在生产目录 scaffold 或恢复依赖时，才按目标项目 lock 执行 `npm ci`；本仓库安装器不安装 Remotion。
 - GitHub 上的 HyperFrames 官方 Skill 来源：安装器精确拉取固定 commit，只在隔离 HOME 中运行第三方安装器，再以官方 `skills check --dir/--source` 验证；不会让它直接写真实 HOME。
 - HyperFrames 官方浏览器源：`browser ensure` 获取所需浏览器。
 - Pexels API 与 CDN：验证 Key、搜索和下载生产素材。

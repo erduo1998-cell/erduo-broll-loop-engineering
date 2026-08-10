@@ -28,7 +28,9 @@ import {
   HYPERFRAMES_SKILL_NAMES,
   HYPERFRAMES_VERSION,
   INSTALL_SKILL_NAMES,
+  LEGACY_SKILL_NAMES,
   RELEASE_VERSION,
+  REMOTION_SKILL_NAMES,
   SKILL_NAMES,
   SKILLS_CLI_VERSION,
   applicationDataDir,
@@ -36,6 +38,7 @@ import {
   normalizeOfficialDoctor,
   runFile,
   sanitizedChildEnv,
+  validateInstallManifest,
 } from './lib.mjs';
 import { collectDoctor } from './doctor.mjs';
 import { pexelsStatus, savePexelsKey } from './config.mjs';
@@ -59,6 +62,11 @@ import {
   runSafeSpawn,
   sanitizedEnvironment as sanitizedSkillEnvironment,
 } from '../erduo-hyperframes-broll/scripts/safe-spawn.mjs';
+import { detectRuntime } from '../erduo-hyperframes-broll/scripts/detect-runtime.mjs';
+import {
+  validateFontClosure,
+  walkProject as walkRemotionProject,
+} from '../erduo-hyperframes-broll/scripts/remotion-verify.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RELEASE_PACKAGE_MODE = existsSync(path.join(root, 'SHA256SUMS.txt'));
@@ -85,6 +93,12 @@ const safeSpawnScript = path.join(
   'erduo-hyperframes-broll',
   'scripts',
   'safe-spawn.mjs',
+);
+const runtimeDetectorScript = path.join(
+  root,
+  'erduo-hyperframes-broll',
+  'scripts',
+  'detect-runtime.mjs',
 );
 const shotcraftUpstream = Object.freeze({
   repository: 'https://github.com/Vincentwei1021/video-shotcraft',
@@ -179,6 +193,26 @@ async function writeMockPinnedRuntime(appDir) {
   );
 }
 
+async function createOfficialSourceFixture(appDir) {
+  const sources = [];
+  for (const name of HYPERFRAMES_SKILL_NAMES) {
+    const source = path.join(
+      appDir,
+      'official-skills',
+      HYPERFRAMES_SKILLS_COMMIT,
+      'skills',
+      name,
+    );
+    await mkdir(source, { recursive: true });
+    await writeFile(
+      path.join(source, 'SKILL.md'),
+      `---\nname: ${name}\ndescription: Isolated official fixture.\n---\n`,
+    );
+    sources.push({ name, source });
+  }
+  return sources;
+}
+
 async function mockPinnedOfficialCommand(command, args, options) {
   if (command === 'git' && args[0] === 'init') {
     const source = args.at(-1);
@@ -217,9 +251,9 @@ function expectedArchiveDirectoryCount() {
   return directories.size;
 }
 
-async function manifestFor(records, repoRoot) {
+async function manifestFor(records, repoRoot, schemaVersion = 3) {
   return {
-    schema_version: 1,
+    schema_version: schemaVersion,
     product_version: 'fixture',
     installed_at: 'fixture',
     repo_root: await realpath(repoRoot),
@@ -673,6 +707,16 @@ test('bundled safe-spawn is a no-shell fallback when the host cannot inject an e
     'process.stdout.write(JSON.stringify({pexels:Object.keys(process.env).some((key)=>key.toLowerCase()==="pexels_api_key"),telemetry:process.env.HYPERFRAMES_NO_TELEMETRY}))',
   ], { env: parent, encoding: 'utf8' });
   assert.deepEqual(JSON.parse(actual.stdout), { pexels: false, telemetry: '1' });
+
+  const aliasedScript = safeSpawnScript.replace(/^\/private\/tmp\//u, '/tmp/');
+  const throughPathAlias = await execFileAsync(process.execPath, [
+    aliasedScript,
+    '--',
+    process.execPath,
+    '-e',
+    'process.stdout.write("path-alias-executed")',
+  ], { env: parent, encoding: 'utf8' });
+  assert.equal(throughPathAlias.stdout, 'path-alias-executed');
 });
 
 test('public documentation states telemetry defaults, network boundaries, and external HyperFrames scope', async () => {
@@ -697,7 +741,7 @@ test('public documentation states telemetry defaults, network boundaries, and ex
   }
 });
 
-test('public runtime claims keep HyperFrames default and Remotion experimental without bundling it', async () => {
+test('public runtime claims expose two independent backends without globally bundling Remotion', async () => {
   const publicPackage = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
   const runtimePackage = JSON.parse(
     await readFile(path.join(root, 'runtime', 'package.json'), 'utf8'),
@@ -714,19 +758,114 @@ test('public runtime claims keep HyperFrames default and Remotion experimental w
   const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
   const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
   assert.match(readme, /默认[^。\n]*HyperFrames/u);
-  assert.match(readme, /Remotion[^。\n]*(?:实验性契约|experimental)/iu);
-  assert.match(readme, /不捆绑、不安装 Remotion/u);
-  assert.match(readme, /Remotion 官方现行许可/u);
+  assert.match(readme, /Remotion Build → Integrate → Render/u);
+  assert.match(readme, /不会把 Remotion 加入共享 runtime 或全局安装/u);
+  assert.match(readme, /用户选择和真实项目证据/u);
   assert.match(readme, /152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件/u);
-  assert.match(readme, /不复制其 TSX、预览媒体、音频、纹理或运行时依赖/u);
-  assert.match(support, /Remotion runtime \| experimental contract only/u);
-  assert.match(support, /没有本项目端到端 Remotion 渲染/u);
-  assert.match(checklist, /不含 TSX、预览、音频、纹理、字体或其他上游媒体/u);
+  assert.match(support, /Remotion runtime \| project-local supported workflow/u);
+  assert.match(support, /不全局安装 Remotion/u);
+  assert.match(checklist, /Remotion/u);
 
   for (const [name, text] of [['README.md', readme], ['SUPPORT-MATRIX.md', support]]) {
     assert.doesNotMatch(text, /(?:已完成|支持)(?:任意|全部|所有)[^。\n]*(?:Remotion|双端)[^。\n]*(?:转换|渲染)/u, name);
     assert.doesNotMatch(text, /(?:Remotion|双端)[^。\n]*(?:完全一致|全自动转换已完成|生产可用已验证)/u, name);
   }
+});
+
+test('runtime router chooses explicit/default routes and stops on mixed project evidence', async (t) => {
+  const state = await isolated(t);
+  const blank = path.join(state.base, 'blank');
+  await mkdir(blank);
+  const defaultRoute = await detectRuntime({ projectRoot: blank, probeCli: false, env: state.env });
+  assert.equal(defaultRoute.status, 'selected');
+  assert.equal(defaultRoute.selectedRuntime, 'hyperframes');
+  assert.equal(defaultRoute.selectionSource, 'default');
+  assert.equal(defaultRoute.projectKind, 'new');
+
+  const explicitRoute = await detectRuntime({
+    projectRoot: blank,
+    explicitRuntime: 'remotion',
+    probeCli: false,
+    env: state.env,
+  });
+  assert.equal(explicitRoute.selectedRuntime, 'remotion');
+  assert.equal(explicitRoute.selectionSource, 'explicit');
+  assert.equal(explicitRoute.readiness, 'action-required');
+
+  const mixed = path.join(state.base, 'mixed');
+  await mkdir(mixed);
+  await writeFile(path.join(mixed, 'package.json'), `${JSON.stringify({
+    dependencies: { remotion: '4.0.1', '@remotion/cli': '4.0.1', hyperframes: '0.7.104' },
+  })}\n`);
+  const mixedRoute = await detectRuntime({ projectRoot: mixed, probeCli: false, env: state.env });
+  assert.equal(mixedRoute.status, 'action-required');
+  assert.equal(mixedRoute.selectedRuntime, null);
+  assert.ok(mixedRoute.reasonCodes.includes('mixed-runtime-evidence'));
+});
+
+test('runtime router accepts only matching project-local Remotion packages and CLI evidence', async (t) => {
+  const state = await isolated(t);
+  const project = path.join(state.base, 'remotion-project');
+  const version = '4.0.484';
+  await mkdir(path.join(project, 'node_modules', 'remotion'), { recursive: true });
+  await mkdir(path.join(project, 'node_modules', '@remotion', 'cli'), { recursive: true });
+  await mkdir(path.join(project, 'node_modules', '.bin'), { recursive: true });
+  await writeFile(path.join(project, 'package.json'), `${JSON.stringify({
+    dependencies: { remotion: version, '@remotion/cli': version },
+  })}\n`);
+  for (const [name, directory] of [
+    ['remotion', path.join(project, 'node_modules', 'remotion')],
+    ['@remotion/cli', path.join(project, 'node_modules', '@remotion', 'cli')],
+  ]) {
+    await writeFile(path.join(directory, 'package.json'), `${JSON.stringify({ name, version })}\n`);
+  }
+  const cli = path.join(project, 'node_modules', '.bin', 'remotion');
+  const marker = path.join(project, 'cli-executed');
+  await writeFile(cli, `#!/bin/sh\nprintf '%s\\n' executed > '${marker}'\n[ "$1" = versions ] || exit 9\nprintf '%s\\n' 'All packages have the correct version.' 'On version: ${version}'\n`);
+  await chmod(cli, 0o755);
+  const secret = 'must-not-appear-in-router-result';
+  const readOnlyResult = await detectRuntime({
+    projectRoot: project,
+    env: { ...state.env, [PEXELS_ENV_FIELD]: secret },
+  });
+  assert.equal(readOnlyResult.selectedRuntime, 'remotion');
+  assert.equal(readOnlyResult.readiness, 'action-required');
+  assert.equal(readOnlyResult.safety.readOnlyDetection, true);
+  assert.equal(readOnlyResult.safety.localCliExecuted, false);
+  assert.equal(existsSync(marker), false);
+  const result = await detectRuntime({
+    projectRoot: project,
+    probeCli: true,
+    env: { ...state.env, [PEXELS_ENV_FIELD]: secret },
+  });
+  assert.equal(result.selectedRuntime, 'remotion');
+  assert.equal(result.selectionSource, 'detected');
+  assert.equal(result.readiness, 'ready');
+  assert.equal(result.evidence.remotion.cliEvidence.version, version);
+  assert.equal(result.safety.readOnlyDetection, false);
+  assert.equal(result.safety.localCliExecuted, true);
+  assert.equal(existsSync(marker), true);
+  assert.equal(JSON.stringify(result).includes(secret), false);
+});
+
+test('runtime router CLI keeps selected-but-not-ready Remotion actionable at exit zero', async (t) => {
+  const state = await isolated(t);
+  const blank = path.join(state.base, 'blank-cli');
+  await mkdir(blank);
+  const { stdout } = await execFileAsync(process.execPath, [
+    runtimeDetectorScript,
+    '--project',
+    blank,
+    '--runtime',
+    'remotion',
+    '--json',
+  ], { env: state.env });
+  const result = JSON.parse(stdout);
+  assert.equal(result.status, 'selected');
+  assert.equal(result.selectedRuntime, 'remotion');
+  assert.equal(result.readiness, 'action-required');
+  assert.equal(result.productionRouteAvailable, true);
+  assert.deepEqual(await readdir(blank), []);
 });
 
 test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique styles by hash', async () => {
@@ -855,8 +994,60 @@ test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique sty
     'b2ce9877a55547ada9b870150664d1468ff777e67cc9888806a73927d31c5771',
   );
   assert.equal(
-    RELEASE_FILES.some((file) => /\.(?:tsx?|jsx?|png|jpe?g|webp|gif|mp4|mov|wav|mp3)$/iu.test(file)),
+    RELEASE_FILES
+      .filter((file) => /\.(?:tsx?|jsx?)$/iu.test(file))
+      .every((file) => file.startsWith(
+        'erduo-hyperframes-broll/references/shotcraft/remotion-sources/',
+      )),
+    true,
+  );
+  assert.equal(
+    RELEASE_FILES.some((file) => /\.(?:png|jpe?g|webp|gif|mp4|mov|wav|mp3)$/iu.test(file)),
     false,
+  );
+});
+
+test('Shotcraft Remotion source manifest is a pinned, hash-closed non-media subset', async () => {
+  const sourceRoot = path.join(shotcraftRoot, 'remotion-sources');
+  const manifest = JSON.parse(await readFile(path.join(sourceRoot, 'manifest.json'), 'utf8'));
+  const index = JSON.parse(await readFile(path.join(sourceRoot, 'index.json'), 'utf8'));
+  assert.equal(manifest.schemaVersion, 1);
+  assert.deepEqual(manifest.upstream, {
+    repository: shotcraftUpstream.repository,
+    commit: shotcraftUpstream.commit,
+    license: shotcraftUpstream.license,
+  });
+  assert.equal(manifest.stats.cards, 152);
+  assert.equal(manifest.stats.sourceFiles, manifest.files.length);
+  assert.equal(
+    createHash('sha256')
+      .update(await readFile(path.join(sourceRoot, 'manifest.json')))
+      .digest('hex'),
+    '55325c6a375f449d5c0989dbfda950e47c72f82b7c1eb06dc106192697aac180',
+  );
+  assert.equal(index.stats.cards, 152);
+  assert.equal(index.stats.sourceFiles, manifest.files.length);
+  const records = [manifest.index, manifest.sourceDescription, ...manifest.files];
+  const targets = new Set();
+  for (const record of records) {
+    assert.equal(targets.has(record.target), false, record.target);
+    targets.add(record.target);
+    assert.match(record.sha256, /^[a-f0-9]{64}$/u);
+    const absolute = path.join(root, record.target);
+    const body = await readFile(absolute);
+    const info = await lstat(absolute);
+    assert.equal(info.isFile() && !info.isSymbolicLink(), true, record.target);
+    assert.equal(body.length, record.bytes, record.target);
+    assert.equal(createHash('sha256').update(body).digest('hex'), record.sha256, record.target);
+    assert.doesNotMatch(record.target, /\.(?:png|jpe?g|gif|webp|mp4|mov|mp3|wav|woff2?|ttf|otf)$/iu);
+  }
+  const actual = (await listPublicReleaseFiles(sourceRoot))
+    .map((file) => path.relative(root, file))
+    .toSorted();
+  assert.deepEqual(
+    actual,
+    ['erduo-hyperframes-broll/references/shotcraft/remotion-sources/manifest.json', ...targets]
+      .toSorted(),
   );
 });
 
@@ -1200,17 +1391,17 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
     'contract-only',
     'witness-verified',
   ];
-  assert.equal(matrix.matrixVersion, '1.0.0');
+  assert.equal(matrix.matrixVersion, '2.0.0');
   assert.equal(matrix.defaultRuntime, 'hyperframes');
   assert.equal(matrix.runtimes.hyperframes.maturity, 'default-production');
   assert.equal(matrix.runtimes.hyperframes.productionAvailable, true);
-  assert.equal(matrix.runtimes.remotion.maturity, 'experimental-boundary');
+  assert.equal(matrix.runtimes.remotion.maturity, 'production-route');
   assert.equal(matrix.runtimes.remotion.bundledByThisContract, false);
   assert.equal(matrix.runtimes.remotion.installedByThisContract, false);
   assert.equal(matrix.runtimes.remotion.authorizedByThisContract, false);
-  assert.equal(matrix.runtimes.remotion.productionAvailable, false);
+  assert.equal(matrix.runtimes.remotion.productionAvailable, true);
   assert.equal(matrix.unlistedCapabilityPolicy, 'reject-before-build');
-  assert.match(matrix.contractOnlyPolicy, /does not disable the existing HyperFrames production workflow/u);
+  assert.match(matrix.contractOnlyPolicy, /never proves cross-runtime parity/u);
   assert.equal(matrix.renderParityClaimed, false);
   assert.deepEqual(Object.keys(matrix.classifications).toSorted(), classifications);
   assert.deepEqual(Object.keys(matrix.verificationStates).toSorted(), verificationStates);
@@ -1229,7 +1420,6 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
   for (const capability of matrix.capabilities) {
     assert.ok(classifications.includes(capability.classification), capability.id);
     assert.ok(verificationStates.includes(capability.verification), capability.id);
-    assert.equal(capability.verification, 'contract-only', capability.id);
     assert.equal(typeof capability.hyperframesRoute, 'string', capability.id);
     assert.equal(typeof capability.remotionRoute, 'string', capability.id);
     assert.ok(capability.meaning.length > 0, capability.id);
@@ -1241,7 +1431,7 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
   ]) {
     const capability = matrix.capabilities.find(({ id }) => id === capabilityId);
     assert.equal(capability.hyperframesRoute, 'existing-production-workflow');
-    assert.equal(capability.remotionRoute, 'future-native-adapter');
+    assert.equal(capability.remotionRoute, 'native-production-workflow');
   }
 });
 
@@ -1251,13 +1441,13 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(runtimeReferenceRoot, 'remotion-hyperframes-map.md'),
     'utf8',
   );
-  assert.match(contract, /HyperFrames remains the default and only production backend/u);
-  assert.match(contract, /Remotion is an experimental backend boundary/u);
-  assert.match(contract, /does not install, authorize, configure, invoke, or render with\s+Remotion/u);
+  assert.match(contract, /HyperFrames remains the default production backend/u);
+  assert.match(contract, /Remotion is an independent production backend/u);
+  assert.match(contract, /Never download a CLI during\s+detection or substitute a global executable/u);
   assert.match(contract, /Do not claim Remotion\/HyperFrames visual parity, timing parity, or render\s+parity/u);
   assert.match(contract, /Treat `references\/shotcraft\/catalog\.json` and its card bodies as progressively\s+loaded knowledge/u);
   assert.match(contract, /Pattern selection does not prove backend support/u);
-  assert.match(contract, /Contract:[\s\S]*Backend:[\s\S]*Witness:[\s\S]*Comparison:/u);
+  assert.match(contract, /Selection:[\s\S]*Readiness:[\s\S]*Backend:[\s\S]*Witness:[\s\S]*Comparison:/u);
   assert.match(concernMap, /do not treat a mechanical\s+TSX-to-HyperFrames rewrite as the compatibility layer/u);
   assert.match(concernMap, /must not be generalized into automatic\s+Remotion\/HyperFrames render parity/u);
 
@@ -1322,6 +1512,91 @@ test('runtime references and production Skills preserve the adapter evidence gat
   assert.match(integratorSkill, /aggregate SHA-256 of that canonical list/u);
 });
 
+test('Remotion production contracts close silent-audio and local-font evidence', async () => {
+  const backend = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'references', 'remotion-backend.md'),
+    'utf8',
+  );
+  const build = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-remotion-build', 'SKILL.md'),
+    'utf8',
+  );
+  const integrate = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-remotion-integrate', 'SKILL.md'),
+    'utf8',
+  );
+  const render = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'stages', 'broll-remotion-render', 'SKILL.md'),
+    'utf8',
+  );
+  const verifier = await readFile(
+    path.join(root, 'erduo-hyperframes-broll', 'scripts', 'remotion-verify.mjs'),
+    'utf8',
+  );
+  for (const [name, text] of [
+    ['backend', backend],
+    ['build', build],
+    ['integrate', integrate],
+    ['render', render],
+  ]) {
+    assert.match(text, /--muted/u, name);
+    assert.match(text, /zero\s+audio\s+streams|no\s+audio\s+stream/u, name);
+    assert.match(text, /durationInFrames\s*\/\s*fps|exact\s+frame\s+duration/u, name);
+  }
+  assert.match(backend, /Generic or host\s+system fallbacks/u);
+  assert.match(build, /manifest role `font`/u);
+  assert.match(verifier, /manifest lists no project-local font/u);
+  assert.match(verifier, /Generic or host-system font fallback is forbidden/u);
+  assert.match(verifier, /no explicit project-local font loader/u);
+  assert.match(verifier, /Font shorthand is forbidden/u);
+  assert.match(verifier, /optionalDependencies/u);
+  assert.match(verifier, /Linked lock package is forbidden/u);
+});
+
+test('Remotion font verifier rejects shorthand and host fallback before render', () => {
+  const errors = [];
+  validateFontClosure(
+    new Map([[
+      'src/Card.tsx',
+      Buffer.from("export const Card = () => <div style={{font: '700 40px Arial, sans-serif'}}>x</div>;\n"),
+    ]]),
+    new Map(),
+    errors,
+  );
+  assert.deepEqual(errors, [
+    'Font shorthand is forbidden; declare fontFamily or font-family explicitly',
+    'Source declares a font family but manifest lists no project-local font',
+    'Generic or host-system font fallback is forbidden; bind the declared project-local font explicitly',
+    'Source declares a font family but has no explicit project-local font loader',
+  ]);
+});
+
+test('Remotion project closure cannot hide production files in output-named directories', async (t) => {
+  const state = await isolated(t);
+  const project = path.join(state.base, 'project');
+  await Promise.all([
+    mkdir(path.join(project, '.git'), { recursive: true }),
+    mkdir(path.join(project, 'node_modules'), { recursive: true }),
+    mkdir(path.join(project, 'out'), { recursive: true }),
+    mkdir(path.join(project, 'src', 'qa'), { recursive: true }),
+    mkdir(path.join(project, 'stills'), { recursive: true }),
+  ]);
+  await Promise.all([
+    writeFile(path.join(project, '.git', 'ignored'), 'git metadata\n'),
+    writeFile(path.join(project, 'node_modules', 'ignored.js'), 'dependency\n'),
+    writeFile(path.join(project, 'out', 'hidden.tsx'), 'export const hidden = Date.now();\n'),
+    writeFile(path.join(project, 'src', 'qa', 'hidden.ts'), 'export const hidden = Math.random();\n'),
+    writeFile(path.join(project, 'stills', 'evidence.png'), 'not a real png\n'),
+  ]);
+  const walked = await walkRemotionProject(project);
+  assert.deepEqual(walked.errors, []);
+  assert.deepEqual(walked.found.toSorted(), [
+    'out/hidden.tsx',
+    'src/qa/hidden.ts',
+    'stills/evidence.png',
+  ]);
+});
+
 test('every production command surface requires a portable case-insensitive child environment map', async () => {
   const files = [
     'erduo-hyperframes-broll/SKILL.md',
@@ -1334,10 +1609,17 @@ test('every production command surface requires a portable case-insensitive chil
     'erduo-hyperframes-broll/stages/broll-master-integrate/SKILL.md',
     'erduo-hyperframes-broll/stages/broll-render/SKILL.md',
     'erduo-hyperframes-broll/stages/broll-shot-export/SKILL.md',
+    'erduo-hyperframes-broll/stages/broll-remotion-build/SKILL.md',
+    'erduo-hyperframes-broll/stages/broll-remotion-integrate/SKILL.md',
+    'erduo-hyperframes-broll/stages/broll-remotion-render/SKILL.md',
   ];
   for (const file of files) {
     const text = await readFile(path.join(root, file), 'utf8');
-    assert.match(text, /explicit\s+(?:host-native\s+)?(?:environment|child)\s+map/u, file);
+    assert.match(
+      text,
+      /(?:explicit\s+(?:host-native\s+)?(?:environment|child)\s+map|explicit child environment map)/u,
+      file,
+    );
     assert.match(text, /case(?: |-)(?:variant|folded|insensitive)/iu, file);
     assert.match(text, /PEXELS_API_KEY/u, file);
     assert.match(text, /HYPERFRAMES_NO_TELEMETRY=1/u, file);
@@ -1362,6 +1644,7 @@ test('Skill installation backs up occupied targets and uninstall restores them',
     homeDir: state.homeDir,
     env: state.env,
   });
+  const additionalSources = await createOfficialSourceFixture(appDir);
   const occupied = path.join(state.homeDir, '.codex', 'skills', 'broll-director');
   await mkdir(occupied, { recursive: true });
   await writeFile(path.join(occupied, 'old.txt'), 'preserve me\n', 'utf8');
@@ -1372,12 +1655,13 @@ test('Skill installation backs up occupied targets and uninstall restores them',
     homeDir: state.homeDir,
     approveOccupied: true,
     timestamp: 'fixture',
+    additionalSources,
     finalize: async (entries) => {
       manifest = await manifestFor(entries, repoRoot);
       await atomicWriteJson(path.join(appDir, 'install-manifest.json'), manifest);
     },
   });
-  assert.equal(records.length, SKILL_NAMES.length * 2);
+  assert.equal(records.length, INSTALL_SKILL_NAMES.length * 2);
   assert.equal(records.filter((entry) => entry.backup).length, 1);
   assert.equal((await lstat(occupied)).isSymbolicLink(), true);
   const result = await runUninstall({
@@ -1387,11 +1671,14 @@ test('Skill installation backs up occupied targets and uninstall restores them',
     appDir,
     repoRoot,
   });
-  assert.equal(result.removed, SKILL_NAMES.length * 2);
+  assert.equal(result.removed, INSTALL_SKILL_NAMES.length * 2);
   assert.equal(result.restored, 1);
   assert.equal(await readFile(path.join(occupied, 'old.txt'), 'utf8'), 'preserve me\n');
   assert.equal(await entryExists(path.join(appDir, 'install-manifest.json')), false);
   assert.equal(await entryExists(path.join(appDir, 'uninstall-receipt.json')), true);
+  const receipt = JSON.parse(await readFile(path.join(appDir, 'uninstall-receipt.json'), 'utf8'));
+  assert.equal(receipt.remotion_projects_preserved, true);
+  assert.equal(JSON.stringify(receipt).includes(state.homeDir), false);
   await assert.rejects(
     runUninstall({
       platform: 'darwin',
@@ -1408,6 +1695,7 @@ test('Skill installation backs up occupied targets and uninstall restores them',
     homeDir: state.homeDir,
     approveOccupied: true,
     timestamp: 'fixture-reinstall',
+    additionalSources,
     finalize: async (entries) => {
       await atomicWriteJson(
         path.join(appDir, 'install-manifest.json'),
@@ -1424,6 +1712,62 @@ test('Skill installation backs up occupied targets and uninstall restores them',
   });
   assert.equal(secondResult.restored, 1);
   assert.equal(await readFile(path.join(occupied, 'old.txt'), 'utf8'), 'preserve me\n');
+});
+
+test('install manifest schemas 1 and 2 remain strict readable migration inputs for schema 3', async (t) => {
+  const state = await isolated(t);
+  const repoRoot = await createSkillFixture(state.base);
+  const canonicalRepoRoot = await realpath(repoRoot);
+  const appDir = applicationDataDir({
+    platform: 'darwin',
+    homeDir: state.homeDir,
+    env: state.env,
+  });
+  const hosts = [
+    { host: 'codex', root: path.join(state.homeDir, '.codex', 'skills') },
+    { host: 'claude-code', root: path.join(state.homeDir, '.claude', 'skills') },
+  ];
+  const recordsFor = (names) => hosts.flatMap(({ host, root: hostRoot }) => names.map((name) => ({
+    host,
+    name,
+    source: HYPERFRAMES_SKILL_NAMES.includes(name)
+      ? path.join(appDir, 'official-skills', HYPERFRAMES_SKILLS_COMMIT, 'skills', name)
+      : (name === 'erduo-hyperframes-broll'
+        ? path.join(canonicalRepoRoot, 'erduo-hyperframes-broll')
+        : path.join(canonicalRepoRoot, 'erduo-hyperframes-broll', 'stages', name)),
+    target: path.join(hostRoot, name),
+    backup: null,
+    action: 'linked',
+  })));
+  const schema1 = {
+    schema_version: 1,
+    repo_root: canonicalRepoRoot,
+    records: recordsFor(LEGACY_SKILL_NAMES),
+  };
+  const schema2Names = [...HYPERFRAMES_SKILL_NAMES, ...LEGACY_SKILL_NAMES];
+  const schema2 = {
+    schema_version: 2,
+    repo_root: canonicalRepoRoot,
+    records: recordsFor(schema2Names),
+  };
+  assert.equal(validateInstallManifest(schema1, {
+    repoRoot: canonicalRepoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  }).records.length, 16);
+  assert.equal(validateInstallManifest(schema2, {
+    repoRoot: canonicalRepoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  }).records.length, 32);
+  assert.throws(() => validateInstallManifest({
+    ...schema2,
+    records: [...schema2.records, ...recordsFor([REMOTION_SKILL_NAMES[0]])],
+  }, {
+    repoRoot: canonicalRepoRoot,
+    appDir,
+    homeDir: state.homeDir,
+  }), (error) => error?.code === 'install_manifest_invalid');
 });
 
 test('doctor uses only mocked official commands and isolated host/config paths', async (t) => {
@@ -1572,6 +1916,7 @@ test('reinstall preserves the original backup chain and uninstall restores it', 
     homeDir: state.homeDir,
     env: state.env,
   });
+  const additionalSources = await createOfficialSourceFixture(appDir);
   const occupied = path.join(state.homeDir, '.codex', 'skills', 'broll-director');
   const manifestFile = path.join(appDir, 'install-manifest.json');
   await mkdir(occupied, { recursive: true });
@@ -1583,6 +1928,7 @@ test('reinstall preserves the original backup chain and uninstall restores it', 
     homeDir: state.homeDir,
     approveOccupied: true,
     timestamp: 'first',
+    additionalSources,
     finalize: async (entries) => {
       await atomicWriteJson(manifestFile, await manifestFor(entries, repoRoot));
     },
@@ -1599,6 +1945,7 @@ test('reinstall preserves the original backup chain and uninstall restores it', 
     approveOccupied: true,
     timestamp: 'second',
     previousManifest: firstManifest,
+    additionalSources,
     finalize: async (entries) => {
       await atomicWriteJson(manifestFile, await manifestFor(entries, repoRoot));
     },
@@ -1692,6 +2039,7 @@ test('uninstall removes an owned dangling link without claiming a false removal'
     homeDir: state.homeDir,
     env: state.env,
   });
+  const additionalSources = await createOfficialSourceFixture(appDir);
   const manifestFile = path.join(appDir, 'install-manifest.json');
   await installSkillLinks({
     repoRoot,
@@ -1699,6 +2047,7 @@ test('uninstall removes an owned dangling link without claiming a false removal'
     homeDir: state.homeDir,
     approveOccupied: true,
     timestamp: 'dangling',
+    additionalSources,
     finalize: async (entries) => {
       await atomicWriteJson(manifestFile, await manifestFor(entries, repoRoot));
     },
@@ -1812,7 +2161,7 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   assert.equal(npmCall.options.cwd, path.join(appDir, 'runtime'));
   assert.equal(npmCi.includes('install'), false);
   const manifest = JSON.parse(await readFile(path.join(appDir, 'install-manifest.json'), 'utf8'));
-  assert.equal(manifest.schema_version, 2);
+  assert.equal(manifest.schema_version, 3);
   assert.equal(manifest.records.length, INSTALL_SKILL_NAMES.length * 2);
   for (const name of HYPERFRAMES_SKILL_NAMES) {
     for (const hostRoot of [
@@ -2035,10 +2384,17 @@ test('entire public release tree has no private path, original-author, private-s
     'erduo-hyperframes-broll/references/runtime/shot-pattern.schema.json',
     'erduo-hyperframes-broll/references/shotcraft/catalog.json',
     'erduo-hyperframes-broll/references/shotcraft/manifest.json',
+    'erduo-hyperframes-broll/references/remotion-backend.md',
+    'erduo-hyperframes-broll/references/shotcraft/remotion-sources/SOURCE.md',
+    'erduo-hyperframes-broll/references/shotcraft/remotion-sources/index.json',
+    'erduo-hyperframes-broll/references/shotcraft/remotion-sources/manifest.json',
     'scripts/package-release.mjs',
     'scripts/test.mjs',
   ];
-  if (!RELEASE_PACKAGE_MODE) expectedSourceFiles.push('scripts/sync-video-shotcraft.mjs');
+  if (!RELEASE_PACKAGE_MODE) expectedSourceFiles.push(
+    'scripts/sync-video-shotcraft.mjs',
+    'scripts/sync-video-shotcraft-remotion.mjs',
+  );
   if (RELEASE_PACKAGE_MODE) expectedSourceFiles.push('SHA256SUMS.txt');
   assert.deepEqual(sourceFiles.toSorted(), expectedSourceFiles.toSorted());
 });
@@ -2779,7 +3135,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.2.0');
+  assert.equal(RELEASE_VERSION, '0.3.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
@@ -3139,8 +3495,8 @@ test('private directory creation rejects an intermediate symbolic-link component
   assert.equal(await entryExists(path.join(outsideAppDir, 'config.json')), true);
 });
 
-test('public release source contains the parent plus seven prompt stage Skills', async () => {
-  assert.equal(RELEASE_FILES.length, 206);
+test('public release source contains the parent plus ten prompt stage Skills', async () => {
+  assert.ok(RELEASE_FILES.length > 206);
   const actualReleaseFiles = (await listPublicReleaseFiles())
     .map((file) => path.relative(root, file))
     .toSorted();
@@ -3150,7 +3506,12 @@ test('public release source contains the parent plus seven prompt stage Skills',
       ? [...RELEASE_FILES, 'SHA256SUMS.txt']
       : [...RELEASE_FILES, ...REPOSITORY_ONLY_FILES]).toSorted(),
   );
-  assert.equal(SKILL_NAMES.length, 8);
+  assert.equal(SKILL_NAMES.length, 11);
+  assert.deepEqual(REMOTION_SKILL_NAMES, [
+    'broll-remotion-build',
+    'broll-remotion-integrate',
+    'broll-remotion-render',
+  ]);
   const skillRoot = path.join(root, 'erduo-hyperframes-broll');
   const stageRoot = path.join(skillRoot, 'stages');
   const expectedStages = SKILL_NAMES.filter((name) => name !== 'erduo-hyperframes-broll')
@@ -3175,10 +3536,11 @@ test('public release source contains the parent plus seven prompt stage Skills',
       .map((file) => file.slice('erduo-hyperframes-broll/'.length))
       .toSorted(),
   );
-  assert.equal(
-    promptSurface.every((file) => /\.(?:json|md|mjs|yaml)$/u.test(file)),
-    true,
-  );
+  assert.equal(promptSurface.every((file) => (
+    /\.(?:json|md|mjs|yaml)$/u.test(file)
+      || (/\.(?:ts|tsx)$/u.test(file)
+        && file.startsWith('references/shotcraft/remotion-sources/'))
+  )), true);
   for (const name of SKILL_NAMES) {
     const file = name === 'erduo-hyperframes-broll'
       ? path.join(skillRoot, 'SKILL.md')

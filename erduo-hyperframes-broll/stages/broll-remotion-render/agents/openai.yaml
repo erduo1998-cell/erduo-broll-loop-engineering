@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Remotion Render and Delivery"
+  short_description: "Preview, render, and verify the Remotion master."
+  default_prompt: "Use $broll-remotion-render to verify the identity-bound Remotion composition, obtain preview approval, and deliver one technically verified master."

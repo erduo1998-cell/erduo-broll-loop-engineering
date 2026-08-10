@@ -4,6 +4,16 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-08-10
+
+- 新增前置 Runtime Router：用户显式选择优先；现有项目按真实文件和本地 CLI 证据识别 HyperFrames/Remotion；双信号冲突停止询问；空白新项目默认 HyperFrames。
+- 新增 `broll-remotion-build`、`broll-remotion-integrate`、`broll-remotion-render` 三阶段，把同一份运行时无关 Shot Recipe 接到独立 Remotion 后段，不经过 HyperFrames 转译。
+- Remotion 只使用目标项目本地、精确锁定并可直接执行的 `remotion` 与 `@remotion/cli`；安装器和本仓库 runtime lock 不新增全局 Remotion 依赖。
+- 安装 manifest 升级为 schema 3，并继续严格识别、升级和卸载 0.1.x schema 1 与 0.2.0 schema 2 安装。
+- 发布包纳入 Runtime Router、Remotion 后段 Skill、项目契约、验证器和固定来源实现闭集，继续拒绝未知文件、运行时依赖和媒体混入。
+- CLI 入口使用真实路径判断，避免 macOS `/tmp` 与 `/private/tmp` 别名让命令误判为仅被导入而静默不执行。
+- Remotion 静音策略显式使用 `--muted` 并验证零音轨与帧精确时长；项目验证器拒绝系统字体 fallback，要求带哈希和显式加载的本地字体闭包。
+
 ## 0.2.0 — 2026-08-10
 
 - 新增 runtime-adapter foundation：用运行时无关 Shot Recipe、能力矩阵、映射文档和零依赖校验器冻结 HyperFrames/Remotion 的适配边界。
