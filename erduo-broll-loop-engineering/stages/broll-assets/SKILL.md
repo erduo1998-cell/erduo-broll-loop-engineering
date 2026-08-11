@@ -14,6 +14,7 @@ film structure, write HyperFrames source, integrate blocks, render, or export.
   Shot Recipes, and material requests
 - optional user material
 - ready onboarding handoff
+- validated post-Director runtime plan
 - secure Pexels access
 - production root
 
@@ -109,7 +110,7 @@ Route material in this order:
 user material
 → controllable generation
 → Pexels
-→ HyperFrames-native structural support
+→ assigned-runtime native structural support
 ```
 
 Native graphics are not assets to collect and must not be used here to hide a

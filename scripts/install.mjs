@@ -1079,7 +1079,7 @@ export async function runInstall({
       additionalSources: official.sources,
       finalize: async (records) => {
         manifest = {
-          schema_version: 4,
+          schema_version: 5,
           product_version: RELEASE_VERSION,
           installed_at: new Date().toISOString(),
           repo_root: canonicalRepoRoot,

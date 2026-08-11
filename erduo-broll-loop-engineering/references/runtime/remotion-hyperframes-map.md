@@ -12,13 +12,14 @@ TSX-to-HyperFrames rewrite as the compatibility layer.
 
 ```text
 validated semantic recipe
-├── future Remotion adapter -> Remotion-owned source and evidence
+├── Remotion adapter        -> Remotion-owned source and evidence
 └── HyperFrames adapter      -> HyperFrames-owned source and evidence
 ```
 
-HyperFrames remains the default production runtime. The Remotion branch is an
-experimental boundary until a later milestone explicitly adds and verifies
-its backend, dependencies, licenses, source, and witnesses.
+New projects default to auto planning, not a runtime. Both branches are
+independent production concerns. Runtime Planner assigns a shot only from exact
+capability or pattern/backend evidence; targeted readiness then verifies the
+required dependencies, licenses, source path, and witnesses.
 
 ## Concern mapping
 

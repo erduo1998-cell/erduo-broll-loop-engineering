@@ -25,7 +25,7 @@
 - [ ] doctor 的版本更新提示只在 `_meta.version` 精确命中锁定版本时降为非阻断；版本不明/不符以及 Node、FFmpeg、FFprobe、Chrome 任一失败仍关闭。
 - [ ] 8 个官方 Skill 与 11 个本项目 Skill 共用一次占用确认、备份、链接、manifest schema 4 commit 和失败逆序回滚事务；升级能读取历史 schema 1/2/3、只退休匹配所有权的旧父 Skill 名称，并保留或恢复初始备份链。
 - [ ] FFmpeg 缺失路径只在 Homebrew 已存在并获一次授权时安装，否则清晰返回 action-required。
-- [ ] Codex 与 Claude Code 的父 Skill + 十个阶段 Skill 均安装；冲突安装有可恢复备份。
+- [ ] Codex 与 Claude Code 的父 Skill + 十三个阶段 Skill 均安装；冲突安装有可恢复备份。
 - [ ] Pexels Key 通过隐藏输入或 stdin 配置、真实 API 验证、0600 原子保存，并且未进入 argv、日志或诊断。
 - [ ] Pexels 配置读取与写入都拒绝 home 到配置目录链上的任何中间符号链接。
 - [ ] 官方 doctor 五个必需本地渲染事实各恰好一次；重复或缺失 payload 被拒绝，顶层 `ok=false` 不会把完整的限定本地渲染事实误判为缺失。
@@ -47,7 +47,10 @@
 ## Runtime adapter 与 Shotcraft 知识层
 
 - [ ] Shot Recipe schema、能力矩阵、运行时映射文档与零依赖 Recipe 校验器均通过确定性校验，枚举、必填字段、时间包含关系、唯一 ID 和引用闭集无漂移。
-- [ ] Runtime Router 遵循显式选择优先、既有项目证据识别、双信号停止和空白新项目默认 HyperFrames；目录名不作为判断依据。
+- [ ] Runtime selector 遵循显式选择优先、既有项目证据识别、双信号停止和空白新项目默认 auto；目录名不作为判断依据。
+- [ ] Runtime Planner 只按 capability 与 exact pattern/backend evidence 决策，逐镜选择、相邻聚合；schema validator 拒绝 gap/overlap、冲突和 identity drift。
+- [ ] Hybrid Builder 输出 frozen block schema；validator 核验实际 hash、profile/audio、FFprobe/full decode、plan closure；Integrator/Render 禁止实时嵌套或源码互导。
+- [ ] Base Onboarding 不盲目准备两套后端；targeted Onboarding 只检查 planner 的 requiredBackends。
 - [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；只有获得 Remotion 修复与本地执行授权后的 fresh Onboarding repair Agent 才使用 `--probe-cli`，并记录非只读执行事实与最小 allowlist 子环境。
 - [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
 - [ ] 本仓库安装器和 runtime lock 不包含 Remotion；不得使用全局 Remotion 或允许临时下载的 `npx` 作为 readiness 证据。
@@ -63,7 +66,7 @@
 
 ## 正式发布与回滚
 
-- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.4.0`。
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.5.0`。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
 - [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

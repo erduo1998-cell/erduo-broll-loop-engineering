@@ -4,6 +4,15 @@
 
 ## Unreleased
 
+## 0.5.0 — 2026-08-11
+
+- 全新项目默认从 `hyperframes` 改为 `auto`：Director 先完成运行时中立 Shot Recipes，再由零依赖确定性 Planner 按 capability 与 exact pattern/backend evidence 逐镜选择后端，并聚合相邻同后端镜头。
+- 用户可显式强制整片 HyperFrames/Remotion，也可选择 hybrid；既有 schema-1 单后端 run 原样兼容，不追溯重路由。
+- 依据操作者多次生产观察，把 frame-driven multiphase、particles/physics、3D camera、mask/geometry morph 的复杂动画偏好路由到 Remotion；该证据不冒充受控双端 benchmark。Shotcraft Remotion TSX 只标为 `reference-source-unverified`。
+- 新增 runtime plan/frozen block schema、Planner 与实际媒体 hash validator；FFprobe 和完整解码由 Builder/Integrator 阶段实跑并留证；新增 `broll-runtime-plan`、`broll-hybrid-integrate`、`broll-hybrid-render` 三个隔离阶段。
+- Hybrid 只通过 Builder 冻结的 lossless/visually-lossless block media 互操作，禁止运行时实时嵌套、源码互导或失败后静默改后端；预览批准绑定 plan、contracts、media hashes 与 assembly identity。
+- Onboarding 拆为 common base 与 post-plan targeted readiness；auto 不再开工前盲目准备两套后端。安装 manifest 升级 schema 5，并保留 schema 1–4 严格升级兼容。
+
 ## 0.4.0 — 2026-08-10
 
 - 项目与父 Skill 正式更名为 **Erduo B-roll Loop Engineering** / `erduo-broll-loop-engineering`，移除公开名称对单一 HyperFrames 后端的误导。

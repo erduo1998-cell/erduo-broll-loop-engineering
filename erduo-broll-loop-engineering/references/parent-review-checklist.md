@@ -11,9 +11,8 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   quality.
 - The output directory, attempt targets, and master path are unused.
 - No existing file or directory will be overwritten.
-- The selected runtime is recorded and defaults to `hyperframes`.
-- No experimental Remotion adapter or witness is described as a
-  production-ready delivery backend.
+- Runtime intent is recorded and new projects default to `auto`.
+- Existing schema-1 single-runtime runs remain grandfathered and unchanged.
 
 ## Onboarding
 
@@ -23,9 +22,9 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   request.
 - Any repair was performed by a different fresh Agent and followed by a full
   reinspection.
-- Official `hyperframes` and `hyperframes-cli` Skills were loaded when
-  available through the host.
-- Official HyperFrames doctor actually ran with JSON output.
+- Base Onboarding did not install or probe both backends blindly.
+- Targeted Onboarding checked exactly the plan's required backends.
+- Official HyperFrames Skills and doctor were used when HyperFrames was required.
 - The report interprets the top-level result and each finding relevant to the
   selected local path.
 - Official HyperFrames Skills check actually ran.
@@ -39,16 +38,13 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - A discoverable public repository configuration tool was used only through
   stdin or hidden interaction; otherwise a host secret or environment
   mechanism was used.
-- The root Skill and all seven stage Skills are discoverable through the host.
+- The root Skill and all thirteen stage Skills are discoverable through the host.
 - The release installer, not Onboarding, owns initial Skill registration.
 - SRT reading was limited to the final cue end milliseconds for storage
   estimation.
-- Ready evidence binds the same production run, host, command `PATH`, official
-  CLI version, delivery filesystem, selected runtime, runtime-capability
-  evidence, and Pexels validation state.
-- Any Remotion request was checked against the capability matrix and stopped
-  as `unsupported` because the current matrix does not mark that runtime
-  production-available.
+- Ready evidence binds run, host, command `PATH`, onboarding phase,
+  selection/runtime-plan identity, delivery filesystem, exact required backend
+  versions, capability evidence, and Pexels state.
 - Repairs were authorized, safe, reversible, and rechecked.
 - Human-only actions were grouped into one request.
 - The handoff contains no credential or private environment dump.
@@ -90,6 +86,18 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - No Recipe contains upstream frame constants, TSX, Remotion APIs, audio
   directions, branding, or demo-asset paths.
 
+## Runtime plan
+
+- A fresh Runtime Planner ran after Director and before backend dispatch.
+- Generated JSON passes `validate-runtime-plan.mjs`; it was not hand-edited.
+- Every shot appears once; coverage is continuous; adjacent same-runtime shots
+  are grouped into contiguous blocks.
+- Decisions cite capability or exact selected-pattern/backend evidence and do
+  not use semantic keywords.
+- Reference-source-only Remotion preferences are explicitly unverified.
+- Auto may resolve single or hybrid; explicit hybrid never forces an
+  evidence-free split.
+
 ## Mandatory Assets and Pexels
 
 - A fresh Assets Agent ran even when user material was absent.
@@ -120,8 +128,9 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 ## Each Builder
 
 - The Agent is fresh and owns one contiguous block only.
-- The official `hyperframes` Skill was loaded before source was read or
-  written.
+- The block runtime and boundaries exactly match the validated runtime plan.
+- HyperFrames Builders loaded the official Skill; Remotion Builders used only
+  verified project-local dependencies.
 - Relevant official domain guidance was followed.
 - Real renderable HyperFrames source exists.
 - Every assigned Shot Recipe maps to a recorded HyperFrames runtime
@@ -143,13 +152,26 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
   debug, or status metadata.
 - The block is deterministic and seekable.
 - Official checks retain no unresolved block-owned error.
+- Hybrid Builders additionally delivered schema-valid, hash-bound frozen block
+  media with FFprobe, full decode, boundary inspection, and no live nesting.
+
+## Hybrid integration and delivery
+
+- Only frozen block media crossed backend boundaries; no generated source or
+  live runtime was nested.
+- `validate-frozen-blocks.mjs` checked actual files, hashes, profiles, audio,
+  plan closure, and duration tolerance.
+- Hybrid Integrator inspected every cross-backend seam and froze identity over
+  plan, ordered contracts, media hashes, profile, audio, and assembly recipe.
+- Approval binds the unchanged hybrid identity; formal delivery used FFmpeg
+  from frozen blocks without opening either runtime.
 - Seam behavior is explained.
 
-## Integration
+## Single-backend integration
 
-- A fresh Integrator loaded the official `hyperframes` Skill before assembly.
-- Every block is bound to the same production-ready `hyperframes` runtime;
-  mixed or experimental runtime blocks were rejected.
+- A fresh Integrator followed its planned backend contract; HyperFrames loaded
+  official Skills and Remotion used its verified local toolchain.
+- Every block is bound to the one planned runtime; mixed blocks were rejected.
 - Shot Recipe-to-runtime traceability is complete.
 - Shotcraft references are unchanged from Recipe through Builder and
   Integration, and no unselected pattern was introduced.
@@ -166,14 +188,11 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Warnings with possible visible impact were investigated.
 - No final render occurred in this stage.
 
-## Render and delivery
+## Single-backend render and delivery
 
-- A fresh Render/Delivery Agent loaded the official `hyperframes` Skill before
-  doctor, check, preview, or render.
-- The integrated project, Onboarding evidence, and capability decision all bind
-  the production-ready `hyperframes` runtime.
-- No Remotion or experimental witness output was rendered or reported as the
-  final master.
+- A fresh Render/Delivery Agent followed the selected backend's exact preflight.
+- The integrated project, runtime plan, Onboarding evidence, and capability
+  decision all bind the same production-ready runtime.
 - Official doctor ran in the exact formal-render environment.
 - Its top-level result and relevant individual findings were interpreted.
 - Output-directory writability, target-specific free space, unique target, and

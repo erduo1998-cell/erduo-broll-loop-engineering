@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">Erduo B-roll Loop Engineering 中文工作流程</title>
-  <desc id="desc">从准备字幕与素材，到安装检查、分镜、素材、分块构建、整合预览、渲染交付的八步流程。</desc>
+  <desc id="desc">从准备字幕与素材，到共同环境检查、运行时中立分镜、自动后端规划、素材与分块构建、冻结媒体整合预览、渲染交付的八步流程。</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#fffaf1"/>
@@ -59,7 +59,7 @@
     <text x="42" y="43" class="step">2</text>
     <text x="80" y="50" class="node-title">安装与体检</text>
     <text x="28" y="98" class="node-copy">运行 Install.command</text>
-    <text x="28" y="132" class="node-copy">自动准备 HyperFrames</text>
+    <text x="28" y="132" class="node-copy">只准备共同工具与路径</text>
     <text x="28" y="166" class="node-copy">一次性配置 Pexels Key</text>
   </g>
 
@@ -77,28 +77,28 @@
     <rect class="card" width="310" height="205" rx="24"/>
     <circle cx="42" cy="42" r="25" fill="#12a594"/>
     <text x="42" y="43" class="step">4</text>
-    <text x="80" y="50" class="node-title">收集素材</text>
-    <text x="28" y="98" class="node-copy">用户素材 → 可控生成</text>
-    <text x="28" y="132" class="node-copy">→ Pexels 图片 / 视频</text>
-    <text x="28" y="166" class="node-copy">每份素材都服务具体语义</text>
+    <text x="80" y="50" class="node-title">自动规划后端</text>
+    <text x="28" y="98" class="node-copy">逐镜读取 capability 证据</text>
+    <text x="28" y="132" class="node-copy">分配 HyperFrames / Remotion</text>
+    <text x="28" y="166" class="node-copy">相邻同后端合并为区块</text>
   </g>
 
   <g transform="translate(1205 485)">
     <rect class="card" width="310" height="205" rx="24"/>
     <circle cx="42" cy="42" r="25" fill="#0f9f6e"/>
     <text x="42" y="43" class="step">5</text>
-    <text x="80" y="50" class="node-title">分块并行构建</text>
-    <text x="28" y="98" class="node-copy">每个 Builder 独立负责一段</text>
-    <text x="28" y="132" class="node-copy">真实加载 HyperFrames Skill</text>
-    <text x="28" y="166" class="node-copy">失败只返工所属片段</text>
+    <text x="80" y="50" class="node-title">素材与分块构建</text>
+    <text x="28" y="98" class="node-copy">真实素材绑定具体语义</text>
+    <text x="28" y="132" class="node-copy">每块使用规划好的后端</text>
+    <text x="28" y="166" class="node-copy">Hybrid 冻结验证后再交接</text>
   </g>
 
   <g transform="translate(825 485)">
     <rect class="card" width="310" height="205" rx="24"/>
     <circle cx="42" cy="42" r="25" fill="#e85d75"/>
     <text x="42" y="43" class="step">6</text>
-    <text x="80" y="50" class="node-title">整合 Master</text>
-    <text x="28" y="98" class="node-copy">Integrator 组装所有片段</text>
+    <text x="80" y="50" class="node-title">整合预览</text>
+    <text x="28" y="98" class="node-copy">单后端源码 / Hybrid 冻结媒体</text>
     <text x="28" y="132" class="node-copy">保持字幕时间线连续覆盖</text>
     <text x="28" y="166" class="node-copy">先生成正式预览</text>
   </g>

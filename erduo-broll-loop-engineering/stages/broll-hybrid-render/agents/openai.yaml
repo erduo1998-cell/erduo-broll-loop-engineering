@@ -1,0 +1,4 @@
+interface:
+  display_name: "B-roll Hybrid Render"
+  short_description: "Deliver approved frozen hybrid master"
+  default_prompt: "Use $broll-hybrid-render to verify approval identity and deliver one master from frozen block media without live runtime nesting."

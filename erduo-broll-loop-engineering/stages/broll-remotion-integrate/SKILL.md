@@ -13,7 +13,8 @@ formal master, or mix HyperFrames source into the project.
 
 Read `../../references/remotion-backend.md`, the runtime contract, capability
 matrix, and Remotion project schema. Require matching router, Onboarding, and
-user licensing evidence for one production-ready `remotion` route. Every
+user licensing evidence plus a validated runtime plan whose resulting route is
+single-backend `remotion`. Every
 Builder handoff and manifest must name that same route, adapter version,
 runtime baseline, frame rate, dimensions, and audio policy.
 
@@ -31,6 +32,9 @@ neither route is available, stop before spawn as `action-required`.
 - every expected Remotion block project, manifest, QA evidence, and handoff;
 - output profile, audio policy, runtime decision, Onboarding evidence, and
   Remotion licensing confirmation.
+
+Reject hybrid plans and frozen-media block handoffs; those belong to
+`broll-hybrid-integrate`. Never flatten a single-runtime source route here.
 
 Before copying source, rerun the bundled verifier with `--expect block` on
 every block. Reject a missing block, hash change, unverified pattern revision,

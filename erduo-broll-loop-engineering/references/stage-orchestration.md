@@ -6,13 +6,16 @@
 | --- | --- | --- | --- |
 | Environment | Onboarding Agent | `broll-production/00-onboarding/` | handoff and relevant official environment facts |
 | Direction | Director Agent | `broll-production/01-director/` | handoff and relevant plans |
+| Runtime plan | Runtime Planner Agent | `broll-production/01-runtime-plan/` | generated plan, identity, warnings, and validator result |
 | Material | Assets and Pexels Agent | `broll-production/02-assets/` | handoff, search record, inventory, and material plan |
 | HyperFrames blocks | one `broll-master-build` Agent per contiguous block | `broll-production/03-build/<block-id>/` | handoff, notes, and source portions needed for a stated question |
 | Remotion blocks | one `broll-remotion-build` Agent per contiguous block | `broll-production/03-remotion-build/<block-id>/` | handoff, manifest, native source evidence, and bounded QA |
 | HyperFrames assembly | `broll-master-integrate` Agent | `broll-production/04-integrate/` | handoff, integration notes, official check, and relevant project portions |
 | Remotion assembly | `broll-remotion-integrate` Agent | `broll-production/04-remotion-integrate/` | handoff, registered Composition, identity, preview, and media facts |
+| Hybrid assembly | `broll-hybrid-integrate` Agent | `broll-production/04-hybrid-integrate/` | frozen contracts/media hashes, seam evidence, preview, and identity |
 | HyperFrames master | `broll-render` Agent | `broll-production/05-delivery/` | handoff, preflight, preview approval, final arguments, and media facts |
 | Remotion master | `broll-remotion-render` Agent | `broll-production/05-remotion-delivery/` | handoff, local CLI preflight, preview approval, final arguments, and media facts |
+| Hybrid master | `broll-hybrid-render` Agent | `broll-production/05-hybrid-delivery/` | unchanged frozen identity, approval, FFmpeg assembly, and media facts |
 | Shot files | Shot Export Agent, only on request | `broll-production/06-shot-export/` | handoff, export index, and media facts |
 
 Every production action belongs to its stage Agent. The Parent does not create
@@ -27,8 +30,8 @@ Give each child:
 - one stage responsibility;
 - production-root and input-artifact locators;
 - the user goal and constraints relevant to that stage;
-- the selected runtime, capability-matrix decision, and relevant runtime
-  contract or Shot Recipe locators;
+- the selection intent, validated runtime-plan identity, exact block/runtime
+  assignment, capability evidence, and relevant contract/Recipe locators;
 - the validated runtime-selection artifact and its evidence bindings;
 - for Director, Assets, and Builder, the bundled Shotcraft query command and
   only the selected card/style locators needed by that stage; never the full
@@ -43,15 +46,14 @@ When review finds several issues owned by one stage, combine them into one
 revision request and re-dispatch that role as a fresh Agent. Keep unaffected
 Builder blocks when one block needs revision.
 
-Select the runtime before onboarding with the bundled detector and runtime
-selection contract. Explicit user choice wins. Otherwise select from concrete
-package, config, and composition evidence; mixed evidence is
-`action-required`, and only a genuinely new project defaults to `hyperframes`.
-The Director and Assets stages remain shared and runtime-neutral. After Assets,
-dispatch the selected runtime's Builder, Integrator, preview, and render
-contracts. A runtime not marked production-available is `unsupported`;
-missing local readiness evidence is `action-required`. Never silently switch
-backends after a failure.
+Record runtime intent before Onboarding with the bundled detector. New projects
+default to `auto`; explicit choices win; ambiguous existing evidence still
+stops. Auto/hybrid run base Onboarding, runtime-neutral Director, deterministic
+Runtime Planner, then targeted Onboarding for exactly the required backends.
+Assets remains shared. Dispatch each planned block to its assigned Builder.
+Single routes keep native Integrator/Render; hybrid uses frozen block media and
+the dedicated runtime-neutral Integrator/Render. Never silently switch after a
+failure.
 
 ## Onboarding
 
@@ -62,9 +64,10 @@ Dispatch Onboarding when:
 - Node, HyperFrames, Skills, FFmpeg, FFprobe, Chrome, permissions, storage, or
   Pexels status may have changed;
 - no current ready handoff exists for this production and delivery path.
-- the production-run identity, host, command `PATH`, selected runtime CLI
-  version, target delivery filesystem, selected runtime, runtime-capability
-  evidence, or Pexels validation state changed.
+- the production-run identity, host, command `PATH`, onboarding phase,
+  selection/runtime-plan identity, any required backend CLI version, target
+  delivery filesystem, runtime-capability evidence, or Pexels validation
+  state changed.
 
 First dispatch a fresh inspection-only Onboarding Agent. It must not modify the
 machine or configuration. The Parent asks the user for one grouped
@@ -73,7 +76,7 @@ repair Agent. The repair Agent performs only approved work and repeats the full
 inspection.
 
 The release installer owns initial registration. Onboarding verifies that the
-root Skill and all ten stage Skills are discoverable; it does not create
+root Skill and all thirteen stage Skills are discoverable; it does not create
 their host registration.
 
 Onboarding may parse only the final SRT cue end milliseconds for
@@ -82,15 +85,16 @@ delivery-space estimation. It does not group cues or make film decisions.
 Do not let onboarding replace the Render Agent's same-environment official
 doctor run.
 
-## Partition Builders
+## Plan and partition Builders
 
-Assign each Builder a bounded, contiguous semantic span. Place boundaries at
-clean chapter or meaning handoffs. Do not split one semantic shot across
-Builders, overlap windows, or reduce planned density merely to use fewer
-agents. A short film may have one block.
+Use only the deterministic Runtime Planner's bounded contiguous blocks. It
+decides per shot from capability/pattern evidence, then merges adjacent
+same-backend shots. Do not split a shot, hand-adjust a backend, or add runtime
+switches for variety. A short film may have one block.
 
 Pass only each block's validated runtime-neutral Shot Recipes, plus the
-selected runtime, capability decision, and selected Shotcraft cards. Builders
+runtime plan's exact block assignment, capability/pattern evidence, and
+selected Shotcraft cards. Builders
 resolve and read only a Recipe's one primary card/style, then record a
 one-to-one mapping from each recipe to its runtime-owned implementation and
 pattern reference. Do not let the Director embed runtime code, let a Builder

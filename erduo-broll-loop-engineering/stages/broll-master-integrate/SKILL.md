@@ -12,13 +12,15 @@ shots, render the final master, or export shots.
 ## Runtime route
 
 Read `../../references/runtime/runtime-contract.md` and
-`../../references/runtime/capability-matrix.json`. This release's production
-Integrator accepts only blocks whose selected runtime is `hyperframes` and
+`../../references/runtime/capability-matrix.json`. The Integrator accepts only
+a validated runtime plan whose resulting route is single-backend
+`hyperframes`, and blocks assigned to `hyperframes`,
 whose Builder handoffs trace every shot to a validated runtime-neutral Recipe
-and HyperFrames-owned implementation decision. Reject mixed-runtime blocks.
+and HyperFrames-owned implementation decision. Reject mixed-runtime blocks;
+hybrid plans belong to `broll-hybrid-integrate` after Builder-owned freezing.
 
-The Remotion adapter contract is experimental and is not an alternate formal
-assembly backend here. If a Remotion block arrives, stop as `unsupported`
+Remotion is not an alternate assembly backend here. If a Remotion block arrives,
+stop as `unsupported`
 without converting it, wrapping it, rendering it to media, or presenting it as
 production-ready.
 
@@ -55,6 +57,7 @@ standard check.
 - output profile and audio policy
 - ready onboarding handoff
 - selected runtime and capability-matrix decision
+- validated runtime plan identity and single-runtime block closure
 
 ## Integrate
 

@@ -20,7 +20,7 @@ const execFileAsync = promisify(execFile);
 
 export const APP_NAME = 'erduo-broll-loop-engineering';
 export const LEGACY_APP_NAME = 'erduo-hyperframes-broll';
-export const RELEASE_VERSION = '0.4.0';
+export const RELEASE_VERSION = '0.5.0';
 export const HYPERFRAMES_VERSION = '0.7.104';
 export const SKILLS_CLI_VERSION = '1.5.22';
 export const HYPERFRAMES_SKILLS_COMMIT = 'c96b30c7174984e684620556ce871a285381ec60';
@@ -49,14 +49,23 @@ export const REMOTION_SKILL_NAMES = Object.freeze([
   'broll-remotion-integrate',
   'broll-remotion-render',
 ]);
+export const AUTO_HYBRID_SKILL_NAMES = Object.freeze([
+  'broll-runtime-plan',
+  'broll-hybrid-integrate',
+  'broll-hybrid-render',
+]);
 export const V3_SKILL_NAMES = Object.freeze([
   ...LEGACY_SKILL_NAMES,
   ...REMOTION_SKILL_NAMES,
 ]);
-export const SKILL_NAMES = Object.freeze([
+export const V4_SKILL_NAMES = Object.freeze([
   APP_NAME,
   ...LEGACY_SKILL_NAMES.slice(1),
   ...REMOTION_SKILL_NAMES,
+]);
+export const SKILL_NAMES = Object.freeze([
+  ...V4_SKILL_NAMES,
+  ...AUTO_HYBRID_SKILL_NAMES,
 ]);
 export const INSTALL_SKILL_NAMES = Object.freeze([
   ...HYPERFRAMES_SKILL_NAMES,
@@ -80,6 +89,11 @@ const INSTALL_MANIFEST_PROFILE_BY_SCHEMA = Object.freeze(new Map([
     skillRootName: LEGACY_APP_NAME,
   })],
   [4, Object.freeze({
+    names: Object.freeze([...HYPERFRAMES_SKILL_NAMES, ...V4_SKILL_NAMES]),
+    parentName: APP_NAME,
+    skillRootName: APP_NAME,
+  })],
+  [5, Object.freeze({
     names: INSTALL_SKILL_NAMES,
     parentName: APP_NAME,
     skillRootName: APP_NAME,

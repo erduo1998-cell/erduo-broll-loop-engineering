@@ -7,8 +7,9 @@
 | macOS + Codex | supported | 已有当前提示词架构的真实 SRT 生产和 master 证据；具体机器仍须先运行 doctor |
 | macOS + Claude Code | experimental | 安装目标和契约受测试覆盖，尚缺与 Codex 同输入的当前版本端到端对照 |
 | macOS 首次安装 | supported installer | 安装器、离线 mock 与安全边界受自动化测试覆盖；硬件、网络和宿主差异仍可能要求人工处理 |
-| HyperFrames runtime | default production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；现有生产证据和全新项目默认值均在此后端 |
+| HyperFrames runtime | supported production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；可由 auto 或显式单后端计划选择 |
 | Remotion runtime | project-local supported workflow | 具备前置识别、独立 Build/Integrate/Render Skill 和失败关闭验证；只接受目标项目本地锁定依赖与可直启 CLI，不承诺与 HyperFrames 视觉一致 |
+| Hybrid frozen-media route | contract + validator supported | 逐镜证据规划、连续区块聚合、冻结媒体 schema/hash validator 和 FFmpeg 集成已进入公开契约；FFprobe/完整解码由阶段实跑留证；尚不构成双后端成片或视觉一致性 witness |
 | Windows | unverified | 保留路径和配置兼容设计；没有真实 Windows 运行证据 |
 | 剪映/CapCut 桌面 GUI | unverified | 输出以常见 MP4/MOV 交付为目标；尚未完成当前版本 GUI 实机导入认证 |
 
@@ -18,13 +19,13 @@
 
 ## Runtime adapter 与 Shotcraft 知识层
 
-运行时无关 Shot Recipe 和能力矩阵先冻结语义、时间、素材和适配边界，再由 Runtime Router 选择一个具体后端实现。用户显式选择优先；既有项目按真实证据选择；双信号冲突停止；空白新项目默认 HyperFrames。
+运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由确定性 Runtime Planner 按 capability 与 exact pattern/backend evidence 逐镜选择后端并聚合连续区块。用户可强制整片单后端；空白新项目默认 auto。Planner 不读语义关键词。
 
 能力状态必须按镜头机制逐项判断：
 
 - `portable`：两个运行时原则上都能实现，但仍需各自实现和验证；
 - `native-hyperframes` 或 `native-remotion`：依赖对应运行时特性；
-- `interop`：需要预渲染、嵌入或其他显式桥接；
+- `interop`：只允许经过验证的冻结媒体桥接，不允许实时嵌套运行时；
 - `unsupported`：当前明确不承诺支持。
 
 这些状态不是跨运行时一致性证明。React 状态、异步行为、第三方组件和任意既有 Composition 都必须在所选运行时内真实检查；不能据此宣称 Remotion 与 HyperFrames 会自动互转或输出相同画面。
@@ -33,7 +34,7 @@
 
 ### `video-shotcraft` 吸收边界
 
-| 项目 | `0.4.0` 状态 | 证据边界 |
+| 项目 | `0.5.0` 状态 | 证据边界 |
 | --- | --- | --- |
 | 镜头卡目录 | verified data | 152 张卡、209 个全局唯一 style key；目录、来源 commit 与 manifest 由自动化测试核验 |
 | 卡片全文 | verified upstream artifact | 每卡与 pinned upstream Markdown byte-identical，并有稳定 ID、上游 URL、本地路径、字节数与 SHA-256；正文作为运行时中立镜头知识消费 |

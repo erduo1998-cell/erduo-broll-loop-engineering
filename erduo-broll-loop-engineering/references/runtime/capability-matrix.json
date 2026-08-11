@@ -1,13 +1,14 @@
 {
-  "matrixVersion": "2.0.0",
-  "scope": "Runtime routing for semantic shot recipes across independent HyperFrames and Remotion production backends. Classification does not prove visual or render parity.",
-  "defaultRuntime": "hyperframes",
+  "matrixVersion": "3.0.0",
+  "scope": "Deterministic per-shot backend planning across independent HyperFrames and Remotion production backends. Routing evidence does not prove visual parity.",
+  "defaultRuntime": "auto",
+  "portableDefaultRuntime": "hyperframes",
   "runtimes": {
     "hyperframes": {
-      "maturity": "default-production",
+      "maturity": "production-route",
       "bundledByThisContract": false,
       "productionAvailable": true,
-      "notes": "Production behavior remains governed by the official HyperFrames Skill and existing stage contracts."
+      "notes": "Production behavior remains governed by the pinned official HyperFrames Skills and existing stage contracts."
     },
     "remotion": {
       "maturity": "production-route",
@@ -16,8 +17,22 @@
       "authorizedByThisContract": false,
       "productionAvailable": true,
       "readinessGate": "project-local-locked-dependencies-and-cli-evidence",
-      "notes": "The Agent workflow can author, integrate, preview, and render native Remotion projects. The target project must directly declare and locally install matching remotion and @remotion/cli versions, and its local CLI must pass a real version probe."
+      "notes": "Remotion remains project-local. Matching remotion and @remotion/cli versions plus a real local CLI probe are required."
     }
+  },
+  "planningEvidenceStates": {
+    "operator-confirmed": "The operator reported repeated production experience; useful for preference routing but not a controlled cross-backend witness.",
+    "reference-source-unverified": "Pinned backend-native reference source exists, but no render witness or parity claim is implied.",
+    "contract-only": "A low-priority deterministic contract default with no empirical superiority claim.",
+    "backend-witness": "A reproducible backend witness exists for the exact capability.",
+    "production-evidenced": "Repeated approved production artifacts support the preference."
+  },
+  "patternPlanning": {
+    "remotionReferenceIndex": "../shotcraft/remotion-sources/index.json",
+    "preferredRuntime": "remotion",
+    "priority": 60,
+    "verification": "reference-source-unverified",
+    "notes": "An exact selected-card entry is native Remotion source evidence only. It is never a component, render witness, or parity claim."
   },
   "patternKnowledge": {
     "catalog": "../shotcraft/catalog.json",
@@ -27,14 +42,14 @@
     "hyperframesComponentsVerified": false,
     "remotionBackendAdded": true,
     "renderParityClaimed": false,
-    "notes": "Catalog cards guide semantic selection and independent native implementation. The pinned TSX subset is auditable adaptation input for selected Remotion cards, not bundled runtime components, production imports, or cross-runtime witnesses."
+    "notes": "Cards guide semantic selection. The pinned TSX subset is auditable Remotion adaptation input, not a production import or cross-runtime witness."
   },
   "classifications": {
-    "portable": "A runtime-neutral semantic requirement intended for independent native implementation in both runtimes.",
-    "native-remotion": "A requirement intentionally owned by a Remotion implementation and not translated into HyperFrames source.",
-    "native-hyperframes": "A requirement intentionally owned by a HyperFrames implementation and not translated into Remotion source.",
-    "interop": "A boundary where one runtime hands a frozen artifact to the other instead of translating implementation code.",
-    "unsupported": "No approved deterministic route exists; stop or use an explicit Director-owned fallback."
+    "portable": "A runtime-neutral semantic requirement with independent native implementations in both runtimes.",
+    "native-remotion": "A requirement intentionally owned by Remotion.",
+    "native-hyperframes": "A requirement intentionally owned by HyperFrames.",
+    "interop": "A frozen-media boundary; generated source is never translated or nested across runtimes.",
+    "unsupported": "No approved deterministic route exists."
   },
   "verificationStates": {
     "contract-only": "The routing meaning is documented but no backend or render witness is claimed.",
@@ -43,14 +58,14 @@
     "comparison-verified": "Both runtime witnesses have passed the declared cross-runtime comparison."
   },
   "unlistedCapabilityPolicy": "reject-before-build",
-  "contractOnlyPolicy": "Contract-only is a capability-evidence state and never proves cross-runtime parity. It does not disable the existing HyperFrames production workflow. A named existing-production-workflow or native-production-workflow remains an independently implemented production route, subject to that runtime's readiness gate.",
+  "contractOnlyPolicy": "Contract-only never proves cross-runtime parity. It may define a deterministic fallback after stronger capability and pattern evidence is exhausted.",
   "renderParityClaimed": false,
   "capabilities": [
     {
       "id": "semantic.integer-ms-window",
       "classification": "portable",
       "verification": "contract-only",
-      "meaning": "A shot and its phases are anchored to absolute integer milliseconds from the SRT timeline.",
+      "meaning": "A shot and its phases are anchored to absolute integer milliseconds.",
       "hyperframesRoute": "existing-production-workflow",
       "remotionRoute": "native-production-workflow"
     },
@@ -58,7 +73,7 @@
       "id": "semantic.visual-state-transition",
       "classification": "portable",
       "verification": "contract-only",
-      "meaning": "A shot declares an initial state, visible change, result state, and focus order without runtime APIs.",
+      "meaning": "A shot declares observable initial, change, result, and focus states.",
       "hyperframesRoute": "existing-production-workflow",
       "remotionRoute": "native-production-workflow"
     },
@@ -66,15 +81,85 @@
       "id": "semantic.readable-hold",
       "classification": "portable",
       "verification": "contract-only",
-      "meaning": "Important visible information has an explicit integer-millisecond readability window.",
+      "meaning": "Important information has an explicit readability window.",
       "hyperframesRoute": "existing-production-workflow",
       "remotionRoute": "native-production-workflow"
+    },
+    {
+      "id": "motion.frame-driven-multiphase",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "The result depends on multiple precisely ordered animation phases with deterministic seek behavior.",
+      "hyperframesRoute": "native-production-workflow",
+      "remotionRoute": "native-production-workflow",
+      "planning": {
+        "preferredRuntime": "remotion",
+        "priority": 90,
+        "verification": "operator-confirmed",
+        "evidenceLocator": "CHANGELOG.md#050--2026-08-11"
+      }
+    },
+    {
+      "id": "motion.particles-or-physics",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "The shot needs deterministic particle, force, collision, or physically simulated state.",
+      "hyperframesRoute": "native-production-workflow",
+      "remotionRoute": "native-production-workflow",
+      "planning": {
+        "preferredRuntime": "remotion",
+        "priority": 90,
+        "verification": "operator-confirmed",
+        "evidenceLocator": "CHANGELOG.md#050--2026-08-11"
+      }
+    },
+    {
+      "id": "motion.camera-3d",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "The shot requires a composed 3D camera, parallax stack, or spatial camera path.",
+      "hyperframesRoute": "native-production-workflow",
+      "remotionRoute": "native-production-workflow",
+      "planning": {
+        "preferredRuntime": "remotion",
+        "priority": 90,
+        "verification": "operator-confirmed",
+        "evidenceLocator": "CHANGELOG.md#050--2026-08-11"
+      }
+    },
+    {
+      "id": "motion.mask-or-geometry-morph",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "The shot requires multi-stage mask, path, geometry, or shared-shape morphing.",
+      "hyperframesRoute": "native-production-workflow",
+      "remotionRoute": "native-production-workflow",
+      "planning": {
+        "preferredRuntime": "remotion",
+        "priority": 90,
+        "verification": "operator-confirmed",
+        "evidenceLocator": "CHANGELOG.md#050--2026-08-11"
+      }
+    },
+    {
+      "id": "layout.dom-css-editorial",
+      "classification": "portable",
+      "verification": "contract-only",
+      "meaning": "The shot is primarily deterministic editorial typography, cards, annotations, or DOM/CSS layout.",
+      "hyperframesRoute": "existing-production-workflow",
+      "remotionRoute": "native-production-workflow",
+      "planning": {
+        "preferredRuntime": "hyperframes",
+        "priority": 70,
+        "verification": "operator-confirmed",
+        "evidenceLocator": "CHANGELOG.md#050--2026-08-11"
+      }
     },
     {
       "id": "runtime.remotion-react-source",
       "classification": "native-remotion",
       "verification": "backend-verified",
-      "meaning": "React or TSX implementation remains in a Remotion-owned artifact and never enters the canonical recipe.",
+      "meaning": "React or TSX implementation remains in a Remotion-owned artifact.",
       "hyperframesRoute": "not-applicable",
       "remotionRoute": "native-production-workflow"
     },
@@ -82,7 +167,7 @@
       "id": "runtime.hyperframes-seekable-source",
       "classification": "native-hyperframes",
       "verification": "contract-only",
-      "meaning": "HyperFrames composition source remains in a HyperFrames-owned artifact and never enters the canonical recipe.",
+      "meaning": "HyperFrames composition source remains in a HyperFrames-owned artifact.",
       "hyperframesRoute": "existing-production-contract",
       "remotionRoute": "not-applicable"
     },
@@ -90,17 +175,17 @@
       "id": "interop.pre-rendered-media",
       "classification": "interop",
       "verification": "contract-only",
-      "meaning": "A verified frozen media artifact may cross a runtime boundary without translating its source implementation.",
-      "hyperframesRoute": "future-explicit-import",
-      "remotionRoute": "future-explicit-export"
+      "meaning": "Verified frozen block media crosses the integration boundary without source translation or live runtime nesting.",
+      "hyperframesRoute": "frozen-block-export",
+      "remotionRoute": "frozen-block-export"
     },
     {
       "id": "runtime.ambient-react-state",
       "classification": "unsupported",
       "verification": "contract-only",
-      "meaning": "Behavior that depends on ambient mutable React state or effects without deterministic time reconstruction is not portable.",
+      "meaning": "Behavior depending on ambient mutable state without deterministic time reconstruction is rejected.",
       "hyperframesRoute": "reject",
-      "remotionRoute": "reject-for-portable-recipe"
+      "remotionRoute": "reject"
     }
   ]
 }

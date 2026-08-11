@@ -2,9 +2,9 @@
 
 # Erduo B-roll Loop Engineering
 
-**把一份 SRT 和可选的口播视频交给一组协作 Agent，由前置路由选择 HyperFrames 或 Remotion，得到可编辑、可复查的 B-roll Master。**
+**把一份 SRT 和可选口播视频交给协作 Agent：先做运行时中立分镜，再按镜头证据自动分配 HyperFrames / Remotion，得到可编辑、可复查的 B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.4.0-16a34a)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -23,7 +23,7 @@
 - 读懂 SRT，按语义分镜，而不是一句字幕配一个镜头；
 - 优先使用你的图片、视频、Logo 和截图，再评估可控生成与 Pexels 素材；
 - 把长片拆成多个连续区块，由独立 Builder 并行构建；
-- 在任务开始时按用户选择和真实项目证据确定 HyperFrames 或 Remotion；
+- 分镜后按 capability 与实测/来源证据逐镜选择后端，再把相邻同后端镜头合并为区块；
 - HyperFrames 使用锁定的官方 Skill；Remotion 只使用目标项目本地锁定的 CLI 与依赖；
 - 整合后先给你看最终预览，得到明确同意才正式渲染；
 - 默认交付一个经过分辨率、时长、连续覆盖和解码检查的 4K Master。
@@ -62,13 +62,14 @@
 
 ## 渲染运行时边界
 
-仓库先用运行时无关的 Shot Recipe 冻结镜头意图，再由 Runtime Router 在进入构建前只选择一条后段。两条后段独立实现，不把 Remotion 先转换为 HyperFrames，也不在同一生产目录混用两套生命周期。
+仓库先用运行时无关的 Shot Recipe 冻结镜头意图，再由确定性 Runtime Planner 逐镜选择后端，并把相邻同后端镜头合并为连续区块。
 
-- 用户明确说 `hyperframes` 或 `remotion` 时，以用户选择为准。
+- 用户明确说 `hyperframes` 或 `remotion` 时，强制整片单后端；也可明确选择 `auto` 或 `hybrid`。
 - 现有项目按真实特征判断；同时命中两类特征时停止并请用户选择，不静默猜测。
-- 空白新项目且用户未指定时默认 HyperFrames。
+- 空白新项目且用户未指定时默认 `auto`。
 - `hyperframes` 走现有 Master Build → Integrate → Render 链路。
 - `remotion` 走 Remotion Build → Integrate → Render 链路；已有项目必须能证明本地精确版本和 local CLI，新项目由该后段显式 scaffold 并生成 lockfile。
+- `auto` 可落到单后端或 hybrid；hybrid 只交换带 hash、FFprobe 和完整解码证据的冻结区块媒体，不实时嵌套两套运行时。
 - 安装器不会把 Remotion 加入共享 runtime 或全局安装。Remotion 的许可、依赖与执行范围属于用户选择的目标项目。
 - 运行时选择不构成视觉一致性声明，也不表示任意 Remotion Composition 可以自动转换成 HyperFrames。
 
@@ -78,7 +79,7 @@
 node erduo-broll-loop-engineering/scripts/detect-runtime.mjs --project <项目目录> --json
 ```
 
-也可显式追加 `--runtime hyperframes` 或 `--runtime remotion`。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
+也可显式追加 `--runtime auto|hybrid|hyperframes|remotion`。Director 完成后用 `plan-runtime.mjs` 生成并校验后端区块计划。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
 
 开发者可以对 Director 生成的逐镜头 Recipe 目录运行零依赖校验：
 
@@ -88,7 +89,7 @@ node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs <shot-recipe
 
 ## 镜头能力目录
 
-`0.4.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+`0.5.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
 
 请准确理解这里的“吸收”：
 
@@ -132,7 +133,7 @@ node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --card <card-id>
 
 - 不用自己安装 Node.js：缺失或低于 `22.20.0` 时，安装器会安装固定版本到用户目录；
 - 不用写 `design.md`：Director 会根据本期 SRT、目标和素材建立视觉方向；
-- 不用手工复制十一个 Skill：安装器会同时安装父 Skill、七个原有阶段 Skill和三个 Remotion 后段 Skill；
+- 不用手工复制十四个 Skill：安装器会同时安装父 Skill和十三个阶段 Skill；
 - 不用把 Pexels Key 发进聊天：安装器使用不回显输入并在保存前真实验证。
 
 ## 三分钟安装
@@ -168,7 +169,7 @@ cd erduo-broll-loop-engineering
 4. 精确拉取 HyperFrames `c96b30c7174984e684620556ce871a285381ec60`，在隔离 HOME 中安装并用官方 `skills check --dir ... --source ... --json` 验证 8 个核心 Skill；
 5. 运行官方 `hyperframes browser ensure`；
 6. 运行并解析官方 `hyperframes doctor --json`；
-7. 把 8 个官方 HyperFrames 核心 Skill、父 Skill和十个阶段 Skill一起纳入冲突确认、备份、链接和失败回滚事务，再安装到 Codex 与 Claude Code；Remotion 不进入共享 runtime；
+7. 把 8 个官方 HyperFrames 核心 Skill、父 Skill和十三个阶段 Skill一起纳入冲突确认、备份、链接和失败回滚事务，再安装到 Codex 与 Claude Code；Remotion 不进入共享 runtime；
 8. 安全询问一次 Pexels Key，并在保存前做真实轻量验证。
 
 它不会使用 `sudo`，不会修改 shell profile，也不会让第三方安装器直接写真实 HOME。发现不同的已有 Skill 时，它会先列出冲突、请求一次授权，再做可恢复备份；任一步失败都会逆序恢复已改变的目标。
@@ -255,11 +256,12 @@ Pexels 账号注册、API Key 获取、系统权限、管理员批准、磁盘�
 | --- | --- | --- |
 | Parent Producer | 明确目标、派发、读交接、审查、把返工交回责任阶段 | 不亲自生产文件或假装子 Agent |
 | Onboarding | 检查环境，汇总授权，执行你批准的安全修复 | 不做分镜和创作 |
-| Runtime Router | 在构建前只选择一个后端并冻结路由证据 | 不把两个后端混跑，不凭偏好覆盖用户选择 |
+| Runtime Selector + Planner | 开工前冻结选择意图，分镜后按 capability/pattern evidence 逐镜规划并连续分块 | 不读语义关键词，不制造无证据切换 |
 | Director | 理解 SRT、分段、建立原创视觉方向和镜头意图 | 不下载素材、不写最终工程 |
 | Assets | 检查用户素材、评估可控生成、真实搜索 Pexels 并冻结候选 | 不拿无关素材充背景 |
 | HyperFrames Build / Integrate / Render | 用锁定的官方 Skill 构建、整合、预览与交付 | 不接管已选择的 Remotion 项目 |
 | Remotion Build / Integrate / Render | 用目标项目本地锁定依赖构建 Composition、整合并交付 | 不全局安装 Remotion，不调用 HyperFrames 代渲染 |
+| Hybrid Integrate / Render | 校验冻结区块媒体、检查跨后端接缝、绑定批准并用 FFmpeg 交付 | 不实时嵌套运行时，不互导生成源码 |
 | Shot Export | 按需从已验证 Master 导出逐镜头文件 | 不重新独立渲染镜头 |
 
 固定素材优先级：
@@ -305,7 +307,7 @@ node scripts/uninstall.mjs
 
 ### 从 0.3.x 旧名称升级
 
-GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变；是否手动重命名本地 clone 不影响升级。拉取 `0.4.0` 后重新运行 `Install.command`：安装器会验证旧 schema 1/2/3 的所有权，创建新的 `erduo-broll-loop-engineering` 父 Skill，重新绑定十个阶段 Skill，并且只在旧父 Skill 链接仍属于本安装器时退休它。旧名称位置原本存在的用户内容会从备份恢复；目标被改动时安装器停止，不会删除。
+GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.5.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
 
 为避免更名导致 Pexels 凭据、固定 HyperFrames runtime 和安装备份丢失，本地私有应用数据目录继续沿用 v0.3.x 的内部路径。该路径只承担兼容存储，不再是仓库、产品或 Skill 名称。
 
@@ -381,7 +383,7 @@ npm test
 
 ## English quick start
 
-`erduo-broll-loop-engineering` 0.4.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a deterministic front router and independent HyperFrames and Remotion backends. New projects default to HyperFrames. Remotion uses only exact, project-local dependencies and CLI evidence; it is never installed globally by this installer. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
+`erduo-broll-loop-engineering` 0.5.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with deterministic post-direction auto routing and independent HyperFrames and Remotion backends. New projects default to auto. Remotion uses only exact, project-local dependencies and CLI evidence; it is never installed globally by this installer. Hybrid integration exchanges frozen media only. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
@@ -396,4 +398,4 @@ Use erduo-broll-loop-engineering to turn this SRT into a faceless B-roll master.
 Continue unattended until the final preview requires my approval.
 ```
 
-Talking-head mode also needs the matching edited video. The installer provisions the pinned HyperFrames runtime, official HyperFrames Skills and browser, installs the parent plus ten stage Skills, and securely offers one-time Pexels configuration. It does not install Remotion globally, use `sudo`, or edit your shell profile.
+Talking-head mode also needs the matching edited video. The installer provisions the pinned HyperFrames runtime, official HyperFrames Skills and browser, installs the parent plus thirteen stage Skills, and securely offers one-time Pexels configuration. It does not install Remotion globally, use `sudo`, or edit your shell profile.

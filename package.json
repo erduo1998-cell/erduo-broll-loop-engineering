@@ -1,8 +1,8 @@
 {
   "name": "erduo-broll-loop-engineering",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
-  "description": "Prompt-first SRT-anchored dual-backend B-roll parent/child Agent Skills.",
+  "description": "Prompt-first SRT-anchored auto-routed hybrid B-roll parent/child Agent Skills.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -15,6 +15,9 @@
     "uninstall:skills": "node scripts/uninstall.mjs",
     "package:release": "node scripts/package-release.mjs",
     "validate:recipes": "node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs",
+    "plan:runtime": "node erduo-broll-loop-engineering/scripts/plan-runtime.mjs",
+    "validate:runtime-plan": "node erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs",
+    "validate:frozen-blocks": "node erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs",
     "test": "node --test scripts/test.mjs"
   }
 }

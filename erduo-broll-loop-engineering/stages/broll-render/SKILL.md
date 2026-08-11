@@ -13,13 +13,13 @@ material, repair Builder source, or export individual shots.
 Read `../../references/runtime/runtime-contract.md` and
 `../../references/runtime/capability-matrix.json`. Formal delivery in this
 release accepts only an integrated project bound to the production-ready
-`hyperframes` runtime. Verify that the Integrator handoff and project retain
+`hyperframes` runtime and a validated runtime plan whose resulting route is
+single-backend HyperFrames. Verify that the Integrator handoff and project retain
 one runtime binding and complete Shot Recipe-to-runtime traceability.
 
-`remotion` remains an experimental adapter target. Do not run a Remotion
-preview or render, substitute another command, or describe experimental
-witness output as the master. Stop as `unsupported` if a non-HyperFrames
-project reaches this stage.
+Do not run a Remotion or hybrid preview here. Hybrid delivery belongs to
+`broll-hybrid-render`, which consumes frozen block media only. Stop as
+`unsupported` if a non-HyperFrames project reaches this stage.
 
 ## Official HyperFrames requirement
 
