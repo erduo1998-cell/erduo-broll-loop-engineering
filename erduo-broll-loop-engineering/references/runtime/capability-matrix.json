@@ -174,7 +174,7 @@
     {
       "id": "interop.pre-rendered-media",
       "classification": "interop",
-      "verification": "backend-verified",
+      "verification": "contract-only",
       "meaning": "Verified frozen block media crosses the integration boundary without source translation or live runtime nesting.",
       "hyperframesRoute": "frozen-block-export",
       "remotionRoute": "frozen-block-export"

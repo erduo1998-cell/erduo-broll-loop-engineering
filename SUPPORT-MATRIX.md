@@ -9,7 +9,7 @@
 | macOS 首次安装 | supported installer | 安装器、离线 mock 与安全边界受自动化测试覆盖；硬件、网络和宿主差异仍可能要求人工处理 |
 | HyperFrames runtime | supported production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；可由 auto 或显式单后端计划选择 |
 | Remotion runtime | project-local supported workflow | 具备前置识别、独立 Build/Integrate/Render Skill 和失败关闭验证；只接受目标项目本地锁定依赖与可直启 CLI，不承诺与 HyperFrames 视觉一致 |
-| Hybrid frozen-media route | contract + validator supported | 逐镜证据规划、连续区块聚合、冻结媒体 schema/hash/FFprobe/完整解码验证和 FFmpeg 集成已进入公开契约；尚不构成双端视觉一致性 witness |
+| Hybrid frozen-media route | contract + validator supported | 逐镜证据规划、连续区块聚合、冻结媒体 schema/hash validator 和 FFmpeg 集成已进入公开契约；FFprobe/完整解码由阶段实跑留证；尚不构成双后端成片或视觉一致性 witness |
 | Windows | unverified | 保留路径和配置兼容设计；没有真实 Windows 运行证据 |
 | 剪映/CapCut 桌面 GUI | unverified | 输出以常见 MP4/MOV 交付为目标；尚未完成当前版本 GUI 实机导入认证 |
 
