@@ -29,7 +29,8 @@ action, material assumptions, readable result state, hold, and known failure
 constraints while adapting timings to the Recipe's absolute milliseconds.
 The catalog does not supply a verified HyperFrames component.
 
-The production route in this release is `hyperframes`. Adapt each assigned
+Require a validated runtime-plan block assigned wholly to `hyperframes`.
+Adapt each assigned
 runtime-neutral recipe into HyperFrames-owned source under the existing
 official Builder workflow without changing its shot window, semantic result,
 material role, or readable hold. This is a traceable runtime implementation
@@ -46,12 +47,8 @@ runtime-porting workflow inspect that source; it must use the applicable
 `remotion-to-hyperframes` guidance and lint/evidence gates, remain outside the
 canonical Recipe, and must not turn Remotion production availability on.
 
-`remotion` is experimental. Do not author a production block or claim
-compatibility from prose alone. If it is requested, require the matrix route,
-the exact adapter and witness evidence required by the runtime contract, and a
-matching Onboarding decision; otherwise stop as `action-required` or
-`unsupported`. Experimental evidence is not permission to pass a Remotion block
-to the current production Integrator or Render stage.
+Do not accept a Remotion-assigned shot, change a planner decision after a build
+failure, or claim compatibility from prose alone.
 
 ## Official HyperFrames requirement
 
@@ -89,6 +86,7 @@ required CLI review.
 - output profile and audio policy
 - ready onboarding handoff
 - selected runtime and capability-matrix decision
+- validated runtime plan identity and exact block assignment
 
 ## Author the block
 
@@ -133,6 +131,16 @@ Deliver:
 - `build-notes.md`;
 - `handoff.md`.
 
+When `runtime-plan.json` has `resultingRoute: hybrid`, also render one local
+lossless or visually-lossless block mezzanine after the normal source checks,
+inspect its opening/closing and semantic hold frames, run FFprobe and a complete
+decode, and write `block-media.json` conforming to
+`../../references/runtime/frozen-block.schema.json`. The media and contract
+remain inside this block directory. Set `noRealtimeNesting: true`, bind the
+actual source identity and SHA-256, and do not call this intermediate a master.
+For a single-runtime route, preserve the existing source handoff and do not
+flatten it unnecessarily.
+
 The notes explain major creative choices, recipe-to-runtime implementation
 decisions, capability evidence, faithful implementation variances, material
 integration, typography, time coverage, seam behavior, official Skill loads,
@@ -146,6 +154,9 @@ preserved, selected material and fonts are used correctly, the block is
 seekable, seams are intentional, official checks show no unresolved
 block-owned error, every recipe has a traceable runtime implementation, and the
 handoff points to the actual artifacts.
+
+Hybrid completion additionally requires the frozen media file and contract to
+pass the bundled frozen-block validator when checked with all planned blocks.
 
 ## Stop
 

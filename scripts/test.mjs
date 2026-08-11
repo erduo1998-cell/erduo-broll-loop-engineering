@@ -26,6 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { createGzip, gunzipSync, gzipSync } from 'node:zlib';
 import {
   APP_NAME,
+  AUTO_HYBRID_SKILL_NAMES,
   HYPERFRAMES_SKILLS_COMMIT,
   HYPERFRAMES_SKILL_NAMES,
   HYPERFRAMES_VERSION,
@@ -37,6 +38,7 @@ import {
   SKILL_NAMES,
   SKILLS_CLI_VERSION,
   V3_SKILL_NAMES,
+  V4_SKILL_NAMES,
   applicationDataDir,
   atomicWriteJson,
   normalizeOfficialDoctor,
@@ -62,6 +64,9 @@ import {
   verifyReleaseArchiveRaw,
 } from './package-release.mjs';
 import { validateRecipeDirectory } from '../erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs';
+import { planRuntime } from '../erduo-broll-loop-engineering/scripts/plan-runtime.mjs';
+import { validateRuntimePlan } from '../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs';
+import { validateFrozenBlocks } from '../erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs';
 import {
   runSafeSpawn,
   sanitizedEnvironment as sanitizedSkillEnvironment,
@@ -255,7 +260,7 @@ function expectedArchiveDirectoryCount() {
   return directories.size;
 }
 
-async function manifestFor(records, repoRoot, schemaVersion = 4) {
+async function manifestFor(records, repoRoot, schemaVersion = 5) {
   return {
     schema_version: schemaVersion,
     product_version: 'fixture',
@@ -795,10 +800,11 @@ test('public runtime claims expose two independent backends without globally bun
   const readme = await readFile(path.join(root, 'README.md'), 'utf8');
   const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
   const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
-  assert.match(readme, /默认[^。\n]*HyperFrames/u);
+  assert.match(readme, /默认 `auto`/u);
   assert.match(readme, /Remotion Build → Integrate → Render/u);
   assert.match(readme, /不会把 Remotion 加入共享 runtime 或全局安装/u);
-  assert.match(readme, /用户选择和真实项目证据/u);
+  assert.match(readme, /现有项目按真实特征判断/u);
+  assert.match(readme, /hybrid[^。\n]*冻结区块媒体/u);
   assert.match(readme, /152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件/u);
   assert.match(support, /Remotion runtime \| project-local supported workflow/u);
   assert.match(support, /不全局安装 Remotion/u);
@@ -816,9 +822,12 @@ test('runtime router chooses explicit/default routes and stops on mixed project 
   await mkdir(blank);
   const defaultRoute = await detectRuntime({ projectRoot: blank, probeCli: false, env: state.env });
   assert.equal(defaultRoute.status, 'selected');
-  assert.equal(defaultRoute.selectedRuntime, 'hyperframes');
+  assert.equal(defaultRoute.schemaVersion, '2.0.0');
+  assert.equal(defaultRoute.selectedRuntime, 'auto');
   assert.equal(defaultRoute.selectionSource, 'default');
   assert.equal(defaultRoute.projectKind, 'new');
+  assert.equal(defaultRoute.readiness, 'planning-required');
+  assert.equal(defaultRoute.planningRequired, true);
 
   const explicitRoute = await detectRuntime({
     projectRoot: blank,
@@ -1412,6 +1421,120 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
   }
 });
 
+test('post-Director runtime planner is deterministic, evidence-based, contiguous, and schema-valid', async (t) => {
+  const state = await isolated(t);
+  const recipes = path.join(state.base, 'recipes');
+  await mkdir(recipes);
+  const makeRecipe = ({ shotId, startMs, endMs, capabilities, patternRef }) => ({
+    schemaVersion: '1.0.0', shotId, window: { startMs, endMs },
+    semantics: {
+      purpose: `Purpose ${shotId}`, audienceUnderstanding: `Understanding ${shotId}`,
+      focus: `Focus ${shotId}`, visualLogic: `Logic ${shotId}`, neighborConnection: `Connection ${shotId}`,
+    },
+    visualState: { initial: 'Initial', result: 'Result', focusOrder: ['focus'] },
+    motion: { phases: [{ name: 'action', startMs, endMs, intent: 'Change', visibleChange: 'Result appears' }] },
+    readability: { holdStartMs: startMs, holdEndMs: endMs, readableItems: [] },
+    materials: [], requiredCapabilities: capabilities,
+    ...(patternRef ? { patternRef } : {}),
+  });
+  const common = ['semantic.integer-ms-window', 'semantic.visual-state-transition', 'semantic.readable-hold'];
+  const recipeList = [
+    makeRecipe({ shotId: 'S01', startMs: 0, endMs: 1000, capabilities: [...common, 'layout.dom-css-editorial'] }),
+    makeRecipe({
+      shotId: 'S02', startMs: 1000, endMs: 2000, capabilities: common,
+      patternRef: {
+        cardId: 'crash-zoom-punch', styleKey: 'crash-zoom-punch', sourceRevision: shotcraftUpstream.commit,
+        semanticReason: 'Exact selected pattern evidence.',
+        fallback: { when: 'Unavailable', strategy: 'simplify-motion' },
+      },
+    }),
+    makeRecipe({ shotId: 'S03', startMs: 2000, endMs: 3000, capabilities: [...common, 'motion.frame-driven-multiphase'] }),
+  ];
+  await Promise.all(recipeList.map((recipe) => writeFile(
+    path.join(recipes, `${recipe.shotId}.json`), `${JSON.stringify(recipe, null, 2)}\n`,
+  )));
+  const selectionFile = path.join(state.base, 'selection.json');
+  await writeFile(selectionFile, `${JSON.stringify({
+    schemaVersion: '2.0.0', status: 'selected', selectedRuntime: 'auto', selectionSource: 'default',
+  })}\n`);
+  const first = await planRuntime({ recipesDirectory: recipes, selectionFile });
+  const second = await planRuntime({ recipesDirectory: recipes, selectionFile });
+  assert.deepEqual(first, second);
+  assert.deepEqual(await validateRuntimePlan(first), { status: 'valid', shots: 3, blocks: 2, route: 'hybrid' });
+  assert.equal(first.resultingRoute, 'hybrid');
+  assert.deepEqual(first.requiredBackends, ['hyperframes', 'remotion']);
+  assert.deepEqual(first.blocks.map(({ runtime, window, shotIds }) => ({ runtime, window, shotIds })), [
+    { runtime: 'hyperframes', window: { startMs: 0, endMs: 1000 }, shotIds: ['S01'] },
+    { runtime: 'remotion', window: { startMs: 1000, endMs: 3000 }, shotIds: ['S02', 'S03'] },
+  ]);
+  assert.equal(first.shots[0].decision, 'capability-preference');
+  assert.equal(first.shots[1].decision, 'pattern-reference');
+  assert.match(first.shots[1].unverifiedPreferences[0], /not a render witness/u);
+  assert.equal(first.shots[2].decision, 'capability-preference');
+
+  const legacySelection = path.join(state.base, 'legacy-selection.json');
+  await writeFile(legacySelection, `${JSON.stringify({
+    schemaVersion: '1.0.0', status: 'selected', selectedRuntime: 'remotion', selectionSource: 'explicit',
+  })}\n`);
+  const grandfathered = await planRuntime({ recipesDirectory: recipes, selectionFile: legacySelection });
+  assert.equal(grandfathered.planningMode, 'forced-single');
+  assert.equal(grandfathered.resultingRoute, 'remotion');
+  assert.equal(grandfathered.blocks.length, 1);
+});
+
+test('frozen block validator checks actual hashes and rejects profile, audio, and media drift', async (t) => {
+  const state = await isolated(t);
+  const plan = {
+    schemaVersion: '1.0.0', status: 'planned', planningMode: 'auto',
+    selection: { schemaVersion: '2.0.0', selectedRuntime: 'auto', selectionSource: 'default' },
+    resultingRoute: 'hybrid', requiredBackends: ['hyperframes', 'remotion'],
+    integrationMode: 'frozen-block-media', frozenMediaContractVersion: '1.0.0',
+    shots: [
+      { shotId: 'S01', window: { startMs: 0, endMs: 1000 }, runtime: 'hyperframes', decision: 'portable-default', evidence: [{ kind: 'portable-default', id: 'default', runtime: 'hyperframes', priority: 0, verification: 'contract-only', locator: 'matrix' }], unverifiedPreferences: [] },
+      { shotId: 'S02', window: { startMs: 1000, endMs: 2000 }, runtime: 'remotion', decision: 'capability-preference', evidence: [{ kind: 'capability-preference', id: 'complex', runtime: 'remotion', priority: 90, verification: 'operator-confirmed', locator: 'matrix' }], unverifiedPreferences: [] },
+    ],
+    blocks: [
+      { blockId: 'B001', runtime: 'hyperframes', window: { startMs: 0, endMs: 1000 }, shotIds: ['S01'] },
+      { blockId: 'B002', runtime: 'remotion', window: { startMs: 1000, endMs: 2000 }, shotIds: ['S02'] },
+    ],
+    warnings: [], identity: '',
+  };
+  const { computeRuntimePlanIdentity } = await import('../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs');
+  plan.identity = computeRuntimePlanIdentity(plan);
+  const contractFiles = [];
+  for (const [index, block] of plan.blocks.entries()) {
+    const directory = path.join(state.base, block.blockId);
+    await mkdir(directory);
+    const mediaPath = path.join(directory, 'block.mkv');
+    const body = Buffer.from(`frozen-block-${index}`);
+    await writeFile(mediaPath, body);
+    const contract = {
+      schemaVersion: '1.0.0', blockId: block.blockId, runtime: block.runtime,
+      window: block.window, shotIds: block.shotIds,
+      profile: { width: 1920, height: 1080, fpsNumerator: 30, fpsDenominator: 1, pixelFormat: 'yuv444p10le', colorSpace: 'bt709', mezzanineClass: 'lossless' },
+      audioPolicy: 'silent',
+      media: { path: 'block.mkv', sha256: createHash('sha256').update(body).digest('hex'), container: 'matroska', codec: 'ffv1', durationMs: 1000, frameCount: 30, audioStreams: 0 },
+      sourceIdentity: String(index + 1).repeat(64),
+      verification: { ffprobePassed: true, fullDecodePassed: true, openingFrameInspected: true, closingFrameInspected: true },
+      noRealtimeNesting: true,
+    };
+    const contractFile = path.join(directory, 'block-media.json');
+    await writeFile(contractFile, `${JSON.stringify(contract, null, 2)}\n`);
+    contractFiles.push(contractFile);
+  }
+  const valid = await validateFrozenBlocks(plan, contractFiles);
+  assert.equal(valid.status, 'valid');
+  assert.equal(valid.blocks, 2);
+
+  const second = JSON.parse(await readFile(contractFiles[1], 'utf8'));
+  await writeFile(contractFiles[1], `${JSON.stringify({ ...second, profile: { ...second.profile, width: 1280 } }, null, 2)}\n`);
+  await assert.rejects(validateFrozenBlocks(plan, contractFiles), /profile differs across blocks/u);
+  await writeFile(contractFiles[1], `${JSON.stringify({ ...second, media: { ...second.media, sha256: '0'.repeat(64) } }, null, 2)}\n`);
+  await assert.rejects(validateFrozenBlocks(plan, contractFiles), /media SHA-256 mismatch/u);
+  await writeFile(contractFiles[1], `${JSON.stringify({ ...second, media: { ...second.media, audioStreams: 1 } }, null, 2)}\n`);
+  await assert.rejects(validateFrozenBlocks(plan, contractFiles), /silent block contains audio streams/u);
+});
+
 test('runtime capability matrix is closed, traceable, and makes no render-parity claim', async () => {
   const matrix = JSON.parse(
     await readFile(path.join(runtimeReferenceRoot, 'capability-matrix.json'), 'utf8'),
@@ -1429,9 +1552,10 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
     'contract-only',
     'witness-verified',
   ];
-  assert.equal(matrix.matrixVersion, '2.0.0');
-  assert.equal(matrix.defaultRuntime, 'hyperframes');
-  assert.equal(matrix.runtimes.hyperframes.maturity, 'default-production');
+  assert.equal(matrix.matrixVersion, '3.0.0');
+  assert.equal(matrix.defaultRuntime, 'auto');
+  assert.equal(matrix.portableDefaultRuntime, 'hyperframes');
+  assert.equal(matrix.runtimes.hyperframes.maturity, 'production-route');
   assert.equal(matrix.runtimes.hyperframes.productionAvailable, true);
   assert.equal(matrix.runtimes.remotion.maturity, 'production-route');
   assert.equal(matrix.runtimes.remotion.bundledByThisContract, false);
@@ -1440,6 +1564,8 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
   assert.equal(matrix.runtimes.remotion.productionAvailable, true);
   assert.equal(matrix.unlistedCapabilityPolicy, 'reject-before-build');
   assert.match(matrix.contractOnlyPolicy, /never proves cross-runtime parity/u);
+  assert.equal(matrix.patternPlanning.preferredRuntime, 'remotion');
+  assert.equal(matrix.patternPlanning.verification, 'reference-source-unverified');
   assert.equal(matrix.renderParityClaimed, false);
   assert.deepEqual(Object.keys(matrix.classifications).toSorted(), classifications);
   assert.deepEqual(Object.keys(matrix.verificationStates).toSorted(), verificationStates);
@@ -1448,6 +1574,11 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
   assert.equal(new Set(capabilityIds).size, capabilityIds.length);
   assert.deepEqual(capabilityIds.toSorted(), [
     'interop.pre-rendered-media',
+    'layout.dom-css-editorial',
+    'motion.camera-3d',
+    'motion.frame-driven-multiphase',
+    'motion.mask-or-geometry-morph',
+    'motion.particles-or-physics',
     'runtime.ambient-react-state',
     'runtime.hyperframes-seekable-source',
     'runtime.remotion-react-source',
@@ -1461,6 +1592,16 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
     assert.equal(typeof capability.hyperframesRoute, 'string', capability.id);
     assert.equal(typeof capability.remotionRoute, 'string', capability.id);
     assert.ok(capability.meaning.length > 0, capability.id);
+  }
+  for (const capabilityId of [
+    'motion.camera-3d',
+    'motion.frame-driven-multiphase',
+    'motion.mask-or-geometry-morph',
+    'motion.particles-or-physics',
+  ]) {
+    const capability = matrix.capabilities.find(({ id }) => id === capabilityId);
+    assert.equal(capability.planning.preferredRuntime, 'remotion');
+    assert.equal(capability.planning.verification, 'operator-confirmed');
   }
   for (const capabilityId of [
     'semantic.integer-ms-window',
@@ -1479,13 +1620,12 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(runtimeReferenceRoot, 'remotion-hyperframes-map.md'),
     'utf8',
   );
-  assert.match(contract, /HyperFrames remains the default production backend/u);
-  assert.match(contract, /Remotion is an independent production backend/u);
-  assert.match(contract, /Never download a CLI during\s+detection or substitute a global executable/u);
-  assert.match(contract, /Do not claim Remotion\/HyperFrames visual parity, timing parity, or render\s+parity/u);
-  assert.match(contract, /Treat `references\/shotcraft\/catalog\.json` and its card bodies as progressively\s+loaded knowledge/u);
-  assert.match(contract, /Pattern selection does not prove backend support/u);
-  assert.match(contract, /Selection:[\s\S]*Readiness:[\s\S]*Backend:[\s\S]*Witness:[\s\S]*Comparison:/u);
+  assert.match(contract, /New projects default to runtime intent `auto`/u);
+  assert.match(contract, /Hybrid means backend-native block construction followed by frozen-media/u);
+  assert.match(contract, /No semantic keyword, directory name, agent taste, or signal count participates/u);
+  assert.match(contract, /reference-source-unverified/u);
+  assert.match(contract, /Never translate generated source, import one runtime into the\s+other, or nest live previews\/renderers/u);
+  assert.match(contract, /Intent:[\s\S]*Plan:[\s\S]*Readiness:[\s\S]*Backend:[\s\S]*Frozen block:[\s\S]*Integration:[\s\S]*Approval:[\s\S]*Delivery:[\s\S]*Comparison:/u);
   assert.match(concernMap, /do not treat a mechanical\s+TSX-to-HyperFrames rewrite as the compatibility layer/u);
   assert.match(concernMap, /must not be generalized into automatic\s+Remotion\/HyperFrames render parity/u);
 
@@ -1494,6 +1634,14 @@ test('runtime references and production Skills preserve the adapter evidence gat
       'references/runtime/runtime-contract.md',
       'references/runtime/shot-recipe.schema.json',
       'references/runtime/capability-matrix.json',
+      'references/runtime/runtime-plan.schema.json',
+      'references/runtime/frozen-block.schema.json',
+    ],
+    'erduo-broll-loop-engineering/stages/broll-runtime-plan/SKILL.md': [
+      '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-broll-loop-engineering/stages/broll-hybrid-integrate/SKILL.md': [
+      '../../references/runtime/frozen-block.schema.json',
     ],
     'erduo-broll-loop-engineering/stages/broll-onboarding/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
@@ -1529,7 +1677,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(root, 'erduo-broll-loop-engineering', 'references', 'first-run-onboarding.md'),
     'utf8',
   );
-  assert.match(onboardingReference, /`unsupported`: the selected runtime/u);
+  assert.match(onboardingReference, /`unsupported`: a required backend or runtime capability/u);
   const directorSkill = await readFile(
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-director', 'SKILL.md'),
     'utf8',
@@ -1752,7 +1900,7 @@ test('Skill installation backs up occupied targets and uninstall restores them',
   assert.equal(await readFile(path.join(occupied, 'old.txt'), 'utf8'), 'preserve me\n');
 });
 
-test('install manifest schemas 1, 2, and 3 remain strict migration inputs for schema 4', async (t) => {
+test('install manifest schemas 1 through 4 remain strict migration inputs for schema 5', async (t) => {
   const state = await isolated(t);
   const repoRoot = await createSkillFixture(state.base);
   const canonicalRepoRoot = await realpath(repoRoot);
@@ -1800,7 +1948,7 @@ test('install manifest schemas 1, 2, and 3 remain strict migration inputs for sc
   const schema4 = {
     schema_version: 4,
     repo_root: canonicalRepoRoot,
-    records: recordsFor(INSTALL_SKILL_NAMES, {
+    records: recordsFor([...HYPERFRAMES_SKILL_NAMES, ...V4_SKILL_NAMES], {
       parentName: APP_NAME,
       skillRootName: APP_NAME,
     }),
@@ -1862,7 +2010,7 @@ test('schema 3 rename migration rebinds stages and safely retires the old parent
     },
   });
   assert.equal(records.length, INSTALL_SKILL_NAMES.length * 2);
-  assert.equal(currentManifest.schema_version, 4);
+  assert.equal(currentManifest.schema_version, 5);
   assert.equal(validateInstallManifest(currentManifest, {
     repoRoot: await realpath(repoRoot),
     appDir,
@@ -2330,7 +2478,7 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   assert.equal(npmCall.options.cwd, path.join(appDir, 'runtime'));
   assert.equal(npmCi.includes('install'), false);
   const manifest = JSON.parse(await readFile(path.join(appDir, 'install-manifest.json'), 'utf8'));
-  assert.equal(manifest.schema_version, 4);
+  assert.equal(manifest.schema_version, 5);
   assert.equal(manifest.records.length, INSTALL_SKILL_NAMES.length * 2);
   for (const name of HYPERFRAMES_SKILL_NAMES) {
     for (const hostRoot of [
@@ -3304,7 +3452,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.4.0');
+  assert.equal(RELEASE_VERSION, '0.5.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
@@ -3702,7 +3850,7 @@ test('private directory creation rejects an intermediate symbolic-link component
   assert.equal(await entryExists(path.join(outsideAppDir, 'config.json')), true);
 });
 
-test('public release source contains the parent plus ten prompt stage Skills', async () => {
+test('public release source contains the parent plus thirteen prompt stage Skills', async () => {
   assert.ok(RELEASE_FILES.length > 206);
   const actualReleaseFiles = (await listPublicReleaseFiles())
     .map((file) => path.relative(root, file))
@@ -3713,7 +3861,12 @@ test('public release source contains the parent plus ten prompt stage Skills', a
       ? [...RELEASE_FILES, 'SHA256SUMS.txt']
       : [...RELEASE_FILES, ...REPOSITORY_ONLY_FILES]).toSorted(),
   );
-  assert.equal(SKILL_NAMES.length, 11);
+  assert.equal(SKILL_NAMES.length, 14);
+  assert.deepEqual(AUTO_HYBRID_SKILL_NAMES, [
+    'broll-runtime-plan',
+    'broll-hybrid-integrate',
+    'broll-hybrid-render',
+  ]);
   assert.deepEqual(REMOTION_SKILL_NAMES, [
     'broll-remotion-build',
     'broll-remotion-integrate',

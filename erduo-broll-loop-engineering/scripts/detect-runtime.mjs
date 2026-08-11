@@ -12,7 +12,7 @@ import path from 'node:path';
 import { constants as fsConstants, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const RUNTIMES = new Set(['hyperframes', 'remotion']);
+const RUNTIMES = new Set(['auto', 'hyperframes', 'hybrid', 'remotion']);
 const SOURCE_EXTENSIONS = new Set(['.cjs', '.html', '.htm', '.js', '.jsx', '.mjs', '.ts', '.tsx']);
 const IGNORED_DIRECTORIES = new Set([
   '.git',
@@ -309,9 +309,9 @@ export async function detectRuntime({
     selectionSource = 'detected';
     reasonCodes.push('hyperframes-evidence-detected');
   } else if (projectKind === 'new') {
-    selectedRuntime = 'hyperframes';
+    selectedRuntime = 'auto';
     selectionSource = 'default';
-    reasonCodes.push('new-project-default-hyperframes');
+    reasonCodes.push('new-project-default-auto');
   } else {
     status = 'action-required';
     reasonCodes.push('runtime-evidence-missing');
@@ -337,20 +337,25 @@ export async function detectRuntime({
     && cliEvidence.passed
     && cliEvidence.version === remotionCliPackage.version;
 
-  let readiness = status === 'selected' ? 'ready' : 'action-required';
+  const planningRequired = status === 'selected'
+    && (selectedRuntime === 'auto' || selectedRuntime === 'hybrid');
+  let readiness = status === 'selected'
+    ? (planningRequired ? 'planning-required' : 'ready')
+    : 'action-required';
   if (selectedRuntime === 'remotion' && !remotionReady) {
     readiness = 'action-required';
     reasonCodes.push('remotion-local-evidence-incomplete');
   }
 
   return {
-    schemaVersion: '1.0.0',
+    schemaVersion: '2.0.0',
     status,
     selectedRuntime,
     selectionSource,
     projectKind,
     productionRouteAvailable: selectedRuntime !== null,
     readiness,
+    planningRequired,
     reasonCodes,
     evidence: {
       remotion: {
@@ -385,7 +390,7 @@ export function parseArgs(argv) {
       index += 1;
     } else if (argument === '--runtime') {
       const value = argv[index + 1];
-      if (!value) throw runtimeError('missing-runtime-argument', '--runtime requires hyperframes or remotion.');
+      if (!value) throw runtimeError('missing-runtime-argument', '--runtime requires auto, hyperframes, hybrid, or remotion.');
       options.explicitRuntime = value;
       index += 1;
     } else if (argument === '--probe-cli') {
@@ -406,7 +411,7 @@ export async function main(argv = process.argv.slice(2)) {
     process.exitCode = result.status === 'selected' ? 0 : 2;
   } catch (error) {
     process.stdout.write(`${JSON.stringify({
-      schemaVersion: '1.0.0',
+      schemaVersion: '2.0.0',
       status: 'error',
       error: { code: error?.code ?? 'runtime-detection-failed', message: error?.message ?? String(error) },
     }, null, 2)}\n`);

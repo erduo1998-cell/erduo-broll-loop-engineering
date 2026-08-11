@@ -1,6 +1,6 @@
 ---
 name: erduo-broll-loop-engineering
-description: Create editable, SRT-anchored B-roll through a Parent Producer and fresh isolated stage agents. Use for talking-head B-roll from an edited video plus SRT, or faceless B-roll from an SRT, with deterministic HyperFrames-or-Remotion routing, first-run environment onboarding, mandatory material collection, runtime-neutral direction, one final master, technical delivery, and optional master-derived shot export.
+description: Create editable, SRT-anchored B-roll with runtime-neutral direction, deterministic post-Director auto routing across HyperFrames and Remotion, frozen-media hybrid integration, approval-bound delivery, and optional master-derived shot export.
 ---
 
 # Erduo B-roll Loop Engineering
@@ -15,6 +15,8 @@ Act only as the Parent Producer. Read:
 - [runtime selection contract](references/runtime/runtime-selection.md)
 - [runtime-neutral shot and backend contract](references/runtime/runtime-contract.md)
 - [runtime capability matrix](references/runtime/capability-matrix.json)
+- [post-Director runtime plan schema](references/runtime/runtime-plan.schema.json)
+- [frozen block media schema](references/runtime/frozen-block.schema.json)
 
 The bundled Shotcraft catalog is runtime-neutral pattern knowledge. Discover it
 progressively through `scripts/query-shotcraft.mjs`; do not load the catalog or
@@ -44,22 +46,26 @@ labels.
 - Ask once whether the user has images, videos, logos, screenshots, or other
   ordinary material. These inputs are optional.
 - Confirm the mode and explicit brand, content, audio, or privacy constraints.
-- Select the render runtime before onboarding. Run
+- Record runtime intent before onboarding. Run
   `node <skill-root>/scripts/detect-runtime.mjs --project <project-root> --json`.
-  When the user explicitly chose `hyperframes` or `remotion`, also pass that
+  When the user explicitly chose `auto`, `hybrid`, `hyperframes`, or `remotion`, also pass that
   value with `--runtime`; an explicit choice outranks detected project signals.
   Otherwise use concrete package, config, and composition evidence. Mixed
   runtime evidence or an existing project with no runtime evidence is
   `action-required`; do not guess from a directory name. A genuinely new
-  project with no explicit choice defaults to `hyperframes`.
+  project with no explicit choice defaults to `auto`.
 - Preserve the router JSON as the runtime-selection artifact and validate it
   against `references/runtime/runtime-selection.schema.json`. Selection does
   not replace onboarding. A selected Remotion route is ready only when the
   project declares matching `remotion` and `@remotion/cli` dependencies, both
   are locally installed at the same version, and the project-local Remotion
   CLI returns real version evidence without a shell.
-- Treat `status: selected` as permission to enter inspection-only Onboarding
-  even when `readiness: action-required`. This is the normal state for a new
+- `auto` and `hybrid` return `planning-required`. They authorize base
+  inspection-only Onboarding but no backend installation or CLI probe. A
+  Director must finish runtime-neutral Recipes before Runtime Planner chooses
+  exact backend blocks. Treat a single-backend `status: selected` as permission
+  to enter full inspection-only Onboarding even when `readiness: action-required`.
+  This is the normal state for a new
   project explicitly routed to Remotion: Onboarding proposes the exact local
   bootstrap, obtains one grouped authorization and Remotion-license
   confirmation, then a fresh repair Agent creates and verifies it. Only router
@@ -81,18 +87,25 @@ labels.
   or private example. The Director forms an original visual direction from the
   current SRT, goal, and optional material.
 
-## Run onboarding when needed
+## Run phased onboarding when needed
 
 On the first run, after migration, or whenever the current environment has no
 fresh `ready` evidence, dispatch a fresh `broll-onboarding` Agent in
 inspection-only mode before production.
 
-Fresh ready evidence must belong to the same production run and bind the same
-host, command `PATH`, selected runtime CLI version, target delivery
-filesystem, selected runtime, runtime-capability evidence, and Pexels
-validation state. Any change requires a new inspection-only Onboarding Agent.
+For `auto` or `hybrid`, first dispatch base Onboarding. It binds common Node,
+FFmpeg/FFprobe, production/delivery paths, storage, Pexels, and Skill discovery
+only. It must not install or require both animation backends. After Direction
+and validated Runtime Planner output, dispatch targeted Onboarding for exactly
+`requiredBackends`. For explicit/detected single-backend routes, `full` keeps
+the 0.4.x order and readiness behavior.
 
-For the default `hyperframes` runtime, preserve all existing official Skill,
+Fresh evidence must bind the production run, host, command `PATH`, onboarding
+phase, selection/runtime-plan identity, target filesystem, required backend
+CLI versions when targeted, capability evidence, and Pexels state. Any change
+requires fresh inspection.
+
+For a plan requiring `hyperframes`, preserve all existing official Skill,
 doctor, check, preview, and render requirements. For `remotion`, require
 Onboarding to verify the selected production route, locked local dependency
 versions, the project-local CLI probe, FFmpeg/FFprobe, Chrome used by Remotion,
@@ -131,23 +144,32 @@ Onboarding success does not replace the Render/Delivery Agent's required
 same-environment selected-runtime preflight immediately before formal
 rendering; HyperFrames preflight includes official doctor.
 
-## Dispatch the selected production chain
+## Dispatch the planned production chain
 
-After onboarding is `ready`, use fresh agents in this order:
+Use fresh agents in this order:
 
-1. `broll-director`
-2. `broll-assets`
-3. branch on the unchanged runtime selection:
+1. base or full `broll-onboarding` according to selection intent;
+2. `broll-director`;
+3. `broll-runtime-plan`, using the bundled planner and validator rather than a
+   prose judgment;
+4. targeted `broll-onboarding` for the exact planned backend set when initial
+   intent was `auto` or `hybrid`;
+5. `broll-assets`;
+6. branch on the validated runtime plan:
    - HyperFrames: one or more `broll-master-build` agents, then
      `broll-master-integrate`, then `broll-render`;
    - Remotion: one or more `broll-remotion-build` agents, then
-     `broll-remotion-integrate`, then `broll-remotion-render`.
-4. `broll-shot-export` only after an explicit user request
+     `broll-remotion-integrate`, then `broll-remotion-render`;
+   - Hybrid: dispatch each block to its assigned backend Builder, require each
+     Builder to freeze `block-media.json` and local mezzanine, then run
+     `broll-hybrid-integrate` and `broll-hybrid-render`.
+7. `broll-shot-export` only after an explicit user request.
 
-Do not dispatch both backend chains, route a Remotion run through the
-HyperFrames stages, or switch runtimes after a backend failure. Director,
-Assets, canonical Shot Recipes, and optional master-derived export remain
-shared.
+Do not dispatch before a valid runtime plan, route a block through the wrong
+Builder, or switch its assignment after failure. Hybrid may use both Builder
+types, but never live-nests animation runtimes or feeds generated source into
+the other backend. Cross-runtime exchange is frozen media only. Director,
+Assets, canonical Recipes, and optional export remain shared.
 
 Assets and Pexels collection is mandatory. The Assets Agent must inspect user
 material, consider controllable generation, perform real Pexels image and
@@ -157,10 +179,11 @@ or omit the explanation.
 
 The Director must author runtime-neutral Shot Recipes that conform to
 `references/runtime/shot-recipe.schema.json` and the runtime contract. Runtime
-APIs, component syntax, and backend implementation decisions belong to the
-Builder, not the Director. No stage may claim that a recipe is portable merely
-because it can be described; portability is determined by the capability
-matrix and verified adapter evidence.
+APIs and component syntax belong to the assigned Builder. No stage may claim
+that a recipe is portable merely because it can be described. Runtime Planner
+uses declared capability IDs and exact pattern/backend evidence, never semantic
+keywords. A pinned Remotion reference source is explicitly unverified
+preference evidence unless a separate render witness exists.
 
 For every semantic shot, require the Director to search the Shotcraft catalog
 with the bundled query command before deciding whether one primary pattern is

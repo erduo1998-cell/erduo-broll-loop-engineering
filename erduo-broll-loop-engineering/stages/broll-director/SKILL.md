@@ -17,7 +17,7 @@ blocks, render, or export.
 - user goal, audience, platform, output profile, and constraints
 - optional user images, videos, logos, screenshots, and ordinary references
 - ready onboarding handoff
-- selected runtime binding for traceability only
+- runtime selection intent (`auto`, `hybrid`, or a forced single backend) for traceability only
 
 Do not require or request a `design.md`, visual-specification file, preset, or
 private example.
@@ -124,9 +124,12 @@ Remotion APIs, frame constants, audio directions, branding, or demo assets into
 the Recipe.
 
 A descriptive recipe is not proof that both runtimes support it. Record the
-required capability IDs defined by the capability matrix, but leave
-portability classification, adapter choice, and source implementation to the
-Builder. If the semantic requirement cannot be expressed by the current
+most specific capability IDs defined by the capability matrix, including
+frame-driven multiphase, particles/physics, 3D camera, mask/geometry morph, or
+DOM/CSS editorial structure only when those observable requirements are real.
+Do not add a capability to steer a preferred backend. Leave deterministic
+backend assignment to Runtime Planner and source implementation to the
+assigned Builder. If the semantic requirement cannot be expressed by the current
 schema without naming a runtime primitive, stop and return the schema gap
 instead of embedding backend code.
 
@@ -169,6 +172,9 @@ font roles are planned, uncertainties are safe, the runtime-neutral recipes
 validate and match the plan, every selected pattern resolves to one catalog
 card and style with an explicit fallback, and the Assets and Builder Agents
 have actionable inputs.
+
+The Director handoff explicitly routes next to `broll-runtime-plan`; backend
+readiness, block partition, and Builder dispatch must not be decided here.
 
 ## Stop
 

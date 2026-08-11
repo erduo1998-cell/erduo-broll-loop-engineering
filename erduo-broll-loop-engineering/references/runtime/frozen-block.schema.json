@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/frozen-block.schema.json",
+  "title": "Runtime-neutral frozen block media",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "blockId", "runtime", "window", "shotIds", "profile", "audioPolicy", "media", "sourceIdentity", "verification", "noRealtimeNesting"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "blockId": { "type": "string", "pattern": "^B[0-9]{3}$" },
+    "runtime": { "enum": ["hyperframes", "remotion"] },
+    "window": { "$ref": "#/$defs/window" },
+    "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "profile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["width", "height", "fpsNumerator", "fpsDenominator", "pixelFormat", "colorSpace", "mezzanineClass"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 },
+        "fpsNumerator": { "type": "integer", "minimum": 1 }, "fpsDenominator": { "type": "integer", "minimum": 1 },
+        "pixelFormat": { "type": "string", "minLength": 1 }, "colorSpace": { "type": "string", "minLength": 1 },
+        "mezzanineClass": { "enum": ["lossless", "visually-lossless"] }
+      }
+    },
+    "audioPolicy": { "enum": ["silent", "preserve-source"] },
+    "media": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "container", "codec", "durationMs", "frameCount", "audioStreams"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "container": { "type": "string", "minLength": 1 }, "codec": { "type": "string", "minLength": 1 },
+        "durationMs": { "type": "integer", "minimum": 1 }, "frameCount": { "type": "integer", "minimum": 1 },
+        "audioStreams": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "sourceIdentity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ffprobePassed", "fullDecodePassed", "openingFrameInspected", "closingFrameInspected"],
+      "properties": {
+        "ffprobePassed": { "const": true }, "fullDecodePassed": { "const": true },
+        "openingFrameInspected": { "const": true }, "closingFrameInspected": { "const": true }
+      }
+    },
+    "noRealtimeNesting": { "const": true }
+  },
+  "$defs": {
+    "window": {
+      "type": "object", "additionalProperties": false, "required": ["startMs", "endMs"],
+      "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 } }
+    }
+  }
+}

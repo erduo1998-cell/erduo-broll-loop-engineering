@@ -204,6 +204,8 @@ streams and `durationInFrames / fps` container duration with FFprobe.
 
 Remotion and HyperFrames share the Director Recipe, selected pattern intent,
 and frozen Assets handoff. They do not share runtime source. A production run
-selects exactly one backend before build, and all later handoffs preserve that
-binding. Do not mix blocks, convert a failed block to the other runtime, or
-pre-render one runtime merely to disguise it as the other.
+uses a validated post-Director runtime plan before build, and every later
+handoff preserves its block binding. A single-backend plan never mixes blocks.
+A hybrid plan exchanges only schema-valid frozen block media through the Hybrid
+Integrator. Do not convert a failed block to the other runtime or pre-render it
+merely to disguise a reroute.

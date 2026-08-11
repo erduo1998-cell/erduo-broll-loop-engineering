@@ -1,160 +1,128 @@
-# Runtime-neutral shot contract
-
-Use this reference when selecting, authoring, adapting, or reviewing one of
-the two independent production backends for a runtime-neutral shot recipe.
+# Runtime-neutral shot, planning, and frozen-media contract
 
 ## Production boundary
 
-- HyperFrames remains the default production backend for a genuinely new
-  project whose user did not choose a runtime.
-- Remotion is an independent production backend selected by explicit user
-  choice or unambiguous existing-project evidence. It is not a translation
-  through HyperFrames.
-- Run and preserve the deterministic router described in
-  [runtime-selection.md](runtime-selection.md) before onboarding. Explicit
-  choice wins; mixed evidence is `action-required`; never infer from a
-  directory name.
-- Remotion selection is not readiness. Require direct declarations and local
-  installations of matching `remotion` and `@remotion/cli` versions plus a
-  successful project-local CLI version probe. Never download a CLI during
-  detection or substitute a global executable.
-- Do not claim Remotion/HyperFrames visual parity, timing parity, or render
-  parity. Each route must prove its own source, dependency, preview, render,
-  and media facts. Cross-runtime parity requires a separate comparison.
-- The bundled Shotcraft catalog imports pinned runtime-neutral card knowledge
-  and separately manifest-pinned Remotion reference TSX under Apache-2.0. The
-  reference source is not installed or executed in place and includes no
-  dependency tree, preview media, external textures, fonts, or sounds.
+- New projects default to runtime intent `auto`, not an animation backend.
+- Director finishes runtime-neutral Recipes before deterministic backend
+  planning.
+- Explicit/detected HyperFrames or Remotion forces the whole film and remains
+  compatible with existing single-backend runs.
+- Auto may result in HyperFrames, Remotion, or hybrid. Explicit hybrid permits
+  both but never forces an evidence-free split.
+- Hybrid means backend-native block construction followed by frozen-media
+  exchange. Never translate generated source, import one runtime into the
+  other, or nest live previews/renderers.
+- Remotion selection/planning is not readiness. Require exact matching local
+  `remotion` and `@remotion/cli` plus real project-local CLI evidence.
+- Do not claim visual, timing, or render parity. Each backend proves its own
+  implementation; hybrid proves only the frozen-media seam and delivery path.
+- Grandfathered schema-1 single-runtime runs continue unchanged and are not
+  retroactively routed.
 
-## Shotcraft pattern references
+## Runtime-neutral Recipes
 
-Treat `references/shotcraft/catalog.json` and its card bodies as progressively
-loaded knowledge, not production source. Start with catalog statistics, use a
-category-filtered list or directed search, then read only a selected card with
-`scripts/query-shotcraft.mjs`. Do not load the catalog or all cards into one
-agent context.
+The canonical Recipe describes what the shot communicates and which observable
+states, materials, motion phases, focus order, and readability windows must
+exist. It contains no React/TSX/hooks/frames, HyperFrames markup/selectors/CLI,
+runtime paths, dependency versions, or copied implementation source.
 
-A Shot Recipe may contain one optional `patternRef`. When present, it records
-one stable card ID, one style key belonging to that card, the catalog's pinned
-40-character upstream Git commit in `sourceRevision`, a content-specific
-semantic reason, and a runtime-neutral fallback. Omit `patternRef` when no card
-improves the shot; never use a sentinel `none` card. Pattern timing expressed
-as upstream frames is tuning history only and must be rewritten as absolute
-integer milliseconds inside the actual Recipe window.
+Use parsed SRT integer milliseconds as the sole time truth. Shot windows are
+`[startMs,endMs)`. Phases and readability windows remain absolute integers
+inside their shot. Runtime adapters record their deterministic frame/tick
+rounding outside the Recipe.
 
-Pattern selection does not prove backend support, install dependencies, or
-establish a verified component. The selected runtime's Builder reads only the
-selected card and implements its motion grammar natively. A HyperFrames
-Builder follows the official HyperFrames Skills. A Remotion Builder may adapt
-only the selected card's manifest-pinned reference TSX into the production
-project, must replace missing media with Assets-stage files, and must preserve
-Apache-2.0 attribution when substantial source remains. It never imports or
-executes production code from the installed Skill directory. Migrating
-existing source between runtimes remains a separate user-requested workflow.
+`requiredCapabilities` must name the most specific observable needs registered
+in `capability-matrix.json`. Director does not add capabilities merely to steer
+a backend. Unknown and unsupported IDs stop before planning/build.
 
-## Separate semantic intent from runtime source
+## Shotcraft evidence
 
-The canonical recipe describes what a shot must communicate and what visible
-states must occur. It may name semantic requirements, materials, motion
-phases, readability, and fallback behavior.
+One Recipe may contain zero or one `patternRef`: stable card ID, exact style,
+pinned upstream commit, semantic reason, and runtime-neutral fallback. Catalog
+knowledge is progressively queried. Never bulk-load it.
 
-The canonical recipe must not contain:
+The pinned Remotion source index is exact backend-native source evidence for a
+selected card. It is not a registered component, dependency closure, render
+witness, or cross-runtime comparison. Runtime Planner may use it as lower
+priority Remotion preference evidence and must surface
+`reference-source-unverified`. A Builder reads only the selected card/source
+closure and replaces every demo asset with Assets-stage material.
 
-- React, TSX, hooks, components, Remotion props, frame calculations, or package
-  configuration;
-- HyperFrames markup, registry blocks, DOM selectors, animation-library calls,
-  CLI arguments, or project configuration;
-- runtime-specific paths, generated source, installation instructions, or
-  dependency versions;
-- copied third-party implementation code or embedded licensed assets.
+## Deterministic backend planning
 
-Keep runtime selection and generated runtime source outside the canonical
-recipe. An adapter consumes a validated recipe and writes a separate,
-runtime-owned artifact. Never write adapter output back into the recipe.
+After Recipe validation, run `scripts/plan-runtime.mjs` and then
+`scripts/validate-runtime-plan.mjs`. Do not hand-author its JSON.
 
-## Canonical time
+Evidence order is deterministic:
 
-Use parsed SRT integer milliseconds as the sole time truth.
+1. explicit/existing-project forced single backend, subject to native conflicts;
+2. native-only capability classification;
+3. strongest capability preference from the matrix;
+4. exact selected-pattern backend reference evidence;
+5. matrix portable default.
 
-- `window.startMs` is inclusive and `window.endMs` is exclusive.
-- Require `endMs > startMs`.
-- Store every phase and readability boundary as an absolute integer
-  millisecond on the same production timeline.
-- Require phases and readability windows to stay inside the shot window.
-- Do not store frames, floating-point seconds, runtime ticks, or values derived
-  from a runtime's frame rate in the recipe.
-- Convert milliseconds to runtime-native time only inside an adapter. Define
-  and record the adapter's rounding policy with its output.
-
-JSON Schema cannot express every ordering and containment rule above. The
-recipe validator or owning stage must enforce them before adapter dispatch.
-
-## Capability routing
-
-Read [capability-matrix.json](capability-matrix.json) only when a recipe names
-`requiredCapabilities` or a runtime route is being reviewed. Use exactly one
-classification per listed capability:
-
-- `portable`: the semantic requirement is intended to have independent native
-  implementations for both runtimes;
-- `native-remotion`: the requirement is intentionally Remotion-specific;
-- `native-hyperframes`: the requirement is intentionally
-  HyperFrames-specific;
-- `interop`: the runtimes exchange a frozen artifact instead of translating
-  the implementation;
-- `unsupported`: no approved deterministic route exists.
-
-Classification is routing metadata, not evidence of parity. Check the entry's
-verification state. A contract-only entry cannot support a cross-runtime
-compatibility claim. A named `existing-production-workflow` or
-`native-production-workflow` is an independent runtime-owned implementation;
-it does not prove an automatic adapter or equivalence with the other backend.
-
-Reject a recipe before build when it names an absent capability, requires an
-unsupported capability, or targets a runtime that the capability cannot
-serve. Do not silently simplify. Use the recipe's declared fallback or return
-the decision to the Director.
+No semantic keyword, directory name, agent taste, or signal count participates.
+Equal-priority backend conflicts stop. Decisions are made per shot, then
+adjacent same-backend shots merge into contiguous blocks. Every plan records
+evidence, unverified preferences, warnings, blocks, required backends,
+integration mode, and a canonical identity.
 
 ## Backend obligations
 
-Every runtime-owned Builder and Integrator must:
+Every Builder must validate its assigned Recipes and plan identity, preserve
+semantic intent and exact windows, resolve capabilities, use local materials
+and fonts, produce deterministic seekable source, and record runtime/version,
+time conversion, source identity, pattern/fallback decisions, and honest
+variance. It never reroutes after failure.
 
-1. validate the recipe and its integer-millisecond invariants;
-2. resolve every required capability against the matrix;
-3. preserve the shot window, semantic purpose, initial state, result state,
-   focus order, readable hold, and material roles;
-4. produce deterministic output for any requested time in the shot;
-5. keep runtime source, configuration, dependency locks, and build evidence in
-   its own output area;
-6. report unsupported or lossy mappings instead of inventing equivalence;
-7. record the runtime version, stage-contract version, time-conversion policy,
-   and exact recipe identity used.
+For a single-backend plan, retain source through that backend's Integrator and
+Render. Do not flatten merely because media export is possible.
 
-For Remotion, convert each absolute millisecond boundary with the project FPS
-and one declared deterministic rounding policy. Use Remotion's frame-driven
-APIs, register the final Composition explicitly, run TypeScript/build checks,
-and use only the verified project-local CLI for stills and rendering. Do not
-write frames back into the canonical Recipe.
+For a hybrid plan, each Builder additionally freezes exactly one local
+lossless or visually-lossless mezzanine for its planned block and writes a
+schema-valid `block-media.json`. The contract binds:
 
-Use [remotion-hyperframes-map.md](remotion-hyperframes-map.md) only while
-designing or reviewing an adapter. It is a concern map, not executable porting
-instructions.
+- block/runtime/shot/window identity;
+- uniform raster, fps rational, pixel format, color space, mezzanine class,
+  and audio policy;
+- relative local media path and actual SHA-256;
+- objective container/codec/duration/frame/audio facts;
+- backend source identity;
+- FFprobe, full decode, opening/closing inspection;
+- `noRealtimeNesting: true`.
+
+`scripts/validate-frozen-blocks.mjs` checks actual media hashes, profile/audio
+closure, plan closure, and duration within one frame. A bad block returns to
+its owning Builder; Integrator never transcodes a defect into compliance.
+
+## Hybrid integration and approval
+
+The runtime-neutral Hybrid Integrator receives only the validated plan and
+frozen block artifacts. It assembles in block order with direct sanitized
+FFmpeg/FFprobe, inspects every seam and relevant hold, renders a technical
+preview, and freezes an identity over plan, ordered contracts, media hashes,
+profile/audio policy, and assembly recipe.
+
+User approval binds that exact hybrid identity. A different fresh Hybrid
+Render Agent recomputes every identity and contract before formal delivery.
+Any source identity, media hash, contract, profile, audio, plan, or integration
+change invalidates approval. Formal hybrid delivery consumes frozen media only;
+it never opens either animation runtime.
 
 ## Evidence gates
 
 Keep these claims separate:
 
-1. **Selection:** router output identifies one runtime without guessing.
-2. **Readiness:** required local dependencies, CLI, renderer, media tools, and
-   permissions are proven for that runtime.
-3. **Backend:** the selected runtime owns deterministic source, integration,
-   preview, and render commands for the exact Recipes.
-4. **Witness:** that runtime's real composition renders reproducibly and passes
-   its declared technical checks.
-5. **Comparison:** only when requested, both runtime witnesses pass objective
-   timing, seek, media, and visual comparisons with accepted differences
-   documented.
-
-This release establishes independent production routes, not automatic source
-translation or visual parity. A failure in one route must not be hidden by
-silently switching to the other.
+1. **Intent:** initial selector records auto/hybrid/forced-single intent.
+2. **Plan:** deterministic planner assigns shots and contiguous blocks.
+3. **Readiness:** targeted dependencies, CLI, browser, media tools, permissions,
+   licensing, and paths pass for exactly the required backends.
+4. **Backend:** each assigned runtime owns deterministic source and block QA.
+5. **Frozen block:** hybrid-only schema, actual hash, probe/decode, and visual
+   boundary evidence pass.
+6. **Integration:** single-source or frozen-media master preview closes.
+7. **Approval:** the user approves the unchanged integration identity.
+8. **Delivery:** final master passes FFprobe, full decode, duration/audio, hash,
+   and representative frame/seam inspection.
+9. **Comparison:** only an explicit separate study may claim cross-runtime
+   differences or parity.

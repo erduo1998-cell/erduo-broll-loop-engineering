@@ -46,9 +46,10 @@ Do not use vague states such as “mostly complete” or “should work.”
 Include sanitized Node, HyperFrames, Skills, FFmpeg, FFprobe, Chrome,
 permission, free-space, target, and Pexels status. State whether official
 doctor actually ran in the same command environment inspected by onboarding.
-State `inspect` or `repair`, whether the Agent modified anything, and the
-production-run, host, command `PATH`, selected runtime CLI version, delivery filesystem,
-and Pexels-state bindings. Include discovery of the root Skill and all ten
+State `base`, `targeted`, or `full`, `inspect` or `repair`, whether the Agent
+modified anything, and the production-run, host, command `PATH`,
+selection/runtime-plan identity, required backend CLI versions, delivery
+filesystem, and Pexels-state bindings. Include discovery of the root Skill and all thirteen
 stage Skills, plus the final SRT cue end milliseconds used only for storage
 estimation. Missing Pexels configuration is `action-required`.
 Never include a key, environment dump, home prefix, or raw command output.
@@ -61,6 +62,13 @@ non-default runtime, name its dependency, CLI, composition-route, and witness
 evidence locators or the exact `action-required`/`unsupported` result. Include
 the router status, selection source, reason codes, and relative evidence
 locators. Never let runtime selection stand in for readiness.
+
+### Runtime Planner
+
+Include selection identity, generated plan locator and identity, planner mode,
+resulting route, ordered blocks, evidence per assignment, required readiness
+targets, unverified preferences, warnings, and validator result. Confirm no
+semantic keyword routing and no hand edits.
 
 ### Director
 
@@ -104,6 +112,9 @@ record its manifest-pinned upstream paths and Apache-2.0 attribution; otherwise
 state that implementation was original or used the declared fallback. Never
 claim that excluded media, font, sound, texture, or dependency assets were
 bundled.
+For a hybrid plan, include `block-media.json`, local mezzanine, actual hash,
+source identity, profile/audio facts, FFprobe/full-decode/boundary inspection,
+and `noRealtimeNesting: true`.
 
 ### Integrator
 
@@ -117,6 +128,9 @@ version. Include the
 file list into the handoff.
 Confirm selected pattern references match the Director Recipes and Builder
 records and that no unselected card was introduced during integration.
+For Hybrid Integrator, include ordered frozen contracts/media hashes,
+validator aggregate, seam inspection, FFmpeg assembly recipe, no-live-nesting
+proof, preview facts, and hybrid identity.
 
 ### Render and delivery
 
@@ -136,6 +150,9 @@ Confirm that Runtime Selection, Onboarding, Integration, and the capability
 matrix bind the same production-ready runtime. For Remotion, include the exact
 local CLI version and Composition ID used by still/preview and render. Never
 report one runtime's evidence as proof for the other.
+For Hybrid Render, include frozen validation and identity recomputation,
+identity-bound approval, FFmpeg-only assembly, cross-backend seam inspection,
+and confirmation that neither animation runtime was opened.
 
 ### Shot export
 

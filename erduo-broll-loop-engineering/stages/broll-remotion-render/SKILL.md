@@ -12,7 +12,8 @@ or export individual shots.
 ## Backend contract and inputs
 
 Read `../../references/remotion-backend.md`, the runtime contract, capability
-matrix, and Remotion project schema. Require:
+matrix, Remotion project schema, and a validated runtime plan whose resulting
+route is single-backend Remotion. Require:
 
 - the integrated `project/`, master manifest, identity, notes, and handoff;
 - Director film/shot plan and Recipe set;
@@ -23,7 +24,7 @@ matrix, and Remotion project schema. Require:
 - optional explicit preview approval bound to this exact identity; it is
   absent on the first pass.
 
-Reject HyperFrames or mixed-runtime source. Use only the project's exact local
+Reject HyperFrames, hybrid, or mixed-runtime source. Use only the project's exact local
 Remotion installation and direct Node entry points. Never use global Remotion,
 `npx` download fallback, an unpinned package, or a different Composition.
 

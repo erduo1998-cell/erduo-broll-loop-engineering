@@ -1,6 +1,6 @@
 ---
 name: broll-remotion-build
-description: Build one assigned contiguous SRT-anchored block as a deterministic, standalone Remotion React/TSX project. Use after the runtime router selects Remotion and Direction plus frozen Assets are complete.
+description: Build one runtime-plan-assigned contiguous block as deterministic Remotion React/TSX, with frozen block media when the overall route is hybrid.
 ---
 
 # B-roll Remotion Block Builder
@@ -18,7 +18,8 @@ Read:
 - `../../references/runtime/capability-matrix.json`;
 - `../../references/runtime/remotion-project.schema.json`.
 
-Require a router selection and a `ready` Remotion Onboarding handoff. For a
+Require a validated runtime-plan block assigned wholly to Remotion and a
+`ready` targeted Remotion Onboarding handoff. For a
 fresh blank project, that readiness must come from a fresh authorized repair
 Agent that created a minimal exact project-local canary and actually verified
 the local Remotion CLI version, Chrome, FFmpeg, and FFprobe after the user
@@ -42,7 +43,7 @@ neither route is available, stop before spawn as `action-required`.
 ## Inputs
 
 - block ID and one contiguous integer-millisecond range;
-- Director film plan, assigned validated Shot Recipes, and selected runtime;
+- Director film plan, assigned validated Shot Recipes, runtime-plan identity, and exact block assignment;
 - frozen Assets-stage media, fonts, provenance, and licenses;
 - neighboring seam summaries, output profile, and audio policy;
 - ready Remotion Onboarding, local-CLI canary, and licensing evidence.
@@ -150,12 +151,25 @@ Alongside `project/`, deliver:
 - `handoff.md` naming the exact Composition ID, project manifest, coverage,
   files, QA outputs, seams, and unresolved risks.
 
+When the runtime plan results in `hybrid`, formally freeze this block after its
+normal QA preview as one lossless or visually-lossless local mezzanine and
+write `block-media.json` conforming to
+`../../references/runtime/frozen-block.schema.json`. Bind the exact project
+identity, actual media SHA-256, profile, integer-millisecond window, frame
+facts, FFprobe, full decode, opening/closing inspection, and
+`noRealtimeNesting: true`. This is a Builder-owned intermediate, never the
+approved master. For a single Remotion route, retain the existing source
+handoff to the Remotion Integrator.
+
 ## Completion and stop
 
 Complete only when every assigned Recipe has deterministic runnable TSX,
 continuous millisecond and frame coverage, real local materials, traceable
 pattern/fallback decisions, a verifier pass, a clean typecheck, inspected
 stills, and a successful real block preview render.
+
+Hybrid completion additionally requires the frozen media and contract needed
+by the runtime-neutral Hybrid Integrator.
 
 Stop and return ownership when timing is contradictory, a required asset or
 font is missing, the license is unconfirmed, a capability is unavailable, a

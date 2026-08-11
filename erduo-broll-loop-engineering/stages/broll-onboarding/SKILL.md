@@ -1,6 +1,6 @@
 ---
 name: broll-onboarding
-description: Prepare a fresh or changed machine for an erduo-broll-loop-engineering run. Use before production when no current ready environment handoff exists, coordinating safe reversible repairs and the human-only authorizations required for Node, HyperFrames Skills, FFmpeg, FFprobe, Chrome, storage, permissions, and Pexels access.
+description: Prepare common environment readiness before Direction, then only the backends selected by the validated post-Director runtime plan.
 ---
 
 # B-roll onboarding
@@ -14,8 +14,10 @@ render, or export.
 - Skill root and intended production root
 - production-run identity and SRT locator
 - intended delivery directory and output profile
-- selected runtime, defaulting to `hyperframes`
+- runtime selection intent, defaulting to `auto`
 - validated runtime-selection JSON from the bundled detector
+- onboarding phase: `base`, `targeted`, or legacy-compatible `full`
+- for `targeted`, the validated runtime plan and its exact required backend set
 - current host and operating system
 - onboarding mode: `inspect` or `repair`
 - any previous onboarding handoff
@@ -36,7 +38,13 @@ executes project-local code. Only after the user authorizes the exact Remotion
 repair and local execution may the fresh repair Agent rerun it with
 `--probe-cli`; record `readOnlyDetection: false` and `localCliExecuted: true`.
 
-Both `hyperframes` and `remotion` are production routes. A selected runtime
+Both `hyperframes` and `remotion` are production routes. `auto` and `hybrid`
+are planning intents, not executable runtimes. In `base` phase, do not install,
+probe, or require either animation backend. Verify only common production facts
+needed for Direction and material work. After Runtime Planner, `targeted` phase
+checks exactly `requiredBackends`; it must not prepare an unused backend.
+
+A required backend
 whose matrix route is unavailable is `unsupported`. Missing, stale, or merely
 claimed local readiness evidence is `action-required`; an unsupported required
 capability is `unsupported`. Do not synthesize evidence or silently switch
@@ -72,7 +80,7 @@ complete repair and authorization request.
 Repair mode must run in a different fresh Agent. Perform only the approved
 repairs, then repeat the full inspection in that Agent.
 
-Check for both runtimes:
+Base checks:
 
 - Node.js is version 22 or newer;
 - FFmpeg and FFprobe both execute in the command environment production will
@@ -82,7 +90,7 @@ Check for both runtimes:
 - the intended target file is unused;
 - Pexels access is securely configured without exposing the credential.
 
-For HyperFrames, additionally check:
+When the validated runtime plan requires HyperFrames, additionally check:
 
 - the project-resolved HyperFrames CLI is available;
 - the official core HyperFrames Skills are complete and current;
@@ -90,7 +98,7 @@ For HyperFrames, additionally check:
 - every doctor finding relevant to local production, including Chrome, is
   usable.
 
-For Remotion, additionally check:
+When the validated runtime plan requires Remotion, additionally check:
 
 - `package.json` directly declares exact or lock-resolved `remotion` and
   `@remotion/cli` dependencies;
@@ -102,7 +110,7 @@ For Remotion, additionally check:
   discoverable or, for a new authorized project, are assigned to the Builder;
 - Chrome required by that exact local Remotion CLI is usable.
 
-Verify that the host can discover all eleven public Skills installed by the
+Verify that the host can discover all fourteen public Skills installed by the
 release installer:
 
 - `erduo-broll-loop-engineering`
@@ -116,6 +124,9 @@ release installer:
 - `broll-remotion-build`
 - `broll-remotion-integrate`
 - `broll-remotion-render`
+- `broll-runtime-plan`
+- `broll-hybrid-integrate`
+- `broll-hybrid-render`
 
 Onboarding does not register these Skills itself. Missing registration is
 `action-required` and belongs to the release installer or host installation
@@ -126,8 +137,9 @@ final cue end time as integer milliseconds. Do not interpret meaning, merge
 cues, create shots, or perform any Director work.
 
 Fresh evidence is valid only for the same production run, host, command
-`PATH`, selected runtime CLI version, target delivery filesystem, selected
-runtime, runtime-capability evidence, and Pexels validation state. Record these
+`PATH`, onboarding phase, target delivery filesystem, selection or runtime-plan
+identity, required backend CLI versions when targeted, runtime-capability
+evidence, and Pexels validation state. Record these
 bindings without exposing private paths. If any binding changes, the evidence
 is stale and inspection must run again.
 
@@ -184,9 +196,9 @@ user's one-time authorization.
   limitation, not an installation problem. Do not build a substitute
   renderer.
 
-After any repair, repeat the affected check and rerun the selected runtime's
-full preflight in the same command environment. HyperFrames preflight includes
-official doctor.
+After any repair, repeat the affected check. In targeted/full phase rerun every
+required backend's full preflight in the same command environment. HyperFrames
+preflight includes official doctor. Base phase never bootstraps a backend.
 
 ## Human-only actions
 
@@ -220,9 +232,10 @@ Record:
 - for HyperFrames, official doctor top-level and relevant individual results;
   for Remotion, the local CLI, Chrome, TypeScript, FFmpeg, and FFprobe facts;
 - official Skills-check result;
-- discovery result for the root Skill and all ten stage Skills;
+- discovery result for the root Skill and all thirteen stage Skills;
 - evidence binding for production run, host, command `PATH`, official CLI
-  version, delivery filesystem, selected runtime, runtime-capability evidence,
+  version, delivery filesystem, onboarding phase, selection/runtime-plan
+  identity, required backends, runtime-capability evidence,
   and Pexels validation state;
 - capability-matrix decision and concrete adapter/witness evidence, or the
   exact missing/unsupported fact, for a requested non-default runtime;
@@ -240,21 +253,23 @@ directory prefixes, or unrelated installed software.
 
 ## Completion
 
-Complete as `ready` only when every capability needed by the selected local
-production path is verified, the selected runtime is explicitly
-production-ready in the capability matrix, all eleven public Skills are
-discoverable, the selected runtime's own dependency and CLI evidence is real,
+Complete base phase as `ready` when common tools, paths, storage, Pexels, and
+all fourteen public Skills are ready; backend readiness is deliberately
+`not-yet-planned`, not degraded. Complete targeted/full phase only when every
+capability needed by the planned path is verified, every required backend is
+production-ready in the capability matrix, required dependency and CLI
+evidence is real,
 the delivery location is usable, and Pexels is securely configured for the
 same recorded validation state. `degraded` is acceptable
-only for a capability proved irrelevant to the selected path.
+only for a capability proved irrelevant to the planned path.
 
 ## Stop
 
 Stop as `action-required` when an external account, key, permission, package
 manager, administrator action, or storage decision cannot be safely automated.
-Stop as `unsupported` when the selected runtime is not production-available or
+Stop as `unsupported` when a required backend is not production-available or
 the capability matrix says the requested route is unsupported. Stop as
-`action-required` when Remotion is selected but its declared dependencies,
+`action-required` when the plan requires Remotion but its declared dependencies,
 installed matching versions, or local CLI probe is missing. An existing
 project with no Composition route is also `action-required`. A genuinely new
 project whose verified bootstrap handoff explicitly assigns Composition
@@ -262,10 +277,11 @@ authoring and registration to the Remotion Builder/Integrator may complete
 Onboarding as `ready`; absence of not-yet-authored composition source is not a
 bootstrap blocker.
 
-Stop as `blocked` when an authorized repair fails, the selected runtime's
-required Skills or locked dependencies cannot be obtained, a required
+Stop as `blocked` when an authorized repair fails, a required backend's Skills
+or locked dependencies cannot be obtained, a required
 executable remains unusable, Chrome is blocked by the host, the delivery path
 remains unsafe, or the credential cannot be configured without exposure.
 
-This handoff supports onboarding only. Render/Delivery must run the selected
-runtime's complete preflight again in the exact formal-render environment.
+This handoff supports onboarding only. Render/Delivery must run every planned
+route's complete preflight again in the exact formal-render environment;
+hybrid delivery must also revalidate the frozen block-media contracts.

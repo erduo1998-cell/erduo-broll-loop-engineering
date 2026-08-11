@@ -4,8 +4,8 @@ Use this reference when the Parent dispatches `broll-onboarding`.
 
 ## Purpose
 
-Prove that the selected local production and delivery path can run before
-creative work begins. Detect real capabilities, coordinate one grouped user
+Prove common readiness before Direction, then prove only the planned backend
+set before Builder dispatch. Detect real capabilities, coordinate one grouped user
 authorization, perform only safe reversible repair, and return a sanitized
 handoff.
 
@@ -23,8 +23,10 @@ Identify:
 - operating system and architecture;
 - Skill root and production root;
 - delivery directory and intended output profile;
-- selected runtime, defaulting to `hyperframes`;
+- selection intent, defaulting to `auto`;
+- onboarding phase: `base`, `targeted`, or legacy-compatible `full`;
 - validated runtime-selection artifact;
+- for targeted phase, validated runtime-plan identity and required backends;
 - local render path;
 - current command environment;
 - whether the run is first use, post-migration, or a recheck.
@@ -32,8 +34,9 @@ Identify:
 Do not disclose private absolute paths in the handoff.
 
 Ready evidence is fresh only for the same production run, host, command
-`PATH`, selected runtime CLI version, target delivery filesystem, selected
-runtime, runtime-capability decision, and Pexels validation state. Record these
+`PATH`, onboarding phase, target delivery filesystem, selection/runtime-plan
+identity, required backend CLI versions when targeted, runtime-capability
+decision, and Pexels validation state. Record these
 bindings safely. If any value changes, discard the earlier readiness
 conclusion and dispatch a new inspection-only Agent.
 
@@ -41,7 +44,8 @@ Read the runtime selection contract and capability matrix before environment
 checks. Generate the selection artifact with the bundled detector. Honor an
 explicit runtime first; otherwise require unambiguous real project evidence.
 Mixed evidence is `action-required`, while a genuinely new project defaults
-to HyperFrames. A selected runtime whose `productionAvailable` value is false
+to `auto`. Auto/hybrid requires base readiness, Direction, Runtime Planner,
+then targeted readiness. A required backend whose `productionAvailable` value is false
 is `unsupported`; do not silently switch runtimes.
 
 ### 2. Inspect before modifying
@@ -108,7 +112,12 @@ bounded no-log, no-shell bootstrap. If neither route is available, stop before
 spawn as `action-required`. This contract applies to Node, npx, HyperFrames,
 browser descendants, package managers, FFmpeg, and FFprobe.
 
-### 6. Check the selected runtime
+### 6. Check only the required runtime set
+
+Base phase stops after common checks and does not install, probe, or require an
+animation backend. Targeted phase reads the validated runtime plan and checks
+exactly its `requiredBackends`. Full phase applies the same checks to one
+explicit/detected legacy-compatible backend.
 
 For Remotion, require all of the following before creative production:
 
@@ -184,7 +193,7 @@ decision, but it does not invalidate the reproducible pinned baseline by
 itself.
 
 The release installer owns registration of the public Skill set. Verify that
-the host can discover all eleven:
+the host can discover all fourteen:
 
 - `erduo-broll-loop-engineering`
 - `broll-onboarding`
@@ -197,6 +206,9 @@ the host can discover all eleven:
 - `broll-remotion-build`
 - `broll-remotion-integrate`
 - `broll-remotion-render`
+- `broll-runtime-plan`
+- `broll-hybrid-integrate`
+- `broll-hybrid-render`
 
 Onboarding must not create registration itself. Missing discovery is
 `action-required` for the release installer or host installation workflow.
@@ -221,9 +233,9 @@ result and inspect every finding relevant to this local path, including:
 - Chrome;
 - Docker and container facts only when that path is selected.
 
-A false or failed finding required by the selected path, or one whose
+A false or failed finding required by the planned path, or one whose
 relevance cannot be established, requires repair and doctor rerun. A
-capability proved outside the selected path may be recorded as unavailable but
+capability proved outside the planned path may be recorded as unavailable but
 unused.
 
 Do not use a fixed exception list or infer success from the process exit code.
@@ -323,7 +335,7 @@ human decision:
 - system permission or restricted-directory access;
 - storage cleanup or alternate location;
 - optional Docker, proxy, certificate, or cloud authentication.
-- release-installer or host action when any of the eleven public Skills is not
+- release-installer or host action when any of the fourteen public Skills is not
   discoverable.
 
 Do not interrupt separately for items already known in the same inspection.
@@ -331,13 +343,13 @@ Do not interrupt separately for items already known in the same inspection.
 ## Status meanings
 
 - `ready`: every capability required by the selected local production path is
-  verified, all eleven public Skills are discoverable, the directories are
+  verified, all fourteen public Skills are discoverable, the directories are
   usable, and Pexels is securely configured for the recorded validation state.
 - `degraded`: a capability is unavailable but proved irrelevant to the selected
   path.
 - `action-required`: an external account, secret, permission, package-manager
   decision, administrator action, or storage choice requires the user.
-- `unsupported`: the selected runtime or a required runtime capability has no
+- `unsupported`: a required backend or runtime capability has no
   approved production route in the current capability matrix.
 - `blocked`: authorized repair failed or a required local capability remains
   unavailable.
@@ -352,17 +364,18 @@ Write `broll-production/00-onboarding/environment-handoff.md`.
 Include:
 
 - onboarding mode and whether any modification occurred;
-- readiness bindings for run, host, command `PATH`, selected runtime CLI version,
-  delivery filesystem, selected runtime, runtime-capability decision, and
+- readiness bindings for run, host, command `PATH`, onboarding phase,
+  delivery filesystem, selection/runtime-plan identity, required backends,
+  runtime-capability decision, and
   Pexels validation state;
 - runtime-selection status, source, reason codes, and relative evidence
   locators;
 - target mode and output profile;
 - safe platform and architecture facts;
 - Node version result;
-- selected runtime dependency and CLI status; for HyperFrames, official Skills
+- each required backend's dependency and CLI status; for HyperFrames, official Skills
   status; for Remotion, matching local package versions and CLI probe status;
-- host discovery of the root Skill and all ten stage Skills;
+- host discovery of the root Skill and all thirteen stage Skills;
 - for HyperFrames, official doctor top-level result and selected-path findings;
   for Remotion, local CLI, Chrome, TypeScript, FFmpeg, and FFprobe findings;
 - FFmpeg, FFprobe, and Chrome status;
