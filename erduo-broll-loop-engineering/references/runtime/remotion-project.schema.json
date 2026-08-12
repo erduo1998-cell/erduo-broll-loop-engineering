@@ -74,6 +74,29 @@
         "typescript"
       ]
     },
+    "runtimeFeatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "htmlInCanvas": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["paintBackends", "nested", "chromiumOpenGlRenderer"],
+          "properties": {
+            "paintBackends": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "enum": ["canvas-2d", "webgl2"] }
+            },
+            "nested": { "const": false },
+            "chromiumOpenGlRenderer": {
+              "enum": ["browser-default", "angle", "swangle"]
+            }
+          }
+        }
+      }
+    },
     "files": {
       "type": "array",
       "minItems": 5,

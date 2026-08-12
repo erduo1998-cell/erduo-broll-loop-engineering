@@ -9,14 +9,16 @@ import { fileURLToPath } from 'node:url';
 const ADAPTER_VERSION = '1.0.0';
 const SOURCE_REVISION = '41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b';
 const ROUNDING_POLICY = 'nearest-integer-half-up-absolute-boundaries';
-const BASELINE = Object.freeze({
-  remotion: '4.0.484',
-  '@remotion/cli': '4.0.484',
-  react: '19.2.7',
-  'react-dom': '19.2.7',
-  '@types/react': '19.2.17',
-  typescript: '6.0.3',
-});
+const REQUIRED_PACKAGES = Object.freeze([
+  'remotion',
+  '@remotion/cli',
+  'react',
+  'react-dom',
+  '@types/react',
+  'typescript',
+]);
+const HTML_IN_CANVAS_CAPABILITY = 'effects.dom-pixel-postprocess';
+const HTML_IN_CANVAS_MINIMUM = Object.freeze([4, 0, 455]);
 const FILE_ROLES = new Set(['source', 'asset', 'font', 'config', 'lock']);
 const ROOT_DEPENDENCY_DIRECTORIES = new Set(['.git', 'node_modules']);
 const CODE_EXTENSIONS = new Set(['.css', '.js', '.jsx', '.mjs', '.ts', '.tsx']);
@@ -118,6 +120,48 @@ function addError(errors, condition, message) {
   if (!condition) errors.push(message);
 }
 
+function semverCore(version) {
+  if (!EXACT_SEMVER.test(version ?? '')) return null;
+  return version.split('-', 1)[0].split('.').map(Number);
+}
+
+function versionAtLeast(version, minimum) {
+  const parsed = semverCore(version);
+  if (!parsed) return false;
+  for (let index = 0; index < minimum.length; index += 1) {
+    if (parsed[index] > minimum[index]) return true;
+    if (parsed[index] < minimum[index]) return false;
+  }
+  return true;
+}
+
+export function validateRemotionVersionPolicy(dependencies, manifestVersions, errors) {
+  for (const [name, version] of Object.entries(dependencies)) {
+    addError(errors, EXACT_SEMVER.test(version), `Dependency ${name} must use an exact semver`);
+  }
+  for (const name of REQUIRED_PACKAGES) {
+    addError(errors, EXACT_SEMVER.test(dependencies[name] ?? ''), `Dependency ${name} must be present with an exact semver`);
+  }
+  addError(
+    errors,
+    dependencies.remotion === dependencies['@remotion/cli'],
+    'remotion and @remotion/cli must use the same exact project-local version',
+  );
+  addError(
+    errors,
+    dependencies.react === dependencies['react-dom'],
+    'react and react-dom must use the same exact project-local version',
+  );
+  if (isRecord(manifestVersions)) {
+    const actualNames = Object.keys(dependencies).sort();
+    const manifestNames = Object.keys(manifestVersions).sort();
+    addError(errors, JSON.stringify(actualNames) === JSON.stringify(manifestNames), 'packageVersions must list exactly package.json dependencies and devDependencies');
+    for (const name of actualNames) {
+      addError(errors, manifestVersions[name] === dependencies[name], `packageVersions mismatch for ${name}`);
+    }
+  }
+}
+
 async function parseJson(filePath, label) {
   let text;
   try {
@@ -168,6 +212,7 @@ function validateShape(manifest, expectedKind, errors) {
     'composition',
     'timeline',
     'packageVersions',
+    'runtimeFeatures',
     'files',
     'shots',
   ]);
@@ -181,6 +226,7 @@ function validateShape(manifest, expectedKind, errors) {
   addError(errors, isRecord(manifest.composition), 'composition must be an object');
   addError(errors, isRecord(manifest.timeline), 'timeline must be an object');
   addError(errors, isRecord(manifest.packageVersions), 'packageVersions must be an object');
+  addError(errors, manifest.runtimeFeatures === undefined || isRecord(manifest.runtimeFeatures), 'runtimeFeatures must be an object when present');
   addError(errors, Array.isArray(manifest.files), 'files must be an array');
   addError(errors, Array.isArray(manifest.shots) && manifest.shots.length > 0, 'shots must be a non-empty array');
 }
@@ -377,20 +423,7 @@ async function validatePackage(project, manifest, files, errors) {
     ...(isRecord(packageJson.dependencies) ? packageJson.dependencies : {}),
     ...(isRecord(packageJson.devDependencies) ? packageJson.devDependencies : {}),
   };
-  for (const [name, version] of Object.entries(dependencies)) {
-    addError(errors, EXACT_SEMVER.test(version), `Dependency ${name} must use an exact semver`);
-  }
-  for (const [name, version] of Object.entries(BASELINE)) {
-    addError(errors, dependencies[name] === version, `Dependency ${name} must equal ${version}`);
-  }
-  if (isRecord(manifest.packageVersions)) {
-    const actualNames = Object.keys(dependencies).sort();
-    const manifestNames = Object.keys(manifest.packageVersions).sort();
-    addError(errors, JSON.stringify(actualNames) === JSON.stringify(manifestNames), 'packageVersions must list exactly package.json dependencies and devDependencies');
-    for (const name of actualNames) {
-      addError(errors, manifest.packageVersions[name] === dependencies[name], `packageVersions mismatch for ${name}`);
-    }
-  }
+  validateRemotionVersionPolicy(dependencies, manifest.packageVersions, errors);
   addError(errors, lock.lockfileVersion === 3, 'package-lock.json must use lockfileVersion 3');
   const lockRoot = lock.packages?.[''];
   addError(errors, isRecord(lockRoot), 'package-lock.json is missing its root package record');
@@ -466,6 +499,82 @@ function scanSource(contents, manifest, errors) {
   addError(errors, /\bComposition\b/.test(joined), 'Project source must register a Composition');
   addError(errors, /\buseCurrentFrame\s*\(/.test(joined), 'Project source must derive visible motion from useCurrentFrame');
   if (manifest.kind === 'master') addError(errors, /\bSequence\b/.test(joined), 'Master source must assemble shots with Sequence');
+}
+
+export function validateHtmlInCanvasFeature(manifest, contents, files, errors) {
+  const required = (manifest.shots ?? []).some(
+    (shot) => shot?.requiredCapabilities?.includes(HTML_IN_CANVAS_CAPABILITY),
+  );
+  const runtimeFeatures = manifest.runtimeFeatures;
+  if (runtimeFeatures !== undefined && isRecord(runtimeFeatures)) {
+    for (const key of Object.keys(runtimeFeatures)) {
+      addError(errors, key === 'htmlInCanvas', `Unknown runtimeFeatures property: ${key}`);
+    }
+  }
+  const feature = isRecord(runtimeFeatures) ? runtimeFeatures.htmlInCanvas : undefined;
+  addError(errors, feature === undefined || isRecord(feature), 'runtimeFeatures.htmlInCanvas must be an object when present');
+  addError(
+    errors,
+    required === (feature !== undefined),
+    `${HTML_IN_CANVAS_CAPABILITY} and runtimeFeatures.htmlInCanvas must be declared together`,
+  );
+  if (!required || !isRecord(feature)) return;
+
+  const allowed = new Set(['paintBackends', 'nested', 'chromiumOpenGlRenderer']);
+  for (const key of Object.keys(feature)) {
+    addError(errors, allowed.has(key), `Unknown runtimeFeatures.htmlInCanvas property: ${key}`);
+  }
+  const backends = feature.paintBackends;
+  addError(errors, Array.isArray(backends) && backends.length > 0, 'htmlInCanvas.paintBackends must be a non-empty array');
+  if (Array.isArray(backends)) {
+    const unique = new Set();
+    for (const backend of backends) {
+      addError(errors, ['canvas-2d', 'webgl2'].includes(backend), `Unsupported htmlInCanvas paint backend: ${backend}`);
+      addError(errors, !unique.has(backend), `Duplicate htmlInCanvas paint backend: ${backend}`);
+      unique.add(backend);
+    }
+  }
+  addError(errors, feature.nested === false, 'Nested HtmlInCanvas is unsupported by this production contract');
+  addError(
+    errors,
+    ['browser-default', 'angle', 'swangle'].includes(feature.chromiumOpenGlRenderer),
+    'htmlInCanvas.chromiumOpenGlRenderer must be browser-default, angle, or swangle',
+  );
+  if (backends?.includes('webgl2')) {
+    addError(
+      errors,
+      ['angle', 'swangle'].includes(feature.chromiumOpenGlRenderer),
+      'WebGL2 HtmlInCanvas requires angle or swangle',
+    );
+  }
+  addError(
+    errors,
+    versionAtLeast(manifest.packageVersions?.remotion, HTML_IN_CANVAS_MINIMUM)
+      && !manifest.packageVersions?.remotion?.includes('-'),
+    'HtmlInCanvas requires Remotion 4.0.455 or newer plus the runtime canary',
+  );
+
+  const source = [...contents.entries()]
+    .filter(([file]) => CODE_EXTENSIONS.has(path.extname(file)))
+    .map(([, data]) => data.toString('utf8'))
+    .join('\n');
+  addError(errors, /\bHtmlInCanvas\b/u.test(source) && /<HtmlInCanvas\b/u.test(source), 'HtmlInCanvas capability requires a real HtmlInCanvas component');
+  if (backends?.includes('canvas-2d')) {
+    addError(errors, /getContext\(\s*['"]2d['"]/u.test(source), 'canvas-2d HtmlInCanvas must acquire a 2D context');
+  }
+  if (backends?.includes('webgl2')) {
+    addError(errors, /getContext\(\s*['"]webgl2['"]/u.test(source), 'webgl2 HtmlInCanvas must acquire a WebGL2 context');
+  }
+  if (['angle', 'swangle'].includes(feature.chromiumOpenGlRenderer)) {
+    const config = contents.get('remotion.config.ts')?.toString('utf8') ?? '';
+    addError(errors, files.get('remotion.config.ts')?.role === 'config', 'remotion.config.ts must be listed with role config for HtmlInCanvas GL rendering');
+    const escaped = feature.chromiumOpenGlRenderer;
+    addError(
+      errors,
+      new RegExp(`setChromiumOpenGlRenderer\\(\\s*['"]${escaped}['"]\\s*\\)`, 'u').test(config),
+      `remotion.config.ts must freeze Chromium OpenGL renderer ${escaped}`,
+    );
+  }
 }
 
 export function validateFontClosure(contents, files, errors) {
@@ -605,6 +714,7 @@ async function main() {
     contents = await validateProjectClosure(projectReal, manifestReal, files, errors);
     await validatePackage(projectReal, manifest, files, errors);
     scanSource(contents, manifest, errors);
+    validateHtmlInCanvasFeature(manifest, contents, files, errors);
     validateFontClosure(contents, files, errors);
     await validateReferenceFiles(manifest, errors);
   }

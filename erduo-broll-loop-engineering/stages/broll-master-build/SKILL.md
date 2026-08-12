@@ -11,7 +11,8 @@ render the final film, or export shots.
 
 ## Runtime route
 
-Read `../../references/runtime/runtime-contract.md`, the validated Director
+Read `../../references/animation-craft.md`,
+`../../references/runtime/runtime-contract.md`, the validated Director
 Shot Recipes, and `../../references/runtime/capability-matrix.json` before
 authoring. The recipe is the source of semantic intent; the selected adapter
 owns runtime syntax and implementation.
@@ -108,6 +109,15 @@ Read the whole assigned block before writing source. For each shot:
   revision as the pinned upstream Git commit, native implementation decision,
   preserved constraints, and any faithful variance; when absent, do not force
   a catalog pattern.
+
+Before choosing an atomic rule, blueprint, adapter, transition, or ease,
+reconstruct the Recipe's attention path, physical character, causal action,
+key states or continuous motion, one expressive peak, and settled readable
+result. Build the one paused timeline in this order: key states, necessary
+preparation, primary action, dependent follow-through, then only meaningful
+secondary action. Derive dependent movement from the primary action and remove
+uncausally ambient motion. Do not turn the twelve principles into visible
+labels, per-shot checklists, evidence artifacts, or a reason to add effects.
 
 Do not turn the plan into repeated cards, a long native-only passage, unrelated
 stock footage under titles, or ambient motion without informational purpose.

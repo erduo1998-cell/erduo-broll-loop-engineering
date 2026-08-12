@@ -32,9 +32,11 @@
 
 本仓库安装器不捆绑、不全局安装 Remotion，也不构成 Remotion 授权。已有 Remotion 项目必须声明并安装精确的 project-local `remotion` 与 `@remotion/cli`；新项目只由用户选中的 Remotion 后段在生产目录内显式 scaffold、锁版并生成 npm lock。使用者须根据 Remotion 官方现行许可判断其具体场景。
 
+发行版不再固定单一 Remotion 版本。每个项目仍必须把解析出的稳定版本精确锁定，并让依赖声明、lock、安装包和 local CLI 证据一致。`effects.dom-pixel-postprocess` 可把确定性 DOM 子树交给 Remotion HTML-in-canvas 的 Canvas 2D/WebGL2 路径；它要求 Remotion 4.0.455+、非嵌套实现、同环境 Chrome/GL 事实和真实 still canary。该能力仍是 `contract-only`，不冒充跨机器生产 witness。
+
 ### `video-shotcraft` 吸收边界
 
-| 项目 | `0.5.0` 状态 | 证据边界 |
+| 项目 | `0.6.0` 状态 | 证据边界 |
 | --- | --- | --- |
 | 镜头卡目录 | verified data | 152 张卡、209 个全局唯一 style key；目录、来源 commit 与 manifest 由自动化测试核验 |
 | 卡片全文 | verified upstream artifact | 每卡与 pinned upstream Markdown byte-identical，并有稳定 ID、上游 URL、本地路径、字节数与 SHA-256；正文作为运行时中立镜头知识消费 |

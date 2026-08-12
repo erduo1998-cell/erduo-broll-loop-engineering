@@ -67,6 +67,14 @@ config, lock, asset, and font in `project/remotion-project.json`. Its `kind`
 must be `master`; its Composition ID, entry point, raster, fps, duration, and
 shot map must equal actual source rather than a handoff claim.
 
+If any block uses `effects.dom-pixel-postprocess`, preserve its declared
+HTML-in-canvas paint backends and require one project-wide non-nested capture
+contract. Copy the identity-bound `remotion.config.ts` and require the same
+`angle` or `swangle` value across every WebGL2 block; mixed GL backends are an
+integration conflict. Do not wrap the assembled master in another
+`<HtmlInCanvas>`. Merge the actual backend list into
+`runtimeFeatures.htmlInCanvas` and rerun the verifier before any still.
+
 ## Execute integration gates
 
 Use the safe explicit child environment and direct project-local Node entry
@@ -81,6 +89,11 @@ points. Then:
 6. inspect sampled preview frames, run FFprobe, and decode the preview fully;
 7. rerun the verifier and atomically create the new
    `composition-identity.json` with `--write-identity`.
+
+For HTML-in-canvas, render additional stills during every active pixel effect
+and every following readable hold. The full preview must use the frozen GL
+backend and be visually inspected for blank captures, stale DOM frames,
+resolution loss, shader orientation, clipping, and seams.
 
 Never create the identity before the source closure and technical preview are
 final. Preview files are evidence, not the formal master, and remain outside

@@ -1,5 +1,5 @@
 {
-  "matrixVersion": "3.0.0",
+  "matrixVersion": "3.1.0",
   "scope": "Deterministic per-shot backend planning across independent HyperFrames and Remotion production backends. Routing evidence does not prove visual parity.",
   "defaultRuntime": "auto",
   "portableDefaultRuntime": "hyperframes",
@@ -17,7 +17,8 @@
       "authorizedByThisContract": false,
       "productionAvailable": true,
       "readinessGate": "project-local-locked-dependencies-and-cli-evidence",
-      "notes": "Remotion remains project-local. Matching remotion and @remotion/cli versions plus a real local CLI probe are required."
+      "versionPolicy": "resolve-current-stable-then-lock-exact-per-project",
+      "notes": "The release does not pin one Remotion version. Each project locks matching exact remotion and @remotion/cli versions and proves them with the local CLI; feature-specific canaries gate optional capabilities."
     }
   },
   "planningEvidenceStates": {
@@ -61,6 +62,16 @@
   "contractOnlyPolicy": "Contract-only never proves cross-runtime parity. It may define a deterministic fallback after stronger capability and pattern evidence is exhausted.",
   "renderParityClaimed": false,
   "capabilities": [
+    {
+      "id": "effects.dom-pixel-postprocess",
+      "classification": "native-remotion",
+      "verification": "contract-only",
+      "meaning": "A live deterministic DOM subtree must be captured into canvas and post-processed with Canvas 2D or WebGL2.",
+      "hyperframesRoute": "not-applicable",
+      "remotionRoute": "html-in-canvas-production-workflow",
+      "minimumRemotionVersion": "4.0.455",
+      "readinessGate": "project-local-html-in-canvas-still-canary"
+    },
     {
       "id": "semantic.integer-ms-window",
       "classification": "portable",

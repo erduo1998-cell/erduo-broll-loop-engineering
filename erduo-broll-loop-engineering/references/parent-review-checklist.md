@@ -154,6 +154,10 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Official checks retain no unresolved block-owned error.
 - Hybrid Builders additionally delivered schema-valid, hash-bound frozen block
   media with FFprobe, full decode, boundary inspection, and no live nesting.
+- A Remotion Builder using `effects.dom-pixel-postprocess` is bound to a
+  same-run real HTML-in-canvas still canary, declares Canvas 2D/WebGL2 in the
+  manifest, uses no nested capture or WebGPU, and inspected active-effect plus
+  readable-hold frames.
 
 ## Hybrid integration and delivery
 
@@ -183,6 +187,8 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Resources, composition identities, and fonts resolve.
 - Block seams preserve readability and intentional continuity.
 - The Integrator changed only integration-owned structure.
+- HTML-in-canvas projects preserve one non-nested contract and one frozen GL
+  backend from every block through the identity-bound master preview.
 - The official standard HyperFrames check ran.
 - No real error remains.
 - Warnings with possible visible impact were investigated.
@@ -200,6 +206,8 @@ handoff and inspect bounded actual artifacts when a claim needs evidence.
 - Repairs were authorized and followed by doctor rerun.
 - Official standard check succeeded.
 - Relevant warnings were reviewed against browser evidence.
+- HTML-in-canvas support and real stills were repeated in the formal render
+  environment with the identity-bound Chrome and GL facts.
 - Official final composition preview was opened and explicit approval exists.
 - Unattended execution stopped at the preview until that approval.
 - The preview-pass Agent stopped without rendering; a different fresh Agent

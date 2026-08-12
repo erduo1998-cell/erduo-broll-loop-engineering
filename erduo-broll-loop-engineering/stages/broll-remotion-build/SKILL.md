@@ -13,6 +13,7 @@ render the formal master, or export shots.
 
 Read:
 
+- `../../references/animation-craft.md`;
 - `../../references/remotion-backend.md`;
 - `../../references/runtime/runtime-contract.md`;
 - `../../references/runtime/capability-matrix.json`;
@@ -52,6 +53,12 @@ Reject missing inputs, overlapping or zero-length Recipes, an unlisted or
 unsupported Remotion capability, an unfrozen material, or a mixed-runtime
 handoff. Run the parent `scripts/validate-shot-recipes.mjs` on the assigned
 Recipe directory before authoring.
+
+If any assigned Recipe requires `effects.dom-pixel-postprocess`, require the
+same-run HTML-in-canvas Onboarding canary for the exact local Remotion,
+browser, paint backend, and GL backend. A general Remotion CLI probe is not
+enough. Reject stale evidence or a canary produced with another package lock,
+browser, GL backend, or runtime plan.
 
 ## Resolve selected pattern knowledge
 
@@ -97,11 +104,32 @@ relative to that mapped block start. Preserve Recipe windows, semantic result,
 focus order, material roles, phase boundaries, and readable holds. Reject any
 shot that maps to fewer than one frame.
 
+Before choosing `interpolate`, `spring`, `Sequence`, or a procedural function,
+reconstruct the Recipe's attention path, physical character, causal action,
+key states or deterministic continuous motion, one expressive peak, and
+settled readable result. Define those semantic states and frame windows first.
+Use `spring` only when material, inertia, or landing calls for it; derive
+dependent overlap and follow-through from the primary action instead of giving
+layers unrelated animation. Add secondary action only when it strengthens
+meaning. Do not emit principle labels, per-shot checklists, scores, or evidence
+artifacts.
+
 All visible motion must be reconstructed from `useCurrentFrame`,
 `interpolate`, `spring`, `Sequence`, deterministic closed-form math, or a
 fixed-seed helper. Do not use CSS time animation, ambient state/effects,
 timers, network access during render, `Date`, `Math.random`, or unseeded
 randomness. Verify arbitrary seek frames, not just forward playback.
+
+For `effects.dom-pixel-postprocess`, wrap only the smallest DOM subtree that
+needs pixel processing. Do not wrap the full Composition merely for
+convenience, and never nest `<HtmlInCanvas>`. Use `onPaint` for each captured
+frame; use `onInit` plus an explicit cleanup function for WebGL2 resources.
+Scale pixel-space values by the resolved pixel density where needed. Keep
+shader uniforms and Canvas parameters as closed-form functions of the current
+frame and fps. Freeze `angle` or `swangle` in `remotion.config.ts` for WebGL2,
+list that file with manifest role `config`, and declare the complete
+`runtimeFeatures.htmlInCanvas` object. Do not use WebGPU, the raw experimental
+browser API, or a silent CSS fallback in this contract.
 
 Create exact package metadata and a lockfile as defined in the backend
 reference. Do not add optional, peer, bundled, workspace, override, or linked
@@ -126,6 +154,11 @@ Run, in order:
 4. local Remotion CLI `still` for every shot at its first safe frame, each
    action/result boundary, readable hold, and final safe frame;
 5. a real local CLI preview render of the entire block to a new QA target.
+
+For an HTML-in-canvas block, those stills and the preview must use the same
+paint and GL backends recorded by Onboarding and the manifest. Inspect frames
+inside the active distortion and inside the required readable hold. A green
+typecheck without those rendered frames is not capability evidence.
 
 When the run's audio policy is silent, include `--muted` in the preview render
 and verify that the preview has no audio stream and closes at the exact frame

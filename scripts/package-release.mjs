@@ -245,6 +245,7 @@ const SCRIPT_FILES = [
 const SKILL_FILES = [
   'erduo-broll-loop-engineering/SKILL.md',
   'erduo-broll-loop-engineering/agents/openai.yaml',
+  'erduo-broll-loop-engineering/references/animation-craft.md',
   'erduo-broll-loop-engineering/references/first-run-onboarding.md',
   'erduo-broll-loop-engineering/references/handoff-template.md',
   'erduo-broll-loop-engineering/references/parent-review-checklist.md',

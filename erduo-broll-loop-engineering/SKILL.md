@@ -185,6 +185,13 @@ uses declared capability IDs and exact pattern/backend evidence, never semantic
 keywords. A pinned Remotion reference source is explicitly unverified
 preference evidence unless a separate render witness exists.
 
+Direction and both backend Builders must read
+`references/animation-craft.md`. It compiles the twelve animation principles
+into the generation order for attention, physical character, causal action,
+key states or continuous motion, one expressive peak, and settled readability.
+Do not convert it into Recipe fields, capability IDs, runtime-routing evidence,
+principle checklists, scores, or still-frame QA claims.
+
 For every semantic shot, require the Director to search the Shotcraft catalog
 with the bundled query command before deciding whether one primary pattern is
 useful. A shot may bind exactly one primary card and style, or use no pattern.

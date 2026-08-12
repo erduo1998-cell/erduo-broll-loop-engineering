@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+## 0.6.0 — 2026-08-12
+
+- 新增 `animation-craft.md`，把迪士尼动画十二法则编译为 Director、HyperFrames Builder 和 Remotion Builder 的提示词生成顺序：先语义与注意力，再确定物体身体、动作因果、关键状态/连续运动、单一表现峰值与稳定结果；明确禁止把它改造成逐镜清单、schema、运行时路由标签、评分或静态帧审美证明。
+- 解除发行版对 Remotion `4.0.484` 的全局硬编码：既有项目可保留任意通过证据门的精确锁版；新项目在获授权的 Onboarding 中解析一个当前稳定版本，并把对齐的 `remotion` / `@remotion/cli`、React 和 TypeScript 工具链精确写入项目 lock。
+- Remotion verifier 改为验证“项目内精确版本、Remotion/CLI 对齐、React/ReactDOM 对齐、manifest 与 lock 闭合”，不再要求所有 run 使用同一发行版常量。
+- 新增 `effects.dom-pixel-postprocess` 原生 Remotion capability，自动路由到 Remotion；加入 HTML-in-canvas Canvas 2D/WebGL2 manifest、版本下限、非嵌套、GL 配置和静态实现验证。
+- Onboarding、Builder、Integrator、Render 增加同版本 HTML-in-canvas real-still canary、Chrome/flag、`angle`/`swangle`、可读 hold 和身份绑定规则；暂不支持 WebGPU、嵌套捕获与静默降级。
+
 ## 0.5.0 — 2026-08-11
 
 - 全新项目默认从 `hyperframes` 改为 `auto`：Director 先完成运行时中立 Shot Recipes，再由零依赖确定性 Planner 按 capability 与 exact pattern/backend evidence 逐镜选择后端，并聚合相邻同后端镜头。

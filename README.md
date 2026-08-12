@@ -4,7 +4,7 @@
 
 **把一份 SRT 和可选口播视频交给协作 Agent：先做运行时中立分镜，再按镜头证据自动分配 HyperFrames / Remotion，得到可编辑、可复查的 B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.5.0-16a34a)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.6.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -23,6 +23,7 @@
 - 读懂 SRT，按语义分镜，而不是一句字幕配一个镜头；
 - 优先使用你的图片、视频、Logo 和截图，再评估可控生成与 Pexels 素材；
 - 把长片拆成多个连续区块，由独立 Builder 并行构建；
+- 把动画十二法则作为 Director 与两套 Builder 的提示词生成语法：先设计注意力、身体属性、动作因果、关键状态和表现峰值，再选择 HyperFrames 或 Remotion 的原生机制；不把它变成逐镜打勾或静态帧审美评分；
 - 分镜后按 capability 与实测/来源证据逐镜选择后端，再把相邻同后端镜头合并为区块；
 - HyperFrames 使用锁定的官方 Skill；Remotion 只使用目标项目本地锁定的 CLI 与依赖；
 - 整合后先给你看最终预览，得到明确同意才正式渲染；
@@ -69,6 +70,7 @@
 - 空白新项目且用户未指定时默认 `auto`。
 - `hyperframes` 走现有 Master Build → Integrate → Render 链路。
 - `remotion` 走 Remotion Build → Integrate → Render 链路；已有项目必须能证明本地精确版本和 local CLI，新项目由该后段显式 scaffold 并生成 lockfile。
+- 发行版不固定单一 Remotion 版本；每个项目在 Onboarding 时解析一个具体稳定版本，并把 `remotion`、`@remotion/cli` 和兼容工具链精确写入本项目 lock。HTML-in-canvas 镜头会额外执行真实 still canary，失败时只关闭该能力。
 - `auto` 可落到单后端或 hybrid；hybrid 只交换带 hash、FFprobe 和完整解码证据的冻结区块媒体，不实时嵌套两套运行时。
 - 安装器不会把 Remotion 加入共享 runtime 或全局安装。Remotion 的许可、依赖与执行范围属于用户选择的目标项目。
 - 运行时选择不构成视觉一致性声明，也不表示任意 Remotion Composition 可以自动转换成 HyperFrames。
@@ -89,7 +91,7 @@ node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs <shot-recipe
 
 ## 镜头能力目录
 
-`0.5.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+`0.6.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
 
 请准确理解这里的“吸收”：
 
@@ -307,7 +309,7 @@ node scripts/uninstall.mjs
 
 ### 从 0.3.x 旧名称升级
 
-GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.5.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
+GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.6.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
 
 为避免更名导致 Pexels 凭据、固定 HyperFrames runtime 和安装备份丢失，本地私有应用数据目录继续沿用 v0.3.x 的内部路径。该路径只承担兼容存储，不再是仓库、产品或 Skill 名称。
 
@@ -383,7 +385,7 @@ npm test
 
 ## English quick start
 
-`erduo-broll-loop-engineering` 0.5.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with deterministic post-direction auto routing and independent HyperFrames and Remotion backends. New projects default to auto. Remotion uses only exact, project-local dependencies and CLI evidence; it is never installed globally by this installer. Hybrid integration exchanges frozen media only. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
+`erduo-broll-loop-engineering` 0.6.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with deterministic post-direction auto routing and independent HyperFrames and Remotion backends. New projects default to auto. The release does not pin one Remotion version: each project resolves and locks one exact aligned local toolchain, and optional HTML-in-canvas production is gated by a real local still canary. Remotion is never installed globally by this installer. Hybrid integration exchanges frozen media only. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git

@@ -134,6 +134,20 @@ For Remotion, require all of the following before creative production:
   project records that registration as Builder/Integrator work rather than
   pretending it already exists.
 
+The release does not choose one Remotion version for every project. Preserve a
+compatible existing exact lock, or in an authorized new-project repair read
+current stable npm registry metadata, choose one concrete version shared by
+`remotion` and `@remotion/cli`, resolve compatible exact React/TypeScript
+versions, and generate a v3 lock. Record the resolution time and concrete
+versions; never persist `latest` or a range.
+
+If the runtime plan requires `effects.dom-pixel-postprocess`, general CLI
+readiness is insufficient. Require Remotion 4.0.455 or newer and run a minimal
+project-local `<HtmlInCanvas>` still canary in the exact preview/render
+browser. Record `HtmlInCanvas.isSupported()`, Chrome/flag facts, source and
+still hashes, the Canvas 2D or WebGL2 path, and the frozen `angle`/`swangle`
+backend when applicable. A failed canary makes this capability unsupported.
+
 Initial routing and inspection must not execute the project-local CLI. After
 the user approves the exact repair and local project execution, the fresh
 repair Agent runs the detector with `--probe-cli`; only that authorized result

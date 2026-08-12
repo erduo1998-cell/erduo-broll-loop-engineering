@@ -50,6 +50,14 @@ stills at the opening, every semantic result/readable hold, every seam, and
 the final safe frame. A path, hash set, aggregate identity, Composition ID,
 version, typecheck, or still failure blocks preview and render.
 
+When the identity declares `runtimeFeatures.htmlInCanvas`, repeat the support
+and real-still canary in this exact render environment. Confirm the exact
+Remotion version is at least 4.0.455, nested capture remains false, the Studio
+browser supports HTML-in-canvas, and WebGL2 uses the identity-bound `angle` or
+`swangle` value from `remotion.config.ts`. Inspect one frame during each
+effect and one frame in each following readable hold. Any blank/stale capture,
+wrong orientation, resolution loss, or GL drift blocks preview and render.
+
 ## Preview and approval pass
 
 When valid approval is absent, actually launch the project-local Remotion CLI

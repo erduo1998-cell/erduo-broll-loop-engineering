@@ -112,6 +112,10 @@ record its manifest-pinned upstream paths and Apache-2.0 attribution; otherwise
 state that implementation was original or used the declared fallback. Never
 claim that excluded media, font, sound, texture, or dependency assets were
 bundled.
+When `effects.dom-pixel-postprocess` is present, also record the same-run
+HTML-in-canvas canary locator, exact Remotion and browser versions, paint
+backends, `nested: false`, frozen GL backend, active-effect stills, and readable
+hold stills.
 For a hybrid plan, include `block-media.json`, local mezzanine, actual hash,
 source identity, profile/audio facts, FFprobe/full-decode/boundary inspection,
 and `noRealtimeNesting: true`.
@@ -126,6 +130,8 @@ Composition ID, source entry, FPS, frame-total calculation, and local CLI
 version. Include the
 `composition-identity.json` locator and aggregate SHA-256; never copy its full
 file list into the handoff.
+For HTML-in-canvas, include the merged runtime feature declaration, unchanged
+GL config, non-nesting review, and full-preview capture/shader inspection.
 Confirm selected pattern references match the Director Recipes and Builder
 records and that no unselected card was introduced during integration.
 For Hybrid Integrator, include ordered frozen contracts/media hashes,
@@ -142,6 +148,8 @@ trace evidence; for Remotion include local dependency, CLI, registered
 Composition, typecheck, and still evidence. A failed attempt records its
 partial file and remains failed; a retry belongs to a different fresh Agent
 and uses a new target.
+For HTML-in-canvas, include the repeated support/still canary and prove Studio,
+preflight, preview, and render used the identity-bound paint and GL backends.
 For a preview pass, record `action-required`, the preview locator, integrated
 composition-identity aggregate SHA-256, and absence of approval; omit
 render-only facts as not applicable. For a render pass, record the approval

@@ -53,6 +53,8 @@
 - [ ] Base Onboarding 不盲目准备两套后端；targeted Onboarding 只检查 planner 的 requiredBackends。
 - [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；只有获得 Remotion 修复与本地执行授权后的 fresh Onboarding repair Agent 才使用 `--probe-cli`，并记录非只读执行事实与最小 allowlist 子环境。
 - [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
+- [ ] 发行版不硬编码单一 Remotion 版本；新项目解析一个稳定版本后精确锁定，既有项目保留通过证据门的精确 lock；`latest`、range 和网络下载式 `npx` 均不能进入生产证据。
+- [ ] `effects.dom-pixel-postprocess` 必须确定性路由到 Remotion，并由同一 package lock、Chrome 和 GL 后端的真实 HTML-in-canvas still canary 放行；WebGPU、嵌套捕获和 silent fallback 保持拒绝。
 - [ ] 本仓库安装器和 runtime lock 不包含 Remotion；不得使用全局 Remotion 或允许临时下载的 `npx` 作为 readiness 证据。
 - [ ] README、支持矩阵和 Skill 表面均没有把独立双后端误称为自动互转、双端视觉一致或任意既有工程兼容。
 - [ ] Remotion 边界明确：项目本地使用不等于本仓库代为授权；使用者按 Remotion 官方现行许可判断自身场景。
@@ -66,7 +68,7 @@
 
 ## 正式发布与回滚
 
-- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.5.0`。
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.6.0`。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
 - [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

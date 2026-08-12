@@ -92,6 +92,13 @@ inspection; Skills update remains an authorized repair.
 
 ## Shared film logic
 
+Director and both backend Builders read `animation-craft.md`. The twelve
+animation principles operate there as prompt-time generation order, not as a
+schema, routing taxonomy, per-shot checklist, or static review rubric. Motion
+is generated from meaning through attention, physical character, causal
+action, key states or continuous motion, one expressive peak, and settled
+readability before a runtime mechanism is chosen.
+
 Use parsed SRT integer milliseconds as the only time truth. Cover continuously
 from zero through the final cue end. Group cues into semantic shots when they
 express one idea; subtitle boundaries do not dictate shot count.

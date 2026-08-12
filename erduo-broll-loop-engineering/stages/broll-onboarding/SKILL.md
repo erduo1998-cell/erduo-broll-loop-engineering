@@ -110,6 +110,28 @@ When the validated runtime plan requires Remotion, additionally check:
   discoverable or, for a new authorized project, are assigned to the Builder;
 - Chrome required by that exact local Remotion CLI is usable.
 
+The release does not impose one global Remotion version. For an existing
+project, preserve its exact lock when the matching package and CLI evidence
+passes. For a genuinely new authorized Remotion project, resolve one current
+stable Remotion version from npm registry metadata, confirm the identical
+`@remotion/cli` version exists, resolve compatible exact React/TypeScript
+packages, then write exact declarations and a v3 lock. Record the resolution
+time and concrete versions. Do not write `latest` or a range and do not use an
+`npx` download fallback as evidence.
+
+When any planned Recipe requires `effects.dom-pixel-postprocess`, perform an
+additional feature gate in the exact project-local runtime. Require Remotion
+4.0.455 or newer, inspect the exact preview Chrome and HTML-in-canvas flag,
+then create an unused minimal canary Composition inside the authorized
+production bootstrap area. The canary must import and mount `<HtmlInCanvas>`,
+record `HtmlInCanvas.isSupported()` in the browser without exposing unrelated
+state, and render a real still through the local CLI. If WebGL2 is planned,
+the canary must compile and draw a minimal WebGL2 shader using the selected
+`angle` or `swangle` backend. Record the canary source hash, still hash,
+browser version, exact Remotion version, paint backend, GL backend, and pass
+result. Do not leave the canary inside a production Composition or treat a
+package export check as render evidence.
+
 Verify that the host can discover all fourteen public Skills installed by the
 release installer:
 
@@ -276,6 +298,12 @@ project whose verified bootstrap handoff explicitly assigns Composition
 authoring and registration to the Remotion Builder/Integrator may complete
 Onboarding as `ready`; absence of not-yet-authored composition source is not a
 bootstrap blocker.
+
+Stop as `unsupported` for `effects.dom-pixel-postprocess` when the exact local
+version is older than 4.0.455, the preview browser does not support
+HTML-in-canvas, the required flag cannot be enabled, the canary still fails,
+or the selected WebGL2 backend cannot draw. Do not mark the whole Remotion
+backend unsupported when only this optional capability failed.
 
 Stop as `blocked` when an authorized repair fails, a required backend's Skills
 or locked dependencies cannot be obtained, a required

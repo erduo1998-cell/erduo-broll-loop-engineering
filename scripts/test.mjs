@@ -73,7 +73,9 @@ import {
 } from '../erduo-broll-loop-engineering/scripts/safe-spawn.mjs';
 import { detectRuntime } from '../erduo-broll-loop-engineering/scripts/detect-runtime.mjs';
 import {
+  validateHtmlInCanvasFeature,
   validateFontClosure,
+  validateRemotionVersionPolicy,
   walkProject as walkRemotionProject,
 } from '../erduo-broll-loop-engineering/scripts/remotion-verify.mjs';
 
@@ -889,10 +891,18 @@ test('runtime router accepts only matching project-local Remotion packages and C
   assert.equal(result.selectionSource, 'detected');
   assert.equal(result.readiness, 'ready');
   assert.equal(result.evidence.remotion.cliEvidence.version, version);
+  assert.equal(result.evidence.remotion.dependencyEvidence.exactAlignedDeclarations, true);
   assert.equal(result.safety.readOnlyDetection, false);
   assert.equal(result.safety.localCliExecuted, true);
   assert.equal(existsSync(marker), true);
   assert.equal(JSON.stringify(result).includes(secret), false);
+
+  await writeFile(path.join(project, 'package.json'), `${JSON.stringify({
+    dependencies: { remotion: `^${version}`, '@remotion/cli': version },
+  })}\n`);
+  const ranged = await detectRuntime({ projectRoot: project, probeCli: true, env: state.env });
+  assert.equal(ranged.readiness, 'action-required');
+  assert.equal(ranged.evidence.remotion.dependencyEvidence.exactAlignedDeclarations, false);
 });
 
 test('runtime router CLI keeps selected-but-not-ready Remotion actionable at exit zero', async (t) => {
@@ -1448,7 +1458,10 @@ test('post-Director runtime planner is deterministic, evidence-based, contiguous
         fallback: { when: 'Unavailable', strategy: 'simplify-motion' },
       },
     }),
-    makeRecipe({ shotId: 'S03', startMs: 2000, endMs: 3000, capabilities: [...common, 'motion.frame-driven-multiphase'] }),
+    makeRecipe({
+      shotId: 'S03', startMs: 2000, endMs: 3000,
+      capabilities: [...common, 'motion.frame-driven-multiphase', 'effects.dom-pixel-postprocess'],
+    }),
   ];
   await Promise.all(recipeList.map((recipe) => writeFile(
     path.join(recipes, `${recipe.shotId}.json`), `${JSON.stringify(recipe, null, 2)}\n`,
@@ -1470,7 +1483,8 @@ test('post-Director runtime planner is deterministic, evidence-based, contiguous
   assert.equal(first.shots[0].decision, 'capability-preference');
   assert.equal(first.shots[1].decision, 'pattern-reference');
   assert.match(first.shots[1].unverifiedPreferences[0], /not a render witness/u);
-  assert.equal(first.shots[2].decision, 'capability-preference');
+  assert.equal(first.shots[2].decision, 'native-required');
+  assert.equal(first.shots[2].evidence[0].id, 'effects.dom-pixel-postprocess');
 
   const legacySelection = path.join(state.base, 'legacy-selection.json');
   await writeFile(legacySelection, `${JSON.stringify({
@@ -1552,7 +1566,7 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
     'contract-only',
     'witness-verified',
   ];
-  assert.equal(matrix.matrixVersion, '3.0.0');
+  assert.equal(matrix.matrixVersion, '3.1.0');
   assert.equal(matrix.defaultRuntime, 'auto');
   assert.equal(matrix.portableDefaultRuntime, 'hyperframes');
   assert.equal(matrix.runtimes.hyperframes.maturity, 'production-route');
@@ -1573,6 +1587,7 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
   const capabilityIds = matrix.capabilities.map(({ id }) => id);
   assert.equal(new Set(capabilityIds).size, capabilityIds.length);
   assert.deepEqual(capabilityIds.toSorted(), [
+    'effects.dom-pixel-postprocess',
     'interop.pre-rendered-media',
     'layout.dom-css-editorial',
     'motion.camera-3d',
@@ -1612,6 +1627,12 @@ test('runtime capability matrix is closed, traceable, and makes no render-parity
     assert.equal(capability.hyperframesRoute, 'existing-production-workflow');
     assert.equal(capability.remotionRoute, 'native-production-workflow');
   }
+  const htmlInCanvas = matrix.capabilities.find(
+    ({ id }) => id === 'effects.dom-pixel-postprocess',
+  );
+  assert.equal(htmlInCanvas.classification, 'native-remotion');
+  assert.equal(htmlInCanvas.minimumRemotionVersion, '4.0.455');
+  assert.equal(htmlInCanvas.readinessGate, 'project-local-html-in-canvas-still-canary');
 });
 
 test('runtime references and production Skills preserve the adapter evidence gates', async () => {
@@ -1631,6 +1652,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
 
   const requiredReferences = {
     'erduo-broll-loop-engineering/SKILL.md': [
+      'references/animation-craft.md',
       'references/runtime/runtime-contract.md',
       'references/runtime/shot-recipe.schema.json',
       'references/runtime/capability-matrix.json',
@@ -1648,6 +1670,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
       '../../references/runtime/capability-matrix.json',
     ],
     'erduo-broll-loop-engineering/stages/broll-director/SKILL.md': [
+      '../../references/animation-craft.md',
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/shot-recipe.schema.json',
       '../../references/runtime/capability-matrix.json',
@@ -1656,6 +1679,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
       '../../references/runtime/runtime-contract.md',
     ],
     'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md': [
+      '../../references/animation-craft.md',
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
     ],
@@ -1666,6 +1690,9 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'erduo-broll-loop-engineering/stages/broll-render/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
+    ],
+    'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md': [
+      '../../references/animation-craft.md',
     ],
   };
   for (const [file, references] of Object.entries(requiredReferences)) {
@@ -1696,6 +1723,42 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'utf8',
   );
   assert.match(integratorSkill, /aggregate SHA-256 of that canonical list/u);
+});
+
+test('animation craft is prompt-time generation guidance, not a review schema', async () => {
+  const craft = await readFile(
+    path.join(root, 'erduo-broll-loop-engineering', 'references', 'animation-craft.md'),
+    'utf8',
+  );
+  for (const principle of [
+    'Squash and Stretch',
+    'Anticipation',
+    'Staging',
+    'Straight Ahead Action and Pose to Pose',
+    'Follow Through and Overlapping Action',
+    'Slow In and Slow Out',
+    'Arcs',
+    'Secondary Action',
+    'Timing',
+    'Exaggeration',
+    'Solid Drawing',
+    'Appeal',
+  ]) assert.match(craft, new RegExp(principle, 'u'), principle);
+  assert.match(craft, /meaning[\s\S]*attention[\s\S]*body and material[\s\S]*causal action/u);
+  assert.match(craft, /not a shot checklist, runtime capability taxonomy, evidence schema, or\s+still-frame review rubric/u);
+  assert.match(craft, /must not claim to prove anticipation, weight, overlap, timing, arcs,\s+exaggeration, or appeal/u);
+
+  const schema = await readFile(
+    path.join(runtimeReferenceRoot, 'shot-recipe.schema.json'),
+    'utf8',
+  );
+  const matrix = await readFile(
+    path.join(runtimeReferenceRoot, 'capability-matrix.json'),
+    'utf8',
+  );
+  for (const text of [schema, matrix]) {
+    assert.doesNotMatch(text, /animationPrinciples|squash-stretch|anticipation-score/u);
+  }
 });
 
 test('Remotion production contracts close silent-audio and local-font evidence', async () => {
@@ -1737,6 +1800,89 @@ test('Remotion production contracts close silent-audio and local-font evidence',
   assert.match(verifier, /Font shorthand is forbidden/u);
   assert.match(verifier, /optionalDependencies/u);
   assert.match(verifier, /Linked lock package is forbidden/u);
+});
+
+test('Remotion version policy accepts changing exact project locks and rejects drift', () => {
+  for (const remotionVersion of ['4.0.455', '4.0.484', '5.2.1']) {
+    const dependencies = {
+      remotion: remotionVersion,
+      '@remotion/cli': remotionVersion,
+      react: '19.2.7',
+      'react-dom': '19.2.7',
+      '@types/react': '19.2.17',
+      typescript: '6.0.3',
+    };
+    const errors = [];
+    validateRemotionVersionPolicy(dependencies, dependencies, errors);
+    assert.deepEqual(errors, [], remotionVersion);
+  }
+
+  const errors = [];
+  validateRemotionVersionPolicy({
+    remotion: '^4.0.500',
+    '@remotion/cli': '4.0.501',
+    react: '19.2.7',
+    'react-dom': '19.2.6',
+    '@types/react': '19.2.17',
+    typescript: '6.0.3',
+  }, {}, errors);
+  assert.ok(errors.some((error) => /remotion must use an exact semver/u.test(error)));
+  assert.ok(errors.some((error) => /remotion and @remotion\/cli must use the same exact/u.test(error)));
+  assert.ok(errors.some((error) => /react and react-dom must use the same exact/u.test(error)));
+});
+
+test('Remotion verifier binds HTML-in-canvas capability to version, source, and GL config', () => {
+  const baseManifest = {
+    packageVersions: { remotion: '4.0.455' },
+    shots: [{ requiredCapabilities: ['effects.dom-pixel-postprocess'] }],
+    runtimeFeatures: {
+      htmlInCanvas: {
+        paintBackends: ['canvas-2d'],
+        nested: false,
+        chromiumOpenGlRenderer: 'browser-default',
+      },
+    },
+  };
+  const canvasContents = new Map([[
+    'src/Effect.tsx',
+    Buffer.from("import {HtmlInCanvas} from 'remotion'; export const Effect=()=> <HtmlInCanvas width={1} height={1} onPaint={({canvas})=>canvas.getContext('2d')}><div /></HtmlInCanvas>;"),
+  ]]);
+  const canvasErrors = [];
+  validateHtmlInCanvasFeature(baseManifest, canvasContents, new Map(), canvasErrors);
+  assert.deepEqual(canvasErrors, []);
+
+  const webGlManifest = {
+    ...baseManifest,
+    packageVersions: { remotion: '4.1.0' },
+    runtimeFeatures: {
+      htmlInCanvas: {
+        paintBackends: ['webgl2'],
+        nested: false,
+        chromiumOpenGlRenderer: 'angle',
+      },
+    },
+  };
+  const webGlContents = new Map([
+    ['src/Effect.tsx', Buffer.from("import {HtmlInCanvas} from 'remotion'; export const Effect=()=> <HtmlInCanvas width={1} height={1} onInit={({canvas})=>{canvas.getContext('webgl2'); return ()=>{};}}><div /></HtmlInCanvas>;")],
+    ['remotion.config.ts', Buffer.from("Config.setChromiumOpenGlRenderer('angle');\n")],
+  ]);
+  const webGlErrors = [];
+  validateHtmlInCanvasFeature(
+    webGlManifest,
+    webGlContents,
+    new Map([['remotion.config.ts', { path: 'remotion.config.ts', role: 'config' }]]),
+    webGlErrors,
+  );
+  assert.deepEqual(webGlErrors, []);
+
+  const invalidErrors = [];
+  validateHtmlInCanvasFeature(
+    { ...baseManifest, packageVersions: { remotion: '4.0.454' } },
+    canvasContents,
+    new Map(),
+    invalidErrors,
+  );
+  assert.ok(invalidErrors.some((error) => /requires Remotion 4\.0\.455 or newer/u.test(error)));
 });
 
 test('Remotion font verifier rejects shorthand and host fallback before render', () => {
@@ -3452,7 +3598,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.5.0');
+  assert.equal(RELEASE_VERSION, '0.6.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);

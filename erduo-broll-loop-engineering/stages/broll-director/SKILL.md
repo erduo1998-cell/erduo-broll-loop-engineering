@@ -22,7 +22,8 @@ blocks, render, or export.
 Do not require or request a `design.md`, visual-specification file, preset, or
 private example.
 
-Read `../../references/runtime/runtime-contract.md`,
+Read `../../references/animation-craft.md`,
+`../../references/runtime/runtime-contract.md`,
 `../../references/runtime/shot-recipe.schema.json`, and
 `../../references/runtime/capability-matrix.json`. The Director owns
 runtime-neutral intent only. Do not emit React, Remotion, HyperFrames, DOM,
@@ -71,6 +72,12 @@ zero through the final cue end, including gaps between cues, without rewriting
 cue times. Merge consecutive cues when they express one semantic idea. Change
 shots at meaningful turns rather than subtitle boundaries.
 
+Generate motion through the animation-craft protocol before querying
+Shotcraft. Start from meaning, attention, physical character, causal action,
+key states or deterministic continuous motion, one expressive peak, and a
+settled readable result. Do not start from an effect or record Disney-principle
+names, checklists, scores, or compliance claims in production artifacts.
+
 Determine:
 
 - what the audience should understand, feel, compare, or decide;
@@ -95,6 +102,13 @@ For every shot, decide:
 - selective screen copy that does not reproduce the subtitle passage;
 - material role and desired composition relationship;
 - connection to the preceding and following shot.
+- the subject's material, mass, depth, support, and motion character;
+- how attention reaches the focus before the decisive change;
+- which layers lead, which are dependent, and how they settle at different
+  times without becoming unrelated ambient motion;
+- whether the idea needs authored key states or deterministic continuous
+  motion;
+- one expressive peak and the properties that remain restrained around it.
 
 After the semantic plan exists, query Shotcraft by purpose, visible
 relationship, material kind, and energy. Bind no more than one primary pattern

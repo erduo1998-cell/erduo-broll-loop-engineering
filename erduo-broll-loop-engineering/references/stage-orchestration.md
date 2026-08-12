@@ -149,6 +149,12 @@ shell through the same sanitized child environment contract. Do not invoke
 HyperFrames Skills, doctor, check, preview, or render as evidence for this
 route.
 
+The release does not pin one Remotion version across projects: Onboarding
+resolves or preserves one concrete exact local toolchain per project, and all
+later stages remain bound to that lock. A planned
+`effects.dom-pixel-postprocess` shot additionally requires the exact-version
+HTML-in-canvas still canary and frozen Canvas/GL backend evidence.
+
 The Remotion Builder authors native deterministic React/TSX from the assigned
 runtime-neutral Recipes and selected card semantics. The Integrator registers
 one ordered Composition and proves continuous frame coverage. Render/Delivery

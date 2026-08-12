@@ -33,20 +33,32 @@ a blocker: implement the Recipe's declared fallback from first principles and
 record why the fallback was used. Never describe a card or demo as a ready
 production component.
 
-## Runtime baseline
+## Project-resolved runtime version
 
 Create a self-contained project inside the production directory. Do not
 install packages into the Skill repository or a global prefix. Use Node.js 22
-or newer and exact versions in both `package.json` and `package-lock.json`:
+or newer. This release deliberately does not pin one global Remotion version.
 
-| Package | Exact version |
-| --- | --- |
-| `remotion` | `4.0.484` |
-| `@remotion/cli` | `4.0.484` |
-| `react` | `19.2.7` |
-| `react-dom` | `19.2.7` |
-| `@types/react` | `19.2.17` |
-| `typescript` | `6.0.3` |
+Every production project still has to be reproducible:
+
+- `remotion` and `@remotion/cli` must be exact semver declarations at the same
+  concrete version;
+- `react` and `react-dom` must also use the same exact version;
+- `@types/react`, `typescript`, and every additional dependency must be exact;
+- `package-lock.json` v3 must close over those declarations using only npm
+  registry HTTPS tarballs with integrity values;
+- the installed packages and project-local `remotion versions` probe must
+  report the same version recorded in `remotion-project.json`.
+
+For an existing project, preserve its compatible exact lock after the local
+CLI and required feature canaries pass. For a genuinely new project, the
+authorized Onboarding repair Agent reads current stable registry metadata,
+selects one concrete Remotion version for which the same
+`@remotion/cli` version exists, resolves compatible exact React and TypeScript
+packages, records the resolution time and package metadata, and then writes
+the exact project declarations and lock. Never put `latest`, a caret, a tilde,
+or a range into a production project. Never let `npx` choose or download a
+runtime during Build, Integration, Preview, or Render.
 
 Before installing or invoking Remotion, show the user the official
 [Remotion licensing page](https://www.remotion.dev/docs/licensing) and record
@@ -67,6 +79,63 @@ environment contract: remove all case variants of `PEXELS_API_KEY`, resolve
 case-insensitive collisions, disable HyperFrames telemetry by default, and
 spawn directly without a shell. Use `scripts/safe-spawn.mjs` when the host
 cannot attest a native environment map.
+
+## HTML-in-canvas capability
+
+`effects.dom-pixel-postprocess` is a native Remotion capability for capturing
+a live deterministic DOM subtree into `<HtmlInCanvas>` and post-processing it
+with Canvas 2D or WebGL2. It is an implementation capability inside a Remotion
+shot, not a new runtime and not a bridge to HyperFrames.
+
+Version numbers alone do not prove this experimental browser capability. The
+targeted Onboarding evidence must bind the exact local Remotion version,
+browser, and render backend, and must include a real project-local still
+canary whose source imports and mounts `<HtmlInCanvas>`. Require Remotion
+`4.0.455` or newer, confirm `HtmlInCanvas.isSupported()` in the preview
+browser, and render the canary through the same local CLI used for production.
+The current Studio preview floor is Chrome 149 with
+`chrome://flags/#canvas-draw-element` enabled; record the exact browser fact
+rather than assuming a future browser keeps the same experimental API.
+
+The initial production contract supports only:
+
+- `canvas-2d`, using `drawElementImage()` in `onPaint`;
+- `webgl2`, initializing and cleaning GPU resources through `onInit` and
+  drawing the current `elementImage` in `onPaint`;
+- one non-nested capture layer at any point in the rendered component tree;
+- frame-derived effect parameters from `useCurrentFrame()` and the canonical
+  fps, with a real readable hold after any readability-reducing distortion.
+
+WebGPU, nested `<HtmlInCanvas>`, undocumented crop APIs, direct browser API
+use, ambient animation loops, and silent visual fallbacks are outside this
+contract. A failed support check or still canary is `unsupported` for this
+capability, not permission to weaken the Recipe or switch backend.
+
+For WebGL2, freeze either `angle` or `swangle` in the identity-bound
+`remotion.config.ts` through
+`Config.setChromiumOpenGlRenderer()`. Use `angle` when the verified render host
+has the required GPU path and `swangle` for a verified software path. Builder,
+Integrator, Studio/preflight, and formal Render must use the same value.
+
+When this capability appears in any shot, `remotion-project.json` must declare:
+
+```json
+{
+  "runtimeFeatures": {
+    "htmlInCanvas": {
+      "paintBackends": ["canvas-2d"],
+      "nested": false,
+      "chromiumOpenGlRenderer": "browser-default"
+    }
+  }
+}
+```
+
+For WebGL2, use `"paintBackends": ["webgl2"]` or list both actually used
+backends, and set `chromiumOpenGlRenderer` to the frozen `angle` or `swangle`
+value. The verifier rejects a capability/manifest mismatch, an unsupported
+backend, an older Remotion version, missing component/context evidence, or a
+missing GL configuration.
 
 ## Canonical frame mapping
 

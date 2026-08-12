@@ -37,6 +37,7 @@ const MAX_FILE_BYTES = 512 * 1024;
 const MAX_PACKAGE_BYTES = 1024 * 1024;
 const CLI_TIMEOUT_MS = 10_000;
 const CLI_OUTPUT_LIMIT = 16 * 1024;
+const EXACT_SEMVER = /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/;
 const CLI_ENV_ALLOWLIST = new Set([
   'comspec', 'home', 'lang', 'lc_all', 'lc_ctype', 'path', 'systemroot',
   'temp', 'term', 'tmp', 'tmpdir',
@@ -129,6 +130,13 @@ function dependencyNames(packageJson) {
     ...Object.keys(packageJson.optionalDependencies ?? {}),
     ...Object.keys(packageJson.peerDependencies ?? {}),
   ]);
+}
+
+function directDependencyVersions(packageJson) {
+  return {
+    ...(packageJson.dependencies ?? {}),
+    ...(packageJson.devDependencies ?? {}),
+  };
 }
 
 function commandContains(command, executable) {
@@ -318,6 +326,7 @@ export async function detectRuntime({
   }
 
   const dependencies = packageJson ? dependencyNames(packageJson) : new Set();
+  const directVersions = packageJson ? directDependencyVersions(packageJson) : {};
   const remotionPackage = await inspectInstalledPackage(canonicalRoot, 'remotion');
   const remotionCliPackage = await inspectInstalledPackage(canonicalRoot, '@remotion/cli');
   const cliEvidence = selectedRuntime === 'remotion' && probeCli
@@ -326,13 +335,19 @@ export async function detectRuntime({
   const remotionDependencyEvidence = {
     declaredRemotion: dependencies.has('remotion'),
     declaredCli: dependencies.has('@remotion/cli'),
+    declaredRemotionVersion: directVersions.remotion ?? null,
+    declaredCliVersion: directVersions['@remotion/cli'] ?? null,
+    exactAlignedDeclarations: EXACT_SEMVER.test(directVersions.remotion ?? '')
+      && directVersions.remotion === directVersions['@remotion/cli'],
     installedRemotion: remotionPackage,
     installedCli: remotionCliPackage,
   };
   const remotionReady = remotionDependencyEvidence.declaredRemotion
     && remotionDependencyEvidence.declaredCli
+    && remotionDependencyEvidence.exactAlignedDeclarations
     && remotionPackage.installed
     && remotionCliPackage.installed
+    && remotionPackage.version === directVersions.remotion
     && remotionPackage.version === remotionCliPackage.version
     && cliEvidence.passed
     && cliEvidence.version === remotionCliPackage.version;
