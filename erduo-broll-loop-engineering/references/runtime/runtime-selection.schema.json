@@ -33,10 +33,17 @@
             "signals": { "$ref": "#/$defs/signals" },
             "dependencyEvidence": {
               "type": "object", "additionalProperties": false,
-              "required": ["declaredRemotion", "declaredCli", "installedRemotion", "installedCli"],
+              "required": [
+                "declaredRemotion", "declaredCli", "declaredRemotionVersion",
+                "declaredCliVersion", "exactAlignedDeclarations",
+                "installedRemotion", "installedCli"
+              ],
               "properties": {
                 "declaredRemotion": { "type": "boolean" },
                 "declaredCli": { "type": "boolean" },
+                "declaredRemotionVersion": { "type": ["string", "null"] },
+                "declaredCliVersion": { "type": ["string", "null"] },
+                "exactAlignedDeclarations": { "type": "boolean" },
                 "installedRemotion": { "$ref": "#/$defs/installedPackage" },
                 "installedCli": { "$ref": "#/$defs/installedPackage" }
               }

@@ -846,9 +846,14 @@ test('public runtime claims expose two independent backends without globally bun
 
 test('runtime router chooses explicit/default routes and stops on mixed project evidence', async (t) => {
   const state = await isolated(t);
+  const selectionSchema = JSON.parse(await readFile(
+    path.join(runtimeReferenceRoot, 'runtime-selection.schema.json'),
+    'utf8',
+  ));
   const blank = path.join(state.base, 'blank');
   await mkdir(blank);
   const defaultRoute = await detectRuntime({ projectRoot: blank, probeCli: false, env: state.env });
+  assert.deepEqual(validateSchemaValue(defaultRoute, selectionSchema, selectionSchema), []);
   assert.equal(defaultRoute.status, 'selected');
   assert.equal(defaultRoute.schemaVersion, '2.0.0');
   assert.equal(defaultRoute.selectedRuntime, 'auto');
@@ -863,6 +868,7 @@ test('runtime router chooses explicit/default routes and stops on mixed project 
     probeCli: false,
     env: state.env,
   });
+  assert.deepEqual(validateSchemaValue(explicitRoute, selectionSchema, selectionSchema), []);
   assert.equal(explicitRoute.selectedRuntime, 'remotion');
   assert.equal(explicitRoute.selectionSource, 'explicit');
   assert.equal(explicitRoute.readiness, 'action-required');
@@ -873,6 +879,7 @@ test('runtime router chooses explicit/default routes and stops on mixed project 
     dependencies: { remotion: '4.0.1', '@remotion/cli': '4.0.1', hyperframes: '0.7.104' },
   })}\n`);
   const mixedRoute = await detectRuntime({ projectRoot: mixed, probeCli: false, env: state.env });
+  assert.deepEqual(validateSchemaValue(mixedRoute, selectionSchema, selectionSchema), []);
   assert.equal(mixedRoute.status, 'action-required');
   assert.equal(mixedRoute.selectedRuntime, null);
   assert.ok(mixedRoute.reasonCodes.includes('mixed-runtime-evidence'));
@@ -880,6 +887,10 @@ test('runtime router chooses explicit/default routes and stops on mixed project 
 
 test('runtime router accepts only matching project-local Remotion packages and CLI evidence', async (t) => {
   const state = await isolated(t);
+  const selectionSchema = JSON.parse(await readFile(
+    path.join(runtimeReferenceRoot, 'runtime-selection.schema.json'),
+    'utf8',
+  ));
   const project = path.join(state.base, 'remotion-project');
   const version = '4.0.484';
   await mkdir(path.join(project, 'node_modules', 'remotion'), { recursive: true });
@@ -913,6 +924,7 @@ test('runtime router accepts only matching project-local Remotion packages and C
     probeCli: true,
     env: { ...state.env, [PEXELS_ENV_FIELD]: secret },
   });
+  assert.deepEqual(validateSchemaValue(result, selectionSchema, selectionSchema), []);
   assert.equal(result.selectedRuntime, 'remotion');
   assert.equal(result.selectionSource, 'detected');
   assert.equal(result.readiness, 'ready');
@@ -927,6 +939,7 @@ test('runtime router accepts only matching project-local Remotion packages and C
     dependencies: { remotion: `^${version}`, '@remotion/cli': version },
   })}\n`);
   const ranged = await detectRuntime({ projectRoot: project, probeCli: true, env: state.env });
+  assert.deepEqual(validateSchemaValue(ranged, selectionSchema, selectionSchema), []);
   assert.equal(ranged.readiness, 'action-required');
   assert.equal(ranged.evidence.remotion.dependencyEvidence.exactAlignedDeclarations, false);
 });
