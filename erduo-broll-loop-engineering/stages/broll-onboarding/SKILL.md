@@ -88,7 +88,8 @@ Base checks:
 - the production and delivery directories are writable;
 - the target filesystem has sufficient free space for the declared work;
 - the intended target file is unused;
-- Pexels access is securely configured without exposing the credential.
+- record Pexels access as `configured`, `configured-unverified`, or `missing`
+  without exposing the credential. Base readiness does not require a key.
 
 When the validated runtime plan requires HyperFrames, additionally check:
 
@@ -241,7 +242,9 @@ a log. Never print, echo, serialize, or place it in a command argument. Use a
 public repository configuration tool only when its safe stdin or hidden
 interface is actually discoverable; do not invent one. If neither that tool
 nor a host secret or environment mechanism is available, stop and explain the
-limitation. A missing Pexels configuration is explicitly `action-required`.
+limitation only when the validated Director/runtime plan contains a real
+Pexels-routed material need. Otherwise preserve the missing status and
+continue; do not turn optional stock access into a production gate.
 
 ## Deliverable
 
@@ -275,19 +278,21 @@ directory prefixes, or unrelated installed software.
 
 ## Completion
 
-Complete base phase as `ready` when common tools, paths, storage, Pexels, and
+Complete base phase as `ready` when common tools, paths, storage, recorded
+Pexels state, and
 all fourteen public Skills are ready; backend readiness is deliberately
 `not-yet-planned`, not degraded. Complete targeted/full phase only when every
 capability needed by the planned path is verified, every required backend is
 production-ready in the capability matrix, required dependency and CLI
 evidence is real,
-the delivery location is usable, and Pexels is securely configured for the
-same recorded validation state. `degraded` is acceptable
+the delivery location is usable, and Pexels is securely configured only when
+the plan actually requires that route. `degraded` is acceptable
 only for a capability proved irrelevant to the planned path.
 
 ## Stop
 
-Stop as `action-required` when an external account, key, permission, package
+Stop as `action-required` when a plan-required external account, key,
+permission, package
 manager, administrator action, or storage decision cannot be safely automated.
 Stop as `unsupported` when a required backend is not production-available or
 the capability matrix says the requested route is unsupported. Stop as

@@ -7,9 +7,9 @@
 | Environment | Onboarding Agent | `broll-production/00-onboarding/` | handoff and relevant official environment facts |
 | Direction | Director Agent | `broll-production/01-director/` | handoff and relevant plans |
 | Runtime plan | Runtime Planner Agent | `broll-production/01-runtime-plan/` | generated plan, identity, warnings, and validator result |
-| Material | Assets and Pexels Agent | `broll-production/02-assets/` | handoff, search record, inventory, and material plan |
-| HyperFrames blocks | one `broll-master-build` Agent per contiguous block | `broll-production/03-build/<block-id>/` | handoff, notes, and source portions needed for a stated question |
-| Remotion blocks | one `broll-remotion-build` Agent per contiguous block | `broll-production/03-remotion-build/<block-id>/` | handoff, manifest, native source evidence, and bounded QA |
+| Material | Assets Agent | `broll-production/02-assets/` | compact handoff, inventory/font closure, actual need-bound acquisition facts |
+| HyperFrames authoring units | one `broll-master-build` Agent per unit | `broll-production/03-build/<authoring-unit-id>/` | handoff, receipt, and source needed for a stated technical question |
+| Remotion authoring units | one `broll-remotion-build` Agent per unit | `broll-production/03-remotion-build/<authoring-unit-id>/` | handoff, receipt, manifest, and bounded technical QA |
 | HyperFrames assembly | `broll-master-integrate` Agent | `broll-production/04-integrate/` | handoff, integration notes, official check, and relevant project portions |
 | Remotion assembly | `broll-remotion-integrate` Agent | `broll-production/04-remotion-integrate/` | handoff, registered Composition, identity, preview, and media facts |
 | Hybrid assembly | `broll-hybrid-integrate` Agent | `broll-production/04-hybrid-integrate/` | frozen contracts/media hashes, seam evidence, preview, and identity |
@@ -31,11 +31,11 @@ Give each child:
 - production-root and input-artifact locators;
 - the user goal and constraints relevant to that stage;
 - the selection intent, validated runtime-plan identity, exact block/runtime
-  assignment, capability evidence, and relevant contract/Recipe locators;
+  and authoring-unit assignment, capability evidence, and relevant
+  contract/Recipe locators;
 - the validated runtime-selection artifact and its evidence bindings;
-- for Director, Assets, and Builder, the bundled Shotcraft query command and
-  only the selected card/style locators needed by that stage; never the full
-  catalog or all card bodies;
+- for Director, Assets, and Builder, progressive craft/Shotcraft query commands
+  and only the selected locators needed by that stage; never full catalogs;
 - the unique new output directory, default `master.mp4` H.264 MP4 at
   3840×2160, 30 fps, high quality, or the user's explicit alternative;
 - the shared Markdown handoff format;
@@ -50,10 +50,25 @@ Record runtime intent before Onboarding with the bundled detector. New projects
 default to `auto`; explicit choices win; ambiguous existing evidence still
 stops. Auto/hybrid run base Onboarding, runtime-neutral Director, deterministic
 Runtime Planner, then targeted Onboarding for exactly the required backends.
-Assets remains shared. Dispatch each planned block to its assigned Builder.
+Assets remains shared and always closes fonts/user material, but generation and
+Pexels run only for declared needs. Dispatch each planned authoring unit to its
+assigned Builder.
 Single routes keep native Integrator/Render; hybrid uses frozen block media and
 the dedicated runtime-neutral Integrator/Render. Never silently switch after a
 failure.
+
+For hybrid, freeze one existing `block-media.json` per backend block. If the
+block contains one authoring unit, its Builder may freeze directly. If it
+contains multiple units, wait for every unit receipt to pass, then dispatch one
+fresh same-backend Builder in `block-freeze` mode. It reads only verified unit
+source exports/receipts and the block window; writes only minimum temporary
+block-level composition glue; records glue/source hashes and aggregate
+identity; and runs the corresponding backend's check/typecheck/preview/render
+commands to freeze the mezzanine. It may not change unit-internal creative,
+source, timing, or perform aesthetic review, and returns any glue/render defect
+to the implicated unit owner. This is a
+Builder-mode pass, not a new stage or user stop. The Hybrid Integrator still
+consumes frozen block media only and never runs either backend.
 
 ## Onboarding
 
@@ -62,7 +77,7 @@ Dispatch Onboarding when:
 - this is the first run;
 - the project moved to another machine or user profile;
 - Node, HyperFrames, Skills, FFmpeg, FFprobe, Chrome, permissions, storage, or
-  Pexels status may have changed;
+  recorded Pexels status may have changed and a plan requires that route;
 - no current ready handoff exists for this production and delivery path.
 - the production-run identity, host, command `PATH`, onboarding phase,
   selection/runtime-plan identity, any required backend CLI version, target
@@ -87,21 +102,28 @@ doctor run.
 
 ## Plan and partition Builders
 
-Use only the deterministic Runtime Planner's bounded contiguous blocks. It
-decides per shot from capability/pattern evidence, then merges adjacent
-same-backend shots. Do not split a shot, hand-adjust a backend, or add runtime
-switches for variety. A short film may have one block.
+Use only the deterministic Runtime Planner's backend blocks and bounded
+`authoringUnits`. It decides per shot from capability/pattern evidence, merges
+adjacent same-backend shots, then partitions each block into whole-shot units
+that default to 1–3 shots and have an absolute maximum of 40 seconds. Do not
+split a shot, hand-adjust a backend/unit, or add runtime switches for variety.
+A hero, asset-fusion, or complex camera shot may be a one-shot unit only when
+it is at most 40 seconds. Planner rejects any longer shot and returns it to
+Director for semantic splitting; no solo exception exists.
 
-Pass only each block's validated runtime-neutral Shot Recipes, plus the
-runtime plan's exact block assignment, capability/pattern evidence, and
-selected Shotcraft cards. Builders
-resolve and read only a Recipe's one primary card/style, then record a
+Pass only the unit Recipes, its exact unit/block assignment, immediate seam
+summaries, shared narrative-envelope/visual-system locators, frozen
+assets/fonts, capability evidence, and 0–2 actually selected references.
+Builders must not read all film Recipes or full catalogs. They resolve only a
+Recipe's primary craft/card locators, then record a
 one-to-one mapping from each recipe to its runtime-owned implementation and
 pattern reference. Do not let the Director embed runtime code, let a Builder
 silently weaken semantic results for runtime convenience, or treat an
 unselected card as authorization to change the shot. This release does not
 claim automatic source translation or a library of preverified components.
-Manifest-pinned Shotcraft TSX is auditable reference source only, never an
+Use the shared visual system instead of duplicating global font, palette,
+material, safe-area, and prohibition rules in each assignment. Manifest-pinned
+Shotcraft TSX is auditable reference source only, never an
 installed component or an in-place production import.
 
 ## Official HyperFrames loading
@@ -170,10 +192,12 @@ fonts, sounds, textures, or dependencies that the reference set excludes.
 Pass file and directory locators between children. A downstream child may read
 the upstream artifacts its role needs.
 
-The Parent begins with the concise handoff, then reads only the actual plans,
+The Parent begins with the compact receipt/handoff, then reads only the actual plans,
 inventories, notes, source portions, integration results, technical facts, or
-host evidence needed to verify a stated review question. Bounded read-only
-inspection must not become another production stage.
+host evidence needed to verify a stated contract or technical question.
+Bounded read-only inspection must not become another production or aesthetic
+review stage. Do not dispatch an independent visual-review Agent, score craft,
+or require screenshots without a concrete defect question.
 
 ## Revisions and blockers
 
@@ -184,8 +208,9 @@ Return issues to the owning stage:
 - runtime-neutral Recipe meaning and schema gaps to Director;
 - Shotcraft selection, semantic reason, style key, pinned upstream Git commit,
   or fallback gaps to Director;
-- material, Pexels, download, provenance, crop, and font issues to Assets;
-- block source and block-owned visual implementation to its Builder;
+- material-need routing, Pexels, download, provenance, crop/fusion, and font
+  issues to Assets;
+- unit source and unit-owned visual implementation to its Builder;
 - selected-card native implementation and card-quality variances to its
   Builder;
 - runtime implementation decisions and unsupported capabilities to its Builder,
@@ -201,7 +226,9 @@ progress. Stop for a missing authorization, unsupported host capability,
 irreconcilable constraint, or the same blocker recurring without progress.
 
 Formal render requires explicit approval of the official final composition
-preview. Unattended production ends at that pause. The preview-pass Render
+preview. This is the only default aesthetic/user gate; do not insert lookdev,
+per-shot, independent-review, or scoring stops. Unattended production ends at
+that pause. The preview-pass Render
 Agent stops with an `action-required` handoff. After approval, dispatch a
 different fresh Render Agent; it verifies approval against the unchanged
 composition and repeats preflight and check before rendering.

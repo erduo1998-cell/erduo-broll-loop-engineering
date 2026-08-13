@@ -42,6 +42,7 @@ import {
   applicationDataDir,
   atomicWriteJson,
   normalizeOfficialDoctor,
+  officialSkillBundleRoot,
   runFile,
   sanitizedChildEnv,
   validateInstallManifest,
@@ -64,8 +65,11 @@ import {
   verifyReleaseArchiveRaw,
 } from './package-release.mjs';
 import { validateRecipeDirectory } from '../erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs';
+import { queryCraft } from '../erduo-broll-loop-engineering/scripts/query-craft.mjs';
+import { validateCraftCatalog } from '../erduo-broll-loop-engineering/scripts/craft-catalog.mjs';
 import { planRuntime } from '../erduo-broll-loop-engineering/scripts/plan-runtime.mjs';
 import { validateRuntimePlan } from '../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs';
+import { validateSchemaValue } from '../erduo-broll-loop-engineering/scripts/runtime-schema-validator.mjs';
 import { validateFrozenBlocks } from '../erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs';
 import {
   runSafeSpawn,
@@ -99,6 +103,8 @@ const shotcraftQuery = path.join(
   'scripts',
   'query-shotcraft.mjs',
 );
+const craftRoot = path.join(root, 'erduo-broll-loop-engineering', 'references', 'craft');
+const craftQuery = path.join(root, 'erduo-broll-loop-engineering', 'scripts', 'query-craft.mjs');
 const safeSpawnScript = path.join(
   root,
   'erduo-broll-loop-engineering',
@@ -121,6 +127,26 @@ const PEXELS_ENV_FIELD = ['PEXELS', 'API', 'KEY'].join('_');
 const PEXELS_ENV_FIELD_LOWER = PEXELS_ENV_FIELD.toLowerCase();
 const PEXELS_ENV_FIELD_MIXED = ['Pexels', 'Api', 'Key'].join('_');
 const execFileAsync = promisify(execFile);
+
+async function writeSharedDirectorArtifacts(directory, endMs = 3000) {
+  const narrativeEnvelopeFile = path.join(directory, 'narrative-envelope.json');
+  const visualSystemFile = path.join(directory, 'visual-system.json');
+  await writeFile(narrativeEnvelopeFile, `${JSON.stringify({
+    schemaVersion: '1.0.0', filmId: 'fixture', window: { startMs: 0, endMs },
+    premise: 'Fixture premise.', audienceJourney: ['understand'],
+    chapters: [{ chapterId: 'C01', window: { startMs: 0, endMs }, purpose: 'Cover fixture.' }], terms: [],
+  })}\n`);
+  await writeFile(visualSystemFile, `${JSON.stringify({
+    schemaVersion: '1.0.0', conceptAngle: 'Fixture angle', visualWorld: 'Fixture world',
+    paletteRoles: [{ role: 'field', value: '#ffffff', use: 'field' }, { role: 'focus', value: '#000000', use: 'focus' }],
+    typographyRoles: [{ role: 'display', family: 'Fixture Sans', weight: '700', use: 'focus', sourceLocator: 'fonts/fixture.woff2' }],
+    materials: ['paper'], depthPlan: { background: 'field', midground: 'structure', foreground: 'focus' },
+    compositionFamilies: ['data-diagram-evidence', 'full-bleed-material', 'sparse-hold-chapter-outro'],
+    motifSemantics: [], rhythmCurve: [{ startMs: 0, endMs, character: 'resolve' }],
+    prohibitedLazyDefaults: ['generic card grid'], safeAreaPolicy: 'Use task safe area.',
+  })}\n`);
+  return { narrativeEnvelopeFile, visualSystemFile };
+}
 
 async function isolated(t) {
   const base = await mkdtemp(path.join(os.tmpdir(), 'erduo-opensource-test-'));
@@ -1261,25 +1287,31 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
   ].toSorted());
 });
 
-test('runtime recipe schema preserves a runtime-neutral integer-millisecond contract', async () => {
-  const schema = JSON.parse(
-    await readFile(path.join(runtimeReferenceRoot, 'shot-recipe.schema.json'), 'utf8'),
-  );
+test('runtime recipe schemas preserve a runtime-neutral integer-millisecond v1/v2 contract', async () => {
+  const [schema, legacy] = await Promise.all([
+    readFile(path.join(runtimeReferenceRoot, 'shot-recipe.schema.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(runtimeReferenceRoot, 'shot-recipe-v1.schema.json'), 'utf8').then(JSON.parse),
+  ]);
   assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
   assert.equal(schema.type, 'object');
   assert.equal(schema.additionalProperties, false);
-  assert.equal(schema.properties.schemaVersion.const, '1.0.0');
+  assert.equal(schema.properties.schemaVersion.const, '2.0.0');
+  assert.equal(legacy.properties.schemaVersion.const, '1.0.0');
   assert.deepEqual(
     [...schema.required].toSorted(),
     [
-      'materials',
-      'motion',
-      'readability',
+      'audienceUnderstanding',
+      'compositionFamily',
+      'cueIds',
+      'focus',
+      'heroFrame',
+      'materialNeeds',
+      'microBeats',
+      'neighborHandoff',
+      'readableHold',
       'requiredCapabilities',
       'schemaVersion',
-      'semantics',
       'shotId',
-      'visualState',
       'window',
     ],
   );
@@ -1304,22 +1336,73 @@ test('runtime recipe schema preserves a runtime-neutral integer-millisecond cont
   }
   collectIntegerMillisecondFields(schema);
   assert.deepEqual(integerMillisecondFields.toSorted(), [
-    '#/$defs/motionPhase/properties/endMs',
-    '#/$defs/motionPhase/properties/startMs',
-    '#/$defs/readability/properties/holdEndMs',
-    '#/$defs/readability/properties/holdStartMs',
+    '#/$defs/microBeat/properties/endMs',
+    '#/$defs/microBeat/properties/startMs',
     '#/$defs/window/properties/endMs',
     '#/$defs/window/properties/startMs',
+    '#/properties/readableHold/properties/endMs',
+    '#/properties/readableHold/properties/startMs',
   ]);
   assert.deepEqual(schema.$defs.window.required.toSorted(), ['endMs', 'startMs']);
   assert.deepEqual(
-    schema.$defs.motionPhase.required.toSorted(),
-    ['endMs', 'intent', 'name', 'startMs', 'visibleChange'],
+    schema.$defs.microBeat.required.toSorted(),
+    ['beatId', 'change', 'endMs', 'startMs', 'visibleState'],
   );
-  assert.deepEqual(
-    schema.$defs.readability.required.toSorted(),
-    ['holdEndMs', 'holdStartMs', 'readableItems'],
-  );
+});
+
+test('shared narrative and visual contracts are strict and craft query is progressively bounded', async () => {
+  const [narrativeSchema, visualSchema, catalog] = await Promise.all([
+    readFile(path.join(runtimeReferenceRoot, 'narrative-envelope.schema.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(runtimeReferenceRoot, 'visual-system.schema.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(craftRoot, 'catalog.json'), 'utf8').then(JSON.parse),
+  ]);
+  const narrative = {
+    schemaVersion: '1.0.0', filmId: 'benchmark', window: { startMs: 0, endMs: 12000 },
+    premise: 'A useful idea becomes visible.', audienceJourney: ['question', 'evidence', 'resolution'],
+    chapters: [{ chapterId: 'C01', window: { startMs: 0, endMs: 12000 }, purpose: 'Resolve the premise.' }],
+    terms: [{ term: 'example', meaning: 'A bounded fact.', factStatus: 'provided' }],
+  };
+  assert.deepEqual(validateSchemaValue(narrative, narrativeSchema, narrativeSchema), []);
+  assert.match(validateSchemaValue({ ...narrative, extra: true }, narrativeSchema, narrativeSchema)[0], /additional property/u);
+  const visual = {
+    schemaVersion: '1.0.0', conceptAngle: 'A physical evidence bench', visualWorld: 'Paper and instruments',
+    paletteRoles: [
+      { role: 'field', value: '#EEE9DF', use: 'background' },
+      { role: 'signal', value: '#C33A28', use: 'decisions' },
+    ],
+    typographyRoles: [{ role: 'display', family: 'Fixture Sans', weight: '700', use: 'focus', sourceLocator: 'fonts/display.woff2' }],
+    materials: ['paper', 'ink'], depthPlan: { background: 'field', midground: 'evidence', foreground: 'focus' },
+    compositionFamilies: ['full-bleed-material', 'data-diagram-evidence', 'sparse-hold-chapter-outro'],
+    motifSemantics: [], rhythmCurve: [{ startMs: 0, endMs: 12000, character: 'build then resolve' }],
+    prohibitedLazyDefaults: ['unmotivated cyan-purple glow'], safeAreaPolicy: 'Keep focus inside the frozen task safe area.',
+  };
+  assert.deepEqual(validateSchemaValue(visual, visualSchema, visualSchema), []);
+  assert.match(validateSchemaValue({ ...visual, compositionFamilies: ['full-bleed-material'] }, visualSchema, visualSchema)[0], /too few items/u);
+
+  const summary = queryCraft(catalog, { summary: true });
+  assert.equal(summary.entries, 11);
+  assert.equal(summary.categories.length, 11);
+  assert.equal(JSON.stringify(summary).includes('motionGrammar'), false);
+  const category = queryCraft(catalog, { category: 'asset-fusion' });
+  assert.deepEqual(category.results.map(({ id }) => id), ['media-geometry-fusion']);
+  assert.equal('motionGrammar' in category.results[0], false);
+  const search = queryCraft(catalog, { search: 'readable result' });
+  assert.deepEqual(search.results.map(({ id }) => id), ['diagram-causal-transform', 'resolved-hold']);
+  const selected = queryCraft(catalog, { entry: 'media-geometry-fusion' });
+  assert.equal(selected.category, 'asset-fusion');
+  assert.match(selected.motionGrammar, /media geometry/u);
+  assert.throws(() => queryCraft(catalog, { category: 'not-real' }), /unknown category/u);
+  assert.throws(() => validateCraftCatalog({ ...catalog, schemaVersion: '2.0.0' }), /unsupported schemaVersion/u);
+  assert.throws(() => validateCraftCatalog({ ...catalog, entries: [...catalog.entries, catalog.entries[0]] }), /duplicate id/u);
+  assert.throws(() => validateCraftCatalog({
+    ...catalog,
+    entries: catalog.entries.map((entry, index) => index === 1
+      ? { ...entry, hyperframesLocator: catalog.entries[0].hyperframesLocator } : entry),
+  }), /duplicate hyperframesLocator/u);
+  assert.throws(() => validateCraftCatalog({ ...catalog, extra: true }), /root fields are not closed/u);
+
+  const { stdout } = await execFileAsync(process.execPath, [craftQuery, '--summary']);
+  assert.deepEqual(JSON.parse(stdout), summary);
 });
 
 test('shot recipe validator accepts a valid recipe and rejects semantic or capability drift', async (t) => {
@@ -1381,6 +1464,57 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
     status: 'valid',
     recipes: 1,
   });
+
+  const compactRecipe = {
+    schemaVersion: '2.0.0', shotId: 'S01', window: { startMs: 0, endMs: 2000 },
+    cueIds: ['cue-1'], audienceUnderstanding: 'The value increases.', focus: 'Primary value',
+    compositionFamily: 'data-diagram-evidence',
+    heroFrame: {
+      relationship: 'The value sits on its verified baseline.',
+      layers: { background: 'baseline field', midground: 'evidence axis', foreground: 'result value' },
+    },
+    microBeats: [
+      { beatId: 'b1', startMs: 0, endMs: 1000, visibleState: 'Baseline appears.', change: 'topology' },
+      { beatId: 'b2', startMs: 1000, endMs: 1600, visibleState: 'Value lands.', change: 'attention' },
+    ],
+    materialNeeds: [], requiredCapabilities: recipe.requiredCapabilities,
+    readableHold: { startMs: 1600, endMs: 2000, items: ['value'] },
+    craft: { primary: { entryId: 'stat-evidence-build', semanticReason: 'Connect the value to evidence.' } },
+    patternRef: recipe.patternRef,
+    neighborHandoff: { incoming: 'Continue baseline.', outgoing: 'Carry value.' },
+  };
+  await writeFile(recipePath, `${JSON.stringify(compactRecipe, null, 2)}\n`);
+  assert.deepEqual(await validateRecipeDirectory(recipeDirectory), { status: 'valid', recipes: 1 });
+  const compactSecond = {
+    ...compactRecipe,
+    shotId: 'S02',
+    window: { startMs: 2000, endMs: 4000 },
+    cueIds: ['cue-2'],
+    microBeats: compactRecipe.microBeats.map((beat) => ({
+      ...beat, startMs: beat.startMs + 2000, endMs: beat.endMs + 2000,
+    })),
+    readableHold: { startMs: 3600, endMs: 4000, items: ['value'] },
+  };
+  const secondPath = path.join(recipeDirectory, 'S02.json');
+  await writeFile(secondPath, `${JSON.stringify(compactSecond, null, 2)}\n`);
+  assert.deepEqual(await validateRecipeDirectory(recipeDirectory), { status: 'valid', recipes: 2 });
+  await writeFile(recipePath, `${JSON.stringify(recipe, null, 2)}\n`);
+  await assert.rejects(
+    validateRecipeDirectory(recipeDirectory),
+    /recipe directory mixes schema versions: 1\.0\.0, 2\.0\.0/u,
+  );
+  await rm(secondPath);
+  await writeFile(recipePath, `${JSON.stringify(compactRecipe, null, 2)}\n`);
+  await writeFile(recipePath, `${JSON.stringify({
+    ...compactRecipe, craft: { transition: { entryId: 'stat-evidence-build', semanticReason: 'Invalid category.' } },
+  }, null, 2)}\n`);
+  await assert.rejects(validateRecipeDirectory(recipeDirectory), /transition locator must reference the transition category/u);
+  await writeFile(recipePath, `${JSON.stringify({
+    ...compactRecipe, craft: { primary: { entryId: 'semantic-seam-carry', semanticReason: 'Invalid category.' } },
+  }, null, 2)}\n`);
+  await assert.rejects(validateRecipeDirectory(recipeDirectory), /primary locator must not reference the transition category/u);
+  await writeFile(recipePath, `${JSON.stringify({ ...compactRecipe, schemaVersion: '3.0.0' }, null, 2)}\n`);
+  await assert.rejects(validateRecipeDirectory(recipeDirectory), /unsupported recipe schema version/u);
 
   await writeFile(recipePath, `${JSON.stringify({
     ...recipe,
@@ -1470,10 +1604,18 @@ test('post-Director runtime planner is deterministic, evidence-based, contiguous
   await writeFile(selectionFile, `${JSON.stringify({
     schemaVersion: '2.0.0', status: 'selected', selectedRuntime: 'auto', selectionSource: 'default',
   })}\n`);
-  const first = await planRuntime({ recipesDirectory: recipes, selectionFile });
-  const second = await planRuntime({ recipesDirectory: recipes, selectionFile });
+  const sharedArtifactFiles = await writeSharedDirectorArtifacts(state.base);
+  const first = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
+  const second = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
   assert.deepEqual(first, second);
-  assert.deepEqual(await validateRuntimePlan(first), { status: 'valid', shots: 3, blocks: 2, route: 'hybrid' });
+  assert.deepEqual(await validateRuntimePlan(first, sharedArtifactFiles), { status: 'valid', shots: 3, blocks: 2, authoringUnits: 2, route: 'hybrid' });
+  assert.match(first.sharedArtifacts.narrativeEnvelope.sha256, /^[0-9a-f]{64}$/u);
+  await assert.rejects(validateRuntimePlan(first), /narrative envelope file is required/u);
+  const originalNarrative = await readFile(sharedArtifactFiles.narrativeEnvelopeFile, 'utf8');
+  await writeFile(sharedArtifactFiles.narrativeEnvelopeFile, originalNarrative.replace('Fixture premise.', 'Changed premise.'));
+  await assert.rejects(validateRuntimePlan(first, sharedArtifactFiles), /content hash does not match/u);
+  await writeFile(sharedArtifactFiles.narrativeEnvelopeFile, originalNarrative);
+  assert.equal(first.schemaVersion, '2.0.0');
   assert.equal(first.resultingRoute, 'hybrid');
   assert.deepEqual(first.requiredBackends, ['hyperframes', 'remotion']);
   assert.deepEqual(first.blocks.map(({ runtime, window, shotIds }) => ({ runtime, window, shotIds })), [
@@ -1485,15 +1627,87 @@ test('post-Director runtime planner is deterministic, evidence-based, contiguous
   assert.match(first.shots[1].unverifiedPreferences[0], /not a render witness/u);
   assert.equal(first.shots[2].decision, 'native-required');
   assert.equal(first.shots[2].evidence[0].id, 'effects.dom-pixel-postprocess');
+  assert.deepEqual(first.authoringUnits.map(({ blockId, runtime, shotIds }) => ({ blockId, runtime, shotIds })), [
+    { blockId: 'B001', runtime: 'hyperframes', shotIds: ['S01'] },
+    { blockId: 'B002', runtime: 'remotion', shotIds: ['S02', 'S03'] },
+  ]);
+  assert.deepEqual(first.authoringUnits[1].context.recipes, ['shot-recipes/S02.json', 'shot-recipes/S03.json']);
 
   const legacySelection = path.join(state.base, 'legacy-selection.json');
   await writeFile(legacySelection, `${JSON.stringify({
     schemaVersion: '1.0.0', status: 'selected', selectedRuntime: 'remotion', selectionSource: 'explicit',
   })}\n`);
-  const grandfathered = await planRuntime({ recipesDirectory: recipes, selectionFile: legacySelection });
+  const grandfathered = await planRuntime({ recipesDirectory: recipes, selectionFile: legacySelection, ...sharedArtifactFiles });
   assert.equal(grandfathered.planningMode, 'forced-single');
   assert.equal(grandfathered.resultingRoute, 'remotion');
   assert.equal(grandfathered.blocks.length, 1);
+  assert.equal(grandfathered.authoringUnits.length, 1);
+});
+
+test('runtime planner partitions focused units deterministically at shot, count, duration, solo, and backend boundaries', async (t) => {
+  const state = await isolated(t);
+  const recipes = path.join(state.base, 'recipes');
+  await mkdir(recipes);
+  const common = ['semantic.integer-ms-window', 'semantic.visual-state-transition', 'semantic.readable-hold'];
+  const windows = [[0, 10000], [10000, 20000], [20000, 30000], [30000, 45000], [45000, 85000]];
+  for (const [index, [startMs, endMs]] of windows.entries()) {
+    const shotId = `S${String(index + 1).padStart(2, '0')}`;
+    const recipe = {
+      schemaVersion: '2.0.0', shotId, window: { startMs, endMs }, cueIds: [`cue-${index + 1}`],
+      audienceUnderstanding: shotId, focus: shotId, compositionFamily: 'data-diagram-evidence',
+      heroFrame: { relationship: 'Evidence supports focus.', layers: { background: 'field', midground: 'evidence', foreground: 'focus' } },
+      microBeats: [{ beatId: 'b1', startMs, endMs, visibleState: 'Complete state.', change: 'relationship' }],
+      materialNeeds: [], requiredCapabilities: common,
+      readableHold: { startMs, endMs, items: [] }, neighborHandoff: { incoming: 'In.', outgoing: 'Out.' },
+      ...(index === 2 ? { authoring: { solo: true, reason: 'Hero shot.' } } : {}),
+    };
+    await writeFile(path.join(recipes, `${shotId}.json`), `${JSON.stringify(recipe)}\n`);
+  }
+  const selectionFile = path.join(state.base, 'selection.json');
+  await writeFile(selectionFile, `${JSON.stringify({ schemaVersion: '2.0.0', status: 'selected', selectedRuntime: 'hyperframes', selectionSource: 'explicit' })}\n`);
+  const sharedArtifactFiles = await writeSharedDirectorArtifacts(state.base, 85000);
+  const plan = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
+  assert.deepEqual(plan.authoringUnits.map(({ window, shotIds }) => ({ window, shotIds })), [
+    { window: { startMs: 0, endMs: 20000 }, shotIds: ['S01', 'S02'] },
+    { window: { startMs: 20000, endMs: 30000 }, shotIds: ['S03'] },
+    { window: { startMs: 30000, endMs: 45000 }, shotIds: ['S04'] },
+    { window: { startMs: 45000, endMs: 85000 }, shotIds: ['S05'] },
+  ]);
+  assert.deepEqual(await validateRuntimePlan(plan, sharedArtifactFiles), { status: 'valid', shots: 5, blocks: 1, authoringUnits: 4, route: 'hyperframes' });
+
+  const broken = structuredClone(plan);
+  broken.authoringUnits[0].shotIds.push('S03');
+  broken.authoringUnits[0].window.endMs = 30000;
+  broken.authoringUnits[0].context.recipes.push('shot-recipes/S03.json');
+  broken.authoringUnits[1].shotIds = ['S04'];
+  broken.authoringUnits[1].window = { startMs: 30000, endMs: 45000 };
+  broken.authoringUnits[1].context.recipes = ['shot-recipes/S04.json'];
+  const { computeRuntimePlanIdentity } = await import('../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs');
+  broken.identity = computeRuntimePlanIdentity(broken);
+  await assert.rejects(validateRuntimePlan(broken, sharedArtifactFiles), /units must close over every shot exactly once/u);
+
+  const longRecipePath = path.join(recipes, 'S05.json');
+  const longRecipe = JSON.parse(await readFile(longRecipePath, 'utf8'));
+  longRecipe.window.endMs = 85001;
+  longRecipe.microBeats[0].endMs = 85001;
+  longRecipe.readableHold.endMs = 85001;
+  await writeFile(longRecipePath, `${JSON.stringify(longRecipe)}\n`);
+  await writeFile(sharedArtifactFiles.narrativeEnvelopeFile, (await readFile(sharedArtifactFiles.narrativeEnvelopeFile, 'utf8')).replaceAll('85000', '85001'));
+  await writeFile(sharedArtifactFiles.visualSystemFile, (await readFile(sharedArtifactFiles.visualSystemFile, 'utf8')).replaceAll('85000', '85001'));
+  const stopped = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
+  assert.equal(stopped.status, 'action-required');
+  assert.match(stopped.warnings.join('\n'), /semantic shot exceeds 40000ms/u);
+
+  const invalidDispatch = structuredClone(plan);
+  invalidDispatch.authoringUnits.at(-1).window.endMs = 85001;
+  invalidDispatch.shots.at(-1).window.endMs = 85001;
+  invalidDispatch.blocks.at(-1).window.endMs = 85001;
+  invalidDispatch.sharedArtifacts = stopped.sharedArtifacts;
+  invalidDispatch.identity = computeRuntimePlanIdentity(invalidDispatch);
+  await assert.rejects(
+    validateRuntimePlan(invalidDispatch, sharedArtifactFiles),
+    /authoring unit exceeds 40000ms/u,
+  );
 });
 
 test('frozen block validator checks actual hashes and rejects profile, audio, and media drift', async (t) => {
@@ -2268,7 +2482,7 @@ test('doctor uses only mocked official commands and isolated host/config paths',
   const runner = async (_command, args, options) => {
     assert.equal(options.env.PEXELS_API_KEY, undefined);
     assert.equal(options.env.HYPERFRAMES_NO_TELEMETRY, '1');
-    calls.push(args.slice(-3));
+    calls.push(args);
     if (args.includes('doctor')) {
       return {
         code: 0,
@@ -2296,6 +2510,18 @@ test('doctor uses only mocked official commands and isolated host/config paths',
   assert.equal(report.status, 'ready');
   assert.equal(report.hyperframes.official_doctor.selected_local_render_ready, true);
   assert.equal(report.custom_skills.ready_count, SKILL_NAMES.length * 2);
+  const skillsCheck = calls.find((args) => args.includes('skills') && args.includes('check'));
+  const pinnedSkillSource = officialSkillBundleRoot(appDir);
+  assert.deepEqual(skillsCheck, [
+    cli,
+    'skills',
+    'check',
+    '--dir',
+    path.join(pinnedSkillSource, 'skills'),
+    '--source',
+    pinnedSkillSource,
+    '--json',
+  ]);
   assert.equal(JSON.stringify(report).includes('fixture-env-credential'), false);
   const rejected = await collectDoctor({
     env: { ...state.env, [PEXELS_ENV_FIELD]: envCredential },
@@ -2545,6 +2771,14 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   });
   const mockNpmCli = path.join(state.base, 'mock-npm-cli.js');
   await writeFile(mockNpmCli, '// never executed; runner is mocked\n', 'utf8');
+  const occupiedSkill = path.join(
+    state.homeDir,
+    '.codex',
+    'skills',
+    'erduo-broll-loop-engineering',
+  );
+  await mkdir(occupiedSkill, { recursive: true });
+  await writeFile(path.join(occupiedSkill, 'preserved.txt'), 'pre-existing Skill\n', 'utf8');
   const calls = [];
   const processCanary = ['child', 'process', 'canary'].join('-');
   let ffmpegInstalled = false;
@@ -2596,6 +2830,8 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
   assert.equal(report.custom_skill_links, SKILL_NAMES.length * 2);
   assert.equal(report.official_skill_links, HYPERFRAMES_SKILL_NAMES.length * 2);
   assert.equal(report.total_skill_links, INSTALL_SKILL_NAMES.length * 2);
+  assert.equal(report.backed_up, 1);
+  assert.equal(report.inherited_backups, 0);
   assert.equal(report.official_doctor_selected_local_render_ready, true);
   assert.equal(report.official_skills_commit, HYPERFRAMES_SKILLS_COMMIT);
   const stagedAdd = calls.find(({ args }) => args[1] === 'add' && args.includes('--full-depth'));
@@ -2635,6 +2871,17 @@ test('one-click installer orchestrates only mocked npm and official HyperFrames 
       assert.equal((await lstat(target)).isSymbolicLink(), true);
     }
   }
+  const rerun = await runInstall({
+    repoRoot,
+    homeDir: state.homeDir,
+    env: state.env,
+    platform: 'darwin',
+    appDir,
+    runner,
+    npmCli: mockNpmCli,
+  });
+  assert.equal(rerun.backed_up, 0);
+  assert.equal(rerun.inherited_backups, 1);
 });
 
 test('pinned official Skill staging rejects commit drift without writing host Skill roots', async (t) => {
@@ -3598,7 +3845,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.6.0');
+  assert.equal(RELEASE_VERSION, '0.7.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);

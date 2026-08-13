@@ -17,9 +17,27 @@
 
 官方 doctor 可能因为 npm 上已有更新版本而把顶层 `ok` 置为 false。只在 doctor 的 `_meta.version` 精确等于本发行包锁定的 `0.7.104`、失败项只是“newer version available”，且 Node、FFmpeg、FFprobe、Chrome 等选中本地渲染事实全部通过时，本项目把它记录为非阻断更新提示；版本不明、版本不符或任何渲染事实失败仍会关闭发布/生产门。
 
+## v0.7 first-pass craft 合同
+
+`0.7.0` 冻结的是第一次预览的生成机制，不是自动化审美证明。默认链不增加独立视觉审查、审美评分、lookdev 或逐镜审批；最终 composition preview 仍是正式渲染前唯一默认审美/用户停点。发布候选只有在同输入 first-pass benchmark 中由用户明确选择后，才能表述为相对 `0.6.0` 的视觉结果提升。
+
+| 项目 | `0.7.0` 状态 | 证据边界 |
+| --- | --- | --- |
+| Narrative envelope + shared visual system | verified contract + validator | 全片上下文、视觉世界、颜色/字体角色、材料/深度、构图家族、节奏、禁用项和安全区只冻结一次；不表示任意 Builder 输出天然符合审美 |
+| Compact Shot Recipe v2 | verified contract + validator | 每镜差量、hero frame、micro-beats、material needs、接缝和 hold 可确定性校验；beat 语义与画面质量仍须在实际预览中判断 |
+| Recipe / Runtime Plan v1 compatibility | supported read compatibility | validator 和 planner 按 `schemaVersion` 接受 v1；旧 run 不追溯迁移，不会凭旧合同获得 v2 shared artifact 或 authoring-unit 声明 |
+| Focused `authoringUnits` | verified deterministic plan | unit 只含同一 backend block 的完整镜头，默认 1–3 镜、绝对上限 40 秒，并精确闭合所有 shots；不改变 backend capability routing |
+| Runtime-neutral craft catalog | verified original data + CLI | 小型原创 catalog、归因 manifest 和渐进查询进入发布闭集；条目是 authoring guidance，不是现成组件、模板、审美评分或跨后端 parity 证据 |
+| Conditional Assets | supported production contract | shot-specific material need 为空时不搜索 Pexels/生成素材；命中素材路由后仍要求来源、权利、hash、裁切、字体和融合几何。该合同不保证外部服务始终可用 |
+| Context / handoff reduction | release-benchmark required | 目标为 Director + Builder 实际输入/输出字节相对 `0.6.0` 至少减少 30%，handoff prose 至少减少 50%；未完成冻结 benchmark 前不标 verified |
+| First-preview visual uplift | user decision required | 必须使用相同 12–15 秒 SRT、画幅、fps、字幕/音频政策、素材与服务授权，只比较两版第一次完整预览；自动测试和技术通过不能替代用户选择 |
+| `auto-motion` clean-room boundary | verified attribution boundary | 仅记录 `vibe-motion/auto-motion@17ead629d010f7e5495f645d46fafd6876482c32` 的可观察设计思想；审计时未发现 LICENSE，不复制代码、Prompt、Skill、范例、媒体或原文 |
+
+两代合同都继续要求 SRT 整数毫秒、完整覆盖、来源与字体闭包、能力证据路由、后端隔离、preview identity、FFprobe 和完整解码。技术验证不得宣称审美通过。
+
 ## Runtime adapter 与 Shotcraft 知识层
 
-运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由确定性 Runtime Planner 按 capability 与 exact pattern/backend evidence 逐镜选择后端并聚合连续区块。用户可强制整片单后端；空白新项目默认 auto。Planner 不读语义关键词。
+运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由确定性 Runtime Planner 按 capability 与 exact pattern/backend evidence 逐镜选择后端、聚合连续区块并生成聚焦 authoring units。用户可强制整片单后端；空白新项目默认 auto。Planner 不读语义关键词。
 
 能力状态必须按镜头机制逐项判断：
 
@@ -36,7 +54,7 @@
 
 ### `video-shotcraft` 吸收边界
 
-| 项目 | `0.6.0` 状态 | 证据边界 |
+| 项目 | `0.7.0` 状态 | 证据边界 |
 | --- | --- | --- |
 | 镜头卡目录 | verified data | 152 张卡、209 个全局唯一 style key；目录、来源 commit 与 manifest 由自动化测试核验 |
 | 卡片全文 | verified upstream artifact | 每卡与 pinned upstream Markdown byte-identical，并有稳定 ID、上游 URL、本地路径、字节数与 SHA-256；正文作为运行时中立镜头知识消费 |

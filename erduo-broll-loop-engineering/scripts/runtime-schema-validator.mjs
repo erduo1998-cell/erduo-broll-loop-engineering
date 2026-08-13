@@ -39,6 +39,7 @@ export function validateSchemaValue(value, rule, rootSchema, pointer = '#', erro
   }
   if (Array.isArray(value)) {
     if ('minItems' in resolved && value.length < resolved.minItems) errors.push(`${pointer}: has too few items`);
+    if ('maxItems' in resolved && value.length > resolved.maxItems) errors.push(`${pointer}: has too many items`);
     if (resolved.uniqueItems && new Set(value.map((item) => JSON.stringify(item))).size !== value.length) errors.push(`${pointer}: items must be unique`);
     if (resolved.items) value.forEach((item, index) => validateSchemaValue(item, resolved.items, rootSchema, `${pointer}/${index}`, errors));
   }

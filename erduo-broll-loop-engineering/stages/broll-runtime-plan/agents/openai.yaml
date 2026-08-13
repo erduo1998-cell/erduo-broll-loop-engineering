@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Runtime Planner"
-  short_description: "Plan evidence-backed per-shot backends"
-  default_prompt: "Use $broll-runtime-plan after Direction to generate and validate one deterministic runtime plan."
+  short_description: "Plan backends and focused authoring units."
+  default_prompt: "Use $broll-runtime-plan after Direction to generate and validate one deterministic backend plan with whole-shot authoring units of at most 40 seconds."

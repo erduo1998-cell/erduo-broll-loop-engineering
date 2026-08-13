@@ -19,12 +19,20 @@
 - Grandfathered schema-1 single-runtime runs continue unchanged and are not
   retroactively routed.
 
-## Runtime-neutral Recipes
+## Shared direction and runtime-neutral Recipe v2
 
-The canonical Recipe describes what the shot communicates and which observable
-states, materials, motion phases, focus order, and readability windows must
-exist. It contains no React/TSX/hooks/frames, HyperFrames markup/selectors/CLI,
-runtime paths, dependency versions, or copied implementation source.
+Director writes the whole-film context once in `narrative-envelope.json` and
+the visual world once in `visual-system.json`. The latter owns palette and
+typography roles, material/depth logic, composition families, motif semantics,
+rhythm, safe areas, and global prohibitions.
+
+The canonical compact Recipe v2 contains only the shot delta: communication
+goal/focus, composition family, hero-frame relationship, visible
+`microBeats[]`, shot-specific material need, optional craft/pattern locators,
+neighbor handoff, and readability hold. Do not repeat shared system rules. It
+contains no React/TSX/hooks/frames, HyperFrames markup/selectors/CLI, runtime
+paths, dependency versions, or copied implementation source. Schema-1 runs
+remain readable and are not retroactively migrated.
 
 Use parsed SRT integer milliseconds as the sole time truth. Shot windows are
 `[startMs,endMs)`. Phases and readability windows remain absolute integers
@@ -63,14 +71,22 @@ Evidence order is deterministic:
 
 No semantic keyword, directory name, agent taste, or signal count participates.
 Equal-priority backend conflicts stop. Decisions are made per shot, then
-adjacent same-backend shots merge into contiguous blocks. Every plan records
-evidence, unverified preferences, warnings, blocks, required backends,
-integration mode, and a canonical identity.
+adjacent same-backend shots merge into contiguous blocks. Inside each block,
+the planner creates ordered whole-shot `authoringUnits` that default to 1–3
+shots and have an absolute maximum of 40 seconds. A hero, complex asset-fusion,
+or complex camera shot may be one unit only when that shot is at most 40
+seconds. Planner rejects an overlong shot and returns it to Director for a
+semantic split; it never crosses a shot over units or accepts a solo exception.
+Every plan records evidence, unverified
+preferences, warnings, blocks, authoring units, required backends, integration
+mode, and a canonical identity.
 
 ## Backend obligations
 
-Every Builder must validate its assigned Recipes and plan identity, preserve
-semantic intent and exact windows, resolve capabilities, use local materials
+Every Builder must validate its assigned authoring unit, Recipes, and plan
+identity; read only that unit, adjacent seam summaries, shared-system locators,
+frozen assets/fonts, and 0–2 selected references; preserve semantic intent and
+exact windows, resolve capabilities, use local materials
 and fonts, produce deterministic seekable source, and record runtime/version,
 time conversion, source identity, pattern/fallback decisions, and honest
 variance. It never reroutes after failure.
@@ -82,12 +98,26 @@ For a hybrid plan, each Builder additionally freezes exactly one local
 lossless or visually-lossless mezzanine for its planned block and writes a
 schema-valid `block-media.json`. The contract binds:
 
+When the block contains one authoring unit, its Builder may freeze it directly.
+When it contains multiple units, all unit receipts must first pass; then one
+fresh same-backend Builder runs a deterministic `block-freeze` pass over only
+those verified unit source exports/receipts and the block window. It may write
+only temporary block-level composition/sequence glue, must hash the glue and
+all mounted unit source into an aggregate identity, and must run the selected
+backend's normal technical commands to render and verify the mezzanine. It
+cannot change unit-internal creative, timing, shots, or source and cannot
+perform aesthetic review; any source/hash drift, glue conflict, or render
+defect returns to the implicated unit owner.
+This preserves one frozen contract per backend block without adding a stage or
+allowing the Hybrid Integrator to execute an animation backend.
+
 - block/runtime/shot/window identity;
 - uniform raster, fps rational, pixel format, color space, mezzanine class,
   and audio policy;
 - relative local media path and actual SHA-256;
 - objective container/codec/duration/frame/audio facts;
-- backend source identity;
+- backend source identity, including block-level glue and mounted unit-source
+  hashes for a multi-unit freeze pass;
 - FFprobe, full decode, opening/closing inspection;
 - `noRealtimeNesting: true`.
 

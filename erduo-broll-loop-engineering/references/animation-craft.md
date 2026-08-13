@@ -7,6 +7,10 @@ Direction and backend-native authoring. They generate motion decisions; they
 are not a shot checklist, runtime capability taxonomy, evidence schema, or
 still-frame review rubric.
 
+Use this protocol together with the shared visual system, compact Recipe v2
+`microBeats[]`, and progressively queried craft guidance. Do not duplicate its
+rules in every Recipe or expand it into a longer downstream prompt.
+
 Do not begin with an effect, easing curve, spring, transition, catalog card, or
 runtime primitive. Generate each shot in this order:
 
@@ -123,14 +127,16 @@ atomic rule, blueprint, adapter, transition, or ease.
 
 Author in this order:
 
-1. place the initial, decisive, result, and stable states on the one paused,
+1. author the maximum visible hero frame first, including focus, depth layers,
+   supporting structure, media relationship, and stable readable result;
+2. place the initial, decisive, result, and stable states on the one paused,
    seekable timeline;
-2. add only the preparation needed to direct attention;
-3. connect the primary action using motion consistent with the subject's body;
-4. derive lag, overlap, overshoot, and settling of dependent layers from that
+3. add only the preparation needed to direct attention;
+4. connect the primary action using motion consistent with the subject's body;
+5. derive lag, overlap, overshoot, and settling of dependent layers from that
    primary action;
-5. add secondary action only when it strengthens meaning;
-6. remove ambient motion that has no informational or emotional cause.
+6. add secondary action only when it strengthens meaning;
+7. remove ambient motion that has no informational or emotional cause.
 
 Use the smallest set of HyperFrames mechanisms that preserves the generated
 direction. For elastic motion pair axial scales coherently rather than tweening
@@ -141,8 +147,10 @@ contract.
 
 ## Remotion Builder generation procedure
 
-Read the same generated direction before choosing `interpolate()`, `spring()`,
-`Sequence`, or a procedural function. Define a small number of semantic states
+Author the same maximum visible hero frame first, without creating a preview
+approval artifact. Read the generated direction before choosing
+`interpolate()`, `spring()`, `Sequence`, or a procedural function. Define a
+small number of semantic states
 and their frame windows first, then reconstruct every visible state from the
 current frame and fps.
 

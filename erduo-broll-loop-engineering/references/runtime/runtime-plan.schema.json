@@ -1,73 +1,40 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/runtime-plan.schema.json",
-  "title": "Post-Director runtime plan",
+  "title": "Post-Director runtime plan v2 with focused authoring units",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "status", "planningMode", "selection", "resultingRoute", "requiredBackends", "integrationMode", "frozenMediaContractVersion", "shots", "blocks", "warnings", "identity"],
+  "required": ["schemaVersion", "status", "planningMode", "selection", "sharedArtifacts", "resultingRoute", "requiredBackends", "integrationMode", "frozenMediaContractVersion", "shots", "blocks", "authoringUnits", "warnings", "identity"],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "const": "2.0.0" },
     "status": { "enum": ["planned", "action-required"] },
     "planningMode": { "enum": ["auto", "forced-single", "forced-hybrid"] },
-    "selection": {
-      "type": "object", "additionalProperties": false,
-      "required": ["schemaVersion", "selectedRuntime", "selectionSource"],
+    "selection": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "selectedRuntime", "selectionSource"], "properties": { "schemaVersion": { "type": "string", "minLength": 1 }, "selectedRuntime": { "enum": ["auto", "hyperframes", "hybrid", "remotion"] }, "selectionSource": { "enum": ["explicit", "detected", "default"] } } },
+    "sharedArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["narrativeEnvelope", "visualSystem"],
       "properties": {
-        "schemaVersion": { "type": "string", "minLength": 1 },
-        "selectedRuntime": { "enum": ["auto", "hyperframes", "hybrid", "remotion"] },
-        "selectionSource": { "enum": ["explicit", "detected", "default"] }
+        "narrativeEnvelope": { "$ref": "#/$defs/sharedArtifact" },
+        "visualSystem": { "$ref": "#/$defs/sharedArtifact" }
       }
     },
     "resultingRoute": { "type": ["string", "null"], "enum": ["hyperframes", "hybrid", "remotion", null] },
-    "requiredBackends": {
-      "type": "array", "uniqueItems": true,
-      "items": { "enum": ["hyperframes", "remotion"] }
-    },
+    "requiredBackends": { "type": "array", "uniqueItems": true, "items": { "enum": ["hyperframes", "remotion"] } },
     "integrationMode": { "type": ["string", "null"], "enum": ["single-runtime-source", "frozen-block-media", null] },
     "frozenMediaContractVersion": { "type": ["string", "null"], "enum": ["1.0.0", null] },
     "shots": { "type": "array", "items": { "$ref": "#/$defs/shot" } },
     "blocks": { "type": "array", "items": { "$ref": "#/$defs/block" } },
+    "authoringUnits": { "type": "array", "items": { "$ref": "#/$defs/authoringUnit" } },
     "warnings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
   },
   "$defs": {
-    "window": {
-      "type": "object", "additionalProperties": false, "required": ["startMs", "endMs"],
-      "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 } }
-    },
-    "evidence": {
-      "type": "object", "additionalProperties": false,
-      "required": ["kind", "id", "runtime", "priority", "verification", "locator"],
-      "properties": {
-        "kind": { "enum": ["forced", "native-capability", "capability-preference", "pattern-reference", "portable-default"] },
-        "id": { "type": "string", "minLength": 1 },
-        "runtime": { "enum": ["hyperframes", "remotion"] },
-        "priority": { "type": "integer", "minimum": 0, "maximum": 1000 },
-        "verification": { "type": "string", "minLength": 1 },
-        "locator": { "type": "string", "minLength": 1 }
-      }
-    },
-    "shot": {
-      "type": "object", "additionalProperties": false,
-      "required": ["shotId", "window", "runtime", "decision", "evidence", "unverifiedPreferences"],
-      "properties": {
-        "shotId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
-        "window": { "$ref": "#/$defs/window" },
-        "runtime": { "enum": ["hyperframes", "remotion"] },
-        "decision": { "enum": ["forced", "native-required", "capability-preference", "pattern-reference", "portable-default"] },
-        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } },
-        "unverifiedPreferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
-      }
-    },
-    "block": {
-      "type": "object", "additionalProperties": false,
-      "required": ["blockId", "runtime", "window", "shotIds"],
-      "properties": {
-        "blockId": { "type": "string", "pattern": "^B[0-9]{3}$" },
-        "runtime": { "enum": ["hyperframes", "remotion"] },
-        "window": { "$ref": "#/$defs/window" },
-        "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
-      }
-    }
+    "window": { "type": "object", "additionalProperties": false, "required": ["startMs", "endMs"], "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 } } },
+    "sharedArtifact": { "type": "object", "additionalProperties": false, "required": ["locator", "schemaVersion", "sha256"], "properties": { "locator": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" }, "schemaVersion": { "const": "1.0.0" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } } },
+    "evidence": { "type": "object", "additionalProperties": false, "required": ["kind", "id", "runtime", "priority", "verification", "locator"], "properties": { "kind": { "enum": ["forced", "native-capability", "capability-preference", "pattern-reference", "portable-default"] }, "id": { "type": "string", "minLength": 1 }, "runtime": { "enum": ["hyperframes", "remotion"] }, "priority": { "type": "integer", "minimum": 0, "maximum": 1000 }, "verification": { "type": "string", "minLength": 1 }, "locator": { "type": "string", "minLength": 1 } } },
+    "shot": { "type": "object", "additionalProperties": false, "required": ["shotId", "window", "runtime", "decision", "evidence", "unverifiedPreferences"], "properties": { "shotId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" }, "window": { "$ref": "#/$defs/window" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "decision": { "enum": ["forced", "native-required", "capability-preference", "pattern-reference", "portable-default"] }, "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }, "unverifiedPreferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "block": { "type": "object", "additionalProperties": false, "required": ["blockId", "runtime", "window", "shotIds"], "properties": { "blockId": { "type": "string", "pattern": "^B[0-9]{3}$" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "window": { "$ref": "#/$defs/window" }, "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "authoringUnit": { "type": "object", "additionalProperties": false, "required": ["unitId", "blockId", "runtime", "window", "shotIds", "context"], "properties": { "unitId": { "type": "string", "pattern": "^U[0-9]{3}$" }, "blockId": { "type": "string", "pattern": "^B[0-9]{3}$" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "window": { "$ref": "#/$defs/window" }, "shotIds": { "type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }, "context": { "type": "object", "additionalProperties": false, "required": ["narrativeEnvelope", "visualSystem", "recipes", "previousSeam", "nextSeam"], "properties": { "narrativeEnvelope": { "type": "string", "minLength": 1 }, "visualSystem": { "type": "string", "minLength": 1 }, "recipes": { "type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }, "previousSeam": { "type": ["string", "null"] }, "nextSeam": { "type": ["string", "null"] } } } } }
   }
 }

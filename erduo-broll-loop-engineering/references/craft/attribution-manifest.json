@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogOrigin": "Original erduo-broll-loop-engineering runtime-neutral craft taxonomy and wording.",
+  "observedReference": {
+    "repository": "https://github.com/vibe-motion/auto-motion",
+    "commit": "17ead629d010f7e5495f645d46fafd6876482c32",
+    "licenseObservedAtAudit": null,
+    "useBoundary": "Design ideas and observable behavior informed the product goal; no code, prompts, examples, media, or prose were copied."
+  },
+  "independentDerivations": [
+    "The micro-beat change taxonomy is an original project contract.",
+    "The strict Recipe, authoring-unit, timing, source, and backend-isolation contracts are original project work."
+  ]
+}

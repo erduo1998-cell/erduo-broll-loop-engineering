@@ -3,7 +3,8 @@
 Runtime routing has two distinct decisions. The initial selector records user
 intent or existing-project ownership. The post-Director planner assigns each
 validated Shot Recipe to a backend from declared capability and exact pattern
-evidence, then merges adjacent same-backend shots into contiguous blocks.
+evidence, then merges adjacent same-backend shots into contiguous blocks and
+partitions focused whole-shot authoring units within them.
 
 ## Initial selector
 
@@ -69,18 +70,22 @@ not a component or render witness. The plan records it under
 preference but do not claim controlled comparison or visual parity.
 
 Planning occurs per shot, then adjacent same-backend shots merge into
-contiguous blocks. `auto` may resolve to HyperFrames, Remotion, or hybrid.
+contiguous blocks and bounded authoring units. `auto` may resolve to
+HyperFrames, Remotion, or hybrid.
 Explicit `hybrid` must naturally produce both backends; do not split work
 artificially when evidence resolves to one.
 
 ## Readiness and fork
 
 Base Onboarding checks only shared Node, FFmpeg/FFprobe, paths, storage,
-Pexels, and Skill discovery. After planning, targeted Onboarding prepares
+recorded Pexels state, and Skill discovery. Missing Pexels does not block until
+the validated material plan actually needs that route. After planning,
+targeted Onboarding prepares
 exactly `requiredBackends`. Never install both blindly.
 
 Single-backend plans use the existing native Builder → Integrator → Render
-chain. Hybrid plans dispatch each block to its assigned Builder. Each Builder
+chain. Plans dispatch each authoring unit to its assigned Builder. Hybrid
+handoffs preserve the unit-to-block closure. Each Builder
 then freezes a verified block mezzanine and `block-media.json`. Only the
 runtime-neutral Hybrid Integrator and Hybrid Render may consume those frozen
 artifacts. Generated source is never translated, nested, or executed across

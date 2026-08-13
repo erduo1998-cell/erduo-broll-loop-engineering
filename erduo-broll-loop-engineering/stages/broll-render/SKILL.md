@@ -90,7 +90,9 @@ Do not delete output or user files to make room.
 Run the official standard HyperFrames `check`. It blocks on errors by default.
 Warnings require investigation but block automatically only when the user or
 an explicit project requirement asks for strict behavior. Inspect relevant
-browser evidence for warnings that may represent a visible defect.
+browser evidence only for concrete defects implicated by warnings. Do not run
+an independent aesthetic review or create any gate beyond the final
+composition preview approval below.
 
 After check succeeds, inspect whether valid approval evidence already binds
 this exact integrated composition and check result. Recompute and compare the
@@ -175,5 +177,5 @@ traceability is incomplete.
 
 Stop the current Agent after a failed formal render and report the attempt
 honestly so the Parent can dispatch a fresh Render/Delivery Agent. Technical
-success never decides visual taste; the user makes the final judgment by
-watching the master.
+success never decides visual taste; the user's identity-bound final composition
+preview approval is the only default aesthetic decision.

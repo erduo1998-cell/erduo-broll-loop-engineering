@@ -4,10 +4,12 @@ import { readFile, readdir } from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateCraftCatalog } from './craft-catalog.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeRoot = path.join(skillRoot, 'references', 'runtime');
 const shotcraftRoot = path.join(skillRoot, 'references', 'shotcraft');
+const craftRoot = path.join(skillRoot, 'references', 'craft');
 
 function resolveLocalRef(rootSchema, reference) {
   if (!reference.startsWith('#/')) throw new Error(`unsupported schema reference: ${reference}`);
@@ -63,6 +65,9 @@ function validateSchema(value, rule, rootSchema, pointer, errors) {
     if ('minItems' in resolved && value.length < resolved.minItems) {
       errors.push(`${pointer}: must contain at least ${resolved.minItems} item(s)`);
     }
+    if ('maxItems' in resolved && value.length > resolved.maxItems) {
+      errors.push(`${pointer}: must contain at most ${resolved.maxItems} item(s)`);
+    }
     if (resolved.uniqueItems) {
       const encoded = value.map((item) => JSON.stringify(item));
       if (new Set(encoded).size !== encoded.length) errors.push(`${pointer}: items must be unique`);
@@ -98,6 +103,7 @@ function validateSemanticInvariants(
   unsupportedIds,
   shotcraftCards,
   shotcraftRevision,
+  craftEntries,
   fileName,
   errors,
 ) {
@@ -118,6 +124,19 @@ function validateSemanticInvariants(
     }
   }
 
+  for (const [index, beat] of (recipe.microBeats ?? []).entries()) {
+    if (Number.isInteger(beat.startMs) && Number.isInteger(beat.endMs)) {
+      if (beat.endMs <= beat.startMs) errors.push(`#/microBeats/${index}: endMs must be greater than startMs`);
+      if (Number.isInteger(startMs) && Number.isInteger(endMs)
+        && (beat.startMs < startMs || beat.endMs > endMs)) {
+        errors.push(`#/microBeats/${index}: beat must stay inside the shot window`);
+      }
+    }
+    if (index > 0 && beat.startMs < recipe.microBeats[index - 1].endMs) {
+      errors.push(`#/microBeats/${index}: beats must not overlap or run out of order`);
+    }
+  }
+
   const holdStartMs = recipe.readability?.holdStartMs;
   const holdEndMs = recipe.readability?.holdEndMs;
   if (Number.isInteger(holdStartMs) && Number.isInteger(holdEndMs)) {
@@ -127,6 +146,15 @@ function validateSemanticInvariants(
     if (Number.isInteger(startMs) && Number.isInteger(endMs)
       && (holdStartMs < startMs || holdEndMs > endMs)) {
       errors.push('#/readability: hold window must stay inside the shot window');
+    }
+  }
+  const compactHoldStartMs = recipe.readableHold?.startMs;
+  const compactHoldEndMs = recipe.readableHold?.endMs;
+  if (Number.isInteger(compactHoldStartMs) && Number.isInteger(compactHoldEndMs)) {
+    if (compactHoldEndMs <= compactHoldStartMs) errors.push('#/readableHold: endMs must be greater than startMs');
+    if (Number.isInteger(startMs) && Number.isInteger(endMs)
+      && (compactHoldStartMs < startMs || compactHoldEndMs > endMs)) {
+      errors.push('#/readableHold: hold window must stay inside the shot window');
     }
   }
 
@@ -156,13 +184,31 @@ function validateSemanticInvariants(
       );
     }
   }
+  for (const kind of ['primary', 'transition']) {
+    const reference = recipe.craft?.[kind];
+    if (reference && !craftEntries.has(reference.entryId)) {
+      errors.push(`#/craft/${kind}/entryId: unknown craft entry ${reference.entryId}`);
+    }
+    if (kind === 'transition' && reference
+      && craftEntries.get(reference.entryId)?.category !== 'transition') {
+      errors.push('#/craft/transition/entryId: transition locator must reference the transition category');
+    }
+    if (kind === 'primary' && reference
+      && craftEntries.get(reference.entryId)?.category === 'transition') {
+      errors.push('#/craft/primary/entryId: primary locator must not reference the transition category');
+    }
+  }
 }
 
 export async function validateRecipeDirectory(directory) {
-  const [schema, matrix, shotcraft] = await Promise.all([
-    readFile(path.join(runtimeRoot, 'shot-recipe.schema.json'), 'utf8').then(JSON.parse),
+  const [schemas, matrix, shotcraft, craft] = await Promise.all([
+    Promise.all([
+      ['1.0.0', 'shot-recipe-v1.schema.json'],
+      ['2.0.0', 'shot-recipe.schema.json'],
+    ].map(async ([version, file]) => [version, JSON.parse(await readFile(path.join(runtimeRoot, file), 'utf8'))])).then((entries) => new Map(entries)),
     readFile(path.join(runtimeRoot, 'capability-matrix.json'), 'utf8').then(JSON.parse),
     readFile(path.join(shotcraftRoot, 'catalog.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(craftRoot, 'catalog.json'), 'utf8').then(JSON.parse),
   ]);
   const capabilityIds = new Set(matrix.capabilities.map(({ id }) => id));
   const unsupportedIds = new Set(
@@ -172,11 +218,13 @@ export async function validateRecipeDirectory(directory) {
   );
   const shotcraftCards = new Map(shotcraft.cards.map((card) => [card.name, card]));
   const shotcraftRevision = shotcraft.upstream.commit;
+  const { entriesById: craftEntries } = validateCraftCatalog(craft);
   const entries = await readdir(directory, { withFileTypes: true });
   if (entries.length === 0) throw new Error('recipe directory is empty');
 
   const failures = [];
   const shotIds = new Set();
+  const recipeVersions = new Set();
   let recipeCount = 0;
   for (const entry of entries.toSorted((left, right) => left.name.localeCompare(right.name))) {
     if (!entry.isFile() || path.extname(entry.name).toLowerCase() !== '.json') {
@@ -192,13 +240,20 @@ export async function validateRecipeDirectory(directory) {
       failures.push(`${entry.name}: invalid JSON`);
       continue;
     }
-    validateSchema(recipe, schema, schema, '#', errors);
+    const schema = schemas.get(recipe?.schemaVersion);
+    if (!schema) {
+      errors.push(`#/schemaVersion: unsupported recipe schema version ${JSON.stringify(recipe?.schemaVersion)}`);
+    } else {
+      recipeVersions.add(recipe.schemaVersion);
+      validateSchema(recipe, schema, schema, '#', errors);
+    }
     validateSemanticInvariants(
       recipe,
       capabilityIds,
       unsupportedIds,
       shotcraftCards,
       shotcraftRevision,
+      craftEntries,
       entry.name,
       errors,
     );
@@ -207,6 +262,10 @@ export async function validateRecipeDirectory(directory) {
       shotIds.add(recipe.shotId);
     }
     failures.push(...errors.map((error) => `${entry.name}: ${error}`));
+  }
+
+  if (recipeVersions.size > 1) {
+    failures.push(`recipe directory mixes schema versions: ${[...recipeVersions].toSorted().join(', ')}; use one recipe schema version per directory`);
   }
 
   if (failures.length > 0) throw new Error(`shot recipe validation failed:\n${failures.join('\n')}`);

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/visual-system.schema.json",
+  "title": "Shared visual system v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "conceptAngle", "visualWorld", "paletteRoles", "typographyRoles", "materials", "depthPlan", "compositionFamilies", "motifSemantics", "rhythmCurve", "prohibitedLazyDefaults", "safeAreaPolicy"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "conceptAngle": { "$ref": "#/$defs/nonEmpty" },
+    "visualWorld": { "$ref": "#/$defs/nonEmpty" },
+    "paletteRoles": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/role" } },
+    "typographyRoles": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/typeRole" } },
+    "materials": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/nonEmpty" } },
+    "depthPlan": { "type": "object", "additionalProperties": false, "required": ["background", "midground", "foreground"], "properties": { "background": { "$ref": "#/$defs/nonEmpty" }, "midground": { "$ref": "#/$defs/nonEmpty" }, "foreground": { "$ref": "#/$defs/nonEmpty" } } },
+    "compositionFamilies": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "$ref": "#/$defs/compositionFamily" } },
+    "motifSemantics": { "type": "array", "items": { "$ref": "#/$defs/role" } },
+    "rhythmCurve": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rhythm" } },
+    "prohibitedLazyDefaults": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+    "safeAreaPolicy": { "$ref": "#/$defs/nonEmpty" }
+  },
+  "$defs": {
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "role": { "type": "object", "additionalProperties": false, "required": ["role", "value", "use"], "properties": { "role": { "$ref": "#/$defs/nonEmpty" }, "value": { "$ref": "#/$defs/nonEmpty" }, "use": { "$ref": "#/$defs/nonEmpty" } } },
+    "typeRole": { "type": "object", "additionalProperties": false, "required": ["role", "family", "weight", "use", "sourceLocator"], "properties": { "role": { "$ref": "#/$defs/nonEmpty" }, "family": { "$ref": "#/$defs/nonEmpty" }, "weight": { "$ref": "#/$defs/nonEmpty" }, "use": { "$ref": "#/$defs/nonEmpty" }, "sourceLocator": { "$ref": "#/$defs/nonEmpty" } } },
+    "rhythm": { "type": "object", "additionalProperties": false, "required": ["startMs", "endMs", "character"], "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 }, "character": { "$ref": "#/$defs/nonEmpty" } } },
+    "compositionFamily": { "enum": ["full-bleed-material", "spatial-path-workflow", "object-kinetic-type", "comparison-selection", "desktop-instrument-board", "data-diagram-evidence", "camera-depth-environment", "sparse-hold-chapter-outro"] }
+  }
+}

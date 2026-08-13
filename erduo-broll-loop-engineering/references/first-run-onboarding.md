@@ -304,7 +304,7 @@ permissions on user-owned paths. Do not delete files to recover space.
 When space is insufficient or cannot be judged safely, ask the user to free
 space or select another location.
 
-### 9. Check Pexels access safely
+### 9. Record Pexels access safely
 
 Resolve only whether `PEXELS_API_KEY` is securely configured. Never print,
 echo, serialize, or place the value in:
@@ -322,7 +322,9 @@ Do not invent a tool or use any interface that places the key in command
 arguments. If no such tool is discoverable, use a secure host secret or
 `PEXELS_API_KEY` environment mechanism.
 
-If missing, status is `action-required`. Ask once for the human-only actions:
+If missing, record `missing` without blocking base readiness. Only when the
+validated plan contains an unresolved Pexels-routed material need is status
+`action-required`; then ask once for the human-only actions:
 
 1. create or sign in to a Pexels account;
 2. obtain an Image and Video API key;
@@ -333,8 +335,9 @@ the host cannot provide a safe repository tool, secure secret channel, or
 environment mechanism, stop.
 
 Onboarding may report `configured-unverified` when it can prove secure
-presence but cannot test authentication without exposing the value. The
-mandatory Assets Agent validates access through its real Pexels searches.
+presence but cannot test authentication without exposing the value. The Assets
+Agent validates access only when a real shot-specific need reaches Pexels. A
+native-MG or already-satisfied material plan performs no search.
 
 ### 10. Group external authorization
 
@@ -358,7 +361,8 @@ Do not interrupt separately for items already known in the same inspection.
 
 - `ready`: every capability required by the selected local production path is
   verified, all fourteen public Skills are discoverable, the directories are
-  usable, and Pexels is securely configured for the recorded validation state.
+  usable, and Pexels state is recorded; secure access is required only when
+  the validated plan contains a Pexels-routed need.
 - `degraded`: a capability is unavailable but proved irrelevant to the selected
   path.
 - `action-required`: an external account, secret, permission, package-manager

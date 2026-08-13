@@ -26,6 +26,8 @@ On the first pass, recompute the runtime-plan, frozen-contract/media, and
 hybrid composition identities; rerun frozen-block validation; verify the
 Integrator preview and its URL or local locator; then stop with an
 `action-required` handoff. Do not create a master before explicit approval.
+This final identity-bound preview is the only default aesthetic decision; do
+not insert an independent review, per-shot approval, or score.
 
 After approval, a different fresh Agent repeats all identity, storage,
 FFmpeg/FFprobe, target-uniqueness, contract, hash, and preview checks. Any plan,

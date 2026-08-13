@@ -50,10 +50,11 @@ standard check.
 
 ## Inputs
 
-- Director creative brief, visual direction, film plan, full shot plan, and
-  validated Shot Recipes
+- Director narrative envelope, shared visual system, full shot plan, and
+  validated compact Shot Recipes
 - Assets material and font plans
-- every expected Builder block and handoff
+- every expected authoring unit, compact receipt, and handoff, grouped by its
+  planned backend block
 - output profile and audio policy
 - ready onboarding handoff
 - selected runtime and capability-matrix decision
@@ -63,7 +64,7 @@ standard check.
 
 Confirm before assembly:
 
-- every expected contiguous block is present;
+- every expected authoring unit and contiguous backend block is present;
 - block and shot order matches the Director plan;
 - every shot maps one-for-one to its Shot Recipe and recorded runtime
   implementation decision;
@@ -85,10 +86,11 @@ block-owned source, creative, asset, font, or timing defects to the responsible
 stage rather than hiding them during assembly.
 
 Run the official standard HyperFrames `check` on the integrated project. Its
-normal blocking condition is errors. Treat warnings as review items and use
+normal blocking condition is errors. Treat warnings as technical review items and use
 strict warning behavior only when the user or an explicit project requirement
-requires it. Inspect real browser evidence when a warning may represent a
-visible or runtime defect.
+requires it. Inspect real browser evidence only when a warning may represent a
+concrete visible or runtime defect. Do not score aesthetics or create a
+separate visual-review gate.
 
 After the successful check, freeze `composition-identity.json`. List every
 production-authored source/config file and every referenced local media, font,

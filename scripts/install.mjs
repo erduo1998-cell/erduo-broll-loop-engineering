@@ -1114,7 +1114,10 @@ export async function runInstall({
       official_skill_links: HYPERFRAMES_SKILL_NAMES.length * 2,
       custom_skill_links: SKILL_NAMES.length * 2,
       total_skill_links: links.length,
-      backed_up: links.filter((entry) => entry.backup).length,
+      backed_up: links.filter((entry) => entry.action === 'backed-up-and-linked').length,
+      inherited_backups: links.filter((entry) => (
+        entry.backup && entry.action !== 'backed-up-and-linked'
+      )).length,
     };
   } catch (error) {
     throw error;
@@ -1140,7 +1143,7 @@ async function main(argv) {
       `Installed erduo-broll-loop-engineering ${report.product_version}.`,
       `HyperFrames ${report.hyperframes_version}: official Skills ${report.official_skills}.`,
       `Official doctor selected local render: ${report.official_doctor_selected_local_render_ready}.`,
-      `Skill links: ${report.total_skill_links} total (${report.official_skill_links} official, ${report.custom_skill_links} project); backups: ${report.backed_up}.`,
+      `Skill links: ${report.total_skill_links} total (${report.official_skill_links} official, ${report.custom_skill_links} project); new backups: ${report.backed_up}; inherited backups: ${report.inherited_backups}.`,
       'Installer authority: environment setup only; no creative, aesthetic, or quality approval.',
       '',
     ].join('\n'));

@@ -2,10 +2,11 @@
 
 ## 公共边界
 
-- [ ] 公共包只含根文档、安装/诊断工具、提示词型 Skill 表面和 manifest 明确列出的 Shotcraft 文本知识库。
+- [ ] 公共包只含根文档、安装/诊断工具、提示词型 Skill 表面、manifest 明确列出的 Shotcraft 文本知识库，以及原创 craft catalog/归因边界。
 - [ ] 不含凭据、用户数据、私人路径、渲染产物、缓存、`node_modules` 或开发历史。
 - [ ] 私有样板名、旧工程架构术语和未声明来源静态扫描为零；Shotcraft 来源标识只出现在允许的归因与目录字段。
 - [ ] MIT、第三方说明与 `third_party/licenses/video-shotcraft-APACHE-2.0.txt` 完整。
+- [ ] `auto-motion` clean-room 边界绑定审计 commit `17ead629d010f7e5495f645d46fafd6876482c32` 和“审计时无 LICENSE”事实；归因 manifest、发布包与静态扫描证明没有复制其代码、Prompt、Skill、范例、素材或文字。
 - [ ] 只对最终归档内容重新生成逐文件 SHA-256 清单；不得复用 staging 或历史清单，并在独立解压目录复核。
 - [ ] 只使用 `node scripts/package-release.mjs --output <外部绝对路径>` 打包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar 并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 regular member 精确闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部摘要逐条一致，再完成独立解包复核。成员数量从白名单与 Shotcraft manifest 推导，不在文档中硬编码旧版本计数。
 - [ ] README、PRIVACY 与第三方说明明确：本仓库自身无遥测；包外直接调用 HyperFrames 时，其隐私行为受 HyperFrames 自身政策约束。
@@ -23,7 +24,7 @@
 - [ ] runtime lock 拒绝额外根依赖、git/file/link/HTTP、缺失 resolved、非 npm registry HTTPS tarball 和缺失或非法 integrity。
 - [ ] 固定 HyperFrames commit 已核验；第三方 Skills CLI 只写隔离 HOME；staged store 精确闭合 8 个核心 Skill且无 symlink/special file；官方 check 显式绑定 `--dir` 与 `--source`。
 - [ ] doctor 的版本更新提示只在 `_meta.version` 精确命中锁定版本时降为非阻断；版本不明/不符以及 Node、FFmpeg、FFprobe、Chrome 任一失败仍关闭。
-- [ ] 8 个官方 Skill 与 11 个本项目 Skill 共用一次占用确认、备份、链接、manifest schema 4 commit 和失败逆序回滚事务；升级能读取历史 schema 1/2/3、只退休匹配所有权的旧父 Skill 名称，并保留或恢复初始备份链。
+- [ ] 8 个官方 Skill 与父 Skill + 十三个阶段 Skill 共用一次占用确认、备份、链接、manifest schema 5 commit 和失败逆序回滚事务；升级能读取历史 schema 1/2/3/4、只退休匹配所有权的旧父 Skill 名称，并保留或恢复初始备份链。
 - [ ] FFmpeg 缺失路径只在 Homebrew 已存在并获一次授权时安装，否则清晰返回 action-required。
 - [ ] Codex 与 Claude Code 的父 Skill + 十三个阶段 Skill 均安装；冲突安装有可恢复备份。
 - [ ] Pexels Key 通过隐藏输入或 stdin 配置、真实 API 验证、0600 原子保存，并且未进入 argv、日志或诊断。
@@ -38,17 +39,18 @@
 
 - [ ] 从本版本执行一次全新 Codex 真实 SRT 端到端，完成官方 HyperFrames check、render 和媒体验证。
 - [ ] Claude Code 使用同输入独立执行并比较公开交付契约。
-- [ ] Assets/Pexels 固定阶段真实运行。
+- [ ] Assets 按 v2 shot-specific material need 条件触发：空 material need 的纯原生 MG 没有 Pexels/生成调用；需要普通媒体时真实运行所选来源路线并保留来源、权利、hash、裁切、字体和 fusion geometry。
 - [ ] Builder、Integrator、Render/Delivery 的官方 HyperFrames Skill 加载有真实宿主 trace。
 - [ ] 最终 master 连续覆盖 SRT，分辨率、时长、帧率、音频策略和完整解码符合请求。
-- [ ] 用户已观看 master；技术成功没有被表述为审美通过。
+- [ ] 用户已观看绑定最终 composition identity 的 preview 并明确批准正式渲染；技术成功没有被表述为审美通过。
 - [ ] Windows 与剪映 GUI 保持 `unverified`，除非已有对应实机证据。
 
 ## Runtime adapter 与 Shotcraft 知识层
 
-- [ ] Shot Recipe schema、能力矩阵、运行时映射文档与零依赖 Recipe 校验器均通过确定性校验，枚举、必填字段、时间包含关系、唯一 ID 和引用闭集无漂移。
+- [ ] Narrative envelope、shared visual system、Shot Recipe v2、Runtime Plan v2、能力矩阵、运行时映射文档与零依赖校验器均通过确定性校验；枚举、必填字段、时间包含关系、唯一 ID、artifact identity 和引用闭集无漂移。
+- [ ] Shot Recipe v1 与 Runtime Plan v1 fixture 继续通过 read compatibility；旧 run 不追溯迁移，v1/v2 混用、版本伪装和 identity drift 失败关闭。
 - [ ] Runtime selector 遵循显式选择优先、既有项目证据识别、双信号停止和空白新项目默认 auto；目录名不作为判断依据。
-- [ ] Runtime Planner 只按 capability 与 exact pattern/backend evidence 决策，逐镜选择、相邻聚合；schema validator 拒绝 gap/overlap、冲突和 identity drift。
+- [ ] Runtime Planner 只按 capability 与 exact pattern/backend evidence 决策，逐镜选择、相邻聚合，并确定性生成每个完整镜头恰好一次的 `authoringUnits`；unit 只属于一个 block，默认 1–3 镜且绝不超过 40 秒；validator 拒绝 gap/overlap、越界、冲突和 identity drift。
 - [ ] Hybrid Builder 输出 frozen block schema；validator 核验实际 hash、profile/audio、FFprobe/full decode、plan closure；Integrator/Render 禁止实时嵌套或源码互导。
 - [ ] Base Onboarding 不盲目准备两套后端；targeted Onboarding 只检查 planner 的 requiredBackends。
 - [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；只有获得 Remotion 修复与本地执行授权后的 fresh Onboarding repair Agent 才使用 `--probe-cli`，并记录非只读执行事实与最小 allowlist 子环境。
@@ -64,11 +66,18 @@
 - [ ] 查询脚本的 stats、list、search 保持小型摘要，只允许 card 模式输出一张卡片全文；`--style` 只能随 `--card` 限定卡内 style，不存在一次输出完整卡库的默认路径。
 - [ ] 发布包包含 catalog、manifest、查询脚本、归因文件、152 张文本卡、Remotion source manifest 精确声明的源码子集和完整 Apache-2.0 文本；不含 manifest 外 TSX、预览媒体、音频、字体或运行时依赖。
 - [ ] README、支持矩阵和 Skill 表面均明确：152 张卡片是可检索的运行时无关知识，不是 152 个已验证 HyperFrames 组件，也不代表完成 Remotion/HyperFrames 双端一致性。
+- [ ] 原创 craft catalog、attribution manifest 与查询器进入发布闭集；summary/category/search 保持紧凑，只有显式 entry 读取一个完整条目，且不存在 Builder 默认加载全 catalog 的路径。
+- [ ] HyperFrames Builder 真实加载锁定官方 `hyperframes`、`hyperframes-creative` 与 `hyperframes-animation` 并 reuse-first；Remotion Builder 只复用本项目已有真实 witness 的 primitive，否则原生实现。两者均先完成 hero frame，再编排有限的可见 micro-beats，不产生新的审查或审批 artifact。
+- [ ] Builder 输入只包含自己的 authoring unit、相邻接缝摘要、共享 narrative/visual locators、冻结素材/字体、capability evidence 与实际命中的 0–2 份参考；没有全片 Recipe、完整 Shotcraft 或完整 craft catalog。
 - [ ] Remotion 后段至少通过目标项目精确依赖、local CLI、Composition 注册、类型检查、stills/preview、正式 render 与 ffprobe 契约；跨后端视觉对比仍须另行留存 witness 才能声明。
 
 ## 正式发布与回滚
 
-- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.6.0`。
+- [ ] 用冻结的同一份 12–15 秒中文 SRT、相同画幅/fps/字幕/音频政策、相同素材和外部服务授权分别生成 `0.6.0` 与 `0.7.0` 的第一次完整预览；禁止先按对比结果精修 `0.7.0` 再称为 first pass。
+- [ ] benchmark 记录预览 locator、实际 agents/authoring units、墙钟时间、可得 token 或输入/输出字节代理、技术检查与用户视觉判断；用户明确选择 `0.7.0` 后才能宣称 first-preview visual uplift。
+- [ ] 同一 benchmark 的 Director + Builder 实际输入/输出 Markdown/JSON 字节相对 `0.6.0` 至少减少 30%，handoff prose 至少减少 50%；可得时总 token 不高于 `0.6.0`，不可得时明确使用字节与墙钟代理。
+- [ ] benchmark 与生产链均没有新增 stage、独立视觉审查 Agent、lookdev/逐镜停点或审美评分；最终 composition preview 是唯一默认审美/用户 gate。
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.7.0`。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
 - [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

@@ -27,8 +27,8 @@ async function hashFile(file) {
   return digest.digest('hex');
 }
 
-export async function validateFrozenBlocks(plan, contractFiles) {
-  await validateRuntimePlan(plan);
+export async function validateFrozenBlocks(plan, contractFiles, sharedArtifactFiles = {}) {
+  await validateRuntimePlan(plan, sharedArtifactFiles);
   if (plan.status !== 'planned' || plan.resultingRoute !== 'hybrid' || plan.integrationMode !== 'frozen-block-media') {
     throw new Error('frozen block validation requires a planned hybrid runtime plan');
   }
@@ -85,10 +85,26 @@ export async function validateFrozenBlocks(plan, contractFiles) {
 }
 
 async function main() {
-  const [planFile, ...contractFiles] = process.argv.slice(2);
-  if (!planFile || contractFiles.length === 0) throw new Error('usage: node scripts/validate-frozen-blocks.mjs <runtime-plan.json> <block-media.json>...');
+  const [planFile, ...argumentsAfterPlan] = process.argv.slice(2);
+  if (!planFile) throw new Error('usage: node scripts/validate-frozen-blocks.mjs <runtime-plan.json> [--narrative-envelope <file> --visual-system <file>] <block-media.json>...');
+  const sharedArtifactFiles = {};
+  const contractFiles = [];
+  for (let index = 0; index < argumentsAfterPlan.length; index += 1) {
+    const value = argumentsAfterPlan[index];
+    if (value === '--narrative-envelope' || value === '--visual-system') {
+      const file = argumentsAfterPlan[index + 1];
+      if (!file) throw new Error(`${value} requires a file`);
+      const key = value === '--narrative-envelope' ? 'narrativeEnvelopeFile' : 'visualSystemFile';
+      if (sharedArtifactFiles[key]) throw new Error(`duplicate ${value}`);
+      sharedArtifactFiles[key] = path.resolve(file);
+      index += 1;
+    } else {
+      contractFiles.push(path.resolve(value));
+    }
+  }
+  if (contractFiles.length === 0) throw new Error('at least one block-media.json is required');
   const plan = JSON.parse(await readFile(path.resolve(planFile), 'utf8'));
-  const result = await validateFrozenBlocks(plan, contractFiles.map((file) => path.resolve(file)));
+  const result = await validateFrozenBlocks(plan, contractFiles, sharedArtifactFiles);
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }
 

@@ -1,21 +1,22 @@
 ---
 name: broll-assets
-description: Run the mandatory material stage for an SRT-anchored B-roll film by inspecting user media, considering controllable generation, performing real Pexels image and video searches, freezing selected files locally, and binding each selection to a shot and composition plan.
+description: Close user material, conditional external-media needs, provenance, asset fusion, and project-local fonts for an SRT-anchored B-roll film.
 ---
 
-# B-roll Assets and Pexels
+# B-roll Assets
 
 Act only as the material producer. This stage always runs. Do not change the
 film structure, write HyperFrames source, integrate blocks, render, or export.
 
 ## Inputs
 
-- Director creative brief, visual direction, film plan, shot plan, validated
-  Shot Recipes, and material requests
+- Director narrative envelope, shared visual system, shot plan, validated
+  compact Shot Recipes, and shot-specific material requests
 - optional user material
 - ready onboarding handoff
 - validated post-Director runtime plan
-- secure Pexels access
+- recorded Pexels state; secure access is required only when an actual request
+  reaches the Pexels route
 - production root
 
 Read `../../references/runtime/runtime-contract.md` and preserve the
@@ -54,11 +55,17 @@ available, stop before spawn as `action-required`.
 
 ## Perform the material pass
 
-For every material request:
+Always inspect supplied user material, close every project-local font role and
+license, and verify existing selected-file provenance. For each shot whose
+material need is empty, record one compact `no-external-material-needed`
+decision; do not invoke generation, Pexels, or candidate review.
+
+For every non-empty ordinary-media request:
 
 1. inspect relevant user media;
 2. consider whether controllable generation can provide a more precise result;
-3. perform real Pexels image and video searches;
+3. if still unresolved and suitable for stock, perform only the relevant real
+   Pexels image and/or video search;
 4. compare relevance and composition before selecting;
 5. download every selected external item to a project-local file;
 6. bind every selected item to planned shots and a concrete use in the
@@ -72,18 +79,16 @@ If a hard pattern precondition cannot be met, use the Recipe's declared
 fallback or return the decision to the Director; do not fabricate the missing
 material or silently choose a different card.
 
-When the host has no controllable generation capability, record
-`unavailable` with the host evidence and continue to Pexels. The missing
-generation capability does not skip or weaken the Pexels stage.
+When the host has no controllable generation capability and the need calls for
+it, record `unavailable` with host evidence and continue to the next suitable
+route. Do not test generation for shots with no generation need.
 
-The Pexels search is mandatory even when user media or generated material is
-available. Search both the real image and video endpoints. Do not impose a
-fixed query or candidate count; search until the semantic need and selection
-reasoning are adequately supported or the available results are shown
-unsuitable. A real search may select zero Pexels items when none is suitable.
-Record the image and video search facts, search intent, selection reasoning,
-why candidates were rejected, and why forcing weak footage would harm the
-film.
+Pexels is conditional, not a ritual. Do not search when user material or an
+authorized generated result already satisfies the need, when the Recipe
+declares native motion graphics, or when the request requires a factual,
+brand, logo, webpage, or real-interface source. For a Pexels-routed need,
+search only media types that can satisfy it; record query facts, selection or
+rejection reasoning, and a zero selection when results are unsuitable.
 
 For each selected visual item, record:
 
@@ -100,9 +105,11 @@ For each selected visual item, record:
   downstream adapter must verify;
 - why it is stronger than the alternatives.
 
-Treat Pexels material as composition material, not an unrelated background.
-Do not place titles or components over the subject without a planned spatial
-relationship.
+For every ordinary-media selection, inspect its real geometry, focal point,
+safe region, palette, depth cues, and motion. Specify how it becomes an axis,
+path, mask, crop, annotation surface, palette source, foreground/background
+relationship, or state transition. Do not reduce it to a generic white card,
+thumbnail, or unrelated title background.
 
 Route material in this order:
 
@@ -129,16 +136,18 @@ Write:
 - font files and license records under `broll-production/02-assets/fonts/`
 - `broll-production/02-assets/user-material-review.md`
 - `broll-production/02-assets/generation-review.md`
-- `broll-production/02-assets/pexels-search.md`
+- `broll-production/02-assets/pexels-search.md` only when at least one request
+  actually reached Pexels; otherwise record the no-search reason in the
+  material plan
 - `broll-production/02-assets/material-plan.md`
 - `broll-production/02-assets/font-plan.md`
 - `broll-production/02-assets/handoff.md`
 
 ## Completion
 
-Complete when user material was actually inspected, controllable generation
-was used or explicitly recorded as unavailable, real Pexels image and video
-searches ran, every selected file exists locally, every selection has a shot
+Complete when user material was actually inspected, every non-empty request
+followed only the suitable acquisition routes, every selected file exists
+locally, every selection has a shot
 and Shot Recipe binding plus a runtime-neutral composition-use plan, objective
 media constraints are recorded, rejected routes are explained, and the
 required fonts are local and licensed. Every selected Shotcraft pattern's
@@ -147,7 +156,8 @@ fallback.
 
 ## Stop
 
-Stop when secure Pexels access is missing or invalid, a required material
+Stop when an actual Pexels-routed need exists and secure access is missing or
+invalid, a required material
 choice cannot be made without user judgment, a selected file cannot be
 downloaded or used lawfully, a required font cannot be sourced, or the
 Director plan lacks enough information to choose material. Also stop when a

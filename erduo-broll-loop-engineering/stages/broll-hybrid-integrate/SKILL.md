@@ -42,6 +42,9 @@ blocks in runtime-plan order into a temporary hybrid preview. A concat copy is
 allowed only when stream parameters and timing close exactly; otherwise use
 one explicit deterministic normalization encode and record its full profile.
 The preview is evidence, not the final master.
+Inspect it only for concrete media, duration, seam, decode, or missing-resource
+defects. Do not add an independent aesthetic review, score, or approval stop;
+the user decides once on the final identity-bound composition preview.
 
 Create `hybrid-composition-identity.json` only after validation and visual seam
 inspection. Its canonical hash closure includes runtime-plan identity, ordered

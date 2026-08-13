@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/narrative-envelope.schema.json",
+  "title": "Narrative envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "filmId", "window", "premise", "audienceJourney", "chapters", "terms"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "filmId": { "$ref": "#/$defs/id" },
+    "window": { "$ref": "#/$defs/window" },
+    "premise": { "$ref": "#/$defs/nonEmpty" },
+    "audienceJourney": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/nonEmpty" } },
+    "chapters": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/chapter" } },
+    "terms": { "type": "array", "items": { "$ref": "#/$defs/term" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "window": { "type": "object", "additionalProperties": false, "required": ["startMs", "endMs"], "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 } } },
+    "chapter": { "type": "object", "additionalProperties": false, "required": ["chapterId", "window", "purpose"], "properties": { "chapterId": { "$ref": "#/$defs/id" }, "window": { "$ref": "#/$defs/window" }, "purpose": { "$ref": "#/$defs/nonEmpty" } } },
+    "term": { "type": "object", "additionalProperties": false, "required": ["term", "meaning", "factStatus"], "properties": { "term": { "$ref": "#/$defs/nonEmpty" }, "meaning": { "$ref": "#/$defs/nonEmpty" }, "factStatus": { "enum": ["provided", "verified", "research-required"] }, "sourceLocator": { "$ref": "#/$defs/nonEmpty" } } }
+  }
+}

@@ -74,6 +74,8 @@ export async function collectDoctor({
       cli,
       'skills',
       'check',
+      '--dir',
+      path.join(pinnedSkillSource, 'skills'),
       '--source',
       pinnedSkillSource,
       '--json',

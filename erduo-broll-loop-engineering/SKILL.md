@@ -11,6 +11,7 @@ Act only as the Parent Producer. Read:
 - [stage orchestration](references/stage-orchestration.md)
 - [parent review checklist](references/parent-review-checklist.md)
 - [handoff format](references/handoff-template.md)
+- [visual craft](references/visual-craft.md)
 - [first-run onboarding](references/first-run-onboarding.md)
 - [runtime selection contract](references/runtime/runtime-selection.md)
 - [runtime-neutral shot and backend contract](references/runtime/runtime-contract.md)
@@ -102,8 +103,10 @@ the 0.4.x order and readiness behavior.
 
 Fresh evidence must bind the production run, host, command `PATH`, onboarding
 phase, selection/runtime-plan identity, target filesystem, required backend
-CLI versions when targeted, capability evidence, and Pexels state. Any change
-requires fresh inspection.
+CLI versions when targeted, capability evidence, and recorded Pexels state.
+Pexels availability is informational until the Director/runtime plan declares
+an actual Pexels-backed material need. Any binding change requires fresh
+inspection.
 
 For a plan requiring `hyperframes`, preserve all existing official Skill,
 doctor, check, preview, and render requirements. For `remotion`, require
@@ -136,9 +139,9 @@ Never place a Pexels key in chat, Markdown, a handoff, log, file path, command
 argument, production artifact, or user-facing report. When a safe public
 repository configuration tool is discoverable, the repair Agent may use its
 stdin or hidden-interaction interface. Otherwise use a secure host secret or
-environment mechanism. If Pexels is not configured, onboarding is
-`action-required`. If secure credential configuration is unavailable, stop
-once and explain the required action.
+environment mechanism. Base/full Onboarding records a missing key without
+blocking. Targeted Onboarding is `action-required` only when the validated plan
+actually requires Pexels and secure credential configuration is unavailable.
 
 Onboarding success does not replace the Render/Delivery Agent's required
 same-environment selected-runtime preflight immediately before formal
@@ -154,14 +157,24 @@ Use fresh agents in this order:
    prose judgment;
 4. targeted `broll-onboarding` for the exact planned backend set when initial
    intent was `auto` or `hybrid`;
-5. `broll-assets`;
+5. `broll-assets` for the always-required user-material/font/source closure;
+   invoke generation and Pexels work only for declared material needs;
 6. branch on the validated runtime plan:
    - HyperFrames: one or more `broll-master-build` agents, then
      `broll-master-integrate`, then `broll-render`;
    - Remotion: one or more `broll-remotion-build` agents, then
      `broll-remotion-integrate`, then `broll-remotion-render`;
    - Hybrid: dispatch each block to its assigned backend Builder, require each
-     Builder to freeze `block-media.json` and local mezzanine, then run
+     authoring unit to pass its backend Builder checks. When one backend block
+     contains one unit, that Builder may freeze `block-media.json` and the local
+     mezzanine directly. When it contains multiple units, dispatch one fresh
+     same-backend Builder in block-freeze mode after all unit receipts pass;
+     it reads only those verified unit source exports/receipts and the block
+     window, writes only block-level temporary composition glue, records every
+     glue/source hash and aggregate identity, runs the same backend's technical
+     commands, and renders/freezes the existing block contract. It may not
+     change unit-internal creative/source, rewrite shots, or perform aesthetic
+     review; glue or render failure returns to the implicated unit owner. Then run
      `broll-hybrid-integrate` and `broll-hybrid-render`.
 7. `broll-shot-export` only after an explicit user request.
 
@@ -171,26 +184,32 @@ types, but never live-nests animation runtimes or feeds generated source into
 the other backend. Cross-runtime exchange is frozen media only. Director,
 Assets, canonical Recipes, and optional export remain shared.
 
-Assets and Pexels collection is mandatory. The Assets Agent must inspect user
-material, consider controllable generation, perform real Pexels image and
-video searches, evaluate candidates, and freeze selected files locally. It may
-select zero Pexels items when none is suitable, but it may not skip the search
-or omit the explanation.
+The Assets stage always runs, but external acquisition is conditional. It must
+inspect supplied material, close project-local fonts and provenance, and
+process each Recipe v2 material need. For no-need/native-MG units it records a
+compact no-search decision and must not call generation or Pexels. For a real
+ordinary-media need it routes user material → authorized controllable
+generation → Pexels → runtime-native structural support, performing only the
+searches needed by that request. Fact, brand, logo, webpage, or real-interface
+needs use appropriate factual sources rather than Pexels as a substitute.
 
-The Director must author runtime-neutral Shot Recipes that conform to
-`references/runtime/shot-recipe.schema.json` and the runtime contract. Runtime
-APIs and component syntax belong to the assigned Builder. No stage may claim
+The Director must author one shared `narrative-envelope.json`, one shared
+`visual-system.json`, and compact runtime-neutral Shot Recipe v2 deltas that
+conform to `references/runtime/shot-recipe.schema.json` and the runtime
+contract. Keep global typography, palette, material rules, safe areas, and
+prohibitions in the shared visual system instead of repeating them per shot.
+Runtime APIs and component syntax belong to the assigned Builder. No stage may claim
 that a recipe is portable merely because it can be described. Runtime Planner
 uses declared capability IDs and exact pattern/backend evidence, never semantic
 keywords. A pinned Remotion reference source is explicitly unverified
 preference evidence unless a separate render witness exists.
 
 Direction and both backend Builders must read
-`references/animation-craft.md`. It compiles the twelve animation principles
-into the generation order for attention, physical character, causal action,
-key states or continuous motion, one expressive peak, and settled readability.
-Do not convert it into Recipe fields, capability IDs, runtime-routing evidence,
-principle checklists, scores, or still-frame QA claims.
+`references/animation-craft.md` and progressively query the runtime-neutral
+craft catalog described by `references/visual-craft.md`. Treat craft as
+authoring guidance, never runtime-routing evidence, a checklist, a score, or a
+new QA artifact. Use at most one primary craft grammar per shot plus an optional
+transition locator.
 
 For every semantic shot, require the Director to search the Shotcraft catalog
 with the bundled query command before deciding whether one primary pattern is
@@ -202,9 +221,23 @@ search, then reads only the selected card body. It must not run an unfiltered
 list, force a decorative effect, or repeat one motion grammar merely because
 the catalog contains it.
 
+Require Runtime Planner to preserve backend blocks and also generate bounded
+`authoringUnits` deterministically. Each unit belongs to one backend block,
+contains complete semantic shots only, has an absolute maximum duration of 40
+seconds, and defaults to 1–3 shots. A hero, complex asset-fusion, or complex
+camera shot may form one unit only when that complete shot is at most 40
+seconds. If any Director shot exceeds 40 seconds, Planner must reject the plan
+and return it to Director for a semantic shot split; one shot may never cross
+units. Dispatch Builders by authoring unit, not by an entire long backend block.
+
 For the `hyperframes` route, require every Builder to load
 the release-pinned official `hyperframes` Skill through
-the host's native Skill mechanism before reading or writing HyperFrames source.
+the host's native Skill mechanism before reading or writing HyperFrames source,
+then progressively load the official creative and animation guidance and only
+the references hit by its unit. Query reusable official registry blocks,
+creative presets, animation blueprints, and transitions before writing a new
+mechanism; reuse the mechanism while replacing content, material, layout,
+typography, palette roles, and visual skin.
 Require the Integrator to load it before assembly and Render/Delivery to load
 it before doctor, check, preview, or render. A handoff claim or a CLI command
 alone does not replace a real Skill load. Retain the available host-native
@@ -217,6 +250,9 @@ They must invoke only the verified project-local CLI, keep React/TSX and frame
 conversion outside canonical Shot Recipes, and record the exact Remotion
 version and integer-millisecond-to-frame rounding policy. Do not invoke
 HyperFrames doctor, check, preview, or render as evidence for a Remotion run.
+Reuse only project-local Remotion primitives backed by a real render witness.
+When none matches, implement the runtime-neutral craft grammar natively rather
+than inventing parity or copying HyperFrames source.
 
 Require every stage to use the shared safe child-environment contract for all
 non-Pexels processes: an explicit host-native environment map, removal of every
@@ -230,6 +266,15 @@ rejects case-insensitive collisions, removes every Pexels-key variant, sets
 telemetry off, and spawns directly without a shell. If neither route is
 available, the owning stage stops before spawn as `action-required`.
 
+Each Builder reads only its authoring unit, adjacent seam summaries, the shared
+narrative/visual-system locators, the unit Recipes, frozen assets/fonts, and
+the 0–2 references actually selected for that unit. It must not load all film
+Recipes, the full Shotcraft catalog, or the full craft catalog. Author the
+maximum visible hero frame first, then add attention, primary causal action,
+dependent follow-through, settle, and readable hold. Ordinary media must
+participate through geometry, crop, mask, path, annotation, palette, depth, or
+state—not as a generic framed thumbnail.
+
 All stages before the final official composition preview may proceed
 unattended after onboarding is ready. Formal render must pause for explicit
 user approval of that final preview. The preview-pass Render Agent stops with
@@ -239,11 +284,15 @@ composition, repeats preflight and check, and then renders.
 
 ## Review without taking over
 
-Begin each review with the stage handoff. Inspect only the actual artifacts
-needed to answer a concrete question. Group all currently known issues owned
-by one stage into one revision request and re-dispatch that role as a fresh
-agent. Never repair the stage's work in the Parent. Preserve unaffected Builder
-blocks when one block needs revision.
+Begin each review with the compact receipt/handoff. Inspect only the artifacts
+needed to answer a concrete contract or technical question: schema/coverage,
+closed references, source/font/hash/identity, runtime ownership, lint/check,
+probe/decode, or an explicit reported failure. Do not run a broad aesthetic
+review, create an independent visual-review Agent, score craft, or require
+extra screenshots when no concrete technical issue exists. Group all known
+issues owned by one stage into one revision request and re-dispatch that role
+as a fresh agent. Never repair the stage's work in the Parent. Preserve
+unaffected authoring units when one unit needs revision.
 
 Continue while the responsible stage is making meaningful progress. Stop for
 a real missing dependency, unavailable authorization, insufficient host
@@ -258,6 +307,14 @@ progress.
 - Give every shot a semantic reason, an audience-understanding goal, a clear
   focus, a visible change or deliberate stable state, readable information,
   and an intentional connection to neighboring shots.
+- Use the shared visual system to unify visual-world logic, palette roles,
+  typography, materials, depth, motion character, and motif meaning while
+  varying at least three content-appropriate composition families across the
+  film. Do not reduce unity to one repeated card layout.
+- Give long shots visible micro-beat development that changes subject,
+  topology, scale, depth, material state, relationship, or attention. Opacity,
+  slight displacement, or same-layout copy replacement alone is not a new
+  visual beat; deliberate stillness remains valid when semantically intended.
 - Treat a Shotcraft pattern as optional motion knowledge, not a required
   template. Use at most one primary pattern per shot, preserve its quality
   constraints when selected, and let content-specific direction override a
@@ -294,5 +351,7 @@ Return the master path, resolution, duration, continuous coverage, material and
 font sources, objective media facts, optional export paths, environment or
 host-evidence limitations, and unresolved risks.
 
-Technical success does not decide aesthetic quality. Ask the user to make the
-final visual judgment by watching the master.
+Technical success does not decide aesthetic quality. The only default
+aesthetic gate is the user's explicit decision after watching the final
+identity-bound composition preview; after approved rendering, report objective
+master facts without inventing another visual-review gate.

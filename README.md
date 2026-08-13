@@ -4,7 +4,7 @@
 
 **把一份 SRT 和可选口播视频交给协作 Agent：先做运行时中立分镜，再按镜头证据自动分配 HyperFrames / Remotion，得到可编辑、可复查的 B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.6.0-16a34a)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.7.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -21,15 +21,28 @@
 做口播 B-roll，难点通常不是“生成一个画面”，而是让整条片子的分镜、素材、动效、时间和交付持续对齐。这个 Skill 把工作拆给一个共用前段和两套独立后段：
 
 - 读懂 SRT，按语义分镜，而不是一句字幕配一个镜头；
-- 优先使用你的图片、视频、Logo 和截图，再评估可控生成与 Pexels 素材；
-- 把长片拆成多个连续区块，由独立 Builder 并行构建；
-- 把动画十二法则作为 Director 与两套 Builder 的提示词生成语法：先设计注意力、身体属性、动作因果、关键状态和表现峰值，再选择 HyperFrames 或 Remotion 的原生机制；不把它变成逐镜打勾或静态帧审美评分；
+- 优先使用你的图片、视频、Logo 和截图；只有镜头声明真实素材需求时，才评估可控生成、Pexels 或对应事实来源；
+- Director 一次冻结叙事包络和共享视觉系统，再用紧凑 Recipe v2 描述每镜差量、hero frame、micro-beats 与素材需求；
+- 把后端连续区块进一步拆成完整镜头组成的 `authoringUnits`：默认 1–3 镜且绝不超过 40 秒，由聚焦的 Builder 并行构建；
+- Builder 先完成最大可见状态，再编排进入、因果动作、跟随、settle 与 readable hold；优先查询小型 craft 索引和已锁定的运行时能力，命中后只加载必要参考；
 - 分镜后按 capability 与实测/来源证据逐镜选择后端，再把相邻同后端镜头合并为区块；
 - HyperFrames 使用锁定的官方 Skill；Remotion 只使用目标项目本地锁定的 CLI 与依赖；
 - 整合后先给你看最终预览，得到明确同意才正式渲染；
 - 默认交付一个经过分辨率、时长、连续覆盖和解码检查的 4K Master。
 
-它不是一键“审美保证器”。技术验证通过，只说明文件可用；好不好看，最后仍由你观看后决定。
+它不是一键“审美保证器”。`0.7.0` 升级的是第一次预览的生成机制，不代表未经同输入 benchmark 就已经证明比 `0.6.0` 更好看。技术验证通过只说明文件可用；好不好看，最后仍由你观看后决定。
+
+### v0.7 的第一次预览 craft 升级
+
+`0.7.0` 不增加 stage、审查 Agent、逐镜审批、审美评分或 lookdev 停点。默认生产链唯一的审美决定仍是：完整 composition preview 完成后，由你决定是否正式渲染。
+
+这一版把跨镜重复的颜色、字体、材料、空间、构图家族、运动性格和禁用默认项集中到一个 `visual-system.json`；`narrative-envelope.json` 只保存一次全片上下文；每份 Recipe v2 只描述该镜的可见状态变化和边界。Builder 只接收自己的 authoring unit、相邻接缝摘要、共享 artifact locator、冻结素材和实际命中的 0–2 份参考，不应读取全片所有 Recipe 或完整目录。
+
+长镜通过 `microBeats[]` 规划主体、拓扑、景别、空间层级、材料状态、关系或注意力位置的真实发展。单纯透明度、轻微位移或同构卡片换字不算新的可见 beat。普通媒体也需要通过焦点几何、裁切、mask、路径、标注、取色或前后景关系参与构图，不能只贴进通用白卡。
+
+Recipe schema v1 和 Runtime Plan schema v1 继续可读；旧 run 不要求迁移。v2 才使用共享 artifact 和 `authoringUnits`，两代合同都保留 SRT 整数毫秒、完整覆盖、来源与字体闭包、运行时隔离、身份绑定和媒体验证底线。
+
+本版对 `vibe-motion/auto-motion@17ead629d010f7e5495f645d46fafd6876482c32` 做过设计思想审计；审计时未发现 LICENSE。本仓库只 clean-room 重建设计能力与可观察行为，没有复制其代码、Prompt、范例、素材或文字。对应机器可读边界随 craft attribution manifest 一起进入发布包。
 
 ## 一张图看懂完整流程
 
@@ -40,7 +53,7 @@
 你实际只需要做三件事：
 
 1. 准备 SRT；口播模式再准备与字幕匹配的已剪视频。
-2. 第一次运行时完成必要授权和 Pexels Key 配置。
+2. 第一次运行时完成必要环境授权；需要 Pexels 素材时再配置 Key。
 3. 观看最终预览，满意后明确同意正式渲染。
 
 中间的分镜、素材、分块构建、整合和技术检查由 Agent 链推进。
@@ -63,7 +76,7 @@
 
 ## 渲染运行时边界
 
-仓库先用运行时无关的 Shot Recipe 冻结镜头意图，再由确定性 Runtime Planner 逐镜选择后端，并把相邻同后端镜头合并为连续区块。
+仓库先用运行时无关的 Shot Recipe 冻结镜头意图，再由确定性 Runtime Planner 逐镜选择后端，把相邻同后端镜头合并为连续区块，并生成默认 1–3 镜、最大 40 秒的完整镜头 `authoringUnits`。
 
 - 用户明确说 `hyperframes` 或 `remotion` 时，强制整片单后端；也可明确选择 `auto` 或 `hybrid`。
 - 现有项目按真实特征判断；同时命中两类特征时停止并请用户选择，不静默猜测。
@@ -83,7 +96,7 @@ node erduo-broll-loop-engineering/scripts/detect-runtime.mjs --project <项目�
 
 也可显式追加 `--runtime auto|hybrid|hyperframes|remotion`。Director 完成后用 `plan-runtime.mjs` 生成并校验后端区块计划。详细证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
 
-开发者可以对 Director 生成的逐镜头 Recipe 目录运行零依赖校验：
+开发者可以对 Director 生成的逐镜头 Recipe 目录运行零依赖校验。校验器按 `schemaVersion` 同时接受 v1 和 v2；v2 还会验证共享 narrative/visual artifact：
 
 ```bash
 node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs <shot-recipes-directory>
@@ -91,7 +104,7 @@ node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs <shot-recipe
 
 ## 镜头能力目录
 
-`0.6.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+`0.7.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
 
 请准确理解这里的“吸收”：
 
@@ -116,6 +129,17 @@ node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --card <card-id>
 
 `--search` 会把空白分隔的关键词按 AND 匹配；长句无结果时，改用一两个辨识度高的词重试，不要直接判定“没有合适卡片”。还可以用 `--list --category <category>` 枚举分类；已选定卡片后，可用 `--card <card-id> --style <style-key>` 限定该卡内部的 style。`--style` 不能独立反查。只有 `--card` 输出卡片全文，其余命令保持渐进式摘要。目录、卡片和逐文件哈希之间的绑定由测试与发布清单验证。完整许可证见 [`third_party/licenses/video-shotcraft-APACHE-2.0.txt`](third_party/licenses/video-shotcraft-APACHE-2.0.txt)，证据边界见[支持矩阵](SUPPORT-MATRIX.md)。
 
+`0.7.0` 另有一个原创、短小、运行时中立的 craft 索引，用来定位 hero-frame、motion grammar、素材前提和后端实现方向，不是现成模板或审美评分器：
+
+```bash
+# 查看 craft 摘要与分类
+node erduo-broll-loop-engineering/scripts/query-craft.mjs --summary
+
+# 搜索后只读取一个命中条目
+node erduo-broll-loop-engineering/scripts/query-craft.mjs --search 'asset fusion'
+node erduo-broll-loop-engineering/scripts/query-craft.mjs --entry <craft-id>
+```
+
 ## 使用前准备
 
 ### 必须准备
@@ -124,7 +148,7 @@ node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --card <card-id>
 - Codex 或 Claude Code，且宿主支持 Skill、文件读写、命令执行和真正独立的子 Agent/任务；
 - 一份 `.srt` 字幕；
 - 口播模式下，与 SRT 时间一致的已剪视频；
-- 可访问 Node.js 官方发布目录、npm registry、GitHub 官方 Skill 来源、HyperFrames 官方浏览器源和 Pexels 的网络。
+- 可访问 Node.js 官方发布目录、npm registry、GitHub 官方 Skill 来源和 HyperFrames 官方浏览器源的网络；实际镜头需要 Pexels 时还需访问 Pexels。
 
 ### 可选准备
 
@@ -136,7 +160,7 @@ node erduo-broll-loop-engineering/scripts/query-shotcraft.mjs --card <card-id>
 - 不用自己安装 Node.js：缺失或低于 `22.20.0` 时，安装器会安装固定版本到用户目录；
 - 不用写 `design.md`：Director 会根据本期 SRT、目标和素材建立视觉方向；
 - 不用手工复制十四个 Skill：安装器会同时安装父 Skill和十三个阶段 Skill；
-- 不用把 Pexels Key 发进聊天：安装器使用不回显输入并在保存前真实验证。
+- 不用为了纯原生 MG 提前申请 Pexels Key；镜头确实需要 Pexels 时再通过安装器的不回显输入配置，Key 不能发进聊天。
 
 ## 三分钟安装
 
@@ -172,7 +196,7 @@ cd erduo-broll-loop-engineering
 5. 运行官方 `hyperframes browser ensure`；
 6. 运行并解析官方 `hyperframes doctor --json`；
 7. 把 8 个官方 HyperFrames 核心 Skill、父 Skill和十三个阶段 Skill一起纳入冲突确认、备份、链接和失败回滚事务，再安装到 Codex 与 Claude Code；Remotion 不进入共享 runtime；
-8. 安全询问一次 Pexels Key，并在保存前做真实轻量验证。
+8. 可选地安全配置 Pexels Key，并在保存前做真实轻量验证；不配置不会迫使纯原生 MG 搜索素材。
 
 它不会使用 `sudo`，不会修改 shell profile，也不会让第三方安装器直接写真实 HOME。发现不同的已有 Skill 时，它会先列出冲突、请求一次授权，再做可恢复备份；任一步失败都会逆序恢复已改变的目标。
 
@@ -182,7 +206,7 @@ cd erduo-broll-loop-engineering
 
 ### 获取 Pexels API Key
 
-Pexels 是固定素材阶段，所以正式生产前需要一个 Key。
+Pexels 是条件式素材来源，不是每条片的固定消耗。只有实际 Recipe 声明普通媒体需求且路由命中 Pexels 时才需要 Key；纯原生 MG 可以不配置。
 
 1. 打开 [Pexels API Key 页面](https://www.pexels.com/api/key/)。
 2. 登录或注册 Pexels 账号。
@@ -258,15 +282,15 @@ Pexels 账号注册、API Key 获取、系统权限、管理员批准、磁盘�
 | --- | --- | --- |
 | Parent Producer | 明确目标、派发、读交接、审查、把返工交回责任阶段 | 不亲自生产文件或假装子 Agent |
 | Onboarding | 检查环境，汇总授权，执行你批准的安全修复 | 不做分镜和创作 |
-| Runtime Selector + Planner | 开工前冻结选择意图，分镜后按 capability/pattern evidence 逐镜规划并连续分块 | 不读语义关键词，不制造无证据切换 |
-| Director | 理解 SRT、分段、建立原创视觉方向和镜头意图 | 不下载素材、不写最终工程 |
-| Assets | 检查用户素材、评估可控生成、真实搜索 Pexels 并冻结候选 | 不拿无关素材充背景 |
+| Runtime Selector + Planner | 开工前冻结选择意图，分镜后按 capability/pattern evidence 逐镜规划、连续分块并生成聚焦 authoring units | 不读语义关键词，不制造无证据切换 |
+| Director | 理解 SRT，冻结共享视觉系统、叙事包络和紧凑 Recipe v2 | 不下载素材、不写最终工程 |
+| Assets | 检查用户素材，只为真实 material need 路由并冻结媒体/字体/融合几何 | 不为履行流程无条件搜索 Pexels |
 | HyperFrames Build / Integrate / Render | 用锁定的官方 Skill 构建、整合、预览与交付 | 不接管已选择的 Remotion 项目 |
 | Remotion Build / Integrate / Render | 用目标项目本地锁定依赖构建 Composition、整合并交付 | 不全局安装 Remotion，不调用 HyperFrames 代渲染 |
 | Hybrid Integrate / Render | 校验冻结区块媒体、检查跨后端接缝、绑定批准并用 FFmpeg 交付 | 不实时嵌套运行时，不互导生成源码 |
 | Shot Export | 按需从已验证 Master 导出逐镜头文件 | 不重新独立渲染镜头 |
 
-固定素材优先级：
+发生普通媒体需求时的素材优先级：
 
 ```text
 用户素材 → 可控生成 → Pexels → 目标运行时原生结构辅助
@@ -309,7 +333,7 @@ node scripts/uninstall.mjs
 
 ### 从 0.3.x 旧名称升级
 
-GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.6.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
+GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.7.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
 
 为避免更名导致 Pexels 凭据、固定 HyperFrames runtime 和安装备份丢失，本地私有应用数据目录继续沿用 v0.3.x 的内部路径。该路径只承担兼容存储，不再是仓库、产品或 Skill 名称。
 
@@ -385,7 +409,7 @@ npm test
 
 ## English quick start
 
-`erduo-broll-loop-engineering` 0.6.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with deterministic post-direction auto routing and independent HyperFrames and Remotion backends. New projects default to auto. The release does not pin one Remotion version: each project resolves and locks one exact aligned local toolchain, and optional HTML-in-canvas production is gated by a real local still canary. Remotion is never installed globally by this installer. Hybrid integration exchanges frozen media only. Cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
+`erduo-broll-loop-engineering` 0.7.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a shared visual system, compact Recipe v2 shots, focused authoring units, conditional asset sourcing, and deterministic routing across independent HyperFrames and Remotion backends. Recipe/plan v1 runs remain readable. The release adds no aesthetic reviewer or per-shot approval: the final composition preview remains the only default aesthetic gate. It improves the first-pass craft mechanism but does not claim superiority over 0.6.0 without the frozen same-input benchmark and user decision. Hybrid integration exchanges frozen media only; cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
@@ -400,4 +424,4 @@ Use erduo-broll-loop-engineering to turn this SRT into a faceless B-roll master.
 Continue unattended until the final preview requires my approval.
 ```
 
-Talking-head mode also needs the matching edited video. The installer provisions the pinned HyperFrames runtime, official HyperFrames Skills and browser, installs the parent plus thirteen stage Skills, and securely offers one-time Pexels configuration. It does not install Remotion globally, use `sudo`, or edit your shell profile.
+Talking-head mode also needs the matching edited video. The installer provisions the pinned HyperFrames runtime, official HyperFrames Skills and browser, installs the parent plus thirteen stage Skills, and securely offers optional Pexels configuration for shots that actually need it. It does not install Remotion globally, use `sudo`, or edit your shell profile.

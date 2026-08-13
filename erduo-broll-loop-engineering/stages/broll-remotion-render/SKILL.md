@@ -49,6 +49,8 @@ run `node node_modules/typescript/bin/tsc --noEmit`. Render and inspect real
 stills at the opening, every semantic result/readable hold, every seam, and
 the final safe frame. A path, hash set, aggregate identity, Composition ID,
 version, typecheck, or still failure blocks preview and render.
+Use these stills only for concrete layout, missing-resource, runtime, seam, or
+boundary defects; do not create an independent aesthetic review or score.
 
 When the identity declares `runtimeFeatures.htmlInCanvas`, repeat the support
 and real-still canary in this exact render environment. Confirm the exact
@@ -110,6 +112,8 @@ After a successful render:
 
 Do not claim aesthetic approval, Remotion/HyperFrames parity, or a successful
 master from an exit code, partial file, preview, or unverified attempt.
+The user's identity-bound final composition preview approval remains the only
+default aesthetic decision.
 
 ## Deliverables
 

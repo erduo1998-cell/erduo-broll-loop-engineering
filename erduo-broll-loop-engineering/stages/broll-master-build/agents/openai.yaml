@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Block Builder"
-  short_description: "Author one semantic block in HyperFrames."
-  default_prompt: "Use $broll-master-build to load the release-pinned official hyperframes Skill and author this assigned contiguous semantic block."
+  display_name: "B-roll HyperFrames Unit Builder"
+  short_description: "Author one focused unit in HyperFrames."
+  default_prompt: "Use $broll-master-build to load the release-pinned official HyperFrames Skills and author this focused Recipe v2 unit reuse-first and hero-frame-first."

@@ -1,4 +1,4 @@
 interface:
   display_name: "Erduo B-roll Loop Engineering"
-  short_description: "Auto-route SRT shots across two backends."
-  default_prompt: "Use $erduo-broll-loop-engineering to direct runtime-neutral shots, plan evidence-backed HyperFrames/Remotion blocks, and supervise one verified final B-roll master."
+  short_description: "Craft focused SRT B-roll across two backends."
+  default_prompt: "Use $erduo-broll-loop-engineering to direct compact runtime-neutral shots, plan focused HyperFrames/Remotion authoring units, and supervise one technically verified B-roll master through final-preview approval."

@@ -29,7 +29,8 @@ neither route is available, stop before spawn as `action-required`.
 
 - Director film/shot plan and every validated canonical Shot Recipe;
 - frozen material and font plans with provenance;
-- every expected Remotion block project, manifest, QA evidence, and handoff;
+- every expected Remotion authoring-unit project, manifest, compact receipt,
+  QA evidence, and handoff, grouped by planned backend block;
 - output profile, audio policy, runtime decision, Onboarding evidence, and
   Remotion licensing confirmation.
 
@@ -89,6 +90,11 @@ points. Then:
 6. inspect sampled preview frames, run FFprobe, and decode the preview fully;
 7. rerun the verifier and atomically create the new
    `composition-identity.json` with `--write-identity`.
+
+Inspect stills and preview only for concrete integration, layout,
+missing-resource, seam, and runtime defects. Do not turn this technical
+inspection into an aesthetic score, approval stop, or independent review
+stage.
 
 For HTML-in-canvas, render additional stills during every active pixel effect
 and every following readable hold. The full preview must use the frozen GL

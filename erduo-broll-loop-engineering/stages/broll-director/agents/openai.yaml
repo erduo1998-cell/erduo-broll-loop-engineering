@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Director"
-  short_description: "Create an original semantic film and shot plan."
-  default_prompt: "Use $broll-director to turn this SRT and production goal into an original visual direction and executable semantic shot plan."
+  short_description: "Create a shared visual world and compact shots."
+  default_prompt: "Use $broll-director to turn this SRT and production goal into one narrative envelope, shared visual system, and compact Recipe v2 shot plan."

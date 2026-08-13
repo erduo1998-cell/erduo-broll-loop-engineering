@@ -23,6 +23,7 @@ Do not require or request a `design.md`, visual-specification file, preset, or
 private example.
 
 Read `../../references/animation-craft.md`,
+`../../references/visual-craft.md`,
 `../../references/runtime/runtime-contract.md`,
 `../../references/runtime/shot-recipe.schema.json`, and
 `../../references/runtime/capability-matrix.json`. The Director owns
@@ -90,6 +91,12 @@ Determine:
 - varied section-level primary-material intentions;
 - adjacent-shot variation and purposeful continuity;
 - uncertainties in names, brands, versions, and factual claims.
+- one concise narrative envelope containing the film proposition, sections,
+  cue context, and confirmed or uncertain terminology;
+- one concrete visual world with palette and typography roles, materials,
+  spatial/depth logic, motif semantics, whole-film rhythm, safe-area policy,
+  prohibited lazy defaults, and at least three content-appropriate composition
+  families. Unity must not mean one repeated layout.
 
 For every shot, decide:
 
@@ -109,6 +116,23 @@ For every shot, decide:
 - whether the idea needs authored key states or deterministic continuous
   motion;
 - one expressive peak and the properties that remain restrained around it.
+- the composition-family delta and hero-frame relationship to the shared
+  visual system;
+- compact `microBeats[]` describing visible state changes and a readable hold;
+- a shot-specific material need, or an explicit empty need for native motion
+  graphics. A beat must change subject, topology, scale, depth, material state,
+  relationship, or attention; opacity, slight displacement, and same-layout
+  copy replacement alone do not create a new beat.
+
+Use duration only as a generation heuristic, never a scoring rule: 3–6 second
+shots usually need 2–3 visible states, 6–12 second shots 3–4, and longer shots
+4–6 or a semantic split. Allow deliberate stillness, long holds, and genuine
+continuous action when the content calls for them. Avoid three adjacent shots
+that merely refill the same composition unless accumulation is the argument.
+No semantic shot may exceed 40,000 milliseconds because one shot cannot cross
+an authoring-unit boundary. When one idea needs more time, split it at a real
+semantic development while preserving continuous SRT coverage; do not label an
+overlong shot `solo` as an exception.
 
 After the semantic plan exists, query Shotcraft by purpose, visible
 relationship, material kind, and energy. Bind no more than one primary pattern
@@ -122,12 +146,20 @@ rewrite the film around a card.
 These are thinking prompts, not a mandatory component recipe or fixed motion
 sequence. Choose the structure that best explains the content.
 
-For every planned shot, author one Shot Recipe conforming to the schema. Use
+For every planned shot, author one compact Shot Recipe v2 conforming to the
+schema. Use
 stable shot IDs shared with `shot-plan.md`; use integer milliseconds for every
-time value; state semantic goal, material roles, layout relationships,
-entry/action/result/hold behavior, readability requirements, and neighboring
-connections as observable outcomes. Keep frame numbers and runtime-specific
-implementation out of the recipe.
+time value; store only the shot delta: audience understanding/focus,
+composition family, hero-frame relationship, micro-beats, shot-specific
+material need, optional craft/pattern locators, transition/neighbor handoff,
+and readable hold. Keep shared font, palette, safe-area, global material, and
+prohibition rules in `visual-system.json`; do not repeat them per Recipe. Keep
+frame numbers and runtime-specific implementation out of the recipe.
+
+Query the bundled craft index progressively after the visual logic exists:
+summary, then a directed category/search, then only the selected entry. Bind at
+most one primary craft grammar and optionally one transition locator per shot.
+Craft locators guide authoring and never change runtime capability routing.
 
 Store a selected card in the Recipe's optional `patternRef`. Omit
 `patternRef` when no pattern is selected; do not create a sentinel card such as
@@ -158,23 +190,23 @@ Do not prescribe a font that cannot be sourced and licensed locally.
 
 Write:
 
-- `broll-production/01-director/creative-brief.md`
-- `broll-production/01-director/visual-direction.md`
-- `broll-production/01-director/film-plan.md`
+- `broll-production/01-director/narrative-envelope.json`
+- `broll-production/01-director/visual-system.json`
 - `broll-production/01-director/shot-plan.md`
 - one schema-valid JSON object per shot under
   `broll-production/01-director/shot-recipes/<shot-id>.json`
-- `broll-production/01-director/material-requests.md`
+- `broll-production/01-director/material-requests.md`, containing only actual
+  per-shot needs plus the compact no-need set
 - `broll-production/01-director/handoff.md`
 
-The visual direction must explain its content-based reasoning. The shot plan
+The visual system must explain its content-based reasoning. The shot plan
 must map every cue, prove continuous coverage, and be implementable without
 inventing missing creative decisions. Every file under `shot-recipes/` must
 validate against the repository schema, use its Shot ID as the filename, and
 match the shot plan one-for-one. Run the parent Skill's bundled
 `scripts/validate-shot-recipes.mjs` against the completed directory and record
 the result; successful JSON parsing alone is not contract validation.
-Also record compact Shotcraft list/search queries, selected card/style
+Also record compact craft and Shotcraft queries, selected locators,
 resolution, and explicit no-pattern decisions in `shot-plan.md`; do not copy
 the full catalog or unselected card bodies into production artifacts.
 
@@ -182,7 +214,9 @@ the full catalog or unselected card bodies into production artifacts.
 
 Complete when the whole film is coherent, every cue belongs to a semantic shot,
 time coverage is continuous, visual and material intentions vary with content,
-font roles are planned, uncertainties are safe, the runtime-neutral recipes
+the narrative envelope and shared visual system are complete, at least three
+appropriate composition families are available, font roles are planned,
+uncertainties are safe, the compact runtime-neutral recipes
 validate and match the plan, every selected pattern resolves to one catalog
 card and style with an explicit fallback, and the Assets and Builder Agents
 have actionable inputs.
