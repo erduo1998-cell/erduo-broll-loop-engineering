@@ -126,6 +126,15 @@ material, safe-area, and prohibition rules in each assignment. Manifest-pinned
 Shotcraft TSX is auditable reference source only, never an
 installed component or an in-place production import.
 
+For HyperFrames, a focused Builder must resolve its intended animation
+mechanism against the current local project before full authoring. If that
+exact mechanism lacks a same-environment witness, the Builder first runs one
+small disposable seek canary: official check plus two nonblank, meaningfully
+different time snapshots. This stays inside the existing Builder stage and
+does not create another Agent, review artifact, user stop, or approval gate.
+Do not let a Builder discover a missing animation dependency only after the
+full unit has been written.
+
 ## Official HyperFrames loading
 
 Before any Builder reads or writes HyperFrames source, require a real load of

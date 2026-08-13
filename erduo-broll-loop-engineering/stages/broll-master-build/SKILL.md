@@ -92,6 +92,31 @@ boundary. If neither route is available, stop before spawn as
 `action-required`. This setting does not prove Skill loading or replace
 required CLI review.
 
+## Prove the local motion mechanism before full authoring
+
+Choose only a seek mechanism that is actually available in the current
+release-pinned project. An official reference, remembered package name, or
+declared adapter does not prove that its runtime script or dependency is local.
+Before writing the full authoring unit:
+
+1. resolve the chosen mechanism to an existing local dependency, verified
+   registry block, or native implementation permitted by the loaded official
+   guidance;
+2. when that exact mechanism has no current same-environment witness, build one
+   minimal disposable canary inside the unit's scratch area;
+3. run the official check on the canary and take snapshots at two times that
+   must produce nonblank, meaningfully different states;
+4. continue to the hero frame and full unit only after both checks pass.
+
+Do not guess that GSAP, WAAPI, Anime.js, CSS playback, or another adapter is
+installed. Do not install a dependency merely to satisfy the canary, and do not
+use a CSS animation whose state depends on wall-clock playback. A failed canary
+is a local implementation decision: discard the scratch canary and choose
+another already available mechanism before full authoring. Return to
+Onboarding only when the Recipe truly requires a missing capability or approved
+dependency. This canary is an internal Builder development step, not a new
+stage, approval, aesthetic review, handoff, score, or permanent evidence pack.
+
 ## Inputs
 
 - assigned authoring-unit ID, parent block ID, and contiguous

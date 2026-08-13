@@ -83,6 +83,10 @@ gate: the user's decision on the final identity-bound composition preview.
   queried registry/presets/blueprints before hand-writing; reused mechanisms
   were reskinned for this content. Remotion reused only real-witness local
   primitives or implemented the craft natively without parity claims.
+- HyperFrames resolved the selected motion mechanism to the current local
+  project before full authoring. When no same-environment witness existed, one
+  disposable seek canary passed official check and produced two nonblank,
+  meaningfully different time snapshots inside the owning Builder stage.
 - The maximum visible hero frame was authored first, then attention, causal
   action, dependent follow-through, settle, and readable hold. This created no
   approval artifact or aesthetic checklist.

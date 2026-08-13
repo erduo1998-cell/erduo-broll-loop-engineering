@@ -1950,6 +1950,17 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'utf8',
   );
   assert.match(integratorSkill, /aggregate SHA-256 of that canonical list/u);
+
+  const hyperframesBuilderSkill = await readFile(
+    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-master-build', 'SKILL.md'),
+    'utf8',
+  );
+  assert.match(hyperframesBuilderSkill, /Prove the local motion mechanism before full authoring/u);
+  assert.match(hyperframesBuilderSkill, /minimal disposable canary/u);
+  assert.match(hyperframesBuilderSkill, /snapshots at two times/u);
+  assert.match(hyperframesBuilderSkill, /nonblank, meaningfully different states/u);
+  assert.match(hyperframesBuilderSkill, /not a new\s+stage, approval, aesthetic review/u);
+  assert.match(hyperframesBuilderSkill, /Do not guess that GSAP, WAAPI, Anime\.js, CSS playback/u);
 });
 
 test('animation craft is prompt-time generation guidance, not a review schema', async () => {
