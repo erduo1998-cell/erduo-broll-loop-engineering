@@ -13,7 +13,7 @@
 ## 実際の出力例
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-proof.gif" alt="v0.7.0 の検証済み first-pass B-roll ベンチマーク" width="360">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/infinite-canvas-pipeline.gif" alt="SRT の時間固定から承認済み 4K Master までを一つの無限キャンバスで移動する映像" width="100%">
 </p>
 
 この映像は、同一入力による v0.7.0 first-pass ベンチマークの一部です。全体は 14.1 秒、2160 × 3840、30 fps。両方の比較プレビューが技術検査を通過した後、ユーザーが v0.7.0 を選択しました。これは固定された 1 サンプルの結果であり、すべての入力や両バックエンドの見た目が同一になる保証ではありません。

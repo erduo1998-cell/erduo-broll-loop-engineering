@@ -20,17 +20,13 @@
 
 ## 真实成片演示
 
-下面三段来自同一份 **v0.7.0 同输入 first-pass benchmark**，不是概念稿，也不是为 README 临时拼出的假样片。完整预览为 14.1 秒、2160 × 3840、30 fps；技术检查通过后，用户在 v0.6.0 与 v0.7.0 之间明确选择了 v0.7.0。
+<p align="center">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/infinite-canvas-pipeline.gif" alt="同一无限画布中从 SRT 时间锚点连续移动到语义分镜、双后端路由和批准后的 4K Master" width="100%">
+</p>
 
-<table>
-  <tr>
-    <td width="33%" align="center"><img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-samples.gif" alt="四张视觉样本依次进入画面" width="100%"><br><strong>01 · 建立命题</strong><br>样本不是答案，镜头先建立“漂亮画面不等于完整叙事”。</td>
-    <td width="33%" align="center"><img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-break.gif" alt="镜头之间的关系断点动画" width="100%"><br><strong>02 · 暴露断点</strong><br>缺陷发生在镜头之间，关系断裂本身成为可见事件。</td>
-    <td width="33%" align="center"><img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-proof.gif" alt="关系蓝图与验证门动画" width="100%"><br><strong>03 · 推进验证</strong><br>关系蓝图继续发展，最后落到第三项验证门。</td>
-  </tr>
-</table>
+这条 12 秒样片不是四页内容切换，而是一次连续空间穿行：摄影机沿同一条铜色时间轨道，依次经过 **SRT 时间锚 → 语义分镜与素材冻结 → HyperFrames / Remotion 路由 → 预览批准与技术验证后的 4K Master**。前一个阶段始终留在同一世界中并退入景深；全片没有换背景、卡片翻页或 PPT 式转场。
 
-> 这是一个冻结样本的真实结果，只证明该输入上的 first-pass 提升；不代表所有输入都能得到相同审美，也不构成 HyperFrames 与 Remotion 的视觉一致性声明。
+环境与装置素材由内置图像生成能力按统一美术设定制作，文字、空间运动、景深与光线由 HyperFrames 确定性编排。它用来演示本项目的生产路径和动画能力，不把概念样片冒充某个用户 SRT 的真实交付，也不构成 HyperFrames 与 Remotion 的视觉一致性声明。
 
 ## 一分钟看懂怎么用
 

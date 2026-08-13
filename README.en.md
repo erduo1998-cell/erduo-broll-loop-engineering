@@ -13,10 +13,10 @@
 ## Real output demo
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-proof.gif" alt="A verified v0.7.0 first-pass B-roll benchmark excerpt" width="360">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/infinite-canvas-pipeline.gif" alt="A continuous infinite-canvas journey from SRT timing to an approved 4K master" width="100%">
 </p>
 
-This excerpt comes from the verified v0.7.0 same-input first-pass benchmark: 14.1 seconds, 2160 × 3840, 30 fps. The user selected v0.7.0 after both comparison previews passed technical checks. It is one frozen sample, not a promise that every input or both rendering backends will look identical.
+This 12-second concept film travels through one continuous world: SRT timing, semantic direction and frozen material, deterministic backend routing, then preview approval and a technically verified 4K master. Generated environment assets share one art direction; typography and camera motion are deterministic HyperFrames animation. It demonstrates the production path, not the output of a particular user SRT or a claim of visual parity between backends.
 
 ## What it does
 

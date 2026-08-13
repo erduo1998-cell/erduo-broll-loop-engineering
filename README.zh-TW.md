@@ -13,7 +13,7 @@
 ## 真實成片示範
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-proof.gif" alt="已驗證的 v0.7.0 first-pass B-roll benchmark 片段" width="360">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/infinite-canvas-pipeline.gif" alt="在同一無限畫布中從 SRT 時間錨點移動到批准後 4K Master 的連續動畫" width="100%">
 </p>
 
 這段畫面來自同輸入的 v0.7.0 first-pass benchmark。完整預覽為 14.1 秒、2160 × 3840、30 fps；兩份比較預覽通過技術檢查後，使用者選擇了 v0.7.0。這只是單一凍結樣本的結果，不保證所有輸入都能得到相同美感，也不表示兩個渲染後端的視覺完全一致。

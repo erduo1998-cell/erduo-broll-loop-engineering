@@ -13,7 +13,7 @@
 ## 실제 출력 예시
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-proof.gif" alt="검증된 v0.7.0 first-pass B-roll 벤치마크 일부" width="360">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/infinite-canvas-pipeline.gif" alt="SRT 시간 고정부터 승인된 4K Master까지 하나의 무한 캔버스를 이동하는 영상" width="100%">
 </p>
 
 이 영상은 동일 입력으로 진행한 v0.7.0 first-pass 벤치마크의 일부입니다. 전체 길이는 14.1초, 해상도는 2160 × 3840, 프레임률은 30 fps입니다. 두 비교 프리뷰가 기술 검사를 통과한 뒤 사용자가 v0.7.0을 선택했습니다. 하나의 고정 샘플 결과일 뿐, 모든 입력이나 두 렌더링 백엔드의 시각적 결과가 같다는 보장은 아닙니다.

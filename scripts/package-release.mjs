@@ -317,10 +317,8 @@ export const RELEASE_FILES = Object.freeze([
 ].toSorted());
 
 const REPOSITORY_DEMO_FILES = Object.freeze([
+  'docs/images/demos/infinite-canvas-pipeline.gif',
   'docs/images/demos/quick-start.gif',
-  'docs/images/demos/relationship-break.gif',
-  'docs/images/demos/relationship-proof.gif',
-  'docs/images/demos/relationship-samples.gif',
 ]);
 
 export const REPOSITORY_ONLY_FILES = Object.freeze([
@@ -595,7 +593,7 @@ async function validateSource(repoRoot) {
     for (const relative of REPOSITORY_DEMO_FILES) {
       const demo = await readFile(path.join(repoRoot, relative));
       const header = demo.subarray(0, 6).toString('ascii');
-      if (demo.length < 32 || demo.length > 5 * 1024 * 1024
+      if (demo.length < 32 || demo.length > 8 * 1024 * 1024
         || !['GIF87a', 'GIF89a'].includes(header)
         || demo.at(-1) !== 0x3b) {
         throw new ActionRequiredError(
