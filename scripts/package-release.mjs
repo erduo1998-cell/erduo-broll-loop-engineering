@@ -223,6 +223,10 @@ const ROOT_FILES = [
   'LICENSE',
   'PRIVACY.md',
   'README.md',
+  'README.en.md',
+  'README.ja.md',
+  'README.ko.md',
+  'README.zh-TW.md',
   'RELEASE-CHECKLIST.md',
   'SECURITY.md',
   'SUPPORT-MATRIX.md',
@@ -312,8 +316,16 @@ export const RELEASE_FILES = Object.freeze([
   SHOTCRAFT_LICENSE_FILE,
 ].toSorted());
 
+const REPOSITORY_DEMO_FILES = Object.freeze([
+  'docs/images/demos/quick-start.gif',
+  'docs/images/demos/relationship-break.gif',
+  'docs/images/demos/relationship-proof.gif',
+  'docs/images/demos/relationship-samples.gif',
+]);
+
 export const REPOSITORY_ONLY_FILES = Object.freeze([
   '.github/workflows/ci.yml',
+  ...REPOSITORY_DEMO_FILES,
   'docs/images/wechat-contact.jpg',
   'docs/images/workflow-zh.svg',
   'scripts/sync-video-shotcraft.mjs',
@@ -578,6 +590,19 @@ async function validateSource(repoRoot) {
         'release_repository_asset_invalid',
         'Repository contact image failed its bounded JPEG validation.',
       );
+    }
+
+    for (const relative of REPOSITORY_DEMO_FILES) {
+      const demo = await readFile(path.join(repoRoot, relative));
+      const header = demo.subarray(0, 6).toString('ascii');
+      if (demo.length < 32 || demo.length > 5 * 1024 * 1024
+        || !['GIF87a', 'GIF89a'].includes(header)
+        || demo.at(-1) !== 0x3b) {
+        throw new ActionRequiredError(
+          'release_repository_asset_invalid',
+          `Repository demo animation failed bounded GIF validation: ${relative}.`,
+        );
+      }
     }
   }
 }

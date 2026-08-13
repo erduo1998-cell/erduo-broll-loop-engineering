@@ -9,12 +9,46 @@
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
 
-[三分钟安装](#三分钟安装) · [镜头能力目录](#镜头能力目录) · [第一次怎么用](#第一次怎么用) · [常见问题](#常见问题) · [联系作者](#联系作者)
+**简体中文** · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [繁體中文](README.zh-TW.md)
+
+[真实成片](#真实成片演示) · [一分钟上手](#一分钟看懂怎么用) · [三分钟安装](#三分钟安装) · [支持范围](#支持范围) · [常见问题](#常见问题)
 
 </div>
 
 > [!IMPORTANT]
 > `0.4.0` 起项目正式更名为 **Erduo B-roll Loop Engineering**，公开仓库与父 Skill 统一使用 `erduo-broll-loop-engineering`。双后端能力保持不变；稳定不表示同一镜头在 HyperFrames 与 Remotion 中天然视觉一致，也不表示任意既有工程都能自动修复。请先看[支持范围](#支持范围)。
+
+## 真实成片演示
+
+下面三段来自同一份 **v0.7.0 同输入 first-pass benchmark**，不是概念稿，也不是为 README 临时拼出的假样片。完整预览为 14.1 秒、2160 × 3840、30 fps；技术检查通过后，用户在 v0.6.0 与 v0.7.0 之间明确选择了 v0.7.0。
+
+<table>
+  <tr>
+    <td width="33%" align="center"><img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-samples.gif" alt="四张视觉样本依次进入画面" width="100%"><br><strong>01 · 建立命题</strong><br>样本不是答案，镜头先建立“漂亮画面不等于完整叙事”。</td>
+    <td width="33%" align="center"><img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-break.gif" alt="镜头之间的关系断点动画" width="100%"><br><strong>02 · 暴露断点</strong><br>缺陷发生在镜头之间，关系断裂本身成为可见事件。</td>
+    <td width="33%" align="center"><img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/relationship-proof.gif" alt="关系蓝图与验证门动画" width="100%"><br><strong>03 · 推进验证</strong><br>关系蓝图继续发展，最后落到第三项验证门。</td>
+  </tr>
+</table>
+
+> 这是一个冻结样本的真实结果，只证明该输入上的 first-pass 提升；不代表所有输入都能得到相同审美，也不构成 HyperFrames 与 Remotion 的视觉一致性声明。
+
+## 一分钟看懂怎么用
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="从 SRT 到预览批准和 4K Master 的操作动画" width="100%">
+</p>
+
+1. 准备一份 SRT；口播模式再附上与字幕匹配的已剪视频。
+2. 把文件交给 Codex 或 Claude Code，并点名使用 `erduo-broll-loop-engineering`。
+3. Agent 自动完成语义分镜、素材冻结、后端路由、区块构建与整合。
+4. 你只在完整预览出现后决定是否批准正式渲染；批准后交付经过技术验证的 4K Master。
+
+最短提示词：
+
+```text
+使用 erduo-broll-loop-engineering，把这份 SRT 做成无人出镜 B-roll。
+持续执行，直到完整预览需要我批准时再停下。
+```
 
 ## 它解决什么问题
 
@@ -412,21 +446,6 @@ npm test
   </tr>
 </table>
 
-## English quick start
+## 多语言说明
 
-`erduo-broll-loop-engineering` 0.7.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a shared visual system, compact Recipe v2 shots, focused authoring units, conditional asset sourcing, and deterministic routing across independent HyperFrames and Remotion backends. Recipe/plan v1 runs remain readable. The release adds no aesthetic reviewer or per-shot approval: the final composition preview remains the only default aesthetic gate. In the frozen same-input first-pass benchmark, both 14.1-second previews passed technical checks and the user selected 0.7.0. Handoff prose fell 73.59%; Director + Builder Markdown/JSON I/O fell only 5.20%, short of the original 30% optimization target, and remains disclosed as follow-up work. Hybrid integration exchanges frozen media only; cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
-
-```bash
-git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
-cd erduo-broll-loop-engineering
-./Install.command
-```
-
-Restart Codex or Claude Code, attach an SRT, and ask:
-
-```text
-Use erduo-broll-loop-engineering to turn this SRT into a faceless B-roll master.
-Continue unattended until the final preview requires my approval.
-```
-
-Talking-head mode also needs the matching edited video. The installer provisions the pinned HyperFrames runtime, official HyperFrames Skills and browser, installs the parent plus thirteen stage Skills, and securely offers optional Pexels configuration for shots that actually need it. It does not install Remotion globally, use `sudo`, or edit your shell profile.
+本仓库提供 [English](README.en.md)、[日本語](README.ja.md)、[한국어](README.ko.md) 和[繁體中文](README.zh-TW.md)快速指南。生产输入不限定中文，但实际语言质量取决于宿主模型能否理解该语种，以及项目字体是否覆盖对应字形；默认 B-roll 仍不会烧录整段字幕。

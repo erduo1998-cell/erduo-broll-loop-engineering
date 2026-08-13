@@ -3085,7 +3085,7 @@ test('entire public release tree has no private path, original-author, private-s
     RELEASE_PACKAGE_MODE,
   );
   const textFiles = (await listPublicReleaseFiles()).filter(
-    (file) => path.extname(file).toLowerCase() !== '.jpg',
+    (file) => !/^\.(?:gif|jpe?g|png|webp)$/u.test(path.extname(file).toLowerCase()),
   );
   const text = (await Promise.all(textFiles.map(
     (file) => readFile(file, 'utf8'),
@@ -4187,7 +4187,7 @@ test('private configuration root rejects a symbolic link', async (t) => {
 test('old repository name remains only in the bounded migration surface', async () => {
   const oldName = ['erduo', 'hyperframes', 'broll'].join('-');
   const textFiles = (await listPublicReleaseFiles()).filter(
-    (file) => path.extname(file).toLowerCase() !== '.jpg',
+    (file) => !/^\.(?:gif|jpe?g|png|webp)$/u.test(path.extname(file).toLowerCase()),
   );
   const filesWithOldName = [];
   for (const file of textFiles) {
