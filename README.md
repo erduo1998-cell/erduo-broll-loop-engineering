@@ -25,12 +25,13 @@
 - Director 一次冻结叙事包络和共享视觉系统，再用紧凑 Recipe v2 描述每镜差量、hero frame、micro-beats 与素材需求；
 - 把后端连续区块进一步拆成完整镜头组成的 `authoringUnits`：默认 1–3 镜且绝不超过 40 秒，由聚焦的 Builder 并行构建；
 - Builder 先完成最大可见状态，再编排进入、因果动作、跟随、settle 与 readable hold；优先查询小型 craft 索引和已锁定的运行时能力，命中后只加载必要参考；
+- HyperFrames Builder 会先把选定动画机制解析到当前本地项目；缺少同环境 witness 时，只在本阶段 scratch 中运行一次最小 seek canary，通过 official check 和两个非空、明显不同的时间快照后才完整 authoring；
 - 分镜后按 capability 与实测/来源证据逐镜选择后端，再把相邻同后端镜头合并为区块；
 - HyperFrames 使用锁定的官方 Skill；Remotion 只使用目标项目本地锁定的 CLI 与依赖；
 - 整合后先给你看最终预览，得到明确同意才正式渲染；
 - 默认交付一个经过分辨率、时长、连续覆盖和解码检查的 4K Master。
 
-它不是一键“审美保证器”。`0.7.0` 升级的是第一次预览的生成机制，不代表未经同输入 benchmark 就已经证明比 `0.6.0` 更好看。技术验证通过只说明文件可用；好不好看，最后仍由你观看后决定。
+它不是一键“审美保证器”。`0.7.0` 升级的是第一次预览的生成机制；在发布前的同输入 first-pass benchmark 中，`0.6.0` 与 `0.7.0` 使用相同的 14.1 秒、2160 × 3840、30 fps、静音输入与输出政策，技术检查通过后由用户明确选择了 `0.7.0`。这只证明该冻结样本上的第一次预览提升，不把一次选择夸大成所有输入的审美保证。
 
 ### v0.7 的第一次预览 craft 升级
 
@@ -40,7 +41,11 @@
 
 长镜通过 `microBeats[]` 规划主体、拓扑、景别、空间层级、材料状态、关系或注意力位置的真实发展。单纯透明度、轻微位移或同构卡片换字不算新的可见 beat。普通媒体也需要通过焦点几何、裁切、mask、路径、标注、取色或前后景关系参与构图，不能只贴进通用白卡。
 
+HyperFrames 的 seek canary 不是新增 stage、审查 Agent、审批点或永久证据包。它只在当前机制没有同环境 witness 时运行，用来在写完整 unit 之前发现缺失依赖、错误 adapter 或不可 seek 的墙钟动画；失败时在 Builder 内改选已存在的机制，不为通过测试临时安装依赖。
+
 Recipe schema v1 和 Runtime Plan schema v1 继续可读；旧 run 不要求迁移。v2 才使用共享 artifact 和 `authoringUnits`，两代合同都保留 SRT 整数毫秒、完整覆盖、来源与字体闭包、运行时隔离、身份绑定和媒体验证底线。
+
+发布 benchmark 还记录了效率边界：Director + Builder 实际 Markdown/JSON 输入输出从 `220,665` bytes 降到 `209,199` bytes（减少 `5.20%`），没有达到原先 `30%` 的优化目标；handoff prose 从 `18,493` bytes 降到 `4,884` bytes（减少 `73.59%`），超过 `50%` 目标。前者作为后续效率优化项公开保留，不影响本版已经验证的技术合同与用户审美选择。
 
 本版对 `vibe-motion/auto-motion@17ead629d010f7e5495f645d46fafd6876482c32` 做过设计思想审计；审计时未发现 LICENSE。本仓库只 clean-room 重建设计能力与可观察行为，没有复制其代码、Prompt、范例、素材或文字。对应机器可读边界随 craft attribution manifest 一起进入发布包。
 
@@ -409,7 +414,7 @@ npm test
 
 ## English quick start
 
-`erduo-broll-loop-engineering` 0.7.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a shared visual system, compact Recipe v2 shots, focused authoring units, conditional asset sourcing, and deterministic routing across independent HyperFrames and Remotion backends. Recipe/plan v1 runs remain readable. The release adds no aesthetic reviewer or per-shot approval: the final composition preview remains the only default aesthetic gate. It improves the first-pass craft mechanism but does not claim superiority over 0.6.0 without the frozen same-input benchmark and user decision. Hybrid integration exchanges frozen media only; cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
+`erduo-broll-loop-engineering` 0.7.0 is a stable, prompt-first parent/child Agent Skill for SRT-anchored B-roll with a shared visual system, compact Recipe v2 shots, focused authoring units, conditional asset sourcing, and deterministic routing across independent HyperFrames and Remotion backends. Recipe/plan v1 runs remain readable. The release adds no aesthetic reviewer or per-shot approval: the final composition preview remains the only default aesthetic gate. In the frozen same-input first-pass benchmark, both 14.1-second previews passed technical checks and the user selected 0.7.0. Handoff prose fell 73.59%; Director + Builder Markdown/JSON I/O fell only 5.20%, short of the original 30% optimization target, and remains disclosed as follow-up work. Hybrid integration exchanges frozen media only; cross-runtime visual parity, Windows, and desktop CapCut/Jianying imports remain unverified.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git

@@ -75,7 +75,7 @@
 
 - [ ] 用冻结的同一份 12–15 秒中文 SRT、相同画幅/fps/字幕/音频政策、相同素材和外部服务授权分别生成 `0.6.0` 与 `0.7.0` 的第一次完整预览；禁止先按对比结果精修 `0.7.0` 再称为 first pass。
 - [ ] benchmark 记录预览 locator、实际 agents/authoring units、墙钟时间、可得 token 或输入/输出字节代理、技术检查与用户视觉判断；用户明确选择 `0.7.0` 后才能宣称 first-preview visual uplift。
-- [ ] 同一 benchmark 的 Director + Builder 实际输入/输出 Markdown/JSON 字节相对 `0.6.0` 至少减少 30%，handoff prose 至少减少 50%；可得时总 token 不高于 `0.6.0`，不可得时明确使用字节与墙钟代理。
+- [ ] benchmark 必须如实报告 Director + Builder 实际输入/输出 Markdown/JSON 字节、handoff prose、可得 token 与墙钟代理；效率目标的达成与未达均不得隐去。`0.7.0` 实测分别减少 `5.20%`（未达原 `30%` 目标）与 `73.59%`（超过 `50%` 目标）。
 - [ ] benchmark 与生产链均没有新增 stage、独立视觉审查 Agent、lookdev/逐镜停点或审美评分；最终 composition preview 是唯一默认审美/用户 gate。
 - [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.7.0`。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。

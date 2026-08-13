@@ -4,16 +4,17 @@
 
 ## Unreleased
 
-## 0.7.0 — 2026-08-12
+## 0.7.0 — 2026-08-13
 
 - Director 新增一次性 `narrative-envelope.json` 与共享 `visual-system.json`，Shot Recipe 升级为紧凑 v2：逐镜只保留理解目标、第一眼焦点、构图家族、hero-frame 关系、可见 `microBeats[]`、镜头特定素材需求、可选 craft/pattern locator、接缝和 readable hold，避免重复全片字体、颜色、材料、安全区与禁用项。
 - Runtime Plan v2 新增确定性 `authoringUnits`。每个 unit 只含一个 backend block 内的完整语义镜头，默认 1–3 镜且绝不超过 40 秒；Builder 只读取本 unit、相邻接缝摘要、共享 artifact、冻结素材及实际命中的 0–2 份参考。Shot Recipe v1 与 Runtime Plan v1 继续可读，旧 run 不要求迁移。
 - 新增原创 runtime-neutral visual craft 索引与渐进查询器，接入 hero-frame-first、micro-beat、构图家族、视觉层次/密度、单镜聚焦、素材融合和 reuse-first authoring。HyperFrames Builder 优先查询锁定官方 registry/creative/animation 能力；Remotion Builder 只复用本项目有证据的 primitive，否则按相同 craft grammar 原生实现。
 - Assets 改为按 shot-specific material need 条件触发：纯原生 motion graphics 不再为了流程无条件搜索 Pexels 或调用生成服务；真实素材仍保持用户素材 → 可控生成 → Pexels → 原生结构辅助的路由、来源、权利、hash、裁切、字体闭包和融合几何。
 - 默认生产链移除独立视觉审查和广泛抽帧复审，不新增审查 Agent、逐镜审批、lookdev 停点或审美评分。确定性 schema、时间、来源、依赖、identity、FFprobe 与完整解码检查保留；最终 composition preview 仍是正式渲染前唯一默认审美/用户停点。
+- HyperFrames Builder 新增本地 seek 机制预检：选定机制没有同环境 witness 时，先在本阶段 scratch 中运行一个最小 disposable canary，必须通过 official check 并产生两个非空、明显不同的时间快照后才完整 authoring；该步骤不新增 stage、Agent、审批或审美评分。
 - 保留 HyperFrames / Remotion / Hybrid 的 capability 与证据路由、后端隔离、SRT 整数毫秒、连续覆盖、安全子进程、预览 identity 绑定和技术交付底线；本版不声明跨后端视觉一致性。
 - 对 `vibe-motion/auto-motion@17ead629d010f7e5495f645d46fafd6876482c32` 仅做 clean-room 设计思想审计。审计时未发现 LICENSE；发布包不复制其代码、Prompt、Skill、范例、素材或文字，并随原创 craft catalog 保留机器可读归因边界。
-- 本版升级的是第一次预览的生成机制。只有冻结条件下的 `0.6.0` / `0.7.0` 同输入 first-pass benchmark、上下文/交接瘦身测量和用户明确选择全部完成后，才能对外宣称第一次预览优于 `0.6.0`；自动测试通过本身不构成该声明。
+- 冻结条件下的 `0.6.0` / `0.7.0` 同输入 first-pass benchmark 已完成：两版均为 14.1 秒、2160 × 3840、30 fps、静音并通过技术检查，用户明确选择 `0.7.0`。Director + Builder Markdown/JSON I/O 减少 `5.20%`，未达到原 `30%` 优化目标；handoff prose 减少 `73.59%`，超过 `50%` 目标。一次样本选择不构成对所有输入的审美保证。
 
 ## 0.6.0 — 2026-08-12
 

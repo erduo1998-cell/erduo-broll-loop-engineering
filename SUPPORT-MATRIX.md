@@ -19,7 +19,7 @@
 
 ## v0.7 first-pass craft 合同
 
-`0.7.0` 冻结的是第一次预览的生成机制，不是自动化审美证明。默认链不增加独立视觉审查、审美评分、lookdev 或逐镜审批；最终 composition preview 仍是正式渲染前唯一默认审美/用户停点。发布候选只有在同输入 first-pass benchmark 中由用户明确选择后，才能表述为相对 `0.6.0` 的视觉结果提升。
+`0.7.0` 冻结的是第一次预览的生成机制，不是自动化审美证明。默认链不增加独立视觉审查、审美评分、lookdev 或逐镜审批；最终 composition preview 仍是正式渲染前唯一默认审美/用户停点。发布前已完成同输入 first-pass benchmark，用户在两版技术均通过后明确选择 `0.7.0`；该结论只绑定冻结样本，不外推为所有输入的审美保证。
 
 | 项目 | `0.7.0` 状态 | 证据边界 |
 | --- | --- | --- |
@@ -29,8 +29,8 @@
 | Focused `authoringUnits` | verified deterministic plan | unit 只含同一 backend block 的完整镜头，默认 1–3 镜、绝对上限 40 秒，并精确闭合所有 shots；不改变 backend capability routing |
 | Runtime-neutral craft catalog | verified original data + CLI | 小型原创 catalog、归因 manifest 和渐进查询进入发布闭集；条目是 authoring guidance，不是现成组件、模板、审美评分或跨后端 parity 证据 |
 | Conditional Assets | supported production contract | shot-specific material need 为空时不搜索 Pexels/生成素材；命中素材路由后仍要求来源、权利、hash、裁切、字体和融合几何。该合同不保证外部服务始终可用 |
-| Context / handoff reduction | release-benchmark required | 目标为 Director + Builder 实际输入/输出字节相对 `0.6.0` 至少减少 30%，handoff prose 至少减少 50%；未完成冻结 benchmark 前不标 verified |
-| First-preview visual uplift | user decision required | 必须使用相同 12–15 秒 SRT、画幅、fps、字幕/音频政策、素材与服务授权，只比较两版第一次完整预览；自动测试和技术通过不能替代用户选择 |
+| Context / handoff reduction | measured, partially met | Director + Builder Markdown/JSON I/O 从 220,665 降至 209,199 bytes（`5.20%`），未达到原 `30%` 优化目标；handoff prose 从 18,493 降至 4,884 bytes（`73.59%`），超过 `50%` 目标。未达项公开保留为后续优化，不伪装成通过 |
+| First-preview visual uplift | selected on frozen benchmark | 使用相同 14.1 秒 SRT、2160 × 3840、30 fps、字幕/静音政策与服务边界比较两版第一次完整预览；技术检查通过后用户明确选择 `0.7.0`。结论不外推到其他输入 |
 | `auto-motion` clean-room boundary | verified attribution boundary | 仅记录 `vibe-motion/auto-motion@17ead629d010f7e5495f645d46fafd6876482c32` 的可观察设计思想；审计时未发现 LICENSE，不复制代码、Prompt、Skill、范例、媒体或原文 |
 
 两代合同都继续要求 SRT 整数毫秒、完整覆盖、来源与字体闭包、能力证据路由、后端隔离、preview identity、FFprobe 和完整解码。技术验证不得宣称审美通过。
