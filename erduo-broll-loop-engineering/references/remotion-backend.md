@@ -9,7 +9,7 @@ Render/Delivery stages. It does not change the HyperFrames route.
 The backend design is informed by the pinned Apache-2.0
 `Vincentwei1021/video-shotcraft` source at Git commit
 `41ee360d82f4c491ba9d88a24a4add7d8ff1cf8b`. Its useful production ideas are
-native Remotion compositions, frame-owned state, per-shot still inspection,
+native Remotion compositions, frame-owned state, runtime geometry inspection,
 ordered `Sequence` assembly, and render verification. This repository's stage
 contracts and verifier are original. Imported reference TSX remains under
 `references/shotcraft/remotion-sources/` with its own manifest, provenance,
@@ -74,11 +74,8 @@ not let a command silently download a different CLI. `package.json` scripts
 may expose the same exact commands for user convenience, but production stages
 must invoke the local Node entry points directly.
 
-Every non-Pexels child process must use the parent Skill's safe child
-environment contract: remove all case variants of `PEXELS_API_KEY`, resolve
-case-insensitive collisions, disable HyperFrames telemetry by default, and
-spawn directly without a shell. Use `scripts/safe-spawn.mjs` when the host
-cannot attest a native environment map.
+Every command follows [shared command execution](safe-execution.md) and consumes
+only its compact result.
 
 ## HTML-in-canvas capability
 
@@ -88,7 +85,7 @@ with Canvas 2D or WebGL2. It is an implementation capability inside a Remotion
 shot, not a new runtime and not a bridge to HyperFrames.
 
 Version numbers alone do not prove this experimental browser capability. The
-targeted Onboarding evidence must bind the exact local Remotion version,
+cached readiness plus the capability-specific preflight must bind the exact local Remotion version,
 browser, and render backend, and must include a real project-local still
 canary whose source imports and mounts `<HtmlInCanvas>`. Require Remotion
 `4.0.455` or newer, confirm `HtmlInCanvas.isSupported()` in the preview
@@ -240,22 +237,28 @@ The Builder runs, in order:
 2. `npm ci` in that block project;
 3. the project-local TypeScript check through
    `node node_modules/typescript/bin/tsc --noEmit`;
-4. a real project-local CLI `still` at the declared start, action/result, readable
-   hold, and final safe frame for every shot;
-5. a short real preview render for the block.
+4. runtime capture of meaningful DOM/scene geometry for every frame;
+5. `scripts/motion-layout-lint.mjs` against that trace, with rendered
+   diagnostics only for returned finding windows.
 
-The Integrator runs the verifier with `--expect master`, performs a clean
-`npm ci`, runs TypeScript check, renders seam stills, renders a complete
-low-cost preview MP4, verifies that preview with FFprobe and a full decode,
-then writes `composition-identity.json`. Preview output is evidence only; it
-is not the formal master.
+The Integrator runs the verifier with `--expect master`, reuses unchanged
+Builder install/typecheck receipts, typechecks only integration glue, captures and lints the full master geometry
+once, then writes `composition-identity.json`. It does not repeat unit stills
+or create a second preview.
 
-The Render/Delivery stage repeats verification, clean install, typecheck, and
-representative stills in the exact final environment. It launches Remotion
-Studio as the human preview surface and stops for explicit approval bound to
-the composition identity. A different fresh Render Agent verifies the same
-identity after approval, renders to a new attempt path, and uses FFprobe plus
-a complete decode before moving one verified file to the unused final path.
+The Render/Delivery stage verifies unchanged identity and the prior master lint
+instead of repeating install, typecheck, trace, or still sets. It launches
+Remotion Studio as the single human moving-preview surface and stops for
+explicit approval bound to the composition identity. The approved pass verifies
+the same identity, renders to a new attempt path, and uses FFprobe plus a
+complete decode before moving one verified file to the unused final path.
+
+Read `references/motion-layout-lint.md` for the shared trace contract and
+limits. Static source regex cannot establish geometry or easing quality. A
+passing trace suppresses AI frame inspection; findings alone trigger bounded
+diagnostic renders. Code cannot prove perceived weight, meaningful arcs,
+exaggeration, appeal, or story clarity, so the final moving preview remains the
+only aesthetic decision.
 
 Invoke `node node_modules/@remotion/cli/remotion-cli.js` with the manifest's
 entry point and Composition ID explicitly for studio, still, and render.

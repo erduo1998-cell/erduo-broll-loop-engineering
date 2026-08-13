@@ -1,6 +1,6 @@
 {
   "name": "erduo-broll-loop-engineering",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Prompt-first SRT-anchored auto-routed hybrid B-roll parent/child Agent Skills.",
   "type": "module",
@@ -11,6 +11,7 @@
   "scripts": {
     "install:skills": "node scripts/install.mjs",
     "doctor": "node scripts/doctor.mjs",
+    "preflight": "node scripts/production-preflight.mjs",
     "config:status": "node scripts/config.mjs status",
     "uninstall:skills": "node scripts/uninstall.mjs",
     "package:release": "node scripts/package-release.mjs",
@@ -18,6 +19,10 @@
     "plan:runtime": "node erduo-broll-loop-engineering/scripts/plan-runtime.mjs",
     "validate:runtime-plan": "node erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs",
     "validate:frozen-blocks": "node erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs",
-    "test": "node --test scripts/test.mjs"
+    "lint:motion-layout": "node erduo-broll-loop-engineering/scripts/motion-layout-lint.mjs",
+    "measure:context": "node scripts/measure-context.mjs",
+    "test:motion-layout": "node --test scripts/motion-layout-lint.test.mjs",
+    "test:remotion-trace": "node --test scripts/remotion-dom-trace.e2e.test.mjs",
+    "test": "node --test scripts/test.mjs scripts/motion-layout-lint.test.mjs scripts/remotion-dom-trace.e2e.test.mjs"
   }
 }

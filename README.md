@@ -4,7 +4,7 @@
 
 **把一份 SRT 和可选口播视频交给协作 Agent：先做运行时中立分镜，再按镜头证据自动分配 HyperFrames / Remotion，得到可编辑、可复查的 B-roll Master。**
 
-[![Version](https://img.shields.io/badge/version-0.7.0-16a34a)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.8.0-16a34a)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-111827)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-2563eb)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
@@ -55,17 +55,24 @@
 - Director 一次冻结叙事包络和共享视觉系统，再用紧凑 Recipe v2 描述每镜差量、hero frame、micro-beats 与素材需求；
 - 把后端连续区块进一步拆成完整镜头组成的 `authoringUnits`：默认 1–3 镜且绝不超过 40 秒，由聚焦的 Builder 并行构建；
 - Builder 先完成最大可见状态，再编排进入、因果动作、跟随、settle 与 readable hold；优先查询小型 craft 索引和已锁定的运行时能力，命中后只加载必要参考；
-- HyperFrames Builder 会先把选定动画机制解析到当前本地项目；缺少同环境 witness 时，只在本阶段 scratch 中运行一次最小 seek canary，通过 official check 和两个非空、明显不同的时间快照后才完整 authoring；
+- 安装或升级时一次完成深度环境排查；每条视频只运行轻量 preflight，正常生产不再派 Onboarding Agent；
+- Builder/Integrator 从真实运行时逐帧采集 geometry，并用代码检查进出场、settle、遮挡、积压、构图层级和运动焦点；通过时不抽帧，只有异常才生成定点证据；
 - 分镜后按 capability 与实测/来源证据逐镜选择后端，再把相邻同后端镜头合并为区块；
 - HyperFrames 使用锁定的官方 Skill；Remotion 只使用目标项目本地锁定的 CLI 与依赖；
 - 整合后先给你看最终预览，得到明确同意才正式渲染；
 - 默认交付一个经过分辨率、时长、连续覆盖和解码检查的 4K Master。
 
-它不是一键“审美保证器”。`0.7.0` 升级的是第一次预览的生成机制；在发布前的同输入 first-pass benchmark 中，`0.6.0` 与 `0.7.0` 使用相同的 14.1 秒、2160 × 3840、30 fps、静音输入与输出政策，技术检查通过后由用户明确选择了 `0.7.0`。这只证明该冻结样本上的第一次预览提升，不把一次选择夸大成所有输入的审美保证。
+它不是一键“审美保证器”。代码筛查只能发现可测的运动与构图风险，不能证明故事感染力、重量感、弧线、夸张或 appeal；最终完整动态预览仍是唯一默认审美决定。`v0.7.0` 的冻结 first-pass benchmark 继续作为历史基线，不外推到所有输入。
 
-### v0.7 的第一次预览 craft 升级
+### v0.8 Production Slim
 
-`0.7.0` 不增加 stage、审查 Agent、逐镜审批、审美评分或 lookdev 停点。默认生产链唯一的审美决定仍是：完整 composition preview 完成后，由你决定是否正式渲染。
+这一版只抓三件事：首次安装/升级一次性排查环境，日常制片只做轻检；重复抽帧改为运行时 `motion-layout` 代码筛查，异常才取证；父 Skill 和核心阶段删除重复合同，按需加载 reference。确定性 Prompt-load 字节代理相对 v0.7.0 降低：父默认 `95.89%`，HyperFrames `79.93%`，Remotion `79.87%`，Hybrid `82.58%`。复跑命令：`npm run measure:context -- --baseline v0.7.0`。
+
+这些数字是默认 Prompt 文件的可重复代理，不等于真实宿主 token 或端到端产物 I/O。HyperFrames 无可信 geometry hook 的元素会标记为 `unmeasured`；Remotion 的真实捕获依赖目标项目本地浏览器和精确依赖；本版不声明跨后端视觉一致性。
+
+### v0.7 的第一次预览 craft 升级（历史基线）
+
+`0.7.0` 没有增加 stage、审查 Agent、逐镜审批、审美评分或 lookdev 停点。其默认生产链唯一的审美决定也是完整 composition preview。
 
 这一版把跨镜重复的颜色、字体、材料、空间、构图家族、运动性格和禁用默认项集中到一个 `visual-system.json`；`narrative-envelope.json` 只保存一次全片上下文；每份 Recipe v2 只描述该镜的可见状态变化和边界。Builder 只接收自己的 authoring unit、相邻接缝摘要、共享 artifact locator、冻结素材和实际命中的 0–2 份参考，不应读取全片所有 Recipe 或完整目录。
 
@@ -75,7 +82,7 @@ HyperFrames 的 seek canary 不是新增 stage、审查 Agent、审批点或永�
 
 Recipe schema v1 和 Runtime Plan schema v1 继续可读；旧 run 不要求迁移。v2 才使用共享 artifact 和 `authoringUnits`，两代合同都保留 SRT 整数毫秒、完整覆盖、来源与字体闭包、运行时隔离、身份绑定和媒体验证底线。
 
-发布 benchmark 还记录了效率边界：Director + Builder 实际 Markdown/JSON 输入输出从 `220,665` bytes 降到 `209,199` bytes（减少 `5.20%`），没有达到原先 `30%` 的优化目标；handoff prose 从 `18,493` bytes 降到 `4,884` bytes（减少 `73.59%`），超过 `50%` 目标。前者作为后续效率优化项公开保留，不影响本版已经验证的技术合同与用户审美选择。
+历史 benchmark 记录：v0.7 Director + Builder 实际 Markdown/JSON I/O 只减少 `5.20%`，handoff prose 减少 `73.59%`。v0.8 的 Prompt 代理另行记录，不能替代真实端到端 Agent I/O。
 
 本版对 `vibe-motion/auto-motion@17ead629d010f7e5495f645d46fafd6876482c32` 做过设计思想审计；审计时未发现 LICENSE。本仓库只 clean-room 重建设计能力与可观察行为，没有复制其代码、Prompt、范例、素材或文字。对应机器可读边界随 craft attribution manifest 一起进入发布包。
 
@@ -88,7 +95,7 @@ Recipe schema v1 和 Runtime Plan schema v1 继续可读；旧 run 不要求迁�
 你实际只需要做三件事：
 
 1. 准备 SRT；口播模式再准备与字幕匹配的已剪视频。
-2. 第一次运行时完成必要环境授权；需要 Pexels 素材时再配置 Key。
+2. 安装或升级时完成一次必要环境授权；需要 Pexels 素材时再配置 Key。
 3. 观看最终预览，满意后明确同意正式渲染。
 
 中间的分镜、素材、分块构建、整合和技术检查由 Agent 链推进。
@@ -118,7 +125,7 @@ Recipe schema v1 和 Runtime Plan schema v1 继续可读；旧 run 不要求迁�
 - 空白新项目且用户未指定时默认 `auto`。
 - `hyperframes` 走现有 Master Build → Integrate → Render 链路。
 - `remotion` 走 Remotion Build → Integrate → Render 链路；已有项目必须能证明本地精确版本和 local CLI，新项目由该后段显式 scaffold 并生成 lockfile。
-- 发行版不固定单一 Remotion 版本；每个项目在 Onboarding 时解析一个具体稳定版本，并把 `remotion`、`@remotion/cli` 和兼容工具链精确写入本项目 lock。HTML-in-canvas 镜头会额外执行真实 still canary，失败时只关闭该能力。
+- 发行版不固定单一 Remotion 版本；targeted preflight 按项目的 package/lock/local CLI 身份验证一个具体稳定版本。HTML-in-canvas 镜头只在真实需要该能力时执行 still canary，失败时仅关闭该能力。
 - `auto` 可落到单后端或 hybrid；hybrid 只交换带 hash、FFprobe 和完整解码证据的冻结区块媒体，不实时嵌套两套运行时。
 - 安装器不会把 Remotion 加入共享 runtime 或全局安装。Remotion 的许可、依赖与执行范围属于用户选择的目标项目。
 - 运行时选择不构成视觉一致性声明，也不表示任意 Remotion Composition 可以自动转换成 HyperFrames。
@@ -304,10 +311,11 @@ Logo 和产品截图已经附上。正式渲染前给我看最终预览。
 
 ### 运行中什么时候会找你
 
-正常情况下只有两个停点：
+正常情况下只有一个生产停点：
 
-1. **首次环境授权**：Onboarding 会一次性列出缺失项和安全、可恢复的修复动作。你确认后，它才修复。
-2. **正式渲染批准**：整合完成后先给出最终官方预览。你需要观看并明确回复“同意正式渲染”，Render 才会开始。
+1. **正式渲染批准**：整合完成后先给出唯一一次完整动态预览。你需要观看并明确回复“同意正式渲染”，Render 才会开始。
+
+首次安装或升级时由安装器一次性完成深度环境检查并保存结果。日常制片只跑轻量 preflight；只有缓存失效或真实工具故障才进入定点诊断与授权，不是每条视频的固定停点。
 
 Pexels 账号注册、API Key 获取、系统权限、管理员批准、磁盘清理和云服务登录都必须由你本人完成，Agent 不会冒充。
 
@@ -316,7 +324,7 @@ Pexels 账号注册、API Key 获取、系统权限、管理员批准、磁盘�
 | 角色 | 负责什么 | 明确不做什么 |
 | --- | --- | --- |
 | Parent Producer | 明确目标、派发、读交接、审查、把返工交回责任阶段 | 不亲自生产文件或假装子 Agent |
-| Onboarding | 检查环境，汇总授权，执行你批准的安全修复 | 不做分镜和创作 |
+| Onboarding（异常路径） | 只诊断缓存指出的安装/工具故障并执行获批修复 | 不进入正常制片链，不做分镜和创作 |
 | Runtime Selector + Planner | 开工前冻结选择意图，分镜后按 capability/pattern evidence 逐镜规划、连续分块并生成聚焦 authoring units | 不读语义关键词，不制造无证据切换 |
 | Director | 理解 SRT，冻结共享视觉系统、叙事包络和紧凑 Recipe v2 | 不下载素材、不写最终工程 |
 | Assets | 检查用户素材，只为真实 material need 路由并冻结媒体/字体/融合几何 | 不为履行流程无条件搜索 Pexels |
@@ -344,7 +352,7 @@ HyperFrames 后段必须在各自独立上下文中真实加载发行版锁定�
 | Codex / Claude Code 找不到 Skill | 先彻底重启宿主，再运行 `node scripts/doctor.mjs`；同时确认安装后的仓库文件夹没有被移动或删除 |
 | 已经有同名 Skill | 安装器会列出冲突，得到一次授权后备份旧安装，再原子替换；不会静默覆盖 |
 | 同时检测到 HyperFrames 和 Remotion | Runtime Router 会停止，请明确指定本次使用 `hyperframes` 或 `remotion` |
-| Remotion 项目提示依赖未就绪 | Onboarding 会汇总一次 Remotion 许可确认与项目内依赖安装授权；你确认后由新的修复 Agent 创建精确 package/lock、执行 `npm ci` 并验证 local CLI，不需要你手工安装，也不会全局安装或让 `npx` 临时下载 |
+| Remotion 项目提示依赖未就绪 | targeted preflight 返回缺失的项目依赖事实；确认许可与项目内安装后创建精确 package/lock 并验证 local CLI，不进行全量环境复查，也不会全局安装或让 `npx` 临时下载 |
 | 预览不满意 | 说明具体镜头、时间点和问题；Parent 会把返工交给责任阶段，不会整条片子盲目重做 |
 | 想导出每个镜头 | 等 Master 验证通过后明确说“从已验证 Master 导出逐镜头文件” |
 | Windows 能不能用 | 当前未验证，不建议把首次使用押在 Windows 上 |
@@ -368,7 +376,7 @@ node scripts/uninstall.mjs
 
 ### 从 0.3.x 旧名称升级
 
-GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.7.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
+GitHub 会把旧仓库地址重定向到新仓库，但本地 clone 的文件夹名不会自动改变。拉取 `0.8.0` 后重新运行 `Install.command`：安装器会严格验证 schema 1/2/3/4 的历史所有权，升级到 schema 5，重新绑定十三个阶段 Skill，并保留冲突备份与回滚。目标被改动时安装器停止，不会删除。
 
 为避免更名导致 Pexels 凭据、固定 HyperFrames runtime 和安装备份丢失，本地私有应用数据目录继续沿用 v0.3.x 的内部路径。该路径只承担兼容存储，不再是仓库、产品或 Skill 名称。
 

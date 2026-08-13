@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { constants } from 'node:fs';
 import {
   access,
@@ -20,7 +20,7 @@ const execFileAsync = promisify(execFile);
 
 export const APP_NAME = 'erduo-broll-loop-engineering';
 export const LEGACY_APP_NAME = 'erduo-hyperframes-broll';
-export const RELEASE_VERSION = '0.7.0';
+export const RELEASE_VERSION = '0.8.0';
 export const HYPERFRAMES_VERSION = '0.7.104';
 export const SKILLS_CLI_VERSION = '1.5.22';
 export const HYPERFRAMES_SKILLS_COMMIT = 'c96b30c7174984e684620556ce871a285381ec60';
@@ -71,6 +71,31 @@ export const INSTALL_SKILL_NAMES = Object.freeze([
   ...HYPERFRAMES_SKILL_NAMES,
   ...SKILL_NAMES,
 ]);
+
+export function environmentReadinessFile(appDir) {
+  return path.join(appDir, 'environment-readiness.json');
+}
+
+export function stableHostId({ hostname = os.hostname(), platform = process.platform,
+  arch = process.arch } = {}) {
+  return createHash('sha256')
+    .update(`${platform}\0${arch}\0${hostname}`)
+    .digest('hex')
+    .slice(0, 16);
+}
+
+export function installManifestIdentity(manifest) {
+  if (!manifest || !Array.isArray(manifest.records)) return null;
+  const stable = {
+    schema_version: manifest.schema_version,
+    product_version: manifest.product_version,
+    repo_root: manifest.repo_root,
+    records: manifest.records.map(({ host, name, source, target }) => ({
+      host, name, source, target,
+    })),
+  };
+  return createHash('sha256').update(JSON.stringify(stable)).digest('hex');
+}
 
 const INSTALL_MANIFEST_PROFILE_BY_SCHEMA = Object.freeze(new Map([
   [1, Object.freeze({

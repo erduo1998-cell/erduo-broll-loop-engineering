@@ -26,6 +26,14 @@
 - 사용자가 제공한 미디어를 우선 사용하고, 필요한 샷에만 추가 소재를 확보합니다.
 - 전체 프리뷰에서 승인을 기다린 뒤 4K Master를 렌더링하고 기술 검증합니다.
 
+## v0.8 Production Slim
+
+- 심층 환경 검사는 설치·업데이트 때 한 번만 실행하며, 일반 영상 제작은 가벼운 preflight만 사용하고 Onboarding Agent를 호출하지 않습니다.
+- 반복 프레임 검사를 런타임 motion/layout 코드 검사로 바꿨습니다. 통과하면 스틸 리뷰를 만들지 않고, 이상 구간만 진단합니다.
+- v0.7.0 대비 기본 Prompt 로드 바이트는 세 경로에서 79.87~82.58% 감소했습니다. 이는 재현 가능한 파일 바이트 대리 지표이며 실제 host token 사용량은 아닙니다.
+
+코드는 easing, settle, clipping, 가림, 밀도, 계층의 측정 가능한 위험을 찾을 수 있지만 이야기 명료성, 무게감, arc, 과장, appeal을 증명하지 못합니다. 미적 판단은 한 번의 전체 동영상 프리뷰로 남습니다. 백엔드 간 시각적 동일성은 보장하지 않습니다.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="SRT에서 승인된 4K Master까지의 사용 흐름" width="100%">
 </p>

@@ -32,8 +32,7 @@ owning Builder; do not transcode a bad block into compliance.
 Require all blocks to use one frozen profile, fps rational, raster, pixel
 format, color space, and audio policy. Boundaries remain the Director's integer
 milliseconds; any unavoidable frame rounding must stay within one frame and be
-recorded. Inspect every seam, opening, final safe frame, and representative
-readable hold.
+recorded.
 
 ## Runtime-neutral assembly and identity
 
@@ -41,13 +40,13 @@ Use only direct, sanitized FFmpeg/FFprobe processes without a shell. Assemble
 blocks in runtime-plan order into a temporary hybrid preview. A concat copy is
 allowed only when stream parameters and timing close exactly; otherwise use
 one explicit deterministic normalization encode and record its full profile.
-The preview is evidence, not the final master.
-Inspect it only for concrete media, duration, seam, decode, or missing-resource
-defects. Do not add an independent aesthetic review, score, or approval stop;
-the user decides once on the final identity-bound composition preview.
+This is the one final identity-bound moving preview. Verify it through
+FFprobe/full decode without a separate static frame-inspection pass. Do not add
+another technical preview, independent aesthetic review, score, or approval
+stop; the user decides once from this moving preview.
 
-Create `hybrid-composition-identity.json` only after validation and visual seam
-inspection. Its canonical hash closure includes runtime-plan identity, ordered
+Create `hybrid-composition-identity.json` only after validation and full decode.
+Its canonical hash closure includes runtime-plan identity, ordered
 block contract bytes, block media SHA-256 values, output profile, audio policy,
 and integration recipe. Preview media and logs remain outside that identity.
 
@@ -57,17 +56,17 @@ Write only under `broll-production/04-hybrid-integrate/`:
 
 - ordered contract index and validation result;
 - `hybrid-composition-identity.json`;
-- `integration-notes.md` with frame rounding and seam evidence;
+- `integration-notes.md` with frame rounding and decode evidence;
 - one technically verified preview plus FFprobe/full-decode facts;
 - `handoff.md` naming the preview locator and aggregate identity.
 
 ## Completion and stop
 
 Complete when every block appears once, contracts and actual hashes validate,
-coverage closes, no runtime is nested live, preview media decodes fully, seams
-and holds were inspected, and the identity is frozen.
+coverage closes, no runtime is nested live, preview media decodes fully, and
+the identity is frozen.
 
 Stop for missing or changed blocks, profile mismatch, hash drift, more than
-one frame of duration error, audio-policy mismatch, visible seam defects, or
+one frame of duration error, audio-policy mismatch, or
 any attempt to pass runtime source across the boundary. Return Builder-owned
 defects to a fresh Builder.

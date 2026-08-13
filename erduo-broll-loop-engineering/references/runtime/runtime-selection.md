@@ -30,13 +30,13 @@ Add `--runtime <choice>` only for an explicit choice. Preserve stdout as
 skips symlinks/dependencies/build outputs, never uses a shell, and never runs
 project-local code.
 
-`auto` and `hybrid` have `readiness: planning-required`. They permit base
-Onboarding and runtime-neutral Direction, not backend installation. Explicit or
+`auto` and `hybrid` have `readiness: planning-required`. They permit cached
+common preflight and runtime-neutral Direction, not backend installation. Explicit or
 detected `hyperframes`/`remotion` forces the whole film and preserves the 0.4.x
 single-route workflow. Existing schema-1 single-backend artifacts are
 grandfathered and must not be retroactively replanned.
 
-Only an authorized targeted Remotion Onboarding repair may use `--probe-cli`.
+Only an authorized Remotion diagnostic/repair after failed cached preflight may use `--probe-cli`.
 It directly runs the project-local CLI with a minimal sanitized environment.
 Selection never downloads a CLI or substitutes a global executable.
 
@@ -77,11 +77,11 @@ artificially when evidence resolves to one.
 
 ## Readiness and fork
 
-Base Onboarding checks only shared Node, FFmpeg/FFprobe, paths, storage,
-recorded Pexels state, and Skill discovery. Missing Pexels does not block until
-the validated material plan actually needs that route. After planning,
-targeted Onboarding prepares
-exactly `requiredBackends`. Never install both blindly.
+The installer caches stable machine/tool readiness. Common preflight checks
+the cache plus run-specific input/output facts; after planning, targeted
+preflight selects exactly `requiredBackends`. Missing Pexels does not block
+until Assets reaches a real need. Dispatch Onboarding only when preflight
+reports missing or changed stable backend evidence; never prepare both blindly.
 
 Single-backend plans use the existing native Builder → Integrator → Render
 chain. Plans dispatch each authoring unit to its assigned Builder. Hybrid

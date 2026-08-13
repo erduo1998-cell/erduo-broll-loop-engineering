@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "command": "node scripts/measure-context.mjs --baseline v0.7.0",
+  "scope": "Deterministic default prompt-load byte proxy; actual host token and artifact I/O remain end-to-end benchmark facts.",
+  "baseline": {
+    "label": "v0.7.0",
+    "measurement": "deterministic prompt-load proxy; actual host token/I-O requires run trace",
+    "parent_default_files": [
+      "erduo-broll-loop-engineering/SKILL.md",
+      "erduo-broll-loop-engineering/references/prompt-first-workflow.md",
+      "erduo-broll-loop-engineering/references/stage-orchestration.md",
+      "erduo-broll-loop-engineering/references/parent-review-checklist.md",
+      "erduo-broll-loop-engineering/references/handoff-template.md",
+      "erduo-broll-loop-engineering/references/visual-craft.md",
+      "erduo-broll-loop-engineering/references/first-run-onboarding.md",
+      "erduo-broll-loop-engineering/references/runtime/runtime-selection.md",
+      "erduo-broll-loop-engineering/references/runtime/runtime-contract.md",
+      "erduo-broll-loop-engineering/references/runtime/capability-matrix.json",
+      "erduo-broll-loop-engineering/references/runtime/runtime-plan.schema.json",
+      "erduo-broll-loop-engineering/references/runtime/frozen-block.schema.json"
+    ],
+    "parent_default_required_bytes": 109000,
+    "route_prompt_bytes": {
+      "hyperframes": 161423,
+      "remotion": 161705,
+      "hybrid": 167348
+    },
+    "route_default_agent_count": {
+      "hyperframes": 6,
+      "remotion": 6,
+      "hybrid": 7
+    },
+    "proxies": {
+      "safety_implementation_copy_files": [
+        "erduo-broll-loop-engineering/SKILL.md",
+        "erduo-broll-loop-engineering/references/prompt-first-workflow.md",
+        "erduo-broll-loop-engineering/references/stage-orchestration.md",
+        "erduo-broll-loop-engineering/references/first-run-onboarding.md",
+        "erduo-broll-loop-engineering/stages/broll-director/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-assets/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-render/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-remotion-integrate/SKILL.md",
+        "erduo-broll-loop-engineering/stages/broll-remotion-render/SKILL.md"
+      ],
+      "safety_implementation_copy_count": 12,
+      "onboarding_instruction_occurrences": 22,
+      "default_visual_frame_instruction_occurrences": 13
+    }
+  },
+  "current": {
+    "label": "worktree",
+    "measurement": "deterministic prompt-load proxy; actual host token/I-O requires run trace",
+    "parent_default_files": [
+      "erduo-broll-loop-engineering/SKILL.md"
+    ],
+    "parent_default_required_bytes": 4476,
+    "route_prompt_bytes": {
+      "hyperframes": 32394,
+      "remotion": 32548,
+      "hybrid": 29160
+    },
+    "route_default_agent_count": {
+      "hyperframes": 6,
+      "remotion": 6,
+      "hybrid": 7
+    },
+    "proxies": {
+      "safety_implementation_copy_files": [],
+      "safety_implementation_copy_count": 0,
+      "onboarding_instruction_occurrences": 2,
+      "default_visual_frame_instruction_occurrences": 5
+    }
+  },
+  "comparison": {
+    "parent_default_reduction_percent": 95.89,
+    "route_reduction_percent": {
+      "hyperframes": 79.93,
+      "remotion": 79.87,
+      "hybrid": 82.58
+    },
+    "safety_implementation_copy_reduction_percent": 100,
+    "onboarding_instruction_reduction_percent": 90.91,
+    "visual_frame_instruction_reduction_percent": 61.54
+  }
+}

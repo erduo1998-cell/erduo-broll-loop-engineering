@@ -41,6 +41,7 @@ import {
   V4_SKILL_NAMES,
   applicationDataDir,
   atomicWriteJson,
+  installManifestIdentity,
   normalizeOfficialDoctor,
   officialSkillBundleRoot,
   runFile,
@@ -82,6 +83,15 @@ import {
   validateRemotionVersionPolicy,
   walkProject as walkRemotionProject,
 } from '../erduo-broll-loop-engineering/scripts/remotion-verify.mjs';
+import { productionPreflight } from './production-preflight.mjs';
+import {
+  PARENT_DEFAULT,
+  ROUTES,
+  V070_PARENT_DEFAULT,
+  buildContextMeasurement,
+  compareSnapshots,
+  measureSnapshot,
+} from './measure-context.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RELEASE_PACKAGE_MODE = existsSync(path.join(root, 'SHA256SUMS.txt'));
@@ -198,6 +208,30 @@ async function createSkillFixture(base) {
     );
   }
   return repoRoot;
+}
+
+async function writePreflightInstallReceipt({ base, appDir }) {
+  const records = [];
+  for (const host of ['codex', 'claude-code']) {
+    for (const name of INSTALL_SKILL_NAMES) {
+      const source = path.join(base, 'installed-sources', name);
+      const target = path.join(base, 'host-skills', host, name);
+      await mkdir(source, { recursive: true });
+      await mkdir(path.dirname(target), { recursive: true });
+      if (!await entryExists(target)) await symlink(source, target, 'dir');
+      records.push({ host, name, source, target, backup: null, action: 'linked' });
+    }
+  }
+  const manifest = {
+    schema_version: 5,
+    product_version: RELEASE_VERSION,
+    repo_root: path.join(base, 'release'),
+    records,
+  };
+  await atomicWriteJson(path.join(appDir, 'install-manifest.json'), manifest, {
+    trustedRoot: appDir,
+  });
+  return manifest;
 }
 
 async function entryExists(target) {
@@ -1879,12 +1913,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
 
   const requiredReferences = {
     'erduo-broll-loop-engineering/SKILL.md': [
-      'references/animation-craft.md',
-      'references/runtime/runtime-contract.md',
-      'references/runtime/shot-recipe.schema.json',
-      'references/runtime/capability-matrix.json',
-      'references/runtime/runtime-plan.schema.json',
-      'references/runtime/frozen-block.schema.json',
+      'references/safe-execution.md',
     ],
     'erduo-broll-loop-engineering/stages/broll-runtime-plan/SKILL.md': [
       '../../references/runtime/capability-matrix.json',
@@ -1892,23 +1921,14 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'erduo-broll-loop-engineering/stages/broll-hybrid-integrate/SKILL.md': [
       '../../references/runtime/frozen-block.schema.json',
     ],
-    'erduo-broll-loop-engineering/stages/broll-onboarding/SKILL.md': [
-      '../../references/runtime/runtime-contract.md',
-      '../../references/runtime/capability-matrix.json',
-    ],
     'erduo-broll-loop-engineering/stages/broll-director/SKILL.md': [
-      '../../references/animation-craft.md',
-      '../../references/runtime/runtime-contract.md',
-      '../../references/runtime/shot-recipe.schema.json',
-      '../../references/runtime/capability-matrix.json',
+      'animation-craft.md',
+      'visual-craft.md',
     ],
-    'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md': [
-      '../../references/runtime/runtime-contract.md',
-    ],
+    'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md': ['safe-execution.md'],
     'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md': [
-      '../../references/animation-craft.md',
-      '../../references/runtime/runtime-contract.md',
-      '../../references/runtime/capability-matrix.json',
+      'animation-craft.md',
+      'motion-layout-lint.md',
     ],
     'erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
@@ -1919,7 +1939,8 @@ test('runtime references and production Skills preserve the adapter evidence gat
       '../../references/runtime/capability-matrix.json',
     ],
     'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md': [
-      '../../references/animation-craft.md',
+      'animation-craft.md',
+      'motion-layout-lint.md',
     ],
   };
   for (const [file, references] of Object.entries(requiredReferences)) {
@@ -1931,12 +1952,12 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(root, 'erduo-broll-loop-engineering', 'references', 'first-run-onboarding.md'),
     'utf8',
   );
-  assert.match(onboardingReference, /`unsupported`: a required backend or runtime capability/u);
+  assert.match(onboardingReference, /Optional feature canaries are run only when/u);
   const directorSkill = await readFile(
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-director', 'SKILL.md'),
     'utf8',
   );
-  assert.match(directorSkill, /parent Skill's bundled\s+`scripts\/validate-shot-recipes\.mjs`/u);
+  assert.match(directorSkill, /`validate-shot-recipes\.mjs`/u);
   const renderSkill = await readFile(
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-render', 'SKILL.md'),
     'utf8',
@@ -1955,12 +1976,10 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-master-build', 'SKILL.md'),
     'utf8',
   );
-  assert.match(hyperframesBuilderSkill, /Prove the local motion mechanism before full authoring/u);
-  assert.match(hyperframesBuilderSkill, /minimal disposable canary/u);
-  assert.match(hyperframesBuilderSkill, /snapshots at two times/u);
-  assert.match(hyperframesBuilderSkill, /nonblank, meaningfully different states/u);
-  assert.match(hyperframesBuilderSkill, /not a new\s+stage, approval, aesthetic review/u);
-  assert.match(hyperframesBuilderSkill, /Do not guess that GSAP, WAAPI, Anime\.js, CSS playback/u);
+  assert.match(hyperframesBuilderSkill, /Load the pinned official `hyperframes` Skill/u);
+  assert.match(hyperframesBuilderSkill, /truthful rendered DOM or semantic scene\s+bounds for every frame/u);
+  assert.match(hyperframesBuilderSkill, /A pass produces no still, clip, preview, or AI frame\s+inspection/u);
+  assert.match(hyperframesBuilderSkill, /Only findings render their bounded diagnostic windows/u);
 });
 
 test('animation craft is prompt-time generation guidance, not a review schema', async () => {
@@ -2031,7 +2050,7 @@ test('Remotion production contracts close silent-audio and local-font evidence',
     assert.match(text, /durationInFrames\s*\/\s*fps|exact\s+frame\s+duration/u, name);
   }
   assert.match(backend, /Generic or host\s+system fallbacks/u);
-  assert.match(build, /manifest role `font`/u);
+  assert.match(build, /Fonts must be project-local\s+and explicitly loaded/u);
   assert.match(verifier, /manifest lists no project-local font/u);
   assert.match(verifier, /Generic or host-system font fallback is forbidden/u);
   assert.match(verifier, /no explicit project-local font loader/u);
@@ -2167,34 +2186,19 @@ test('Remotion project closure cannot hide production files in output-named dire
   ]);
 });
 
-test('every production command surface requires a portable case-insensitive child environment map', async () => {
+test('one shared executor owns the portable no-shell child environment contract', async () => {
   const files = [
     'erduo-broll-loop-engineering/SKILL.md',
-    'erduo-broll-loop-engineering/references/stage-orchestration.md',
-    'erduo-broll-loop-engineering/references/prompt-first-workflow.md',
-    'erduo-broll-loop-engineering/stages/broll-onboarding/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-director/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-render/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-shot-export/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-remotion-integrate/SKILL.md',
-    'erduo-broll-loop-engineering/stages/broll-remotion-render/SKILL.md',
+    'erduo-broll-loop-engineering/references/safe-execution.md',
   ];
-  for (const file of files) {
-    const text = await readFile(path.join(root, file), 'utf8');
-    assert.match(
-      text,
-      /(?:explicit\s+(?:host-native\s+)?(?:environment|child)\s+map|explicit child environment map)/u,
-      file,
-    );
-    assert.match(text, /case(?: |-)(?:variant|folded|insensitive)/iu, file);
-    assert.match(text, /PEXELS_API_KEY/u, file);
-    assert.match(text, /HYPERFRAMES_NO_TELEMETRY=1/u, file);
-    assert.match(text, /stop(?:s)?\s+before\s+spawn/u, file);
-  }
+  const joined = (await Promise.all(files.map((file) => readFile(path.join(root, file), 'utf8'))))
+    .join('\n');
+  assert.match(joined, /Shared command execution/u);
+  assert.match(joined, /scripts\/safe-spawn\.mjs/u);
+  assert.match(joined, /case-insensitive/u);
+  assert.match(joined, /PEXELS_API_KEY/u);
+  assert.match(joined, /HYPERFRAMES_NO_TELEMETRY=1/u);
+  assert.match(joined, /without a shell/u);
   const onboarding = await readFile(
     path.join(root, 'erduo-broll-loop-engineering', 'references', 'first-run-onboarding.md'),
     'utf8',
@@ -2203,7 +2207,7 @@ test('every production command surface requires a portable case-insensitive chil
     onboarding,
     /HYPERFRAMES_NO_TELEMETRY=1\s+npx\s+hyperframes/u,
   );
-  assert.match(onboarding, /native spawn\/process API/u);
+  assert.match(onboarding, /safe-execution\.md/u);
 });
 
 test('Skill installation backs up occupied targets and uninstall restores them', async (t) => {
@@ -2547,7 +2551,7 @@ test('doctor uses only mocked official commands and isolated host/config paths',
     '--json',
   ]);
   assert.equal(JSON.stringify(report).includes('fixture-env-credential'), false);
-  const rejected = await collectDoctor({
+  const noMaterialCredentialGate = await collectDoctor({
     env: { ...state.env, [PEXELS_ENV_FIELD]: envCredential },
     homeDir: state.homeDir,
     platform: 'darwin',
@@ -2556,13 +2560,232 @@ test('doctor uses only mocked official commands and isolated host/config paths',
     repoRoot,
     runner,
     nodeVersion: '22.17.0',
-    fetchImpl: async () => ({ ok: false, status: 401 }),
+    fetchImpl: async () => assert.fail('Environment doctor must not call Pexels'),
   });
-  assert.equal(rejected.status, 'action-required');
-  assert.equal(rejected.pexels.configured, true);
-  assert.equal(rejected.pexels.validated, false);
-  assert.equal(JSON.stringify(rejected).includes('fixture-env-credential'), false);
+  assert.equal(noMaterialCredentialGate.status, 'ready');
+  assert.deepEqual(noMaterialCredentialGate.pexels, {
+    checked: false,
+    reason: 'material-stage-only',
+  });
+  assert.equal(JSON.stringify(noMaterialCredentialGate).includes('fixture-env-credential'), false);
   assert.equal(calls.length, 4);
+});
+
+test('production preflight reuses stable installation cache across videos and routes only real changes', async (t) => {
+  const state = await isolated(t);
+  const appDir = path.join(state.base, 'app');
+  const project = path.join(state.base, 'project');
+  const srt = path.join(state.base, 'input.srt');
+  const output = path.join(state.base, 'delivery', 'master.mp4');
+  await mkdir(path.dirname(output), { recursive: true });
+  await mkdir(project, { recursive: true });
+  await writeFile(srt, '1\n00:00:00,000 --> 00:00:01,000\nfixture\n');
+  await mkdir(appDir, { recursive: true });
+  const preflightManifest = await writePreflightInstallReceipt({ base: state.base, appDir });
+  await atomicWriteJson(path.join(appDir, 'environment-readiness.json'), {
+    schema_version: 1,
+    product_version: RELEASE_VERSION,
+    host_id: (await import('./lib.mjs')).stableHostId({
+      hostname: 'fixture-host', platform: 'darwin', arch: 'arm64',
+    }),
+    platform: 'darwin',
+    arch: 'arm64',
+    node_major: 22,
+    install: {
+      expected_skill_links: INSTALL_SKILL_NAMES.length * 2,
+      ready_skill_links: INSTALL_SKILL_NAMES.length * 2,
+      manifest_identity: installManifestIdentity(preflightManifest),
+    },
+    hyperframes: {
+      expected_version: HYPERFRAMES_VERSION,
+      official_skills_commit: HYPERFRAMES_SKILLS_COMMIT,
+      ready: true,
+    },
+    ready_backends: ['hyperframes'],
+    status: 'ready',
+  }, { trustedRoot: appDir });
+
+  const ready = await productionPreflight({
+    srt, output, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(ready.status, 'ready');
+  assert.equal(ready.next, 'continue');
+
+  const secondSrt = path.join(state.base, 'another-video.srt');
+  const secondOutput = path.join(state.base, 'another-delivery', 'master.mp4');
+  await mkdir(path.dirname(secondOutput), { recursive: true });
+  await writeFile(secondSrt, '1\n00:00:00,000 --> 00:00:09,000\nanother fixture\n');
+  const reusedAcrossVideo = await productionPreflight({
+    srt: secondSrt, output: secondOutput, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(reusedAcrossVideo.next, 'continue');
+  assert.deepEqual(reusedAcrossVideo.environment_issues, []);
+
+  const missingRuntime = await productionPreflight({
+    srt, output, project, runtime: 'remotion', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(missingRuntime.next, 'fix-project-runtime');
+  assert.deepEqual(missingRuntime.environment_issues, []);
+  assert.deepEqual(missingRuntime.runtime_issues, ['remotion-exact-declarations-missing']);
+
+  await writeFile(output, 'occupied');
+  const occupied = await productionPreflight({
+    srt, output, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(occupied.next, 'fix-production-input');
+  assert.deepEqual(occupied.environment_issues, []);
+  assert.ok(occupied.production_issues.includes('output-already-exists'));
+
+  const changedHost = await productionPreflight({
+    srt: secondSrt, output: secondOutput, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'replacement-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(changedHost.next, 'run-onboarding-diagnostic');
+  assert.ok(changedHost.environment_issues.includes('cache-host-id-changed'));
+
+  const changedNodeMajor = await productionPreflight({
+    srt: secondSrt, output: secondOutput, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '23.0.0',
+  });
+  assert.equal(changedNodeMajor.next, 'run-onboarding-diagnostic');
+  assert.ok(changedNodeMajor.environment_issues.includes('cache-node-major-changed'));
+
+  const invalidSrt = path.join(state.base, 'invalid.srt');
+  await writeFile(invalidSrt, [
+    '1', '00:00:00,000 --> 00:00:02,000', 'first', '',
+    '2', '00:00:01,500 --> 00:00:03,000', 'overlap', '',
+  ].join('\n'));
+  const invalidTiming = await productionPreflight({
+    srt: invalidSrt, output: secondOutput, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(invalidTiming.next, 'fix-production-input');
+  assert.deepEqual(invalidTiming.environment_issues, []);
+  assert.ok(invalidTiming.production_issues.includes('srt-timing-overlap'));
+
+  await rm(preflightManifest.records[0].target);
+  const changedLink = await productionPreflight({
+    srt: secondSrt, output: secondOutput, project, runtime: 'hyperframes', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(changedLink.next, 'run-onboarding-diagnostic');
+  assert.ok(changedLink.environment_issues.includes('installed-skill-link-changed'));
+});
+
+test('context measurement is deterministic and production prompts share one execution contract', async () => {
+  const fixture = new Map();
+  for (const file of [...new Set([...PARENT_DEFAULT, ...Object.values(ROUTES).flat()])]) {
+    fixture.set(file, file.endsWith('/SKILL.md') ? `prompt ${file}\n` : `reference ${file}\n`);
+  }
+  const first = await measureSnapshot('fixture', async (file) => fixture.get(file));
+  const second = await measureSnapshot('fixture', async (file) => fixture.get(file));
+  assert.deepEqual(first, second);
+  assert.equal(compareSnapshots(first, second).parent_default_reduction_percent, 0);
+  if (!RELEASE_PACKAGE_MODE) {
+    const frozen = JSON.parse(await readFile(path.join(root, 'docs', 'V0.8.0-CONTEXT-MEASUREMENT.json'), 'utf8'));
+    const live = await buildContextMeasurement({ baselineRef: 'v0.7.0' });
+    assert.deepStrictEqual(frozen, live);
+  }
+  assert.deepEqual(V070_PARENT_DEFAULT, [
+    'erduo-broll-loop-engineering/SKILL.md',
+    'erduo-broll-loop-engineering/references/prompt-first-workflow.md',
+    'erduo-broll-loop-engineering/references/stage-orchestration.md',
+    'erduo-broll-loop-engineering/references/parent-review-checklist.md',
+    'erduo-broll-loop-engineering/references/handoff-template.md',
+    'erduo-broll-loop-engineering/references/visual-craft.md',
+    'erduo-broll-loop-engineering/references/first-run-onboarding.md',
+    'erduo-broll-loop-engineering/references/runtime/runtime-selection.md',
+    'erduo-broll-loop-engineering/references/runtime/runtime-contract.md',
+    'erduo-broll-loop-engineering/references/runtime/capability-matrix.json',
+    'erduo-broll-loop-engineering/references/runtime/runtime-plan.schema.json',
+    'erduo-broll-loop-engineering/references/runtime/frozen-block.schema.json',
+  ]);
+
+  const skillRoot = path.join(root, 'erduo-broll-loop-engineering');
+  const executionReference = await readFile(path.join(skillRoot, 'references', 'safe-execution.md'), 'utf8');
+  assert.match(executionReference, /PEXELS_API_KEY/u);
+  assert.match(executionReference, /HYPERFRAMES_NO_TELEMETRY/u);
+  assert.match(executionReference, /safe-spawn\.mjs/u);
+  const promptFiles = [
+    path.join(skillRoot, 'SKILL.md'),
+    ...(await readdir(path.join(skillRoot, 'stages'))).map((stage) => path.join(skillRoot, 'stages', stage, 'SKILL.md')),
+    path.join(skillRoot, 'references', 'prompt-first-workflow.md'),
+    path.join(skillRoot, 'references', 'stage-orchestration.md'),
+    path.join(skillRoot, 'references', 'first-run-onboarding.md'),
+    path.join(skillRoot, 'references', 'remotion-backend.md'),
+  ];
+  for (const file of promptFiles) {
+    const body = await readFile(file, 'utf8');
+    assert.equal(body.includes('whose ASCII case-folded name equals `PEXELS_API_KEY`'), false, file);
+    assert.equal(body.includes('remove all case variants of `PEXELS_API_KEY`'), false, file);
+  }
+});
+
+test('Remotion targeted preflight validates project-local exact identity without Onboarding', async (t) => {
+  const state = await isolated(t);
+  const appDir = path.join(state.base, 'app');
+  const project = path.join(state.base, 'remotion-project');
+  const srt = path.join(state.base, 'input.srt');
+  const output = path.join(state.base, 'delivery', 'master.mp4');
+  await Promise.all([
+    mkdir(path.dirname(output), { recursive: true }),
+    mkdir(path.join(project, 'node_modules', 'remotion'), { recursive: true }),
+    mkdir(path.join(project, 'node_modules', '@remotion', 'cli'), { recursive: true }),
+    mkdir(path.join(project, 'node_modules', '.bin'), { recursive: true }),
+    mkdir(appDir, { recursive: true }),
+  ]);
+  await writeFile(srt, '1\n00:00:00,000 --> 00:00:01,000\nfixture\n');
+  const manifest = await writePreflightInstallReceipt({ base: state.base, appDir });
+  await atomicWriteJson(path.join(appDir, 'environment-readiness.json'), {
+    schema_version: 1, product_version: RELEASE_VERSION,
+    host_id: (await import('./lib.mjs')).stableHostId({
+      hostname: 'fixture-host', platform: 'darwin', arch: 'arm64',
+    }),
+    platform: 'darwin', arch: 'arm64', node_major: 22,
+    install: { expected_skill_links: INSTALL_SKILL_NAMES.length * 2,
+      ready_skill_links: INSTALL_SKILL_NAMES.length * 2,
+      manifest_identity: installManifestIdentity(manifest) },
+    hyperframes: { expected_version: HYPERFRAMES_VERSION,
+      official_skills_commit: HYPERFRAMES_SKILLS_COMMIT, ready: true },
+    ready_backends: ['hyperframes'], status: 'ready',
+  }, { trustedRoot: appDir });
+  const version = '4.0.455';
+  await writeFile(path.join(project, 'package.json'), JSON.stringify({
+    dependencies: { remotion: version, '@remotion/cli': version },
+  }));
+  await writeFile(path.join(project, 'package-lock.json'), JSON.stringify({
+    lockfileVersion: 3,
+    packages: { 'node_modules/remotion': { version }, 'node_modules/@remotion/cli': { version } },
+  }));
+  await writeFile(path.join(project, 'node_modules', 'remotion', 'package.json'), JSON.stringify({ version }));
+  await writeFile(path.join(project, 'node_modules', '@remotion', 'cli', 'package.json'), JSON.stringify({ version }));
+  await symlink(path.join('..', '@remotion', 'cli', 'package.json'),
+    path.join(project, 'node_modules', '.bin', 'remotion'));
+  await chmod(path.join(project, 'node_modules', '@remotion', 'cli', 'package.json'), 0o755);
+
+  const report = await productionPreflight({
+    srt, output, project, runtime: 'remotion', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(report.next, 'continue');
+  assert.deepEqual(report.runtime_issues, []);
+  assert.match(report.runtime_identity, /^[a-f0-9]{64}$/u);
+});
+
+test('Remotion DOM trace fixture is pinned to the official npm registry', async () => {
+  const fixtureLock = JSON.parse(await readFile(
+    path.join(root, 'scripts', 'fixtures', 'remotion-dom-trace', 'package-lock.json'),
+    'utf8',
+  ));
+  const resolved = Object.values(fixtureLock.packages)
+    .map((entry) => entry?.resolved)
+    .filter(Boolean);
+  assert.ok(resolved.length > 0);
+  assert.ok(resolved.every((url) => url.startsWith('https://registry.npmjs.org/')));
 });
 
 test('Skill installation rolls back every change when a later step or manifest commit fails', async (t) => {
@@ -3869,7 +4092,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.7.0');
+  assert.equal(RELEASE_VERSION, '0.8.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);

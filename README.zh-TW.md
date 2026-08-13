@@ -26,6 +26,14 @@
 - 優先使用你提供的媒體，只在鏡頭確實需要時取得額外素材。
 - 完整預覽出現後等待批准，批准後才正式渲染並驗證 4K Master。
 
+## v0.8 Production Slim
+
+- 深度環境檢查只在安裝或升級時執行一次；一般製片只跑輕量 preflight，不再啟動 Onboarding Agent。
+- 多輪抽幀改為執行期 motion/layout 程式碼篩查。通過時不建立靜幀審查，只對異常時間窗取證。
+- 相較 v0.7.0，三條路線的預設 Prompt 載入 bytes 減少 79.87–82.58%。這是可重跑的檔案 bytes 代理，不是實際宿主 token 用量。
+
+程式碼可找出可測量的 easing、settle、裁切、遮擋、密度與層級風險，但不能證明故事清晰度、重量感、弧線、誇張或 appeal；唯一一次完整動態預覽仍是審美決定。本版不承諾雙後端視覺一致。
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="從 SRT 到批准後 4K Master 的操作流程" width="100%">
 </p>

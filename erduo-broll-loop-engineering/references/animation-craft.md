@@ -163,12 +163,19 @@ Preserve the stable result instead of letting procedural motion obscure it.
 ## Boundary of verification
 
 Technical checks may prove time coverage, deterministic seeking, file and font
-closure, material visibility, frame boundaries, readable windows, rendering,
-and decoding. Stills may diagnose layout, missing assets, clipping, or a known
-boundary state.
+closure, rendering, and decoding. Runtime-captured per-frame geometry may also
+detect discontinuity, abrupt speed/acceleration changes, failure to settle,
+excessive reversal, synchronized starts, competing motion foci, short or moving
+readable holds, safe-area exits, off-canvas elements, and strong unplanned
+overlap. Only actual rendered DOM or scene geometry qualifies; static source
+regex, Recipe prose, and hand-authored estimates do not.
 
-They must not claim to prove anticipation, weight, overlap, timing, arcs,
-exaggeration, or appeal. Do not create principle evidence files or recover this
-protocol as a post-build scoring system. If generated motion is wrong, return
-to the Director's motion direction or the owning Builder's native authoring;
-do not compensate by multiplying static review artifacts.
+Technical checks must not claim to prove anticipation, weight, overlap, timing, arcs,
+exaggeration, or appeal. More precisely, these checks do not prove that
+anticipation communicates, mass feels right,
+follow-through is meaningful, arcs are pleasing, exaggeration serves the
+story, or the result has appeal. Do not create a twelve-principle score or
+multiply static review artifacts. Use the shared motion/layout lint as a risk
+filter, render diagnostics only for findings, and leave one final moving
+preview as the user's aesthetic decision. If generated motion is wrong, return
+to the Director or owning Builder.

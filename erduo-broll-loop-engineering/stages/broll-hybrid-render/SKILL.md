@@ -29,8 +29,8 @@ Integrator preview and its URL or local locator; then stop with an
 This final identity-bound preview is the only default aesthetic decision; do
 not insert an independent review, per-shot approval, or score.
 
-After approval, a different fresh Agent repeats all identity, storage,
-FFmpeg/FFprobe, target-uniqueness, contract, hash, and preview checks. Any plan,
+After approval, a different fresh Agent compares the unchanged identity,
+storage, FFmpeg/FFprobe availability, target uniqueness, and media hashes. Any plan,
 contract, block media, profile, audio, or integration change invalidates
 approval and returns to integration plus a new preview.
 
@@ -43,8 +43,7 @@ declared deterministic final encode. Do not silently scale, retime, add audio,
 or repair a seam.
 
 After success, FFprobe the attempt, decode it completely, compare duration to
-the final SRT boundary within the declared frame policy, inspect representative
-frames and every cross-backend seam, then finalize exactly one unused master
+the final SRT boundary within the declared frame policy, then finalize exactly one unused master
 with matching SHA-256 and repeat probe/decode on the delivered file.
 
 ## Deliverables
@@ -58,9 +57,9 @@ Approved pass delivers one master, `preflight-report.md`,
 
 Complete only after unchanged identity verification, explicit identity-bound
 approval, one successful formal assembly, exclusive finalization, matching
-hash, FFprobe, full decode, seam inspection, and objective media facts.
+hash, FFprobe, full decode, and objective media facts.
 
 Stop for stale approval, identity or media drift, unsafe paths, missing space,
-contract failure, profile mismatch, unsupported audio behavior, seam defect,
+contract failure, profile mismatch, unsupported audio behavior,
 or formal-attempt failure. Preserve failed evidence and return retry to a fresh
 Hybrid Render Agent.

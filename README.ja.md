@@ -26,6 +26,14 @@
 - 提供素材を優先し、必要なショットだけ追加素材を取得。
 - 全体プレビューで承認を待ち、承認後に 4K Master を正式レンダリングして技術検証。
 
+## v0.8 Production Slim
+
+- 詳細な環境確認はインストール／更新時に一度だけ行い、通常の制作では軽量 preflight のみで Onboarding Agent は起動しません。
+- 複数回の静止画確認を、実行時の motion/layout コード検査へ置き換えました。正常時は静止画レビューを作らず、異常区間だけ診断します。
+- v0.7.0 比の既定 Prompt 読み込み量は各ルートで 79.87〜82.58% 削減。これは再現可能なファイル byte 代理であり、実際の host token 量ではありません。
+
+コードは easing、settle、clip、遮蔽、密度、階層の測定可能なリスクを検出できますが、物語性、重量感、arc、誇張、appeal は証明できません。最終判断は一度だけの全体動画プレビューです。バックエンド間の見た目の一致は保証しません。
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="SRT から承認済み 4K Master までの操作フロー" width="100%">
 </p>

@@ -26,6 +26,14 @@ This 12-second concept film travels through one continuous world: SRT timing, se
 - Uses supplied media first and sources extra material only when a shot requires it.
 - Stops at the complete composition preview for approval, then renders and verifies one 4K master.
 
+## v0.8 Production Slim
+
+- Deep environment checks run once at install or upgrade; normal videos use a compact preflight and no Onboarding Agent.
+- Runtime motion/layout code screening replaces repeated frame sampling. Passing traces produce no still review; only detected windows get diagnostics.
+- Default prompt-load bytes are down 79.87–82.58% across the three routes versus v0.7.0; this is a reproducible file-byte proxy, not actual host token usage.
+
+The code can flag measurable easing, settling, clipping, occlusion, density, and hierarchy risks. It cannot prove story clarity, weight, arcs, exaggeration, or appeal, so the single complete moving preview remains the aesthetic decision. Cross-backend visual parity is not claimed.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="SRT to approved 4K master workflow" width="100%">
 </p>

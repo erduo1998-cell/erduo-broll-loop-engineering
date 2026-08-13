@@ -19,17 +19,8 @@ rerender any shot.
 
 ## Export
 
-Before FFmpeg, FFprobe, or any other non-Pexels child process, use the host's
-native spawn/process API to copy the required environment into an explicit child
-map, remove every key whose ASCII case-folded name equals `PEXELS_API_KEY`,
-resolve case-insensitive key collisions, and set
-`HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map directly to the executable
-without a shell. Do not use shell-inline assignments or `env -u` as the
-contract. If the host cannot inject or attest the sanitized map, invoke the
-command only through the parent Skill's bundled `scripts/safe-spawn.mjs` with
-`node <parent-skill-root>/scripts/safe-spawn.mjs -- <executable> [args...]`.
-That launcher is the bounded no-log, no-shell trust boundary. If neither route
-is available, stop before spawn as `action-required`.
+Run every command through `../../references/safe-execution.md` and consume only
+the compact executor result.
 
 Confirm the final master is the one described by the delivery handoff. Cut the
 requested shot windows directly from that master. Preserve the requested

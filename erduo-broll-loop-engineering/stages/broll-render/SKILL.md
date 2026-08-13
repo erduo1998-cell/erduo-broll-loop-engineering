@@ -30,43 +30,26 @@ A handoff statement or a CLI invocation alone does not replace the real Skill
 load. Retain the available host-native trace reference. Stop before work if the
 official Skill cannot be loaded.
 
-Before every non-Pexels child process, use the host's native spawn/process API
-to copy the required environment into an explicit child map, remove every key
-whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
-key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
-directly to the executable without a shell. This includes doctor, check,
-preview, browser descendants, render, FFmpeg, and FFprobe. Telemetry opt-in may
-change only the telemetry value; Pexels-key removal remains mandatory. Do not
-use shell-inline assignments or `env -u` as the contract. If the host cannot
-inject or attest the sanitized map, invoke the command only through the parent
-Skill's bundled `scripts/safe-spawn.mjs` with the documented
-`node …/safe-spawn.mjs -- <executable> [args...]` form. That
-launcher is the bounded no-log, no-shell trust boundary. If neither route is
-available, stop before spawn as `action-required`. This setting does not prove
-Skill loading or replace result inspection.
+Run every command through `../../references/safe-execution.md` and consume only
+the compact executor result. Executor success does not replace result review.
 
 ## Inputs
 
 - integrated HyperFrames project and Integrator handoff
 - Director film and shot plans
 - output profile, delivery directory, and audio policy
-- ready onboarding handoff
+- cached HyperFrames readiness and targeted production-preflight result
 - optional prior approval evidence bound to this exact integrated composition;
   it is absent on the preview pass
 - selected runtime and capability-matrix decision
 
 ## Preflight in the formal-render environment
 
-Run official HyperFrames doctor with JSON output in the exact environment that
-will invoke formal rendering. Inspect the top-level result and every individual
-finding. Process completion is not success because official doctor always
-exits successfully.
-
-Judge each finding against the selected local render path and actual output
-mode. A missing capability required by that path, or one whose relevance
-cannot be proved, must be repaired and doctor rerun. A capability proved
-outside the selected path may be recorded as unavailable but unused. Do not
-maintain a standing exemption list.
+Run the lightweight targeted production preflight in the formal-render
+environment and confirm the cached HyperFrames identity. Run the full official
+doctor only when preflight reports a changed stable fact or an actual command
+fails with an environment dependency. Process completion alone is never proof
+of a successful command.
 
 Supplement doctor with real delivery facts:
 
@@ -75,14 +58,14 @@ Supplement doctor with real delivery facts:
 - target filename is unique and unused;
 - the command environment for formal render uses the same Node, HyperFrames,
   Chrome, FFmpeg, and FFprobe that were inspected.
-- the integrated project, Onboarding evidence, and runtime-capability decision
+- the integrated project, readiness cache, and runtime-capability decision
   all bind the same production-ready `hyperframes` runtime.
 - selected Shotcraft references remain traceable through Recipe, Builder, and
   Integrator records without being described as preverified components or
   cross-runtime witnesses.
 
-Prepare a missing dependency only through safe, authorized, delivery-local or
-official repair. Rerun doctor after repair. Do not call render as a diagnostic.
+Prepare a missing dependency only through scoped diagnostic Onboarding and an
+authorized repair. Refresh the cache after repair. Do not call render as a diagnostic.
 Do not delete output or user files to make room.
 
 ## Check, preview, and approval
@@ -94,6 +77,11 @@ browser evidence only for concrete defects implicated by warnings. Do not run
 an independent aesthetic review or create any gate beyond the final
 composition preview approval below.
 
+Require the Integrator's identity-bound motion/layout lint result. Do not
+recapture geometry, rerun lint, or create routine stills when the composition
+identity is unchanged. Preserve honestly recorded unmeasured adapter coverage
+for the final moving preview.
+
 After check succeeds, inspect whether valid approval evidence already binds
 this exact integrated composition and check result. Recompute and compare the
 Integrator's `composition-identity.json`; a path-set, file-hash, or aggregate
@@ -102,8 +90,8 @@ open the
 official final composition preview, write an `action-required` handoff with the
 preview locator and composition identity, and stop without rendering. The
 Parent obtains explicit user approval and dispatches a different fresh
-Render/Delivery Agent with that approval evidence. The new Agent repeats
-same-environment preflight, identity verification, and check; any project
+Render/Delivery Agent with that approval evidence. The new Agent compares the
+unchanged identity and runs only delivery-local target/media checks; any project
 change invalidates approval and requires reintegration plus a new preview. The
 preview is not a second master.
 
@@ -135,7 +123,7 @@ After success:
 If a formal render fails, preserve the environment findings, check result,
 exact arguments, output state, partial file, and error context. Report the
 attempt as failed and return ownership to a different fresh Render/Delivery
-Agent. The fresh Agent repeats the same-environment preflight and uses another
+Agent. The fresh Agent reuses unchanged identity evidence and uses another
 unused attempt target. Do not treat a partial file as a master and do not
 overwrite it.
 
@@ -159,8 +147,8 @@ logs.
 
 ## Completion
 
-Complete when the same-environment official doctor has been evaluated,
-delivery supplements are verified, official check succeeds, required preview
+Complete when the targeted cached preflight and delivery supplements are
+verified, official check succeeds, required preview
 approval is present, a formal attempt succeeds, exactly one final master is
 delivered without overwrite, FFprobe facts match the request, and complete
 decode finishes without error. The delivered project must retain complete

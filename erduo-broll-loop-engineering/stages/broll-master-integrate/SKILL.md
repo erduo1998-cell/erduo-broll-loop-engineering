@@ -12,7 +12,8 @@ shots, render the final master, or export shots.
 ## Runtime route
 
 Read `../../references/runtime/runtime-contract.md` and
-`../../references/runtime/capability-matrix.json`. The Integrator accepts only
+`../../references/runtime/capability-matrix.json`, then read
+`../../references/motion-layout-lint.md`. The Integrator accepts only
 a validated runtime plan whose resulting route is single-backend
 `hyperframes`, and blocks assigned to `hyperframes`,
 whose Builder handoffs trace every shot to a validated runtime-neutral Recipe
@@ -34,19 +35,8 @@ A handoff claim or CLI command alone does not replace the real Skill load.
 Retain the available host-native trace reference. Stop before assembly if the
 official Skill cannot be loaded.
 
-Before every non-Pexels child process, use the host's native spawn/process API
-to copy the required environment into an explicit child map, remove every key
-whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive
-key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass the map
-directly to the executable without a shell. Telemetry opt-in may change only
-the telemetry value; Pexels-key removal remains mandatory. Do not use
-shell-inline assignments or `env -u` as the contract. If the host cannot inject
-or attest the sanitized map, invoke the command only through the parent Skill's
-bundled `scripts/safe-spawn.mjs` using the command form documented in the
-parent Skill. That launcher is the bounded no-log, no-shell trust
-boundary. If neither route is available, stop before spawn as
-`action-required`. This setting does not prove Skill loading or replace the
-standard check.
+Run every command through `../../references/safe-execution.md` and consume only
+the compact executor result. Executor success does not replace standard check.
 
 ## Inputs
 
@@ -56,7 +46,7 @@ standard check.
 - every expected authoring unit, compact receipt, and handoff, grouped by its
   planned backend block
 - output profile and audio policy
-- ready onboarding handoff
+- cached HyperFrames readiness plus targeted production-preflight `status: ready`
 - selected runtime and capability-matrix decision
 - validated runtime plan identity and single-runtime block closure
 
@@ -92,6 +82,14 @@ requires it. Inspect real browser evidence only when a warning may represent a
 concrete visible or runtime defect. Do not score aesthetics or create a
 separate visual-review gate.
 
+After check, capture actual per-frame DOM/semantic scene bounds for every
+meaningful element exposed by the official adapters and run the shared
+motion/layout lint once across the complete master. A pass creates no stills,
+clips, or AI visual analysis. Findings alone trigger their bounded diagnostic
+windows. Record any element without a truthful official geometry hook as
+unmeasured; never fill the gap with source regex or estimates, and never claim
+full lint coverage when such gaps exist.
+
 After the successful check, freeze `composition-identity.json`. List every
 production-authored source/config file and every referenced local media, font,
 and dependency-lock file as a normalized project-relative path plus SHA-256;
@@ -115,6 +113,7 @@ Deliver:
 - `integration-notes.md`;
 - official check output or a bounded human-readable summary with its artifact
   locator;
+- compact motion/layout lint result and measured/unmeasured coverage;
 - `composition-identity.json`;
 - `handoff.md`.
 
@@ -123,8 +122,9 @@ Deliver:
 Complete when the integrated project includes every block in order, continuous
 time coverage is preserved, resources and fonts resolve, seams are intentional,
 Recipe-to-runtime traceability is intact, the official standard check has no
-unresolved error, the composition identity manifest is complete, and warnings
-with possible visible impact have been investigated.
+unresolved error, measurable motion/layout findings are closed, the composition
+identity manifest is complete, and warnings with possible visible impact have
+been investigated.
 
 ## Stop
 

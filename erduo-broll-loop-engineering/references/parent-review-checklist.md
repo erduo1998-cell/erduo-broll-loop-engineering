@@ -11,16 +11,15 @@ gate: the user's decision on the final identity-bound composition preview.
 - Output directory and attempt/master targets are new and non-overwriting.
 - Runtime selection is validated; new projects default to `auto` and ambiguous
   existing evidence stops.
-- Fresh Onboarding binds run, host, command path, phase, selection/runtime-plan
-  identity, delivery filesystem, required backend versions, capabilities, and
-  recorded Pexels state.
-- Base Onboarding records missing Pexels without blocking. It becomes required
-  only when a validated material request actually reaches Pexels.
+- Cached installation readiness matches this release and host; the lightweight
+  preflight closes the current SRT, project, target and required backend facts.
+- Pexels remains outside readiness and is checked only when Assets reaches a
+  validated Pexels material need.
 - Required official HyperFrames Skills/doctor or exact local Remotion
   dependencies/CLI evidence is real; FFmpeg, FFprobe, storage, permissions, and
   paths are usable.
-- Every non-Pexels child process used the sanitized no-shell environment; no
-  credential or private environment dump appears.
+- Commands used the shared executor and no credential or environment dump
+  appears.
 
 ## Direction contracts
 
@@ -105,10 +104,10 @@ gate: the user's decision on the final identity-bound composition preview.
   identity close.
 - Hybrid crosses runtimes only through validated frozen media; no live nesting
   or generated-source interchange occurs.
-- Integrators change only integration-owned structure and run their existing
-  typecheck/check/still/preview/decode gates. Technical still inspection is for
-  concrete layout, resource, seam, or runtime defects—not aesthetic scoring.
-- Render repeats same-environment preflight and identity verification. The
+- Integrators change only integration-owned structure and run typecheck/check
+  plus one full-composition motion/layout lint. A pass creates no routine
+  static analysis; findings alone trigger bounded diagnostic frames or clips.
+- Render compares unchanged identity and runs only delivery-local checks. The
   final composition preview is the only user aesthetic stop; no independent
   visual review precedes it.
 - A different fresh Render Agent receives identity-bound approval, rechecks

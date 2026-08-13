@@ -33,8 +33,10 @@ import {
   atomicWriteJson,
   ensureDirectoryWithoutSymlink,
   ensurePrivateDirectory,
+  environmentReadinessFile,
   hostSkillRoots,
   hyperframesCliPath,
+  installManifestIdentity,
   normalizeOfficialDoctor,
   normalizeSkillsCheck,
   officialSkillBundleRoot,
@@ -46,6 +48,7 @@ import {
   runFile,
   sanitizedChildEnv,
   skillSourceFor,
+  stableHostId,
   validateInstallManifest,
 } from './lib.mjs';
 
@@ -1101,6 +1104,27 @@ export async function runInstall({
         await atomicWriteJson(manifestFile, manifest, { trustedRoot: appDir });
       },
     });
+    await atomicWriteJson(environmentReadinessFile(appDir), {
+      schema_version: 1,
+      product_version: RELEASE_VERSION,
+      created_at: new Date().toISOString(),
+      host_id: stableHostId({ platform, arch: process.arch }),
+      platform,
+      arch: process.arch,
+      node_major: Number(process.versions.node.split('.')[0]),
+      install: {
+        expected_skill_links: INSTALL_SKILL_NAMES.length * 2,
+        ready_skill_links: links.length,
+        manifest_identity: installManifestIdentity(manifest),
+      },
+      hyperframes: {
+        expected_version: HYPERFRAMES_VERSION,
+        official_skills_commit: HYPERFRAMES_SKILLS_COMMIT,
+        ready: true,
+      },
+      ready_backends: ['hyperframes'],
+      status: 'ready',
+    }, { trustedRoot: appDir });
     return {
       status: 'installed',
       authority: 'environment-setup-only-no-creative-or-quality-approval',

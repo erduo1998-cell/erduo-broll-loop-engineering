@@ -9,20 +9,27 @@ import {
   ActionRequiredError,
   HYPERFRAMES_VERSION,
   HYPERFRAMES_SKILLS_COMMIT,
+  HYPERFRAMES_SKILL_NAMES,
+  INSTALL_SKILL_NAMES,
   RELEASE_VERSION,
   SKILL_NAMES,
   applicationDataDir,
+  atomicWriteJson,
+  environmentReadinessFile,
   hostSkillRoots,
   hyperframesCliPath,
+  installManifestIdentity,
   normalizeOfficialDoctor,
   normalizeSkillsCheck,
   officialSkillBundleRoot,
   parseJsonPayload,
   pathExists,
   publicError,
+  readJsonIfPresent,
   redactText,
   runFile,
   sanitizedChildEnv,
+  stableHostId,
 } from './lib.mjs';
 import { pexelsStatus } from './config.mjs';
 
@@ -60,6 +67,7 @@ export async function collectDoctor({
   nodeVersion = process.versions.node,
   fetchImpl = globalThis.fetch,
   pexelsEndpoint,
+  includePexels = false,
 } = {}) {
   const nodeMajor = Number(nodeVersion.split('.')[0]);
   const childEnv = sanitizedChildEnv(env);
@@ -104,23 +112,17 @@ export async function collectDoctor({
   }
 
   const customSkills = await installedSkillFacts({ homeDir, repoRoot });
-  const pexels = await pexelsStatus({
-    env,
-    homeDir,
-    platform,
-    validate: true,
-    fetchImpl,
-    endpoint: pexelsEndpoint,
-  });
+  const installManifest = await readJsonIfPresent(path.join(appDir, 'install-manifest.json'));
+  const pexels = includePexels ? await pexelsStatus({
+    env, homeDir, platform, validate: true, fetchImpl, endpoint: pexelsEndpoint,
+  }) : { checked: false, reason: 'material-stage-only' };
   const skillLinksReady = customSkills.every((fact) => fact.status === 'ok');
   const ready = platform === 'darwin'
     && nodeMajor >= 22
     && runtimeAvailable
     && skills.status === 'ok'
     && official?.selected_local_render_ready === true
-    && skillLinksReady
-    && pexels.configured
-    && pexels.validated;
+    && skillLinksReady;
 
   return {
     schema_version: 1,
@@ -147,7 +149,36 @@ export async function collectDoctor({
       status: skillLinksReady ? 'ok' : 'action-required',
       facts: customSkills,
     },
+    install_manifest_identity: installManifestIdentity(installManifest),
     pexels,
+  };
+}
+
+export function readinessFromDoctor(report, { hostname = os.hostname() } = {}) {
+  return {
+    schema_version: 1,
+    product_version: report.product_version,
+    created_at: new Date().toISOString(),
+    host_id: stableHostId({ hostname, platform: report.platform, arch: report.arch }),
+    platform: report.platform,
+    arch: report.arch,
+    node_major: Number(String(report.node.version).split('.')[0]),
+    install: {
+      expected_skill_links: INSTALL_SKILL_NAMES.length * 2,
+      ready_skill_links: report.custom_skills.ready_count
+        + (report.hyperframes.skills.status === 'ok' ? HYPERFRAMES_SKILL_NAMES.length * 2 : 0),
+      manifest_identity: report.install_manifest_identity,
+    },
+    hyperframes: {
+      expected_version: report.hyperframes.expected_version,
+      official_skills_commit: report.hyperframes.official_skills_commit,
+      ready: report.hyperframes.runtime === 'present'
+        && report.hyperframes.skills.status === 'ok'
+        && report.hyperframes.official_doctor?.selected_local_render_ready === true,
+    },
+    ready_backends: report.hyperframes.official_doctor?.selected_local_render_ready === true
+      ? ['hyperframes'] : [],
+    status: report.status,
   };
 }
 
@@ -160,19 +191,23 @@ function humanReport(report, homeDir) {
     `official-skills=${report.hyperframes.skills.status}`,
     `official-doctor=${report.hyperframes.official_doctor?.selected_local_render_ready === true ? 'selected-local-render-ready' : 'action-required'}`,
     `custom-skills=${report.custom_skills.ready_count}/${report.custom_skills.expected_count}`,
-    `pexels=${report.pexels.configured && report.pexels.validated
-      ? 'configured-and-validated'
-      : 'action-required'}`,
+    'pexels=not-checked-material-stage-only',
     'authority=environment facts only; no creative, aesthetic, or quality approval',
   ];
   return `${redactText(lines.join('\n'), { homeDir })}\n`;
 }
 
 async function main(argv) {
-  if (argv.some((arg) => !['--json'].includes(arg))) {
-    throw new ActionRequiredError('usage', 'Usage: doctor.mjs [--json]');
+  if (argv.some((arg) => !['--json', '--refresh-cache'].includes(arg))) {
+    throw new ActionRequiredError('usage', 'Usage: doctor.mjs [--json] [--refresh-cache]');
   }
   const report = await collectDoctor();
+  if (argv.includes('--refresh-cache') && report.status === 'ready') {
+    const appDir = applicationDataDir();
+    await atomicWriteJson(environmentReadinessFile(appDir), readinessFromDoctor(report), {
+      trustedRoot: appDir,
+    });
+  }
   process.stdout.write(argv.includes('--json')
     ? `${JSON.stringify(report)}\n`
     : humanReport(report, os.homedir()));

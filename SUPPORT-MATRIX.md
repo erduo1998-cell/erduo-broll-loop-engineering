@@ -17,11 +17,25 @@
 
 官方 doctor 可能因为 npm 上已有更新版本而把顶层 `ok` 置为 false。只在 doctor 的 `_meta.version` 精确等于本发行包锁定的 `0.7.104`、失败项只是“newer version available”，且 Node、FFmpeg、FFprobe、Chrome 等选中本地渲染事实全部通过时，本项目把它记录为非阻断更新提示；版本不明、版本不符或任何渲染事实失败仍会关闭发布/生产门。
 
-## v0.7 first-pass craft 合同
+## v0.8 Production Slim 合同
+
+`0.8.0` 把深度环境排查移到安装/升级，正常视频只执行轻量 preflight；把多阶段抽帧改为运行时 motion/layout 代码筛查，只有异常窗口取证；把父级默认读取的 11 份 reference 改为按需加载。冻结 Prompt-load 代理相对 v0.7.0：父默认减少 `95.89%`，HyperFrames `79.93%`，Remotion `79.87%`，Hybrid `82.58%`。
+
+| 项目 | 当前状态 | 证据边界 |
+| --- | --- | --- |
+| 安装 readiness 缓存 + production preflight | automated tests pass | 正常生产 Onboarding Agent 为 0；缓存失效或真实工具故障仍会进入定点诊断 |
+| Remotion DOM geometry capture + motion/layout lint | script + fixtures verified | 可筛查可测的运动/构图风险；真实 Player E2E 依赖目标项目本地浏览器与精确依赖 |
+| HyperFrames geometry lint | contract with honest coverage | 有官方真实 geometry hook 时运行；无 hook 的元素标为 `unmeasured`，不能伪装完整覆盖 |
+| Context measurement | deterministic byte proxy | 可重复统计默认 Prompt 文件读取量；不等于真实宿主 token、产物 I/O 或视频质量 |
+| 唯一完整动态预览 | production contract | 仍由用户判断故事、重量、弧线、夸张和 appeal；技术绿灯不等于审美通过 |
+
+本版不新增审美评分或视觉审查 Agent，也不声明跨后端视觉一致性。Windows、剪映/CapCut GUI 与任意既有项目自动修复仍未验证。
+
+## v0.7 first-pass craft 合同（历史基线）
 
 `0.7.0` 冻结的是第一次预览的生成机制，不是自动化审美证明。默认链不增加独立视觉审查、审美评分、lookdev 或逐镜审批；最终 composition preview 仍是正式渲染前唯一默认审美/用户停点。发布前已完成同输入 first-pass benchmark，用户在两版技术均通过后明确选择 `0.7.0`；该结论只绑定冻结样本，不外推为所有输入的审美保证。
 
-| 项目 | `0.7.0` 状态 | 证据边界 |
+| 项目 | 当前状态 | 证据边界 |
 | --- | --- | --- |
 | Narrative envelope + shared visual system | verified contract + validator | 全片上下文、视觉世界、颜色/字体角色、材料/深度、构图家族、节奏、禁用项和安全区只冻结一次；不表示任意 Builder 输出天然符合审美 |
 | Compact Shot Recipe v2 | verified contract + validator | 每镜差量、hero frame、micro-beats、material needs、接缝和 hold 可确定性校验；beat 语义与画面质量仍须在实际预览中判断 |
@@ -54,7 +68,7 @@
 
 ### `video-shotcraft` 吸收边界
 
-| 项目 | `0.7.0` 状态 | 证据边界 |
+| 项目 | 当前状态 | 证据边界 |
 | --- | --- | --- |
 | 镜头卡目录 | verified data | 152 张卡、209 个全局唯一 style key；目录、来源 commit 与 manifest 由自动化测试核验 |
 | 卡片全文 | verified upstream artifact | 每卡与 pinned upstream Markdown byte-identical，并有稳定 ID、上游 URL、本地路径、字节数与 SHA-256；正文作为运行时中立镜头知识消费 |

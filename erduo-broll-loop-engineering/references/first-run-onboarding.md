@@ -1,410 +1,107 @@
-# First-run onboarding
+# First-run and changed-environment onboarding
 
-Use this reference when the Parent dispatches `broll-onboarding`.
+Use this reference only after `production-preflight.mjs` returns
+`next: run-onboarding-diagnostic`. Normal video production does not dispatch an
+Onboarding Agent.
 
-## Purpose
+## Two layers
 
-Prove common readiness before Direction, then prove only the planned backend
-set before Builder dispatch. Detect real capabilities, coordinate one grouped user
-authorization, perform only safe reversible repair, and return a sanitized
+Installation readiness is machine state. Production readiness is run state.
+Do not bind them together.
+
+The installation/upgrade workflow performs the expensive checks once and
+writes `environment-readiness.json` in the application-owned data directory.
+The cache records only stable facts:
+
+- product version and cache schema;
+- platform, architecture, and a non-secret host identifier;
+- Node major and minimum support result;
+- expected release Skill count and installation-manifest identity;
+- FFmpeg and FFprobe execution results;
+- pinned HyperFrames runtime/official-Skills identities and doctor readiness;
+- backends whose toolchains have real readiness evidence;
+- creation time.
+
+Never bind this cache to a production-run ID, SRT, project or output path,
+runtime-plan identity, command `PATH`, disk free-space value, or Pexels state.
+Those facts vary normally and must not trigger another deep environment audit.
+
+## Production preflight
+
+Before Direction, Parent runs:
+
+```text
+node <release-root>/scripts/production-preflight.mjs \
+  --srt <srt> --output <target> --project <project-root> --json
+```
+
+It performs bounded local checks only:
+
+- readiness cache exists and matches current release/machine/tool identity;
+- current Node remains supported;
+- SRT is a readable regular file;
+- project root exists;
+- output target is unused and its existing parent is writable;
+- available space exceeds a small declared floor.
+
+After Runtime Planner, add `--runtime hyperframes` and/or
+`--runtime remotion` for each required backend. A runtime-plan or SRT change
+does not invalidate the cache; it merely selects which cached backend fact is
+needed.
+
+The JSON result has three routing outcomes:
+
+- `status: ready`, `next: continue`: proceed without Onboarding;
+- `next: fix-production-input`: resolve SRT/output/project facts without an
+  environment Agent;
+- `next: fix-project-runtime`: repair the exact project-local Remotion
+  declaration, lock, installation, or CLI identity without Onboarding;
+- `next: run-onboarding-diagnostic`: dispatch one Onboarding Agent scoped to
+  the returned stable fact IDs.
+
+Do not ask an Agent to reread raw command output. The script result is the
 handoff.
 
-Onboarding is environment preparation. It does not decide creative quality and
-does not replace Render/Delivery's same-environment doctor run.
+## When diagnosis is justified
 
-## Required sequence
+Run deep diagnosis only for a missing cache, release upgrade/migration,
+machine or architecture change, Node major/support change, install-manifest or
+Skill-set change, pinned tool identity change, a required backend absent from
+the cache, or a real production command failure that identifies an environment
+dependency.
 
-### 1. Establish the target
+Inspection is read-only and checks only the failed facts. One grouped request
+contains all known repairs and human-only actions. A fresh repair Agent applies
+only explicitly authorized reversible changes and refreshes the cache with:
 
-Identify:
-
-- production-run identity and onboarding mode;
-- SRT locator;
-- operating system and architecture;
-- Skill root and production root;
-- delivery directory and intended output profile;
-- selection intent, defaulting to `auto`;
-- onboarding phase: `base`, `targeted`, or legacy-compatible `full`;
-- validated runtime-selection artifact;
-- for targeted phase, validated runtime-plan identity and required backends;
-- local render path;
-- current command environment;
-- whether the run is first use, post-migration, or a recheck.
-
-Do not disclose private absolute paths in the handoff.
-
-Ready evidence is fresh only for the same production run, host, command
-`PATH`, onboarding phase, target delivery filesystem, selection/runtime-plan
-identity, required backend CLI versions when targeted, runtime-capability
-decision, and Pexels validation state. Record these
-bindings safely. If any value changes, discard the earlier readiness
-conclusion and dispatch a new inspection-only Agent.
-
-Read the runtime selection contract and capability matrix before environment
-checks. Generate the selection artifact with the bundled detector. Honor an
-explicit runtime first; otherwise require unambiguous real project evidence.
-Mixed evidence is `action-required`, while a genuinely new project defaults
-to `auto`. Auto/hybrid requires base readiness, Direction, Runtime Planner,
-then targeted readiness. A required backend whose `productionAvailable` value is false
-is `unsupported`; do not silently switch runtimes.
-
-### 2. Inspect before modifying
-
-The first Onboarding Agent always runs in `inspect` mode. It must not install,
-update, download, register, configure, create persistent directories, or modify
-user files. It reports every currently known repair and human-only action in
-one request.
-
-After the user authorizes that request, dispatch a different fresh Agent in
-`repair` mode. It performs only the approved work and repeats the full
-inspection. Do not continue the first Agent into repair.
-
-### 3. Read only the SRT duration fact
-
-Parse the SRT read-only and extract only the final cue end time as integer
-milliseconds for delivery-space estimation. Do not interpret transcript
-meaning, merge cues, create sections or shots, or write Director artifacts.
-
-### 4. Check Node
-
-Both release-pinned production routes require Node.js 22 or newer.
-
-Run a real Node version query and parse the result. Command availability alone
-is insufficient.
-
-If Node is missing or older, inspection mode reports the repair. In an
-authorized fresh repair Agent:
-
-- prefer an already installed trusted version manager;
-- otherwise explain the supported Node 22 installation;
-- perform the repair only after explicit authorization;
-- avoid modifying shell startup files or system links silently;
-- repeat the version query in the exact command environment production will
-  use.
-
-If no trusted, authorized installation path exists, stop as
-`action-required`.
-
-### 5. Load official guidance
-
-For HyperFrames, through the host's native Skill mechanism, load:
-
-- `hyperframes`
-- `hyperframes-cli`
-
-Follow the release-pinned official guidance rather than remembered commands. Retain a
-host-native trace reference when available.
-
-For Remotion, do not load HyperFrames guidance as runtime evidence. Bind the
-inspection to the selected project's direct `remotion` and `@remotion/cli`
-declarations, locally installed matching versions, and project-local CLI.
-
-For every non-Pexels command below, use the host's native spawn/process API to
-copy the required environment into an explicit child map, remove every key whose
-ASCII case-folded name equals `PEXELS_API_KEY`, resolve case-insensitive key
-collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by default. Pass that map
-directly to the executable without a shell. A telemetry opt-in may change only
-the telemetry value; Pexels-key removal remains mandatory. Do not rely on a
-POSIX-only inline assignment or `env -u`, and do not persist settings to the
-user's shell profile. If the host cannot inject or attest the sanitized map,
-use the parent Skill's bundled `scripts/safe-spawn.mjs` as the only approved
-bounded no-log, no-shell bootstrap. If neither route is available, stop before
-spawn as `action-required`. This contract applies to Node, npx, HyperFrames,
-browser descendants, package managers, FFmpeg, and FFprobe.
-
-### 6. Check only the required runtime set
-
-Base phase stops after common checks and does not install, probe, or require an
-animation backend. Targeted phase reads the validated runtime plan and checks
-exactly its `requiredBackends`. Full phase applies the same checks to one
-explicit/detected legacy-compatible backend.
-
-For Remotion, require all of the following before creative production:
-
-- `package.json` directly declares `remotion` and `@remotion/cli`;
-- both packages are installed locally at the same concrete version;
-- the bundled router's project-local `remotion versions` direct-spawn probe
-  passed without a shell, reported package alignment, and named the exact
-  shared version;
-- no global CLI, network-fetched `npx`, transitive dependency, or lockfile-only
-  entry is used as a substitute;
-- the exact local CLI's Chrome path is usable;
-- FFmpeg and FFprobe execute in the same command environment;
-- an existing project has a discoverable registered Composition, or a new
-  project records that registration as Builder/Integrator work rather than
-  pretending it already exists.
-
-The release does not choose one Remotion version for every project. Preserve a
-compatible existing exact lock, or in an authorized new-project repair read
-current stable npm registry metadata, choose one concrete version shared by
-`remotion` and `@remotion/cli`, resolve compatible exact React/TypeScript
-versions, and generate a v3 lock. Record the resolution time and concrete
-versions; never persist `latest` or a range.
-
-If the runtime plan requires `effects.dom-pixel-postprocess`, general CLI
-readiness is insufficient. Require Remotion 4.0.455 or newer and run a minimal
-project-local `<HtmlInCanvas>` still canary in the exact preview/render
-browser. Record `HtmlInCanvas.isSupported()`, Chrome/flag facts, source and
-still hashes, the Canvas 2D or WebGL2 path, and the frozen `angle`/`swangle`
-backend when applicable. A failed canary makes this capability unsupported.
-
-Initial routing and inspection must not execute the project-local CLI. After
-the user approves the exact repair and local project execution, the fresh
-repair Agent runs the detector with `--probe-cli`; only that authorized result
-can supply the CLI evidence above. Its child environment is a minimal
-allowlist, not the full parent environment.
-
-Missing declared/installed dependencies or CLI evidence is
-`action-required`. Inspection mode reports the exact missing facts without
-installing them. A fresh repair Agent may run the project's approved package
-manager only when the user explicitly authorizes the dependency change, then
-must rerun the detector and local CLI probe. Skip the HyperFrames-only Skills,
-doctor, and browser commands below for a Remotion run.
-
-For a genuinely new project explicitly selected as Remotion, this initial
-`action-required` readiness is expected and does not reopen runtime selection.
-Inspection reads `remotion-backend.md`, shows the official Remotion licensing
-page, and groups intended-use confirmation with authorization for the exact
-local package bootstrap. A different fresh repair Agent then creates only the
-minimal exact `package.json`, `package-lock.json`, dependency tree, and empty
-application directories in the new unused production project root. It must
-inspect lock sources before `npm ci`, rerun the detector and local CLI probe,
-and roll back newly created bootstrap files on failure. Composition
-registration and video source remain Builder/Integrator work. Do not require
-the user to install packages manually.
-
-For HyperFrames, continue with the release-pinned checks below.
-
-#### Check official HyperFrames Skills
-
-From the public release root, run:
-
-```bash
-node scripts/doctor.mjs --json
+```text
+node <release-root>/scripts/doctor.mjs --refresh-cache --json
 ```
 
-Invoke this command through the sanitized child map defined above. The release
-doctor binds the official Skills check to the application-owned pinned source,
-then runs the official HyperFrames doctor. It does not contact the mutable
-remote Skill head for readiness.
+For HyperFrames, the diagnostic loads pinned official Skills and runs the
+official JSON doctor. For Remotion, it verifies exact local dependencies and
+the direct project-local CLI. Optional feature canaries are run only when a
+planned Recipe actually requests that capability.
 
-If the pinned core set is incomplete or changed and repair is authorized, rerun
-the public release installer from the same release root:
+## Pexels
 
-```bash
-./Install.command
-```
+Pexels is material routing, not environment readiness. Do not read, validate,
+or cache its credential during onboarding or common production preflight.
+When Assets reaches a real Pexels-backed need, that stage checks secure access
+and asks once for a human action if unavailable. No need means no credential
+check.
 
-The installer exact-fetches the fixed HyperFrames commit, runs the locked
-Skills CLI only inside an isolated HOME, verifies the exact eight-Skill core,
-and commits official plus project Skill links in one backup/rollback
-transaction. Then rerun the release doctor. Do not recreate a missing Skill
-from memory or run a third-party installer directly against the real HOME.
+Never expose the credential in chat, Markdown, logs, file paths, command
+arguments, artifacts, or reports.
 
-`npx hyperframes skills check --json` without `--source` is an optional
-canonical-remote maintenance check. Its result can inform an explicit upgrade
-decision, but it does not invalidate the reproducible pinned baseline by
-itself.
+## Execution boundary
 
-The release installer owns registration of the public Skill set. Verify that
-the host can discover all fourteen:
+All commands follow [shared command execution](safe-execution.md). Stages
+consume its compact result and do not duplicate implementation details.
 
-- `erduo-broll-loop-engineering`
-- `broll-onboarding`
-- `broll-director`
-- `broll-assets`
-- `broll-master-build`
-- `broll-master-integrate`
-- `broll-render`
-- `broll-shot-export`
-- `broll-remotion-build`
-- `broll-remotion-integrate`
-- `broll-remotion-render`
-- `broll-runtime-plan`
-- `broll-hybrid-integrate`
-- `broll-hybrid-render`
+## Handoff
 
-Onboarding must not create registration itself. Missing discovery is
-`action-required` for the release installer or host installation workflow.
-
-#### Run official HyperFrames doctor
-
-Run:
-
-```bash
-npx hyperframes doctor --json
-```
-
-The command always exits successfully. Parse the JSON. Record the top-level
-result and inspect every finding relevant to this local path, including:
-
-- CLI version;
-- Node;
-- CPU, memory, and disk;
-- renderer environment;
-- FFmpeg;
-- FFprobe;
-- Chrome;
-- Docker and container facts only when that path is selected.
-
-A false or failed finding required by the planned path, or one whose
-relevance cannot be established, requires repair and doctor rerun. A
-capability proved outside the planned path may be recorded as unavailable but
-unused.
-
-Do not use a fixed exception list or infer success from the process exit code.
-
-#### Repair HyperFrames Chrome through the official command
-
-When doctor reports missing bundled Chrome, inspection mode records the
-repair. In an authorized fresh repair Agent, run:
-
-```bash
-npx hyperframes browser ensure
-```
-
-Then rerun official doctor.
-
-If Chrome exists but cannot start because of host sandbox restrictions, report
-the host limitation. Do not repeatedly reinstall Chrome or construct another
-renderer. Ask the user to choose an available non-restricted, Docker, or cloud
-path when appropriate.
-
-### 7. Check FFmpeg and FFprobe
-
-Doctor supplies the primary facts. Also confirm both tools execute in the same
-command environment production will use.
-
-When missing:
-
-- use an existing trusted package manager only after authorization;
-- do not install a package manager automatically;
-- do not impersonate administrator approval;
-- rerun both executable checks and official doctor after repair.
-
-FFmpeg does not substitute for FFprobe.
-
-### 8. Check directories and storage
-
-For the production and delivery directories:
-
-- confirm each intended directory exists or can be safely created;
-- use a unique exclusive probe file to verify write and cleanup;
-- confirm the planned target filename does not exist;
-- inspect free bytes on the target filesystem;
-- compare storage with the declared duration, resolution, local assets, and
-  expected render workspace.
-
-Use the read-only final SRT cue end milliseconds as the duration input. Do not
-perform semantic analysis.
-
-Create or repair only application-owned directories. Do not recursively change
-permissions on user-owned paths. Do not delete files to recover space.
-
-When space is insufficient or cannot be judged safely, ask the user to free
-space or select another location.
-
-### 9. Record Pexels access safely
-
-Resolve only whether `PEXELS_API_KEY` is securely configured. Never print,
-echo, serialize, or place the value in:
-
-- a command argument;
-- a handoff;
-- a log;
-- a project file;
-- a production artifact;
-- a user-facing report.
-
-When a public repository configuration tool is actually discoverable, a fresh
-authorized repair Agent may use only its stdin or hidden-interaction interface.
-Do not invent a tool or use any interface that places the key in command
-arguments. If no such tool is discoverable, use a secure host secret or
-`PEXELS_API_KEY` environment mechanism.
-
-If missing, record `missing` without blocking base readiness. Only when the
-validated plan contains an unresolved Pexels-routed material need is status
-`action-required`; then ask once for the human-only actions:
-
-1. create or sign in to a Pexels account;
-2. obtain an Image and Video API key;
-3. place it in a secure host secret or `PEXELS_API_KEY` environment setting.
-
-Do not ask the user to paste it into chat or an ordinary Markdown artifact. If
-the host cannot provide a safe repository tool, secure secret channel, or
-environment mechanism, stop.
-
-Onboarding may report `configured-unverified` when it can prove secure
-presence but cannot test authentication without exposing the value. The Assets
-Agent validates access only when a real shot-specific need reaches Pexels. A
-native-MG or already-satisfied material plan performs no search.
-
-### 10. Group external authorization
-
-Before repair, present one consolidated request covering every currently known
-human decision:
-
-- Node installation or version-manager use;
-- HyperFrames Skills update and network access;
-- bundled Chrome download;
-- FFmpeg package-manager change;
-- Pexels account and secret configuration;
-- system permission or restricted-directory access;
-- storage cleanup or alternate location;
-- optional Docker, proxy, certificate, or cloud authentication.
-- release-installer or host action when any of the fourteen public Skills is not
-  discoverable.
-
-Do not interrupt separately for items already known in the same inspection.
-
-## Status meanings
-
-- `ready`: every capability required by the selected local production path is
-  verified, all fourteen public Skills are discoverable, the directories are
-  usable, and Pexels state is recorded; secure access is required only when
-  the validated plan contains a Pexels-routed need.
-- `degraded`: a capability is unavailable but proved irrelevant to the selected
-  path.
-- `action-required`: an external account, secret, permission, package-manager
-  decision, administrator action, or storage choice requires the user.
-- `unsupported`: a required backend or runtime capability has no
-  approved production route in the current capability matrix.
-- `blocked`: authorized repair failed or a required local capability remains
-  unavailable.
-
-Do not call the environment ready merely because doctor completed or because
-some executables exist.
-
-## Sanitized handoff
-
-Write `broll-production/00-onboarding/environment-handoff.md`.
-
-Include:
-
-- onboarding mode and whether any modification occurred;
-- readiness bindings for run, host, command `PATH`, onboarding phase,
-  delivery filesystem, selection/runtime-plan identity, required backends,
-  runtime-capability decision, and
-  Pexels validation state;
-- runtime-selection status, source, reason codes, and relative evidence
-  locators;
-- target mode and output profile;
-- safe platform and architecture facts;
-- Node version result;
-- each required backend's dependency and CLI status; for HyperFrames, official Skills
-  status; for Remotion, matching local package versions and CLI probe status;
-- host discovery of the root Skill and all thirteen stage Skills;
-- for HyperFrames, official doctor top-level result and selected-path findings;
-  for Remotion, local CLI, Chrome, TypeScript, FFmpeg, and FFprobe findings;
-- FFmpeg, FFprobe, and Chrome status;
-- production and delivery-directory status;
-- free-space assessment and unique-target result;
-- Pexels status without its value;
-- final SRT cue end milliseconds used only for storage estimation;
-- repairs performed and verification;
-- remaining human actions;
-- final onboarding status;
-- available host-native trace references.
-
-Do not include raw JSON, complete command output, credentials, environment
-dumps, private path prefixes, or unrelated installed software.
+The exception-path handoff contains failed fact IDs, diagnostic scope, compact
+results, repairs proposed/performed, remaining human action, cache refresh
+status, and final status. It excludes production-run bindings, SRT duration,
+output details, Pexels status, full environment dumps, and unrelated software.

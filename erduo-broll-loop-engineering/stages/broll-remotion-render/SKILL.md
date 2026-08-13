@@ -1,6 +1,6 @@
 ---
 name: broll-remotion-render
-description: Typecheck, still-test, preview, formally render, and technically verify one identity-bound Remotion master. Use as a fresh isolated Render and Delivery Agent after Remotion integration.
+description: Preview, formally render, and technically verify one identity-bound Remotion master after integration-owned motion/layout lint. Use as a fresh isolated Render and Delivery Agent after Remotion integration.
 ---
 
 # B-roll Remotion Render and Delivery
@@ -28,12 +28,8 @@ Reject HyperFrames, hybrid, or mixed-runtime source. Use only the project's exac
 Remotion installation and direct Node entry points. Never use global Remotion,
 `npx` download fallback, an unpinned package, or a different Composition.
 
-Before every non-Pexels process, create an explicit child map,
-remove every key whose ASCII case-folded name equals `PEXELS_API_KEY`, reject
-case-insensitive key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1`. Pass the
-map directly to the executable without a shell. If the host cannot inject and
-attest that map, use the parent Skill's bundled `scripts/safe-spawn.mjs`. If
-neither route is available, stop before spawn as `action-required`.
+Run every command through `../../references/safe-execution.md` and consume only
+the compact executor result.
 
 ## Same-environment preflight
 
@@ -43,36 +39,32 @@ FFprobe, browser launch, package-lock integrity, and applicable Remotion
 license confirmation. Use the parent safe child environment for every
 non-Pexels process.
 
-Run the bundled verifier with `--expect master --identity`, then clean
-`npm ci --ignore-scripts`, report the actual local CLI/package versions, and
-run `node node_modules/typescript/bin/tsc --noEmit`. Render and inspect real
-stills at the opening, every semantic result/readable hold, every seam, and
-the final safe frame. A path, hash set, aggregate identity, Composition ID,
-version, typecheck, or still failure blocks preview and render.
-Use these stills only for concrete layout, missing-resource, runtime, seam, or
-boundary defects; do not create an independent aesthetic review or score.
+Run the bundled verifier with `--expect master --identity`, report the actual
+local CLI/package versions, and require the Integrator's identity-bound
+full-composition motion/layout lint pass. Do not repeat clean installation,
+typecheck, geometry capture, lint, or routine stills when package lock and
+composition identity are unchanged. A path, identity, Composition ID, version,
+or prior lint failure blocks preview and render.
 
-When the identity declares `runtimeFeatures.htmlInCanvas`, repeat the support
-and real-still canary in this exact render environment. Confirm the exact
+When the identity declares `runtimeFeatures.htmlInCanvas`, confirm the exact
 Remotion version is at least 4.0.455, nested capture remains false, the Studio
 browser supports HTML-in-canvas, and WebGL2 uses the identity-bound `angle` or
-`swangle` value from `remotion.config.ts`. Inspect one frame during each
-effect and one frame in each following readable hold. Any blank/stale capture,
-wrong orientation, resolution loss, or GL drift blocks preview and render.
+`swangle` value from `remotion.config.ts`. A failed launch or backend drift
+blocks preview and render; do not recreate the Builder's frame set.
 
 ## Preview and approval pass
 
 When valid approval is absent, actually launch the project-local Remotion CLI
 `studio` command with the manifest entry point in a host-managed process.
 Confirm the reported URL responds and opens the exact Composition. Record the
-locator, Composition ID, aggregate identity SHA-256, typecheck result, and
-still evidence in an `action-required` handoff, then stop without formal
+locator, Composition ID, aggregate identity SHA-256, and prior lint result in
+an `action-required` handoff, then stop without formal
 render. Studio availability and technical preview evidence are not user
 approval.
 
 The Parent obtains explicit approval. Dispatch a different fresh Render Agent
-for the approved pass. It must repeat all same-environment checks and compare
-the full identity again. Any project-file, manifest, dependency-lock, asset,
+for the approved pass. It compares the full identity and performs only
+delivery-local target, storage, browser launch, and media-tool checks. Any project-file, manifest, dependency-lock, asset,
 font, Recipe binding, Composition, or render-profile change invalidates
 approval and requires reintegration plus a new preview.
 
@@ -92,7 +84,7 @@ When the agreed audio policy is silent, the explicit render arguments must
 include `--muted`; the verified result must contain zero audio streams and its
 container duration must equal `durationInFrames / fps`. The absence of an
 `Audio` component is not proof of a silent or frame-exact file.
-Write all stills, caches, logs, attempts, and delivery files outside the
+Write all diagnostics, caches, logs, attempts, and delivery files outside the
 identity-bound `project/`. If any unexpected non-dependency file appears in
 that project, verification must fail rather than ignore it by directory name.
 
@@ -103,8 +95,6 @@ After a successful render:
   audio streams;
 - compare frame-derived duration with the manifest and final SRT boundary;
 - perform a complete FFmpeg decode from start to finish;
-- inspect representative extracted frames for blank, missing-font, missing-
-  asset, seam, and final-frame defects;
 - finalize exactly one master at the unused delivery path using a host-native
   exclusive-create copy or equivalent no-overwrite operation;
 - verify the final SHA-256 equals the verified attempt and probe/decode the
@@ -128,20 +118,20 @@ On the approved pass, deliver exactly one final master plus:
 
 - `preflight-report.md` with exact local versions and identity result;
 - `technical-verification.md` with render arguments, frame mapping,
-  FFprobe/decode facts, frame inspection, and SHA-256;
+  FFprobe/decode facts, and SHA-256;
 - `handoff.md` with the final path, Composition ID, approval identity,
   objective media facts, and honest residual risks.
 
 ## Completion and stop
 
-Complete only after unchanged identity verification, exact local dependency
-installation, typecheck, real stills, explicit identity-bound approval, one
+Complete only after unchanged identity verification, the prior integrated
+lint pass, explicit identity-bound approval, one
 successful formal render, exclusive no-overwrite finalization, matching hash,
-FFprobe facts, complete decode, and frame inspection.
+FFprobe facts, and complete decode.
 
 Stop before render for missing or stale approval, unconfirmed licensing,
 unsafe output paths, insufficient space, identity drift, wrong runtime or
-Composition, non-local/unpinned packages, unresolved type errors, browser or
-still failure, ambiguous arguments, or missing FFprobe/decode capability.
+Composition, non-local/unpinned packages, unresolved lint findings, browser
+failure, ambiguous arguments, or missing FFprobe/decode capability.
 Stop the current Agent after any formal-render failure; never overwrite or
 silently retry in place.

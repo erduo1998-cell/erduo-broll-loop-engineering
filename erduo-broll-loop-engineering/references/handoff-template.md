@@ -43,7 +43,8 @@ the stage defines one.
   unit-internal source or creative change; return source/hash drift, glue
   conflict, or render failure to the implicated unit Builder.
 - **Integrator:** ordered unit/block closure, integration-only changes,
-  runtime check/typecheck/still/preview facts, and composition identity.
+  runtime check/typecheck, full-composition motion/layout lint coverage,
+  exception-triggered diagnostic facts, and composition identity.
 - **Render:** same-environment preflight and identity. Preview pass reports the
   final preview locator and `action-required` because approval is absent;
   approved pass reports bound approval, unused attempt/final targets,

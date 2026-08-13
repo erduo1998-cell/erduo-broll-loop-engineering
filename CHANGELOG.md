@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+## 0.8.0 — 2026-08-14
+
+- **环境检查退出日常制片。** 安装器/升级流程一次性写入机器级 readiness；每条视频只跑紧凑 preflight。正常生产不派 Onboarding Agent，只有缓存失效或真实工具故障才做定点诊断。SRT、项目、输出目录、runtime plan 或 Pexels 状态变化不再触发整套环境重审。
+- **动态代码筛查取代多轮抽帧。** 新增运行时 geometry trace 与 `motion-layout-lint`，按逐帧位置、尺寸、透明度、层级、遮挡、密度、速度、加速度、jerk、settle、readable hold 和运动焦点筛查风险。通过时不生成静帧或 AI 视觉分析；只有异常窗口取证。最终完整动态预览仍是唯一默认审美决定。
+- **默认上下文真正瘦身。** 父 Skill 改为自足短路由，v0.7.0 强制预载的 11 份 reference 改为按决策读取；重复安全执行合同合并为单一 reference，Director、Assets 与两套 Builder 只保留创作所需判断。确定性 Prompt-load 代理相对 v0.7.0 减少：父默认 `95.89%`，HyperFrames 路线 `79.93%`，Remotion 路线 `79.87%`，Hybrid 路线 `82.58%`。
+- 新增可重复计量命令 `npm run measure:context -- --baseline v0.7.0`、冻结结果与发布回归；该结果是默认 Prompt 文件字节代理，不冒充真实宿主 token 或端到端产物 I/O。
+- 真实限制：代码筛查只能发现可测的运动/构图风险，不能证明故事感染力、重量感、弧线、夸张、appeal 或整体高级感；HyperFrames 无可信 geometry hook 的元素必须标为 `unmeasured`；Remotion Player 真实捕获仍依赖目标项目本地浏览器和精确依赖。两后端视觉一致性、Windows、剪映/CapCut GUI 仍未验证。
+
 ## 0.7.0 — 2026-08-13
 
 - Director 新增一次性 `narrative-envelope.json` 与共享 `visual-system.json`，Shot Recipe 升级为紧凑 v2：逐镜只保留理解目标、第一眼焦点、构图家族、hero-frame 关系、可见 `microBeats[]`、镜头特定素材需求、可选 craft/pattern locator、接缝和 readable hold，避免重复全片字体、颜色、材料、安全区与禁用项。

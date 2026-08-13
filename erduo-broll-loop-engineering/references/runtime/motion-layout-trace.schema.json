@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/motion-layout-trace.schema.json",
+  "title": "Rendered motion and layout geometry trace",
+  "description": "Runtime-captured geometry consumed by motion-layout-lint. It is machine evidence, not an aesthetic score.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "runtime", "compositionId", "compositionIdentity", "capture", "fps", "width", "height", "startFrame", "endFrame", "frameStep", "safeArea", "shots"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "runtime": { "enum": ["remotion", "hyperframes"] },
+    "compositionId": { "type": "string", "minLength": 1 },
+    "compositionIdentity": { "$ref": "#/$defs/sha256" },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "source"],
+      "properties": {
+        "mode": { "enum": ["rendered-dom-geometry", "rendered-scene-geometry"] },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fps": { "type": "integer", "minimum": 1, "maximum": 240 },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "startFrame": { "type": "integer", "minimum": 0 },
+    "endFrame": { "type": "integer", "minimum": 1 },
+    "frameStep": { "const": 1 },
+    "safeArea": { "$ref": "#/$defs/rectangle" },
+    "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "rectangle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["left", "top", "right", "bottom"],
+      "properties": { "left": { "type": "number" }, "top": { "type": "number" }, "right": { "type": "number" }, "bottom": { "type": "number" } }
+    },
+    "shot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["shotId", "startFrame", "endFrame", "readableHolds", "elements"],
+      "properties": {
+        "shotId": { "type": "string", "minLength": 1 },
+        "startFrame": { "type": "integer", "minimum": 0 },
+        "endFrame": { "type": "integer", "minimum": 1 },
+        "readableHolds": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/window" } },
+        "elements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/element" } }
+      }
+    },
+    "window": {
+      "type": "object", "additionalProperties": false,
+      "required": ["startFrame", "endFrame"],
+      "properties": { "startFrame": { "type": "integer", "minimum": 0 }, "endFrame": { "type": "integer", "minimum": 1 } }
+    },
+    "element": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "role", "focusGroup", "layer", "visualWeight", "samples"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["primary", "secondary", "text", "structural", "decorative"] },
+        "focusGroup": { "type": "string", "minLength": 1 },
+        "layer": { "type": "integer" },
+        "visualWeight": { "type": "number", "minimum": 0, "maximum": 1 },
+        "safeAreaPolicy": { "enum": ["inside", "may-bleed"] },
+        "allowOverlapWith": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "motions": { "type": "array", "items": { "$ref": "#/$defs/motion" } },
+        "samples": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sample" } }
+      }
+    },
+    "motion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["startFrame", "endFrame", "kind"],
+      "properties": {
+        "startFrame": { "type": "integer", "minimum": 0 },
+        "endFrame": { "type": "integer", "minimum": 1 },
+        "kind": { "enum": ["transition", "continuous", "cut"] },
+        "expectsSettle": { "type": "boolean" }
+      }
+    },
+    "sample": {
+      "type": "object", "additionalProperties": false,
+      "required": ["frame", "x", "y", "width", "height", "opacity", "zIndex", "visible", "clipped", "visibleAreaRatio"],
+      "properties": {
+        "frame": { "type": "integer", "minimum": 0 },
+        "x": { "type": "number" }, "y": { "type": "number" },
+        "width": { "type": "number", "minimum": 0 }, "height": { "type": "number", "minimum": 0 },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "zIndex": { "type": "number" },
+        "visible": { "type": "boolean" },
+        "clipped": { "type": "boolean" },
+        "visibleAreaRatio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

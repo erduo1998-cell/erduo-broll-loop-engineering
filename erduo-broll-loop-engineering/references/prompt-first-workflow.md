@@ -42,49 +42,30 @@ context. The catalog excludes upstream TSX, demo media, audio, textures, and
 runtime assets; its entries are not verified HyperFrames components or
 Remotion/HyperFrames parity witnesses.
 
-## Environment onboarding
+## Cached production preflight
 
-Auto/hybrid begin with common base Onboarding for the exact host, production
-root, delivery location, and shared tools. After Direction and runtime
-planning, targeted Onboarding prepares exactly the required backend set. It
-must not install both blindly.
+Installation or upgrade performs deep environment inspection once and writes
+a machine-local readiness cache. Before Direction run the bundled lightweight
+preflight. After runtime planning, run it for only the required backends.
+Normal production dispatches no Onboarding Agent.
 
-Onboarding uses only official HyperFrames environment, Skills, and browser
-commands plus direct executable, permission, storage, and credential-status
-facts. It coordinates safe reversible repair after user authorization. It is
-not a production or aesthetic stage.
+The cache binds stable release, machine, Node, installed-Skill, and pinned-tool
+identities only. Production-run, SRT, project/output, runtime-plan, command
+`PATH`, disk-space, and Pexels changes never invalidate it. Per-run preflight
+checks readable input, unused writable output, storage, and requested cached
+backend readiness and returns compact JSON.
 
-First dispatch an inspection-only Agent that makes no changes and returns one
-complete authorization request. After approval, dispatch a different fresh
-repair Agent. Ready evidence must bind the same production run, host, command
-`PATH`, onboarding phase, selection/runtime-plan identity, each required
-backend CLI version, target delivery filesystem, runtime-capability decision,
-and Pexels validation state. Any change requires onboarding again.
-
-Onboarding may parse only the SRT's final cue end milliseconds for storage
-estimation. It does not interpret or direct the content.
+Only `next: run-onboarding-diagnostic` launches one inspection-only Onboarding
+Agent scoped to failed stable facts. After grouped authorization, a fresh
+repair Agent applies approved reversible repairs and refreshes the cache.
+`fix-production-input` and `fix-project-runtime` stay with Parent. Pexels is checked by Assets only when
+a real Pexels material need exists.
 
 ## Official CLI privacy and network
 
-Before every non-Pexels child process, each stage uses the host's native
-spawn/process API to copy the required environment into an explicit child map,
-remove every key whose ASCII case-folded name equals `PEXELS_API_KEY`, resolve
-case-insensitive key collisions, and set `HYPERFRAMES_NO_TELEMETRY=1` by
-default. It passes that map directly to the executable without a shell. This
-includes Node, npx, HyperFrames CLI and browser descendants, package managers,
-FFmpeg, and FFprobe. Telemetry opt-in may change only the telemetry value;
-Pexels-key removal remains mandatory.
-
-Do not rely on POSIX-only inline assignments or `env -u`, and never write these
-settings into the user's shell profile. If the host cannot inject or attest the
-sanitized child map, use the parent Skill's bundled `scripts/safe-spawn.mjs` as
-the only approved bounded no-log, no-shell bootstrap. If neither route is
-available, stop before spawn as `action-required`. Only a dedicated Pexels
-request may receive the credential in minimal scope.
-
-Telemetry preference does not prove that the official `hyperframes` Skill was
-loaded and does not replace doctor, check, preview, render, or inspection of
-their actual results.
+Every stage follows [shared command execution](safe-execution.md) and consumes
+only its compact result. Executor success does not prove an official Skill load
+or replace command-result review.
 
 Official HyperFrames Skills check and update access the official GitHub Skill
 source. Treat that as declared network access. Skills check is part of
@@ -203,7 +184,8 @@ and video searches plus the selection or rejection reasoning.
 Dispatch `broll-runtime-plan`, preserve its generated JSON, and run its schema
 validator. The planner uses declared capability and exact pattern/backend
 evidence, never semantic keywords, then merges adjacent same-runtime shots.
-Dispatch targeted Onboarding only for its `requiredBackends`.
+Run targeted cached preflight only for its `requiredBackends`; launch
+Onboarding only when that preflight reports a missing or changed backend fact.
 
 ## 4. Block building
 
@@ -217,27 +199,27 @@ schema-valid `block-media.json`; this intermediate is not the master.
 
 Use the matching single-backend Integrator when the plan resolves to one
 runtime. For hybrid, use `broll-hybrid-integrate`, which validates actual block
-hashes and contracts, assembles only frozen media with FFmpeg/FFprobe, inspects
-seams, and freezes a runtime-neutral preview identity. Never live-nest or
+hashes and contracts, assembles only frozen media with FFmpeg/FFprobe, fully
+decodes the moving preview, and freezes a runtime-neutral preview identity. Never live-nest or
 translate runtime source.
 
 ## 6. Render and delivery
 
 Use the Render stage matching the integrated identity. HyperFrames retains
-official Skill/doctor/check requirements. Remotion retains local
-CLI/typecheck/still requirements. Hybrid reruns frozen-media identity and
+official Skill/check requirements. Remotion retains local CLI,
+Builder-owned typecheck receipts, and integrated trace/lint. Hybrid compares frozen-media identity and
 FFmpeg checks without opening either animation runtime. Missing approval stops
 at preview; a fresh Agent must verify unchanged identity before formal render.
 
 Unattended execution ends at the final preview. Formal render waits for user
 approval. After approval, the Parent dispatches a different fresh Render Agent
-with evidence bound to the unchanged integrated composition. That Agent repeats
-preflight and check before formal render; a changed project requires a new
+with evidence bound to the unchanged integrated composition. That Agent compares
+identity and runs delivery-local target/media checks before formal render; a changed project requires a new
 preview and approval.
 
 One final master means one successfully verified delivered master, not one
 render attempt. A failed attempt and any partial file remain failed evidence.
-The Parent dispatches a fresh Render/Delivery Agent, which repeats preflight
+The Parent dispatches a fresh Render/Delivery Agent, which reuses unchanged identity evidence
 and uses a new unused attempt target. No attempt or final target is overwritten.
 
 Technical verification proves media behavior, not visual taste. The user

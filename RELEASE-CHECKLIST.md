@@ -37,6 +37,9 @@
 
 ## 生产验证
 
+- [ ] `0.8.0` 三项核心变化有真实证据：正常生产 Onboarding Agent 为 0；motion-layout 通过时不产生默认抽帧；父默认和三条路线 Prompt 代理达到冻结结果。
+- [ ] `node scripts/measure-context.mjs --baseline v0.7.0` 与 `docs/V0.8.0-CONTEXT-MEASUREMENT.json` 一致：父默认 `95.89%`、HyperFrames `79.93%`、Remotion `79.87%`、Hybrid `82.58%`；明确这是 bytes 代理而非真实 token/I-O。
+- [ ] 真实限制已公开：代码不能证明故事、重量、弧线、夸张或 appeal；HyperFrames 无 geometry hook 时标记 `unmeasured`；Remotion 真捕获依赖目标项目本地浏览器/精确依赖；不声明双端视觉一致。
 - [ ] 从本版本执行一次全新 Codex 真实 SRT 端到端，完成官方 HyperFrames check、render 和媒体验证。
 - [ ] Claude Code 使用同输入独立执行并比较公开交付契约。
 - [ ] Assets 按 v2 shot-specific material need 条件触发：空 material need 的纯原生 MG 没有 Pexels/生成调用；需要普通媒体时真实运行所选来源路线并保留来源、权利、hash、裁切、字体和 fusion geometry。
@@ -52,8 +55,8 @@
 - [ ] Runtime selector 遵循显式选择优先、既有项目证据识别、双信号停止和空白新项目默认 auto；目录名不作为判断依据。
 - [ ] Runtime Planner 只按 capability 与 exact pattern/backend evidence 决策，逐镜选择、相邻聚合，并确定性生成每个完整镜头恰好一次的 `authoringUnits`；unit 只属于一个 block，默认 1–3 镜且绝不超过 40 秒；validator 拒绝 gap/overlap、越界、冲突和 identity drift。
 - [ ] Hybrid Builder 输出 frozen block schema；validator 核验实际 hash、profile/audio、FFprobe/full decode、plan closure；Integrator/Render 禁止实时嵌套或源码互导。
-- [ ] Base Onboarding 不盲目准备两套后端；targeted Onboarding 只检查 planner 的 requiredBackends。
-- [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；只有获得 Remotion 修复与本地执行授权后的 fresh Onboarding repair Agent 才使用 `--probe-cli`，并记录非只读执行事实与最小 allowlist 子环境。
+- [ ] 正常生产只运行缓存式轻量 preflight，Onboarding Agent 调用数为 0；缓存缺失、安装身份变化或真实工具故障才进入定点诊断。
+- [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；Remotion 项目依赖由 targeted preflight 按 package/lock/local CLI 身份验证，缺失时返回项目修复，不触发全量环境审计。
 - [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
 - [ ] 发行版不硬编码单一 Remotion 版本；新项目解析一个稳定版本后精确锁定，既有项目保留通过证据门的精确 lock；`latest`、range 和网络下载式 `npx` 均不能进入生产证据。
 - [ ] `effects.dom-pixel-postprocess` 必须确定性路由到 Remotion，并由同一 package lock、Chrome 和 GL 后端的真实 HTML-in-canvas still canary 放行；WebGPU、嵌套捕获和 silent fallback 保持拒绝。
@@ -69,15 +72,16 @@
 - [ ] 原创 craft catalog、attribution manifest 与查询器进入发布闭集；summary/category/search 保持紧凑，只有显式 entry 读取一个完整条目，且不存在 Builder 默认加载全 catalog 的路径。
 - [ ] HyperFrames Builder 真实加载锁定官方 `hyperframes`、`hyperframes-creative` 与 `hyperframes-animation` 并 reuse-first；Remotion Builder 只复用本项目已有真实 witness 的 primitive，否则原生实现。两者均先完成 hero frame，再编排有限的可见 micro-beats，不产生新的审查或审批 artifact。
 - [ ] Builder 输入只包含自己的 authoring unit、相邻接缝摘要、共享 narrative/visual locators、冻结素材/字体、capability evidence 与实际命中的 0–2 份参考；没有全片 Recipe、完整 Shotcraft 或完整 craft catalog。
-- [ ] Remotion 后段至少通过目标项目精确依赖、local CLI、Composition 注册、类型检查、stills/preview、正式 render 与 ffprobe 契约；跨后端视觉对比仍须另行留存 witness 才能声明。
+- [ ] Remotion 后段至少通过目标项目精确依赖、local CLI、Composition 注册、类型检查、motion-layout 代码筛查、唯一完整动态 preview、正式 render 与 ffprobe 契约；仅 lint 异常生成定点帧/短片。
 
 ## 正式发布与回滚
 
-- [ ] 用冻结的同一份 12–15 秒中文 SRT、相同画幅/fps/字幕/音频政策、相同素材和外部服务授权分别生成 `0.6.0` 与 `0.7.0` 的第一次完整预览；禁止先按对比结果精修 `0.7.0` 再称为 first pass。
-- [ ] benchmark 记录预览 locator、实际 agents/authoring units、墙钟时间、可得 token 或输入/输出字节代理、技术检查与用户视觉判断；用户明确选择 `0.7.0` 后才能宣称 first-preview visual uplift。
-- [ ] benchmark 必须如实报告 Director + Builder 实际输入/输出 Markdown/JSON 字节、handoff prose、可得 token 与墙钟代理；效率目标的达成与未达均不得隐去。`0.7.0` 实测分别减少 `5.20%`（未达原 `30%` 目标）与 `73.59%`（超过 `50%` 目标）。
+- [ ] 用冻结的同一份 12–15 秒中文 SRT、相同画幅/fps/字幕/音频政策、相同素材和外部服务授权比较 `v0.7.0` 与当前版本第一次完整预览；禁止先按对比结果精修当前版再称为 first pass。
+- [ ] benchmark 记录预览 locator、实际 agents/authoring units、墙钟时间、实际可得 token/Agent I-O，并运行 `npm run measure:context -- --baseline v0.7.0` 留存确定性 Prompt 代理。
+- [ ] 历史基线如实保留：`v0.7.0` Director + Builder I/O 只减少 `5.20%`，handoff prose 减少 `73.59%`；当前版另行报告整体与 Director+Builder 实测，不得用 Prompt 文件大小冒充实际 Agent I-O。
 - [ ] benchmark 与生产链均没有新增 stage、独立视觉审查 Agent、lookdev/逐镜停点或审美评分；最终 composition preview 是唯一默认审美/用户 gate。
-- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为 `0.7.0`。
+- [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为当前发布版本。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
+- [ ] Remotion DOM trace 夹具的 lockfile 与 E2E 安装只使用官方 `https://registry.npmjs.org`，不继承维护者本机第三方镜像。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。
 - [ ] 回滚路径已演练：未合并时删除功能分支；合并后 revert 发布 commit；已发布版本不移动 tag，以补丁版本修复并保留旧归档。

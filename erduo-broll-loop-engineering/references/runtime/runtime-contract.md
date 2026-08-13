@@ -118,7 +118,7 @@ allowing the Hybrid Integrator to execute an animation backend.
 - objective container/codec/duration/frame/audio facts;
 - backend source identity, including block-level glue and mounted unit-source
   hashes for a multi-unit freeze pass;
-- FFprobe, full decode, opening/closing inspection;
+- FFprobe and full decode;
 - `noRealtimeNesting: true`.
 
 `scripts/validate-frozen-blocks.mjs` checks actual media hashes, profile/audio
@@ -129,8 +129,8 @@ its owning Builder; Integrator never transcodes a defect into compliance.
 
 The runtime-neutral Hybrid Integrator receives only the validated plan and
 frozen block artifacts. It assembles in block order with direct sanitized
-FFmpeg/FFprobe, inspects every seam and relevant hold, renders a technical
-preview, and freezes an identity over plan, ordered contracts, media hashes,
+FFmpeg/FFprobe, decodes the one final moving preview, and freezes an identity
+over plan, ordered contracts, media hashes,
 profile/audio policy, and assembly recipe.
 
 User approval binds that exact hybrid identity. A different fresh Hybrid
@@ -147,12 +147,13 @@ Keep these claims separate:
 2. **Plan:** deterministic planner assigns shots and contiguous blocks.
 3. **Readiness:** targeted dependencies, CLI, browser, media tools, permissions,
    licensing, and paths pass for exactly the required backends.
-4. **Backend:** each assigned runtime owns deterministic source and block QA.
+4. **Backend:** each assigned runtime owns deterministic source, one clean
+   install/typecheck receipt, and runtime geometry lint where measurable.
 5. **Frozen block:** hybrid-only schema, actual hash, probe/decode, and visual
    boundary evidence pass.
-6. **Integration:** single-source or frozen-media master preview closes.
+6. **Integration:** single-source lint closes, or frozen-media assembly closes
+   one final moving preview.
 7. **Approval:** the user approves the unchanged integration identity.
-8. **Delivery:** final master passes FFprobe, full decode, duration/audio, hash,
-   and representative frame/seam inspection.
+8. **Delivery:** final master passes FFprobe, full decode, duration/audio, and hash.
 9. **Comparison:** only an explicit separate study may claim cross-runtime
    differences or parity.
