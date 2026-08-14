@@ -328,7 +328,7 @@ export const RELEASE_FILES = Object.freeze([
 ].toSorted());
 
 const REPOSITORY_DEMO_FILES = Object.freeze([
-  'docs/images/demos/infinite-canvas-pipeline.gif',
+  'docs/images/demos/homepage-showcase.gif',
   'docs/images/demos/quick-start.gif',
 ]);
 
