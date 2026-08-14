@@ -50,6 +50,7 @@
 - 默认 `auto`：先完成运行时中立分镜，再按真实能力证据逐镜选择 HyperFrames、Remotion 或 hybrid。
 - 运动和构图通过真实逐帧 geometry 代码筛查；通过时不做重复抽帧，异常才定位证据。
 - 正常生产不再重复派 Onboarding Agent；只有安装身份变化或真实工具故障才定点诊断。
+- Remotion 多单元保持源码隔离，但相同精确依赖只安装一次；安装、类型检查、浏览器分析和渲染最多同时运行两个。
 - 默认交付 4K、30 fps、H.264 MP4；字幕不重复烧录，背景音乐不自动添加。
 
 ## 工作流
@@ -130,7 +131,7 @@ node scripts/uninstall.mjs
 
 - 现有项目按真实特征判断；同时命中两套后端特征时停止并请用户选择，不静默猜测。
 - HyperFrames 走 Build → Integrate → Render；Remotion 走 **Remotion Build → Integrate → Render**。
-- 安装器不会把 Remotion 加入共享 runtime 或全局安装；Remotion 只使用目标项目自己的精确 package、lock 和 local CLI。
+- 安装器不会把 Remotion 加入共享 runtime 或全局安装；每条生产任务使用自己的精确 package/lock，同一依赖身份只在该任务内共享一份本地工具链。
 - `hybrid` 只交换带 hash、FFprobe 和完整解码证据的冻结区块媒体，不实时嵌套两套运行时。
 - 代码筛查能发现跳变、未 settle、遮挡、裁切、拥挤、层级和运动焦点风险，不能自动证明故事感染力、重量感、弧线、夸张或 appeal。
 - 最终完整动态预览仍是唯一默认审美决定；Windows、剪映 / CapCut GUI 和跨后端视觉一致性尚未验证。
@@ -144,7 +145,7 @@ node scripts/uninstall.mjs
 | macOS + Codex | supported；已有真实生产和 423 帧双后端前向证据 |
 | macOS + Claude Code | experimental；安装契约已验证，尚缺当前版本同输入完整对照 |
 | HyperFrames | 固定官方 runtime 与 Skill |
-| Remotion | project-local workflow；不全局安装 |
+| Remotion | production-local workflow；不全局安装 |
 | Windows | unverified |
 | 剪映 / CapCut GUI | unverified |
 

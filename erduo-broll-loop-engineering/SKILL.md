@@ -45,6 +45,11 @@ or let Parent repair a child artifact. Each Builder receives only its assigned
 Recipes, shared-artifact locators, immediate seams, frozen assets/fonts,
 capability evidence, and 0–2 selected references.
 
+Remotion units isolate source, not dependency copies. Every unit calls the
+bundled shared-toolchain preparer; one dependency identity installs once per
+production root. Source authoring may run concurrently, but install,
+typecheck, browser trace, and render commands use its fixed two-slot queue.
+
 ## Film and motion
 
 Use SRT integer milliseconds as time truth; cover zero through the final cue

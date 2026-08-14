@@ -147,8 +147,9 @@ Keep these claims separate:
 2. **Plan:** deterministic planner assigns shots and contiguous blocks.
 3. **Readiness:** targeted dependencies, CLI, browser, media tools, permissions,
    licensing, and paths pass for exactly the required backends.
-4. **Backend:** each assigned runtime owns deterministic source, one clean
-   install/typecheck receipt, and runtime geometry lint where measurable.
+4. **Backend:** each assigned runtime owns deterministic source; Remotion
+   installs once per dependency identity and retains unit-specific
+   typecheck/geometry receipts.
 5. **Frozen block:** hybrid-only schema, actual hash, probe/decode, and visual
    boundary evidence pass.
 6. **Integration:** single-source lint closes, or frozen-media assembly closes

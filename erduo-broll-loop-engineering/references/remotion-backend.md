@@ -35,9 +35,10 @@ production component.
 
 ## Project-resolved runtime version
 
-Create a self-contained project inside the production directory. Do not
-install packages into the Skill repository or a global prefix. Use Node.js 22
-or newer. This release deliberately does not pin one global Remotion version.
+Create a self-contained source/manifest project inside the production
+directory. Do not install packages into the Skill repository or a global
+prefix. Use Node.js 22 or newer. This release deliberately does not pin one
+global Remotion version.
 
 Every production project still has to be reproducible:
 
@@ -47,7 +48,8 @@ Every production project still has to be reproducible:
 - `@types/react`, `typescript`, and every additional dependency must be exact;
 - `package-lock.json` v3 must close over those declarations using only npm
   registry HTTPS tarballs with integrity values;
-- the installed packages and project-local `remotion versions` probe must
+- the installed packages and project-local `remotion versions` probe exposed
+  through its shared-toolchain link must
   report the same version recorded in `remotion-project.json`.
 
 For an existing project, preserve its compatible exact lock after the local
@@ -68,11 +70,48 @@ license eligibility from this Skill or from successful package installation.
 Add another package only when the selected native implementation needs it.
 Pin it exactly, resolve it through `https://registry.npmjs.org/`, review its
 license, and record the reason and license in build notes. Generate the lock
-before installation, inspect it for non-registry sources, then use `npm ci`.
-Run only project-local binaries through their checked-in Node entry points; do
-not let a command silently download a different CLI. `package.json` scripts
+before preparation and inspect it for non-registry sources. Run only binaries
+through the unit/master's `node_modules` link and checked-in Node entry points;
+do not let a command silently download a different CLI. `package.json` scripts
 may expose the same exact commands for user convenience, but production stages
 must invoke the local Node entry points directly.
+
+## Shared dependency toolchain
+
+Source isolation does not require dependency duplication. Run the bundled
+preparer from the parent Skill root for every Remotion unit and master:
+
+```text
+node scripts/remotion-toolchain.mjs prepare \
+  --project <unit-or-master-project> \
+  --production-root <broll-production> \
+  --receipt <unit-or-master-evidence/toolchain.json>
+```
+
+The script derives an identity from the exact dependency declarations, full
+lock closure, Node major, platform, and architecture. The first caller installs
+that identity under `.remotion-toolchains/`; later matching callers reuse it
+and receive a project-root `node_modules` link. A different exact closure gets
+another toolchain. Never run private per-unit `npm ci`, copy `node_modules`, or
+delete an existing private dependency tree automatically; stop and migrate it
+explicitly. The dependency link is the only permitted project symlink and the
+verifier continues to exclude dependency bytes from production identity.
+
+Wrap every install, typecheck, browser geometry trace, diagnostic render,
+block freeze, Studio launch, and formal render:
+
+```text
+node scripts/remotion-toolchain.mjs run-heavy \
+  --production-root <broll-production> \
+  --cwd <unit-or-master-project> -- \
+  <direct executable> [arguments...]
+```
+
+The fixed two-slot queue prevents an arbitrary number of Builders from running
+heavy local processes together. Source authoring does not use this queue. Do
+not add automatic CPU/memory tuning; the bounded queue is the complete resource
+rule. A shared npm cache may reduce downloads, but it is not dependency reuse
+and never substitutes for the shared toolchain receipt.
 
 Every command follows [shared command execution](safe-execution.md) and consumes
 only its compact result.
@@ -234,15 +273,18 @@ binding can be inspected.
 The Builder runs, in order:
 
 1. the bundled verifier with `--expect block`;
-2. `npm ci` in that block project;
-3. the project-local TypeScript check through
+2. shared-toolchain preparation, which performs `npm ci` only for a new
+   dependency identity;
+3. the project-local TypeScript check through the two-slot wrapper and
    `node node_modules/typescript/bin/tsc --noEmit`;
-4. runtime capture of meaningful DOM/scene geometry for every frame;
+4. runtime capture of meaningful DOM/scene geometry for every frame through
+   the same wrapper;
 5. `scripts/motion-layout-lint.mjs` against that trace, with rendered
    diagnostics only for returned finding windows.
 
 The Integrator runs the verifier with `--expect master`, reuses unchanged
-Builder install/typecheck receipts, typechecks only integration glue, captures and lints the full master geometry
+Builder toolchain/typecheck receipts, prepares the master against the same
+dependency identity when possible, typechecks only integration glue, captures and lints the full master geometry
 once, then writes `composition-identity.json`. It does not repeat unit stills
 or create a second preview.
 

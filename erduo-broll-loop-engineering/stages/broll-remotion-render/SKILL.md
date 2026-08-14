@@ -27,6 +27,9 @@ route is single-backend Remotion. Require:
 Reject HyperFrames, hybrid, or mixed-runtime source. Use only the project's exact local
 Remotion installation and direct Node entry points. Never use global Remotion,
 `npx` download fallback, an unpinned package, or a different Composition.
+Verify the shared-toolchain receipt and run Studio/browser launch and formal
+render through `remotion-toolchain.mjs run-heavy`; do not create a private
+delivery-stage dependency copy.
 
 Run every command through `../../references/safe-execution.md` and consume only
 the compact executor result.

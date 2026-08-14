@@ -30,7 +30,7 @@ All commands follow `../../references/safe-execution.md`.
 
 ## Author
 
-Write a standalone project only under
+Write an isolated source project only under
 `broll-production/03-remotion-build/<authoring-unit-id>/project/`. Register one
 block Composition and assemble assigned semantic shots with deterministic
 `Sequence` offsets using the backend reference's absolute millisecond/frame
@@ -53,19 +53,24 @@ cleanup, and identity-bound GL backend; never silent fallback.
 Create the exact package/lock and manifest closure required by
 `remotion-backend.md`; freeze and hash source, config, assets, fonts, Recipes,
 capabilities, attribution, and fallback decisions. Fonts must be project-local
-and explicitly loaded.
+and explicitly loaded. Never run a private per-unit `npm ci`. Call the bundled
+`remotion-toolchain.mjs prepare`; identical dependency identities reuse one
+production-root toolchain through the unit's `node_modules` link.
 
-Run verifier, the one owned install/typecheck gate, truthful per-frame runtime
-geometry capture, and motion/layout lint. A pass produces no routine still,
+Run verifier, identity-bound shared-toolchain preparation, the unit typecheck,
+truthful per-frame runtime geometry capture, and motion/layout lint. Route
+install, typecheck, browser trace, diagnostic render, and block freeze render
+through `remotion-toolchain.mjs run-heavy`; its fixed limit is two. A pass produces no routine still,
 unit preview, or AI frame inspection. Findings alone render bounded diagnostic
 windows; fix owning source and rerun only affected gates. Canvas/WebGL content
 must expose semantic bounds, not merely its canvas rectangle.
 
 ## Deliver
 
-Deliver project source, compact `receipt.json`, and minimal `handoff.md` with
-Composition ID, manifest/QA locators, coverage, seams, exceptions, and next
-owner. The final integrated moving preview remains the only aesthetic review.
+Deliver project source, compact `receipt.json`, shared-toolchain receipt, and
+minimal `handoff.md` with Composition ID, dependency identity, manifest/QA
+locators, coverage, seams, exceptions, and next owner. The final integrated
+moving preview remains the only aesthetic review.
 
 For a one-unit hybrid block, also render one lossless/visually-lossless
 mezzanine; a silent policy passes `--muted`, requires zero audio streams, and

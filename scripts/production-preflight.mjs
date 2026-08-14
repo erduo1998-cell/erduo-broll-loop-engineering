@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { constants as fsConstants, realpathSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { access, lstat, readFile, realpath, statfs } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -19,9 +18,15 @@ import {
   readJsonIfPresent,
   stableHostId,
 } from './lib.mjs';
+import { computeDependencyIdentity } from '../erduo-broll-loop-engineering/scripts/remotion-toolchain.mjs';
 
 const RUNTIMES = new Set(['hyperframes', 'remotion']);
 const MIN_FREE_BYTES = 512 * 1024 * 1024;
+
+function isInside(root, candidate) {
+  const relative = path.relative(root, candidate);
+  return relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative));
+}
 
 async function regularReadable(file) {
   try {
@@ -160,8 +165,13 @@ async function readJson(file) {
   }
 }
 
-async function remotionProjectReadiness(projectRoot) {
-  const project = path.resolve(projectRoot);
+async function remotionProjectReadiness(projectRoot, { platform, arch, nodeVersion }) {
+  let project;
+  try {
+    project = await realpath(path.resolve(projectRoot));
+  } catch {
+    return { issue: 'remotion-project-unavailable' };
+  }
   const [pkg, lock, installedCore, installedCli] = await Promise.all([
     readJson(path.join(project, 'package.json')),
     readJson(path.join(project, 'package-lock.json')),
@@ -180,23 +190,47 @@ async function remotionProjectReadiness(projectRoot) {
   if (installedCore?.version !== coreVersion || installedCli?.version !== coreVersion) {
     return { issue: 'remotion-installed-identity-mismatch' };
   }
-  const binary = path.join(project, 'node_modules', '.bin', process.platform === 'win32'
+  let dependencyIdentity;
+  try {
+    dependencyIdentity = computeDependencyIdentity(pkg, lock, {
+      platform,
+      arch,
+      nodeMajor: String(nodeVersion).split('.')[0],
+    });
+  } catch {
+    return { issue: 'remotion-lock-identity-mismatch' };
+  }
+  const binary = path.join(project, 'node_modules', '.bin', platform === 'win32'
     ? 'remotion.cmd' : 'remotion');
   try {
     const canonical = await realpath(binary);
     const modules = await realpath(path.join(project, 'node_modules'));
-    const relative = path.relative(modules, canonical);
-    if (relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    if (!isInside(modules, canonical)) {
       return { issue: 'remotion-local-cli-escapes-project' };
+    }
+    const modulesMetadata = await lstat(path.join(project, 'node_modules'));
+    if (modulesMetadata.isSymbolicLink()) {
+      const toolchain = path.dirname(modules);
+      const toolchainsRoot = path.dirname(toolchain);
+      const productionRoot = path.dirname(toolchainsRoot);
+      const receipt = await readJson(path.join(toolchain, 'receipt.json'));
+      if (path.basename(modules) !== 'node_modules'
+        || path.basename(toolchainsRoot) !== '.remotion-toolchains'
+        || !isInside(productionRoot, project)
+        || path.basename(toolchain) !== dependencyIdentity
+        || receipt?.dependencyIdentity !== dependencyIdentity
+        || receipt?.platform !== platform
+        || receipt?.arch !== arch
+        || String(receipt?.nodeMajor) !== String(nodeVersion).split('.')[0]) {
+        return { issue: 'remotion-shared-toolchain-identity-mismatch' };
+      }
     }
     await access(binary, fsConstants.X_OK);
   } catch {
     return { issue: 'remotion-local-cli-unavailable' };
   }
   return {
-    identity: createHash('sha256')
-      .update(JSON.stringify({ version: coreVersion, lock: lock.packages }))
-      .digest('hex'),
+    identity: dependencyIdentity,
     version: coreVersion,
   };
 }
@@ -239,7 +273,7 @@ export async function productionPreflight({
   const runtimeIssues = [];
   let runtimeIdentity = null;
   if (runtime === 'remotion' && projectAvailable) {
-    const readiness = await remotionProjectReadiness(project);
+    const readiness = await remotionProjectReadiness(project, { platform, arch, nodeVersion });
     if (readiness.issue) runtimeIssues.push(readiness.issue);
     else runtimeIdentity = readiness.identity;
   }

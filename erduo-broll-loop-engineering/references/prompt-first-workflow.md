@@ -194,8 +194,9 @@ Onboarding only when that preflight reports a missing or changed backend fact.
 ## 4. Block building
 
 Dispatch each planned block to its assigned backend Builder. HyperFrames
-Builders load official pinned Skills; Remotion Builders use only verified
-project-local dependencies. Each reads only its selected pattern evidence. On
+Builders load official pinned Skills; Remotion Builders keep source isolated
+but reuse the verified production-root toolchain for an identical dependency
+identity. Each reads only its selected pattern evidence. On
 a hybrid route, every Builder additionally freezes one verified mezzanine and
 schema-valid `block-media.json`; this intermediate is not the master.
 
@@ -211,7 +212,7 @@ translate runtime source.
 
 Use the Render stage matching the integrated identity. HyperFrames retains
 official Skill/check requirements. Remotion retains local CLI,
-Builder-owned typecheck receipts, and integrated trace/lint. Hybrid compares frozen-media identity and
+shared-toolchain plus Builder-owned typecheck receipts, and integrated trace/lint. Hybrid compares frozen-media identity and
 FFmpeg checks without opening either animation runtime. Missing approval stops
 at preview; a fresh Agent must verify unchanged identity before formal render.
 

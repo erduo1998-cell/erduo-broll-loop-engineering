@@ -11,6 +11,7 @@ import {
 import path from 'node:path';
 import { constants as fsConstants, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { computeDependencyIdentity } from './remotion-toolchain.mjs';
 
 const RUNTIMES = new Set(['auto', 'hyperframes', 'hybrid', 'remotion']);
 const SOURCE_EXTENSIONS = new Set(['.cjs', '.html', '.htm', '.js', '.jsx', '.mjs', '.ts', '.tsx']);
@@ -90,6 +91,38 @@ async function readBoundedRegularFile(file, root, maxBytes) {
   return readFile(canonical, 'utf8');
 }
 
+async function resolveDependencyRoot(projectRoot, packageJson) {
+  const lexical = path.join(projectRoot, 'node_modules');
+  try {
+    const canonical = await realpath(lexical);
+    if (isInside(lexical, canonical)) return canonical;
+    const toolchain = path.dirname(canonical);
+    const toolchainsRoot = path.dirname(toolchain);
+    const productionRoot = path.dirname(toolchainsRoot);
+    if (path.basename(canonical) !== 'node_modules'
+      || path.basename(toolchainsRoot) !== '.remotion-toolchains'
+      || !isInside(productionRoot, projectRoot)) return null;
+    const lockContent = await readBoundedRegularFile(
+      path.join(projectRoot, 'package-lock.json'),
+      projectRoot,
+      MAX_PACKAGE_BYTES,
+    );
+    if (lockContent === null) return null;
+    const identity = computeDependencyIdentity(packageJson, JSON.parse(lockContent));
+    const receiptContent = await readFile(path.join(toolchain, 'receipt.json'), 'utf8');
+    if (Buffer.byteLength(receiptContent) > MAX_PACKAGE_BYTES) return null;
+    const receipt = JSON.parse(receiptContent);
+    if (receipt.dependencyIdentity !== identity
+      || path.basename(toolchain) !== identity
+      || receipt.platform !== process.platform
+      || receipt.arch !== process.arch
+      || String(receipt.nodeMajor) !== process.versions.node.split('.')[0]) return null;
+    return canonical;
+  } catch {
+    return null;
+  }
+}
+
 async function collectSourceFiles(root) {
   const files = [];
   let visited = 0;
@@ -150,9 +183,10 @@ function addSignal(target, kind, locator, detail) {
   target.push({ kind, locator, detail });
 }
 
-async function inspectInstalledPackage(projectRoot, packageName) {
+async function inspectInstalledPackage(projectRoot, dependencyRoot, packageName) {
   const packageFile = path.join(projectRoot, 'node_modules', ...packageName.split('/'), 'package.json');
-  const content = await readBoundedRegularFile(packageFile, projectRoot, MAX_PACKAGE_BYTES);
+  if (dependencyRoot === null) return { installed: false, version: null, locator: null };
+  const content = await readBoundedRegularFile(packageFile, dependencyRoot, MAX_PACKAGE_BYTES);
   if (content === null) return { installed: false, version: null, locator: null };
   try {
     const parsed = JSON.parse(content);
@@ -166,12 +200,12 @@ async function inspectInstalledPackage(projectRoot, packageName) {
   }
 }
 
-async function probeLocalRemotionCli(projectRoot, env) {
+async function probeLocalRemotionCli(projectRoot, dependencyRoot, env) {
   const binary = path.join(projectRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'remotion.cmd' : 'remotion');
   let canonical;
   try {
     canonical = await realpath(binary);
-    if (!isInside(path.join(projectRoot, 'node_modules'), canonical)) {
+    if (dependencyRoot === null || !isInside(dependencyRoot, canonical)) {
       return { attempted: false, available: false, passed: false, reason: 'local-cli-escapes-project' };
     }
     await access(binary, fsConstants.X_OK);
@@ -327,10 +361,11 @@ export async function detectRuntime({
 
   const dependencies = packageJson ? dependencyNames(packageJson) : new Set();
   const directVersions = packageJson ? directDependencyVersions(packageJson) : {};
-  const remotionPackage = await inspectInstalledPackage(canonicalRoot, 'remotion');
-  const remotionCliPackage = await inspectInstalledPackage(canonicalRoot, '@remotion/cli');
+  const dependencyRoot = packageJson ? await resolveDependencyRoot(canonicalRoot, packageJson) : null;
+  const remotionPackage = await inspectInstalledPackage(canonicalRoot, dependencyRoot, 'remotion');
+  const remotionCliPackage = await inspectInstalledPackage(canonicalRoot, dependencyRoot, '@remotion/cli');
   const cliEvidence = selectedRuntime === 'remotion' && probeCli
-    ? await probeLocalRemotionCli(canonicalRoot, env)
+    ? await probeLocalRemotionCli(canonicalRoot, dependencyRoot, env)
     : { attempted: false, available: false, passed: false, reason: selectedRuntime === 'remotion' ? 'cli-probe-disabled' : 'not-selected' };
   const remotionDependencyEvidence = {
     declaredRemotion: dependencies.has('remotion'),

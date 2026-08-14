@@ -20,7 +20,6 @@ const REQUIRED_PACKAGES = Object.freeze([
 const HTML_IN_CANVAS_CAPABILITY = 'effects.dom-pixel-postprocess';
 const HTML_IN_CANVAS_MINIMUM = Object.freeze([4, 0, 455]);
 const FILE_ROLES = new Set(['source', 'asset', 'font', 'config', 'lock']);
-const ROOT_DEPENDENCY_DIRECTORIES = new Set(['.git', 'node_modules']);
 const CODE_EXTENSIONS = new Set(['.css', '.js', '.jsx', '.mjs', '.ts', '.tsx']);
 const FONT_EXTENSIONS = new Set(['.otf', '.ttf', '.woff', '.woff2']);
 const EXACT_SEMVER = /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/;
@@ -182,9 +181,8 @@ export async function walkProject(root, current = root, found = [], errors = [])
   for (const entry of entries) {
     const absolute = path.join(current, entry.name);
     const relative = path.relative(root, absolute).split(path.sep).join('/');
-      if (entry.isDirectory()
-        && current === root
-        && ROOT_DEPENDENCY_DIRECTORIES.has(entry.name)) continue;
+    if (current === root && entry.name === 'node_modules') continue;
+    if (entry.isDirectory() && current === root && entry.name === '.git') continue;
     const stats = await lstat(absolute);
     if (stats.isSymbolicLink()) {
       errors.push(`Symlink is not allowed in project closure: ${relative}`);

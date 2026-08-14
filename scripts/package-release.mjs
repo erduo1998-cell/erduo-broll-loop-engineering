@@ -283,6 +283,7 @@ const SKILL_FILES = [
   'erduo-broll-loop-engineering/scripts/detect-runtime.mjs',
   'erduo-broll-loop-engineering/scripts/motion-layout-lint.mjs',
   'erduo-broll-loop-engineering/scripts/remotion-dom-trace.mjs',
+  'erduo-broll-loop-engineering/scripts/remotion-toolchain.mjs',
   'erduo-broll-loop-engineering/scripts/plan-runtime.mjs',
   'erduo-broll-loop-engineering/scripts/query-craft.mjs',
   'erduo-broll-loop-engineering/scripts/craft-catalog.mjs',

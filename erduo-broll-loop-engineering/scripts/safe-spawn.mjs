@@ -29,12 +29,13 @@ export function sanitizedEnvironment(source = process.env) {
   return child;
 }
 
-export function runSafeSpawn(argv, { env = process.env, spawn = spawnSync } = {}) {
+export function runSafeSpawn(argv, { cwd, env = process.env, spawn = spawnSync } = {}) {
   if (argv[0] !== '--' || argv.length < 2) {
     throw new Error('usage: node scripts/safe-spawn.mjs -- <executable> [arguments...]');
   }
   const [executable, ...args] = argv.slice(1);
   const result = spawn(executable, args, {
+    cwd,
     env: sanitizedEnvironment(env),
     shell: false,
     stdio: 'inherit',

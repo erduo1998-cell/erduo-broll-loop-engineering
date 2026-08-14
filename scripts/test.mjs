@@ -83,6 +83,12 @@ import {
   validateRemotionVersionPolicy,
   walkProject as walkRemotionProject,
 } from '../erduo-broll-loop-engineering/scripts/remotion-verify.mjs';
+import {
+  HEAVY_SLOT_COUNT,
+  computeDependencyIdentity,
+  prepareSharedToolchain,
+  withHeavySlot,
+} from '../erduo-broll-loop-engineering/scripts/remotion-toolchain.mjs';
 import { productionPreflight } from './production-preflight.mjs';
 import {
   PARENT_DEFAULT,
@@ -2117,6 +2123,156 @@ test('Remotion version policy accepts changing exact project locks and rejects d
   assert.ok(errors.some((error) => /react and react-dom must use the same exact/u.test(error)));
 });
 
+function remotionToolchainFixture(name, typescript = '5.9.3') {
+  const dependencies = {
+    '@remotion/cli': '4.0.509',
+    react: '19.2.8',
+    'react-dom': '19.2.8',
+    remotion: '4.0.509',
+    typescript,
+  };
+  return {
+    packageJson: { name, private: true, dependencies },
+    lock: {
+      name,
+      lockfileVersion: 3,
+      requires: true,
+      packages: {
+        '': { name, dependencies },
+        ...Object.fromEntries(Object.entries(dependencies).map(([dependency, version]) => [
+          `node_modules/${dependency}`,
+          { version },
+        ])),
+      },
+    },
+  };
+}
+
+async function writeRemotionToolchainFixture(project, fixture) {
+  await mkdir(project, { recursive: true });
+  await Promise.all([
+    writeFile(path.join(project, 'package.json'), `${JSON.stringify(fixture.packageJson, null, 2)}\n`),
+    writeFile(path.join(project, 'package-lock.json'), `${JSON.stringify(fixture.lock, null, 2)}\n`),
+  ]);
+}
+
+test('Remotion units with the same dependency closure install once and share one toolchain', async (t) => {
+  const state = await isolated(t);
+  const production = path.join(state.base, 'broll-production');
+  const projectA = path.join(production, '03-remotion-build', 'U001', 'project');
+  const projectB = path.join(production, '03-remotion-build', 'U002', 'project');
+  const fixtureA = remotionToolchainFixture('unit-a');
+  const fixtureB = remotionToolchainFixture('unit-b');
+  await Promise.all([
+    writeRemotionToolchainFixture(projectA, fixtureA),
+    writeRemotionToolchainFixture(projectB, fixtureB),
+  ]);
+
+  assert.equal(
+    computeDependencyIdentity(fixtureA.packageJson, fixtureA.lock),
+    computeDependencyIdentity(fixtureB.packageJson, fixtureB.lock),
+  );
+
+  let installs = 0;
+  const install = async ({ cwd }) => {
+    installs += 1;
+    const packageJson = JSON.parse(await readFile(path.join(cwd, 'package.json'), 'utf8'));
+    await Promise.all(Object.entries(packageJson.dependencies).map(async ([name, version]) => {
+      const directory = path.join(cwd, 'node_modules', ...name.split('/'));
+      await mkdir(directory, { recursive: true });
+      await writeFile(path.join(directory, 'package.json'), `${JSON.stringify({ name, version })}\n`);
+    }));
+    await mkdir(path.join(cwd, 'node_modules', '.bin'), { recursive: true });
+    const cli = path.join(cwd, 'node_modules', '.bin', 'remotion');
+    await writeFile(cli, '#!/bin/sh\nprintf "%s\\n" "All packages have the correct version." "On version: 4.0.509"\n');
+    await chmod(cli, 0o755);
+  };
+
+  const [resultA, resultB] = await Promise.all([
+    prepareSharedToolchain({
+      project: projectA,
+      productionRoot: production,
+      receiptPath: path.join(production, '03-remotion-build', 'U001', 'evidence', 'toolchain.json'),
+      install,
+    }),
+    prepareSharedToolchain({
+      project: projectB,
+      productionRoot: production,
+      receiptPath: path.join(production, '03-remotion-build', 'U002', 'evidence', 'toolchain.json'),
+      install,
+    }),
+  ]);
+
+  assert.equal(installs, 1);
+  assert.equal(resultA.dependencyIdentity, resultB.dependencyIdentity);
+  assert.deepEqual([resultA.reused, resultB.reused].sort(), [false, true]);
+  assert.equal(
+    await realpath(path.join(projectA, 'node_modules')),
+    await realpath(path.join(projectB, 'node_modules')),
+  );
+  const walked = await walkRemotionProject(projectA);
+  assert.deepEqual(walked.errors, []);
+  assert.deepEqual(walked.found.toSorted(), ['package-lock.json', 'package.json']);
+  const routed = await detectRuntime({ projectRoot: projectA, probeCli: true, env: state.env });
+  assert.equal(routed.selectedRuntime, 'remotion');
+  assert.equal(routed.readiness, 'ready');
+  const foreignProject = path.join(state.base, 'foreign-project');
+  await writeRemotionToolchainFixture(foreignProject, remotionToolchainFixture('foreign'));
+  await symlink(await realpath(path.join(projectA, 'node_modules')),
+    path.join(foreignProject, 'node_modules'));
+  const foreign = await detectRuntime({ projectRoot: foreignProject, probeCli: true, env: state.env });
+  assert.equal(foreign.selectedRuntime, 'remotion');
+  assert.equal(foreign.readiness, 'action-required');
+
+  const projectC = path.join(production, '03-remotion-build', 'U003', 'project');
+  await writeRemotionToolchainFixture(projectC, remotionToolchainFixture('unit-c', '5.9.4'));
+  const resultC = await prepareSharedToolchain({
+    project: projectC,
+    productionRoot: production,
+    receiptPath: path.join(production, '03-remotion-build', 'U003', 'evidence', 'toolchain.json'),
+    install,
+  });
+  assert.equal(installs, 2);
+  assert.notEqual(resultC.dependencyIdentity, resultA.dependencyIdentity);
+});
+
+test('Remotion heavy gates never exceed two concurrent operations', async (t) => {
+  const state = await isolated(t);
+  const production = path.join(state.base, 'broll-production');
+  let active = 0;
+  let maximum = 0;
+  await Promise.all(Array.from({ length: 8 }, () => withHeavySlot(production, async () => {
+    active += 1;
+    maximum = Math.max(maximum, active);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    active -= 1;
+  }, { pollMs: 2 })));
+  assert.equal(HEAVY_SLOT_COUNT, 2);
+  assert.equal(maximum, 2);
+});
+
+test('Remotion production contracts isolate source without duplicating dependencies', async () => {
+  const skillRoot = path.join(root, 'erduo-broll-loop-engineering');
+  const files = await Promise.all([
+    'SKILL.md',
+    'stages/broll-remotion-build/SKILL.md',
+    'stages/broll-remotion-integrate/SKILL.md',
+    'stages/broll-remotion-render/SKILL.md',
+    'references/remotion-backend.md',
+    'references/stage-orchestration.md',
+  ].map((file) => readFile(path.join(skillRoot, file), 'utf8')));
+  const joined = files.join('\n');
+  assert.match(joined, /one dependency identity installs once per\s+production root/u);
+  assert.match(joined, /Never run a private per-unit `npm ci`/u);
+  assert.match(joined, /fixed two-slot/u);
+  assert.match(joined, /remotion-toolchain\.mjs prepare/u);
+  assert.match(joined, /remotion-toolchain\.mjs run-heavy/u);
+  assert.doesNotMatch(joined, /`npm ci` in that block project/u);
+  assert.ok(RELEASE_FILES.includes(
+    'erduo-broll-loop-engineering/scripts/remotion-toolchain.mjs',
+  ));
+});
+
 test('Remotion verifier binds HTML-in-canvas capability to version, source, and GL config', () => {
   const baseManifest = {
     packageVersions: { remotion: '4.0.455' },
@@ -2788,7 +2944,11 @@ test('Remotion targeted preflight validates project-local exact identity without
   }));
   await writeFile(path.join(project, 'package-lock.json'), JSON.stringify({
     lockfileVersion: 3,
-    packages: { 'node_modules/remotion': { version }, 'node_modules/@remotion/cli': { version } },
+    packages: {
+      '': { dependencies: { remotion: version, '@remotion/cli': version } },
+      'node_modules/remotion': { version },
+      'node_modules/@remotion/cli': { version },
+    },
   }));
   await writeFile(path.join(project, 'node_modules', 'remotion', 'package.json'), JSON.stringify({ version }));
   await writeFile(path.join(project, 'node_modules', '@remotion', 'cli', 'package.json'), JSON.stringify({ version }));
@@ -2803,6 +2963,42 @@ test('Remotion targeted preflight validates project-local exact identity without
   assert.equal(report.next, 'continue');
   assert.deepEqual(report.runtime_issues, []);
   assert.match(report.runtime_identity, /^[a-f0-9]{64}$/u);
+
+  const production = path.join(state.base, 'shared-production');
+  const sharedProject = path.join(production, '03-remotion-build', 'U001', 'project');
+  const sharedFixture = remotionToolchainFixture('shared-unit');
+  await writeRemotionToolchainFixture(sharedProject, sharedFixture);
+  await prepareSharedToolchain({
+    project: sharedProject,
+    productionRoot: production,
+    receiptPath: path.join(production, '03-remotion-build', 'U001', 'evidence', 'toolchain.json'),
+    platform: 'darwin',
+    arch: 'arm64',
+    nodeMajor: '22',
+    install: async ({ cwd }) => {
+      for (const [name, installedVersion] of Object.entries(sharedFixture.packageJson.dependencies)) {
+        const directory = path.join(cwd, 'node_modules', ...name.split('/'));
+        await mkdir(directory, { recursive: true });
+        await writeFile(path.join(directory, 'package.json'), JSON.stringify({ name, version: installedVersion }));
+      }
+      await mkdir(path.join(cwd, 'node_modules', '.bin'), { recursive: true });
+      await symlink(path.join('..', '@remotion', 'cli', 'package.json'),
+        path.join(cwd, 'node_modules', '.bin', 'remotion'));
+      await chmod(path.join(cwd, 'node_modules', '@remotion', 'cli', 'package.json'), 0o755);
+    },
+  });
+  const sharedOutput = path.join(state.base, 'shared-delivery', 'master.mp4');
+  await mkdir(path.dirname(sharedOutput), { recursive: true });
+  const sharedReport = await productionPreflight({
+    srt, output: sharedOutput, project: sharedProject, runtime: 'remotion', appDir,
+    platform: 'darwin', arch: 'arm64', hostname: 'fixture-host', nodeVersion: '22.20.0',
+  });
+  assert.equal(sharedReport.next, 'continue');
+  assert.deepEqual(sharedReport.runtime_issues, []);
+  assert.equal(sharedReport.runtime_identity,
+    computeDependencyIdentity(sharedFixture.packageJson, sharedFixture.lock, {
+      platform: 'darwin', arch: 'arm64', nodeMajor: '22',
+    }));
 });
 
 test('Remotion DOM trace fixture is pinned to the official npm registry', async () => {

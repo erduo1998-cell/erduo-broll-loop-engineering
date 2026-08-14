@@ -64,6 +64,10 @@ Create one exact package and lock closure. List and hash every master source,
 config, lock, asset, and font in `project/remotion-project.json`. Its `kind`
 must be `master`; its Composition ID, entry point, raster, fps, duration, and
 shot map must equal actual source rather than a handoff claim.
+Prepare it through `remotion-toolchain.mjs`: reuse the existing immutable
+toolchain when the dependency identity matches, and install once only when the
+master declares a genuinely different exact closure. Never copy a unit's
+physical `node_modules` tree into the master.
 
 If any block uses `effects.dom-pixel-postprocess`, preserve its declared
 HTML-in-canvas paint backends and require one project-wide non-nested capture
@@ -79,9 +83,9 @@ Use the safe explicit child environment and direct project-local Node entry
 points. Then:
 
 1. run `scripts/remotion-verify.mjs --expect master`;
-2. verify and reuse each identity-bound Builder install/typecheck receipt;
-3. typecheck only integration-owned master glue;
-4. capture actual per-frame master geometry and run the bundled motion/layout
+2. verify each Builder's shared-toolchain and unit typecheck receipt;
+3. typecheck only integration-owned master glue through the two-slot heavy queue;
+4. capture actual per-frame master geometry through that queue and run the bundled motion/layout
    lint once across the complete Composition;
 5. render only lint diagnostic windows while resolving findings;
 6. rerun the verifier and atomically create the new

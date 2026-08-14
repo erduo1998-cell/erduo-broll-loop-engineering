@@ -57,7 +57,8 @@
 - [ ] Hybrid Builder 输出 frozen block schema；validator 核验实际 hash、profile/audio、FFprobe/full decode、plan closure；Integrator/Render 禁止实时嵌套或源码互导。
 - [ ] 正常生产只运行缓存式轻量 preflight，Onboarding Agent 调用数为 0；缓存缺失、安装身份变化或真实工具故障才进入定点诊断。
 - [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；Remotion 项目依赖由 targeted preflight 按 package/lock/local CLI 身份验证，缺失时返回项目修复，不触发全量环境审计。
-- [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
+- [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、共享工具链收据、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
+- [ ] 多 Remotion 单元只隔离源码与证据：相同依赖身份只执行一次 `npm ci` 并共享一份工具链；不同依赖身份各自隔离；安装、typecheck、浏览器捕获和渲染的并发实测不超过 2。
 - [ ] 发行版不硬编码单一 Remotion 版本；新项目解析一个稳定版本后精确锁定，既有项目保留通过证据门的精确 lock；`latest`、range 和网络下载式 `npx` 均不能进入生产证据。
 - [ ] `effects.dom-pixel-postprocess` 必须确定性路由到 Remotion，并由同一 package lock、Chrome 和 GL 后端的真实 HTML-in-canvas still canary 放行；WebGPU、嵌套捕获和 silent fallback 保持拒绝。
 - [ ] 本仓库安装器和 runtime lock 不包含 Remotion；不得使用全局 Remotion 或允许临时下载的 `npx` 作为 readiness 证据。
@@ -72,7 +73,7 @@
 - [ ] 原创 craft catalog、attribution manifest 与查询器进入发布闭集；summary/category/search 保持紧凑，只有显式 entry 读取一个完整条目，且不存在 Builder 默认加载全 catalog 的路径。
 - [ ] HyperFrames Builder 真实加载锁定官方 `hyperframes`、`hyperframes-creative` 与 `hyperframes-animation` 并 reuse-first；Remotion Builder 只复用本项目已有真实 witness 的 primitive，否则原生实现。两者均先完成 hero frame，再编排有限的可见 micro-beats，不产生新的审查或审批 artifact。
 - [ ] Builder 输入只包含自己的 authoring unit、相邻接缝摘要、共享 narrative/visual locators、冻结素材/字体、capability evidence 与实际命中的 0–2 份参考；没有全片 Recipe、完整 Shotcraft 或完整 craft catalog。
-- [ ] Remotion 后段至少通过目标项目精确依赖、local CLI、Composition 注册、类型检查、motion-layout 代码筛查、唯一完整动态 preview、正式 render 与 ffprobe 契约；仅 lint 异常生成定点帧/短片。
+- [ ] Remotion 后段至少通过目标项目精确依赖、共享工具链、local CLI、Composition 注册、类型检查、motion-layout 代码筛查、唯一完整动态 preview、正式 render 与 ffprobe 契约；仅 lint 异常生成定点帧/短片。
 
 ## 正式发布与回滚
 

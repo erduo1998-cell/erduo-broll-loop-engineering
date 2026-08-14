@@ -34,7 +34,8 @@ the stage defines one.
   reached Pexels, say `pexels: not-invoked (no need)` once.
 - **Builder:** authoring-unit/parent-block ID, Recipe/source/receipt locators,
   shared-system identity, selected 0–2 references, reuse/native-fallback
-  decision, material/font bindings, seams, and check locators. Hybrid adds its
+  decision, material/font bindings, seams, dependency identity and shared
+  toolchain receipt when Remotion, and check locators. Hybrid adds its
   frozen-media contract/hash/probe/decode locator.
 - **Hybrid block-freeze Builder:** same-backend block ID/window, ordered passed
   unit receipt/source-export locators, temporary block-level glue locator,

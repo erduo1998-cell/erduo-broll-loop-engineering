@@ -97,6 +97,10 @@ gate: the user's decision on the final identity-bound composition preview.
   depth, or state; it is not a generic thumbnail/card/title background.
 - Source, fonts, dependencies, checks, unit seams, and any hybrid frozen media
   close technically. Receipt/handoff is compact and exception-led.
+- Remotion source directories remain isolated, while identical dependency
+  identities name one shared toolchain receipt. No unit contains a private
+  dependency copy, and every install/typecheck/browser/render command used the
+  fixed two-slot heavy queue.
 
 ## Integration and delivery
 

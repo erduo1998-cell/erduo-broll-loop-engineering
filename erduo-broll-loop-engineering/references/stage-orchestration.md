@@ -58,13 +58,21 @@ Single routes keep native Integrator/Render; hybrid uses frozen block media and
 the dedicated runtime-neutral Integrator/Render. Never silently switch after a
 failure.
 
+Remotion authoring units keep separate source and evidence directories while
+sharing one immutable toolchain per exact dependency identity under the
+production root. Every unit may request preparation concurrently, but the
+bundled preparer installs a matching identity once and links it into each unit.
+All Remotion installs, typechecks, browser traces, and renders pass through its
+fixed two-slot heavy-command queue. Do not replace this with per-unit
+`node_modules`, unbounded heavy commands, or automatic hardware tuning.
+
 For hybrid, freeze one existing `block-media.json` per backend block. If the
 block contains one authoring unit, its Builder may freeze directly. If it
 contains multiple units, wait for every unit receipt to pass, then dispatch one
 fresh same-backend Builder in `block-freeze` mode. It reads only verified unit
 source exports/receipts and the block window; writes only minimum temporary
 block-level composition glue; records glue/source hashes and aggregate
-identity; and reuses the owning units' clean-install/typecheck receipts while
+identity; and reuses the owning units' toolchain/typecheck receipts while
 running only block glue check and mezzanine render
 commands to freeze the mezzanine. It may not change unit-internal creative,
 source, timing, or perform aesthetic review, and returns any glue/render defect
@@ -147,16 +155,19 @@ network access must be declared; update still requires repair authorization.
 ## Native Remotion execution
 
 For a selected Remotion route, every Builder, the Integrator, and
-Render/Delivery use only the exact project-local CLI proven by Onboarding.
+Render/Delivery use only the exact CLI exposed through the unit/master's
+identity-bound shared-toolchain link.
 They must record matching `remotion` and `@remotion/cli` versions, the
 millisecond-to-frame rounding policy, registered Composition ID, source entry,
 and actual verifier/typecheck-receipt/trace-lint/render evidence. Do not invoke
 HyperFrames Skills, doctor, check, preview, or render as evidence for this
 route.
 
-The release does not pin one Remotion version across projects: Onboarding
-resolves or preserves one concrete exact local toolchain per project, and all
-later stages remain bound to that lock. A planned
+The release does not pin one Remotion version across projects: targeted
+project repair resolves or preserves concrete exact dependency identities,
+and all later stages remain bound to their lock and shared-toolchain receipt.
+One production run creates another physical toolchain only when the exact
+dependency identity differs. A planned
 `effects.dom-pixel-postprocess` shot additionally requires the exact-version
 HTML-in-canvas capability canary and frozen Canvas/GL backend evidence.
 

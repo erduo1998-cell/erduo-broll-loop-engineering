@@ -8,7 +8,7 @@
 | macOS + Claude Code | experimental | 安装目标和契约受测试覆盖，尚缺与 Codex 同输入的当前版本端到端对照 |
 | macOS 首次安装 | supported installer | 安装器、离线 mock 与安全边界受自动化测试覆盖；硬件、网络和宿主差异仍可能要求人工处理 |
 | HyperFrames runtime | supported production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；可由 auto 或显式单后端计划选择 |
-| Remotion runtime | project-local supported workflow | 具备前置识别、独立 Build/Integrate/Render Skill 和失败关闭验证；只接受目标项目本地锁定依赖与可直启 CLI，不承诺与 HyperFrames 视觉一致 |
+| Remotion runtime | project-local supported workflow | 具备前置识别、独立 Build/Integrate/Render Skill 和失败关闭验证；每个单元隔离源码，相同精确依赖身份在本次生产内只安装一次，不承诺与 HyperFrames 视觉一致 |
 | Hybrid frozen-media route | contract + validator supported | 逐镜证据规划、连续区块聚合、冻结媒体 schema/hash validator 和 FFmpeg 集成已进入公开契约；FFprobe/完整解码由阶段实跑留证；尚不构成双后端成片或视觉一致性 witness |
 | Windows | unverified | 保留路径和配置兼容设计；没有真实 Windows 运行证据 |
 | 剪映/CapCut 桌面 GUI | unverified | 输出以常见 MP4/MOV 交付为目标；尚未完成当前版本 GUI 实机导入认证 |
@@ -25,6 +25,7 @@
 | --- | --- | --- |
 | 安装 readiness 缓存 + production preflight | automated tests pass | 正常生产 Onboarding Agent 为 0；缓存失效或真实工具故障仍会进入定点诊断 |
 | Remotion DOM geometry capture + motion/layout lint | script + fixtures verified | 可筛查可测的运动/构图风险；真实 Player E2E 依赖目标项目本地浏览器与精确依赖 |
+| Remotion shared toolchain + heavy queue | deterministic script + concurrency tests | 相同依赖身份复用一份工具链；安装、typecheck、浏览器捕获与渲染最多双通道，不自动推断硬件容量 |
 | HyperFrames geometry lint | contract with honest coverage | 有官方真实 geometry hook 时运行；无 hook 的元素标为 `unmeasured`，不能伪装完整覆盖 |
 | Context measurement | deterministic byte proxy | 可重复统计默认 Prompt 文件读取量；不等于真实宿主 token、产物 I/O 或视频质量 |
 | 唯一完整动态预览 | production contract | 仍由用户判断故事、重量、弧线、夸张和 appeal；技术绿灯不等于审美通过 |
@@ -62,9 +63,9 @@
 
 这些状态不是跨运行时一致性证明。React 状态、异步行为、第三方组件和任意既有 Composition 都必须在所选运行时内真实检查；不能据此宣称 Remotion 与 HyperFrames 会自动互转或输出相同画面。
 
-本仓库安装器不捆绑、不全局安装 Remotion，也不构成 Remotion 授权。已有 Remotion 项目必须声明并安装精确的 project-local `remotion` 与 `@remotion/cli`；新项目只由用户选中的 Remotion 后段在生产目录内显式 scaffold、锁版并生成 npm lock。使用者须根据 Remotion 官方现行许可判断其具体场景。
+本仓库安装器不捆绑、不全局安装 Remotion，也不构成 Remotion 授权。Remotion 项目必须声明精确的 `remotion` 与 `@remotion/cli`；新项目只由用户选中的 Remotion 后段在生产目录内显式 scaffold、锁版并生成 npm lock。同一生产目录内相同依赖身份共享一份工具链，不同身份保持隔离。使用者须根据 Remotion 官方现行许可判断其具体场景。
 
-发行版不再固定单一 Remotion 版本。每个项目仍必须把解析出的稳定版本精确锁定，并让依赖声明、lock、安装包和 local CLI 证据一致。`effects.dom-pixel-postprocess` 可把确定性 DOM 子树交给 Remotion HTML-in-canvas 的 Canvas 2D/WebGL2 路径；它要求 Remotion 4.0.455+、非嵌套实现、同环境 Chrome/GL 事实和真实 still canary。该能力仍是 `contract-only`，不冒充跨机器生产 witness。
+发行版不再固定单一 Remotion 版本。每个项目仍必须把解析出的稳定版本精确锁定，并让依赖声明、lock、共享工具链收据和 local CLI 证据一致。`effects.dom-pixel-postprocess` 可把确定性 DOM 子树交给 Remotion HTML-in-canvas 的 Canvas 2D/WebGL2 路径；它要求 Remotion 4.0.455+、非嵌套实现、同环境 Chrome/GL 事实和真实 still canary。该能力仍是 `contract-only`，不冒充跨机器生产 witness。
 
 ### `video-shotcraft` 吸收边界
 
