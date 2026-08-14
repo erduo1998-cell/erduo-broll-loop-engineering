@@ -44,8 +44,8 @@ It performs bounded local checks only:
 - output target is unused and its existing parent is writable;
 - available space exceeds a small declared floor.
 
-After Runtime Planner, add `--runtime hyperframes` and/or
-`--runtime remotion` for each required backend. A runtime-plan or SRT change
+After the deterministic runtime plan is written, add `--runtime hyperframes`
+and/or `--runtime remotion` for each required backend. A runtime-plan or SRT change
 does not invalidate the cache; it merely selects which cached backend fact is
 needed.
 

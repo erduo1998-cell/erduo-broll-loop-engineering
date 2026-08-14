@@ -74,7 +74,12 @@
         "startFrame": { "type": "integer", "minimum": 0 },
         "endFrame": { "type": "integer", "minimum": 1 },
         "kind": { "enum": ["transition", "continuous", "cut"] },
-        "expectsSettle": { "type": "boolean" }
+        "expectsSettle": { "type": "boolean" },
+        "beatIds": {
+          "description": "Recipe beats whose principal visible development this rendered motion fulfills. Ambient motion leaves this empty or omitted.",
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
       }
     },
     "sample": {
@@ -88,7 +93,11 @@
         "zIndex": { "type": "number" },
         "visible": { "type": "boolean" },
         "clipped": { "type": "boolean" },
-        "visibleAreaRatio": { "type": "number", "minimum": 0, "maximum": 1 }
+        "visibleAreaRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "appearanceHash": {
+          "description": "Optional SHA-256 of runtime-captured visible styling (for example fill, stroke, color, filter, clip, and rendered path state), excluding text content and hand-authored labels.",
+          "$ref": "#/$defs/sha256"
+        }
       }
     }
   }

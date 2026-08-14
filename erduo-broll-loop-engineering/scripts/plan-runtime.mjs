@@ -1,16 +1,52 @@
 #!/usr/bin/env node
 
-import { readFile, readdir } from 'node:fs/promises';
+import { createHash, randomUUID } from 'node:crypto';
+import {
+  lstat,
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateRecipeDirectory } from './validate-shot-recipes.mjs';
 import { bindSharedArtifacts, computeRuntimePlanIdentity, validateRuntimePlan } from './validate-runtime-plan.mjs';
+import { canonicalJson } from './runtime-schema-validator.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeRoot = path.join(skillRoot, 'references', 'runtime');
 const defaultMatrix = path.join(runtimeRoot, 'capability-matrix.json');
 const defaultRemotionIndex = path.join(skillRoot, 'references', 'shotcraft', 'remotion-sources', 'index.json');
+
+export const DEFAULT_PRODUCTION_PROFILE = Object.freeze({
+  schemaVersion: '1.0.0',
+  raster: { width: 3840, height: 2160 },
+  fps: { numerator: 30, denominator: 1 },
+  mezzanine: {
+    container: 'matroska', codec: 'ffv1', pixelFormat: 'yuv444p10le', class: 'lossless',
+    color: { space: 'bt709', transfer: 'bt709', primaries: 'bt709', range: 'tv' },
+    audio: { policy: 'silent', streams: 0, codec: null, sampleRate: null, channels: null },
+  },
+  master: {
+    container: 'mp4', codec: 'h264', encoder: 'libx264', pixelFormat: 'yuv420p',
+    preset: 'medium', crf: 16, fastStart: true,
+    color: { space: 'bt709', transfer: 'bt709', primaries: 'bt709', range: 'tv' },
+    audio: { policy: 'silent', streams: 0, codec: null, sampleRate: null, channels: null },
+  },
+});
+
+export function bindProductionProfile(value = DEFAULT_PRODUCTION_PROFILE) {
+  const profile = structuredClone(value);
+  delete profile.identity;
+  return {
+    ...profile,
+    identity: createHash('sha256').update(canonicalJson(profile)).digest('hex'),
+  };
+}
 
 function planningMode(selection) {
   if (selection.selectedRuntime === 'auto') return 'auto';
@@ -110,7 +146,7 @@ async function readRecipes(directory) {
   return recipes.sort((left, right) => left.window.startMs - right.window.startMs || left.shotId.localeCompare(right.shotId));
 }
 
-function actionPlan(selection, mode, warnings, sharedArtifacts) {
+function actionPlan(selection, mode, warnings, sharedArtifacts, productionProfile) {
   const plan = {
     schemaVersion: '2.0.0', status: 'action-required', planningMode: mode,
     selection: {
@@ -119,6 +155,7 @@ function actionPlan(selection, mode, warnings, sharedArtifacts) {
       selectionSource: selection.selectionSource,
     },
     sharedArtifacts,
+    productionProfile,
     resultingRoute: null, requiredBackends: [], integrationMode: null,
     frozenMediaContractVersion: null, shots: [], blocks: [], authoringUnits: [], warnings: [...new Set(warnings)].sort(),
     identity: '',
@@ -127,7 +164,15 @@ function actionPlan(selection, mode, warnings, sharedArtifacts) {
   return plan;
 }
 
-export async function planRuntime({ recipesDirectory, selectionFile, narrativeEnvelopeFile, visualSystemFile, matrixFile = defaultMatrix, remotionIndexFile = defaultRemotionIndex }) {
+export async function planRuntime({
+  recipesDirectory,
+  selectionFile,
+  narrativeEnvelopeFile,
+  visualSystemFile,
+  matrixFile = defaultMatrix,
+  remotionIndexFile = defaultRemotionIndex,
+  productionProfile: requestedProductionProfile = DEFAULT_PRODUCTION_PROFILE,
+}) {
   const [recipes, selection, matrix, remotionIndex, sharedArtifactData] = await Promise.all([
     readRecipes(recipesDirectory),
     readFile(selectionFile, 'utf8').then(JSON.parse),
@@ -139,6 +184,7 @@ export async function planRuntime({ recipesDirectory, selectionFile, narrativeEn
     narrativeEnvelope: sharedArtifactData.narrativeEnvelope.binding,
     visualSystem: sharedArtifactData.visualSystem.binding,
   };
+  const productionProfile = bindProductionProfile(requestedProductionProfile);
   if (selection.status !== 'selected' || !['auto', 'hyperframes', 'hybrid', 'remotion'].includes(selection.selectedRuntime)) {
     throw new Error('runtime selection must be selected and name auto, hyperframes, hybrid, or remotion');
   }
@@ -231,7 +277,7 @@ export async function planRuntime({ recipesDirectory, selectionFile, narrativeEn
   const backends = [...new Set(shots.map(({ runtime }) => runtime))].sort();
   if (mode === 'forced-hybrid' && backends.length !== 2) conflicts.push('explicit hybrid requires evidence-backed assignments to both backends; do not force an artificial split');
   if (conflicts.length) {
-    const plan = actionPlan(selection, mode, [...warnings, ...conflicts], sharedArtifacts);
+    const plan = actionPlan(selection, mode, [...warnings, ...conflicts], sharedArtifacts, productionProfile);
     await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile });
     return plan;
   }
@@ -245,9 +291,10 @@ export async function planRuntime({ recipesDirectory, selectionFile, narrativeEn
       selectionSource: selection.selectionSource,
     },
     sharedArtifacts,
+    productionProfile,
     resultingRoute, requiredBackends: backends,
-    integrationMode: resultingRoute === 'hybrid' ? 'frozen-block-media' : 'single-runtime-source',
-    frozenMediaContractVersion: resultingRoute === 'hybrid' ? '1.0.0' : null,
+    integrationMode: 'frozen-block-media',
+    frozenMediaContractVersion: '1.0.0',
     shots, blocks, authoringUnits: buildAuthoringUnits(blocks, shots, recipes, sharedArtifacts),
     warnings: [...new Set(warnings)].sort(), identity: '',
   };
@@ -256,29 +303,157 @@ export async function planRuntime({ recipesDirectory, selectionFile, narrativeEn
   return plan;
 }
 
+function inside(root, candidate) {
+  const relative = path.relative(root, candidate);
+  return relative !== '' && !path.isAbsolute(relative)
+    && relative !== '..' && !relative.startsWith(`..${path.sep}`);
+}
+
+function locator(root, file) {
+  const absolute = path.resolve(file);
+  if (!inside(root, absolute)) throw new Error('Director artifacts must be inside the production root');
+  return path.relative(root, absolute).split(path.sep).join('/');
+}
+
+function unitDirectory(unit) {
+  return unit.runtime === 'remotion'
+    ? `03-remotion-build/${unit.unitId}`
+    : `03-build/${unit.unitId}`;
+}
+
+export function buildBuilderAssignments(plan, {
+  productionRoot,
+  recipesDirectory,
+  narrativeEnvelopeFile,
+  visualSystemFile,
+} = {}) {
+  if (plan?.schemaVersion !== '2.0.0' || plan.status !== 'planned') {
+    throw new Error('Builder assignments require one planned runtime plan v2');
+  }
+  const root = path.resolve(productionRoot);
+  const recipeRoot = path.resolve(recipesDirectory);
+  const narrativeEnvelope = locator(root, narrativeEnvelopeFile);
+  const visualSystem = locator(root, visualSystemFile);
+  return plan.authoringUnits.map((unit) => {
+    const workDirectory = unitDirectory(unit);
+    return {
+      schemaVersion: '1.0.0',
+      planIdentity: plan.identity,
+      unitId: unit.unitId,
+      blockId: unit.blockId,
+      runtime: unit.runtime,
+      window: unit.window,
+      shotIds: unit.shotIds,
+      stageSkill: unit.runtime === 'remotion' ? 'broll-remotion-build' : 'broll-master-build',
+      contextFiles: {
+        assignment: `01-runtime-plan/assignments/${unit.unitId}.json`,
+        runtimePlan: '01-runtime-plan/runtime-plan.json',
+        narrativeEnvelope,
+        visualSystem,
+        recipes: unit.shotIds.map((shotId) => locator(root, path.join(recipeRoot, `${shotId}.json`))),
+        materialPlan: '02-assets/material-plan.md',
+        fontPlan: '02-assets/font-plan.md',
+      },
+      productionProfile: plan.productionProfile,
+      productionProfileIdentity: plan.productionProfile.identity,
+      seams: {
+        previous: unit.context.previousSeam,
+        next: unit.context.nextSeam,
+      },
+      output: {
+        workDirectory,
+        editableSourceRequired: true,
+        receipt: `${workDirectory}/receipt.json`,
+        handoff: `${workDirectory}/handoff.md`,
+        frozenMediaRequired: true,
+        frozenMediaContract: `${workDirectory}/block-media.json`,
+      },
+      shared: {
+        assetsRoot: '02-assets',
+        copyAssetsIntoUnit: false,
+        dependencyMode: unit.runtime === 'remotion'
+          ? 'shared-by-exact-identity'
+          : 'shared-pinned-runtime',
+        dependencyRoot: unit.runtime === 'remotion' ? '.remotion-toolchains' : null,
+      },
+      contextPolicy: 'Load only the listed files, selected references named by the assigned Recipes, and files named by the shared asset plans. Do not inherit the parent transcript or read unrelated Recipes.',
+      seamLimit: 'A live transition cannot cross independently rendered units. Keep a live shared-element transition inside one unit; otherwise close this unit on the planned readable state and use the declared matched seam.',
+    };
+  });
+}
+
+export async function writeProductionPlan({ productionRoot, ...planOptions }) {
+  const root = path.resolve(productionRoot);
+  await mkdir(root, { recursive: true });
+  const rootInfo = await lstat(root);
+  if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink()) {
+    throw new Error('production root must be a real directory');
+  }
+  const finalDirectory = path.join(root, '01-runtime-plan');
+  try {
+    await lstat(finalDirectory);
+    throw new Error('runtime plan output already exists; use a new production root');
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  const plan = await planRuntime(planOptions);
+  if (plan.status !== 'planned') return { plan, directory: null, assignments: [] };
+  const assignments = buildBuilderAssignments(plan, { productionRoot: root, ...planOptions });
+  const temporaryDirectory = path.join(root, `.01-runtime-plan-${randomUUID()}`);
+  try {
+    await mkdir(path.join(temporaryDirectory, 'assignments'), { recursive: true });
+    await writeFile(path.join(temporaryDirectory, 'runtime-plan.json'), `${JSON.stringify(plan, null, 2)}\n`, { flag: 'wx' });
+    await Promise.all(assignments.map((assignment) => writeFile(
+      path.join(temporaryDirectory, 'assignments', `${assignment.unitId}.json`),
+      `${JSON.stringify(assignment, null, 2)}\n`,
+      { flag: 'wx' },
+    )));
+    await rename(temporaryDirectory, finalDirectory);
+  } catch (error) {
+    await rm(temporaryDirectory, { recursive: true, force: true });
+    throw error;
+  }
+  return {
+    plan,
+    directory: finalDirectory,
+    assignments: assignments.map(({ unitId }) => `01-runtime-plan/assignments/${unitId}.json`),
+  };
+}
+
 function parseArgs(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
     if (name === '--json') continue;
-    if (!['--recipes', '--selection', '--narrative-envelope', '--visual-system', '--matrix', '--remotion-index'].includes(name)) throw new Error(`unknown argument ${name}`);
+    if (!['--recipes', '--selection', '--narrative-envelope', '--visual-system', '--matrix', '--remotion-index', '--production-root', '--production-profile'].includes(name)) throw new Error(`unknown argument ${name}`);
     const value = argv[index + 1];
     if (!value) throw new Error(`${name} requires a path`);
     options[name.slice(2)] = path.resolve(value);
     index += 1;
   }
   if (!options.recipes || !options.selection || !options['narrative-envelope'] || !options['visual-system']) throw new Error('--recipes, --selection, --narrative-envelope, and --visual-system are required');
-  return {
+  const parsed = {
     recipesDirectory: options.recipes, selectionFile: options.selection,
     narrativeEnvelopeFile: options['narrative-envelope'], visualSystemFile: options['visual-system'],
     matrixFile: options.matrix, remotionIndexFile: options['remotion-index'],
+    productionProfileFile: options['production-profile'],
   };
+  return options['production-root']
+    ? { productionRoot: options['production-root'], planOptions: parsed }
+    : { productionRoot: null, planOptions: parsed };
 }
 
 async function main() {
-  const result = await planRuntime(parseArgs(process.argv.slice(2)));
+  const { productionRoot, planOptions } = parseArgs(process.argv.slice(2));
+  if (planOptions.productionProfileFile) {
+    planOptions.productionProfile = JSON.parse(await readFile(planOptions.productionProfileFile, 'utf8'));
+    delete planOptions.productionProfileFile;
+  }
+  const result = productionRoot
+    ? await writeProductionPlan({ productionRoot, ...planOptions })
+    : await planRuntime(planOptions);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
-  if (result.status === 'action-required') process.exitCode = 2;
+  if ((productionRoot ? result.plan : result).status === 'action-required') process.exitCode = 2;
 }
 
 if (process.argv[1] && realpathSync(path.resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {

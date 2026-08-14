@@ -26,13 +26,17 @@
 - 사용자가 제공한 미디어를 우선 사용하고, 필요한 샷에만 추가 소재를 확보합니다.
 - 전체 프리뷰에서 승인을 기다린 뒤 4K Master를 렌더링하고 기술 검증합니다.
 
-## v0.8 Production Slim
+## v0.9 Creative Production
 
-- 심층 환경 검사는 설치·업데이트 때 한 번만 실행하며, 일반 영상 제작은 가벼운 preflight만 사용하고 Onboarding Agent를 호출하지 않습니다.
-- 반복 프레임 검사를 런타임 motion/layout 코드 검사로 바꿨습니다. 통과하면 스틸 리뷰를 만들지 않고, 이상 구간만 진단합니다.
-- v0.7.0 대비 기본 Prompt 로드 바이트는 세 경로에서 79.87~82.58% 감소했습니다. 이는 재현 가능한 파일 바이트 대리 지표이며 실제 host token 사용량은 아닙니다.
+- Director, Assets, 여러 담당 Builder의 창작 분업을 유지합니다. 고정 템플릿으로 축소하지 않으며 구도, 은유, 움직임의 복잡성을 제한하지 않습니다.
+- Parent가 backend 계획, 작업 배정, 검사, clip 결합, preview 준비 script를 직접 실행하며 Runtime Planner / Integrator / Render Agent를 실행하지 않습니다. 한 제작 안에서는 소재와 동일한 의존 환경을 공유하고 전체 project를 반복 복사하지 않습니다.
+- 각 Builder는 편집 가능한 source와 공통 규격으로 검증된 video clip을 전달합니다. script는 clip을 결합하지만 임의의 HyperFrames / Remotion source를 이해하거나 합칠 수 있다고 주장하지 않습니다.
+- 전체 preview는 최대 1080p, `veryfast / CRF 22`로 생성합니다. 승인 identity는 runtime plan, narrative envelope, visual system, 모든 shot contract와 실제 clip hash에 연결됩니다.
+- 전달 단계에서는 `--plan`, `--narrative-envelope`, `--visual-system`, 모든 `--contract`를 다시 지정합니다. identity를 재확인한 뒤 동결 clip에서 전체 규격 `medium / CRF 16` Master를 만들며 preview를 복사하지 않습니다.
+- 말의 의미와 감정 변화를 animation beat로 바꿉니다. Builder는 주체, 공간, 계층, 관계 또는 시각적 초점이 실제로 발전하도록 만들며 장식용 loop를 주요 animation으로 대신할 수 없습니다.
+- 수정은 원래 담당 Builder에게만 돌아가며 모든 Builder에게 전체 제작 기록을 전달하지 않습니다.
 
-코드는 easing, settle, clipping, 가림, 밀도, 계층의 측정 가능한 위험을 찾을 수 있지만 이야기 명료성, 무게감, arc, 과장, appeal을 증명하지 못합니다. 미적 판단은 한 번의 전체 동영상 프리뷰로 남습니다. 백엔드 간 시각적 동일성은 보장하지 않습니다.
+검사는 계획된 발전의 누락과 측정 가능한 motion/layout 위험을 찾을 수 있지만 animation의 수준이나 미적 가치를 판단할 수는 없습니다. 최종 판단은 한 번의 전체 동영상 preview로 남습니다. backend 간 시각적 동일성은 보장하지 않습니다.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="SRT에서 승인된 4K Master까지의 사용 흐름" width="100%">
@@ -69,6 +73,7 @@ UTF-8 SRT 입력은 중국어로 제한되지 않습니다. 실제 언어 품질
 
 - macOS의 Codex와 Claude Code에서 검증했습니다.
 - 기본 결과물: H.264 MP4, 3840 × 2160, 30 fps.
+- 출력 정책은 직접 JSON으로 작성하지 않고 `create-production-profile.mjs`로 생성합니다. Parent는 이 파일을 항상 `plan-runtime.mjs --production-profile`에 전달하며 너비, 높이, fps, 오디오, H.264 MP4 조건을 계획, 각 Builder 작업, 납품 검증에 동일한 해시로 고정합니다. 예를 들어 `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4`는 기본값으로 되돌아가지 않는 세로형 25 fps 프로필을 만듭니다.
 - HyperFrames와 Remotion은 독립 백엔드이며 시각적 동일성을 보장하지 않습니다.
 - Windows, 데스크톱 CapCut/Jianying 가져오기, 임의의 기존 프로젝트 자동 복구는 검증되지 않았습니다.
 - 전체 기술 계약과 문제 해결 안내는 [중국어 간체 README](README.md)를 참고하세요.

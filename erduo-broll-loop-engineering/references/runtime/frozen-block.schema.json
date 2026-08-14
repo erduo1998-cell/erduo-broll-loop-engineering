@@ -13,23 +13,38 @@
     "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
     "profile": {
       "type": "object", "additionalProperties": false,
-      "required": ["width", "height", "fpsNumerator", "fpsDenominator", "pixelFormat", "colorSpace", "mezzanineClass"],
+      "required": ["width", "height", "fpsNumerator", "fpsDenominator", "pixelFormat", "colorSpace", "colorTransfer", "colorPrimaries", "colorRange", "mezzanineClass"],
       "properties": {
         "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 },
         "fpsNumerator": { "type": "integer", "minimum": 1 }, "fpsDenominator": { "type": "integer", "minimum": 1 },
         "pixelFormat": { "type": "string", "minLength": 1 }, "colorSpace": { "type": "string", "minLength": 1 },
+        "colorTransfer": { "type": "string", "minLength": 1 }, "colorPrimaries": { "type": "string", "minLength": 1 },
+        "colorRange": { "enum": ["tv", "pc"] },
         "mezzanineClass": { "enum": ["lossless", "visually-lossless"] }
       }
     },
     "audioPolicy": { "enum": ["silent", "preserve-source"] },
     "media": {
       "type": "object", "additionalProperties": false,
-      "required": ["path", "sha256", "container", "codec", "durationMs", "frameCount", "audioStreams"],
+      "required": ["path", "sha256", "container", "codec", "durationMs", "frameCount", "audioStreams", "startTimeMs"],
       "properties": {
         "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
         "container": { "type": "string", "minLength": 1 }, "codec": { "type": "string", "minLength": 1 },
         "durationMs": { "type": "integer", "minimum": 1 }, "frameCount": { "type": "integer", "minimum": 1 },
-        "audioStreams": { "type": "integer", "minimum": 0 }
+        "audioStreams": { "type": "integer", "minimum": 0 },
+        "startTimeMs": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "productionProfileIdentity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["root", "manifestPath", "manifestSha256", "fileCount", "entrypoints"],
+      "properties": {
+        "root": { "type": "string", "minLength": 1 },
+        "manifestPath": { "type": "string", "minLength": 1 },
+        "manifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "fileCount": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "entrypoints": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
       }
     },
     "sourceIdentity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },

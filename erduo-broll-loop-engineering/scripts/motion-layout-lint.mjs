@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const ROLES = new Set(['primary', 'secondary', 'text', 'structural', 'decorative']);
 const MOTION_KINDS = new Set(['transition', 'continuous', 'cut']);
 const TRACE_MODES = new Set(['rendered-dom-geometry', 'rendered-scene-geometry']);
+const RENDERED_STATE_DELTA = 0.012;
+const LONG_BEAT_RISK_SECONDS = 4;
+const LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION = 0.25;
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -21,9 +24,10 @@ function finding(code, severity, message, shotId, elementIds, frames) {
 }
 
 function usage() {
-  return `Usage: node scripts/motion-layout-lint.mjs --trace <motion-layout-trace.json> [--pretty]
+  return `Usage: node scripts/motion-layout-lint.mjs --trace <motion-layout-trace.json> [--recipes <shot-recipes-directory>] [--pretty]
 
 The trace must come from rendered runtime geometry, not hand-authored estimates.
+Pass --recipes to prove that planned micro-beats became visible development.
 Normal output is one compact JSON line. Findings include bounded frame windows
 that the owning Builder may render as diagnostic stills or clips.`;
 }
@@ -40,10 +44,10 @@ function parseArgs(argv) {
       options.help = true;
       continue;
     }
-    if (argument !== '--trace') throw new Error(`Unknown argument: ${argument}`);
+    if (!['--trace', '--recipes'].includes(argument)) throw new Error(`Unknown argument: ${argument}`);
     const value = argv[index + 1];
-    if (!value || value.startsWith('--')) throw new Error('Missing value for --trace');
-    options.trace = value;
+    if (!value || value.startsWith('--')) throw new Error(`Missing value for ${argument}`);
+    options[argument === '--trace' ? 'trace' : 'recipes'] = value;
     index += 1;
   }
   if (!options.help && !options.trace) throw new Error('Missing --trace');
@@ -148,6 +152,11 @@ function validateTrace(trace) {
           errors.push(`${label} samples must cover every frame in its shot`);
         }
       }
+      for (const [sampleIndex, sample] of (element.samples ?? []).entries()) {
+        if (sample.appearanceHash !== undefined && !/^[0-9a-f]{64}$/.test(sample.appearanceHash)) {
+          errors.push(`${label}.samples[${sampleIndex}].appearanceHash must be a SHA-256`);
+        }
+      }
       if (element.motions !== undefined && !Array.isArray(element.motions)) errors.push(`${label}.motions must be an array`);
       for (const [motionIndex, motion] of (element.motions ?? []).entries()) {
         if (!isRecord(motion) || !Number.isInteger(motion.startFrame) || !Number.isInteger(motion.endFrame)
@@ -156,6 +165,11 @@ function validateTrace(trace) {
           errors.push(`${label}.motions[${motionIndex}] is invalid`);
         }
         if (motion?.expectsSettle !== undefined && typeof motion.expectsSettle !== 'boolean') errors.push(`${label}.motions[${motionIndex}].expectsSettle must be boolean`);
+        if (motion?.beatIds !== undefined && (!Array.isArray(motion.beatIds) || motion.beatIds.length === 0
+          || motion.beatIds.some((beatId) => typeof beatId !== 'string' || beatId.length === 0)
+          || new Set(motion.beatIds).size !== motion.beatIds.length)) {
+          errors.push(`${label}.motions[${motionIndex}].beatIds must contain unique non-empty beat IDs`);
+        }
       }
     }
   }
@@ -179,6 +193,140 @@ function distance(left, right) {
 function speedSeries(samples, width, height) {
   const states = samples.map((sample) => stateVector(sample, width, height));
   return states.slice(1).map((state, index) => distance(state, states[index]));
+}
+
+function msWindowToFrames(beat, recipe, shot, fps) {
+  const toFrame = (milliseconds) => shot.startFrame
+    + Math.round(((milliseconds - recipe.window.startMs) * fps) / 1000);
+  return {
+    startFrame: Math.max(shot.startFrame, toFrame(beat.startMs)),
+    endFrame: Math.min(shot.endFrame, toFrame(beat.endMs)),
+  };
+}
+
+function renderedStateDiffers(left, right, width, height) {
+  return distance(stateVector(left, width, height), stateVector(right, width, height)) >= RENDERED_STATE_DELTA
+    || left.visible !== right.visible
+    || Boolean(left.appearanceHash && right.appearanceHash && left.appearanceHash !== right.appearanceHash);
+}
+
+function renderedDevelopmentEvidence(element, motions, startFrame, endFrame, width, height) {
+  const samples = samplesWithin(element, Math.max(element.samples[0].frame, startFrame - 1), endFrame);
+  if (samples.length < 2) return { hasDevelopment: false, developmentFrames: [] };
+  const initial = samples[0];
+  let latestAcceptedState = initial;
+  const developmentFrames = [];
+  for (const current of samples.slice(1)) {
+    if (!renderedStateDiffers(latestAcceptedState, current, width, height)) continue;
+    latestAcceptedState = current;
+    developmentFrames.push(current.frame);
+  }
+  const isContinuousOnly = motions.every(({ kind }) => kind === 'continuous');
+  const hasDevelopment = isContinuousOnly
+    ? renderedStateDiffers(initial, samples.at(-1), width, height)
+    : developmentFrames.length > 0;
+  return { hasDevelopment, developmentFrames };
+}
+
+function longestUndeclaredDevelopmentGap(developmentFrames, startFrame, endFrame) {
+  const frames = [...new Set(developmentFrames)].sort((left, right) => left - right);
+  if (frames.length === 0) return { startFrame, endFrame: endFrame - 1, frameCount: endFrame - startFrame };
+  const gaps = [];
+  const first = frames[0];
+  if (first > startFrame) gaps.push({ startFrame, endFrame: first - 1, frameCount: first - startFrame });
+  for (let index = 1; index < frames.length; index += 1) {
+    const previous = frames[index - 1];
+    const current = frames[index];
+    if (current > previous + 1) {
+      gaps.push({ startFrame: previous + 1, endFrame: current - 1, frameCount: current - previous - 1 });
+    }
+  }
+  const last = frames.at(-1);
+  if (last < endFrame - 1) gaps.push({ startFrame: last + 1, endFrame: endFrame - 1, frameCount: endFrame - last - 1 });
+  return gaps.sort((left, right) => right.frameCount - left.frameCount || left.startFrame - right.startFrame)[0]
+    ?? { startFrame, endFrame: startFrame, frameCount: 0 };
+}
+
+function analyzeBeatDelivery(trace, recipes) {
+  if (!(recipes instanceof Map)) return [];
+  const findings = [];
+  const traceShotIds = new Set(trace.shots.map(({ shotId }) => shotId));
+  for (const shot of trace.shots) {
+    const recipe = recipes.get(shot.shotId);
+    if (!recipe) {
+      findings.push(finding('rhythm.recipe-missing', 'error', 'No Shot Recipe was supplied for this rendered shot.', shot.shotId, [], [shot.startFrame]));
+      continue;
+    }
+    const beats = recipe.schemaVersion === '2.0.0'
+      ? recipe.microBeats ?? []
+      : (recipe.motion?.phases ?? []).map((phase, index) => ({
+        beatId: `${phase.name}-${index + 1}`, startMs: phase.startMs, endMs: phase.endMs,
+        change: phase.easingIntent === 'deliberate-stillness' || phase.name === 'hold'
+          ? 'deliberate-stillness' : 'legacy-motion-phase',
+      }));
+    if (beats.length === 0) {
+      findings.push(finding('rhythm.beats-missing', 'error', 'The supplied Recipe declares no animation beats.', shot.shotId, [], [shot.startFrame]));
+      continue;
+    }
+    for (const beat of beats) {
+      const { startFrame, endFrame } = msWindowToFrames(beat, recipe, shot, trace.fps);
+      if (endFrame <= startFrame) {
+        findings.push(finding('rhythm.beat-window-invalid', 'error', `Beat ${beat.beatId} does not map to a measurable rendered frame window.`, shot.shotId, [], [startFrame]));
+        continue;
+      }
+      if (beat.change === 'deliberate-stillness') continue;
+      const candidates = shot.elements.filter((element) => element.role !== 'decorative').map((element) => ({
+        element,
+        motions: (element.motions ?? []).filter((motion) => motion.startFrame < endFrame
+          && motion.endFrame > startFrame
+          && (recipe.schemaVersion === '2.0.0'
+            ? motion.beatIds?.includes(beat.beatId)
+            : ['transition', 'cut'].includes(motion.kind))),
+      })).filter(({ motions }) => motions.length > 0);
+      if (candidates.length === 0) {
+        findings.push(finding(
+          'rhythm.beat-unbound', 'error',
+          `Beat ${beat.beatId} has no beat-bound non-decorative rendered action; ambient or decorative motion cannot fulfill it.`,
+          shot.shotId, [], [startFrame, endFrame - 1],
+        ));
+        continue;
+      }
+      const developed = candidates.map(({ element, motions }) => ({
+        element,
+        evidence: renderedDevelopmentEvidence(
+          element, motions, startFrame, endFrame, trace.width, trace.height,
+        ),
+      })).filter(({ evidence }) => evidence.hasDevelopment);
+      if (developed.length === 0) {
+        findings.push(finding(
+          'rhythm.beat-no-development', 'error',
+          `Beat ${beat.beatId} is declared in the Recipe and motion metadata but produces no measurable rendered development.`,
+          shot.shotId, candidates.map(({ element }) => element.id).sort(), [startFrame, endFrame - 1],
+        ));
+        continue;
+      }
+      const beatFrames = endFrame - startFrame;
+      const longBeatRiskFrames = Math.ceil(trace.fps * LONG_BEAT_RISK_SECONDS);
+      const idleRiskFrames = Math.ceil(beatFrames * LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION);
+      const developmentGap = longestUndeclaredDevelopmentGap(
+        developed.flatMap(({ evidence }) => evidence.developmentFrames), startFrame, endFrame,
+      );
+      if (beatFrames >= longBeatRiskFrames && developmentGap.frameCount >= idleRiskFrames) {
+        findings.push(finding(
+          'rhythm.beat-development-gap', 'error',
+          `Long non-still beat ${beat.beatId} leaves at least 25% of its window without a new measurable subject state; split meaningful waiting into deliberate-stillness or deliver the planned development.`,
+          shot.shotId, developed.map(({ element }) => element.id).sort(),
+          [developmentGap.startFrame, developmentGap.endFrame],
+        ));
+      }
+    }
+  }
+  for (const recipeShotId of recipes.keys()) {
+    if (!traceShotIds.has(recipeShotId)) {
+      findings.push(finding('rhythm.shot-missing', 'error', 'A supplied Shot Recipe has no rendered shot trace.', recipeShotId, [], [trace.startFrame]));
+    }
+  }
+  return findings;
 }
 
 function samplesWithin(element, startFrame, endFrame) {
@@ -235,7 +383,7 @@ function diagnosticWindows(findings, fps, traceStart, traceEnd) {
   return merged;
 }
 
-export function analyzeMotionLayoutTrace(trace) {
+export function analyzeMotionLayoutTrace(trace, recipes = null) {
   const invalid = validateTrace(trace);
   if (invalid.length > 0) {
     return {
@@ -246,7 +394,7 @@ export function analyzeMotionLayoutTrace(trace) {
     };
   }
 
-  const findings = [];
+  const findings = analyzeBeatDelivery(trace, recipes);
   const { width, height, fps } = trace;
   const safe = trace.safeArea;
   for (const shot of trace.shots) {
@@ -430,10 +578,29 @@ export function analyzeMotionLayoutTrace(trace) {
     findingCount: findings.length, findings,
     diagnosticWindows: diagnosticWindows(findings, fps, trace.startFrame, trace.endFrame),
     limitations: [
+      recipes instanceof Map
+        ? `Beat delivery checks prove bounded non-decorative rendered state development. For non-still beats at least ${LONG_BEAT_RISK_SECONDS} seconds long, they also flag any leading, internal, or trailing interval of at least ${Math.round(LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION * 100)}% with no new bound subject state; this does not require motion at fixed intervals or judge rhythm quality.`
+        : 'No Recipes were supplied, so planned beat delivery was not evaluated.',
       'Geometry can detect discontinuity, instability, crowding, clipping, and staging risk; it cannot prove story meaning, weight, arcs, exaggeration, or appeal.',
       'The final identity-bound moving preview remains the single human aesthetic decision.',
     ],
   };
+}
+
+async function loadRecipes(directory) {
+  const recipes = new Map();
+  for (const entry of (await readdir(directory, { withFileTypes: true }))
+    .filter((item) => item.isFile() && path.extname(item.name).toLowerCase() === '.json')
+    .toSorted((left, right) => left.name.localeCompare(right.name))) {
+    const recipe = JSON.parse(await readFile(path.join(directory, entry.name), 'utf8'));
+    if (typeof recipe.shotId !== 'string' || recipe.shotId.length === 0) {
+      throw new Error(`${entry.name} has no shotId`);
+    }
+    if (recipes.has(recipe.shotId)) throw new Error(`duplicate recipe shotId: ${recipe.shotId}`);
+    recipes.set(recipe.shotId, recipe);
+  }
+  if (recipes.size === 0) throw new Error('recipe directory contains no JSON recipes');
+  return recipes;
 }
 
 async function main() {
@@ -457,7 +624,17 @@ async function main() {
     process.exitCode = 2;
     return;
   }
-  const result = analyzeMotionLayoutTrace(trace);
+  let recipes = null;
+  if (options.recipes) {
+    try {
+      recipes = await loadRecipes(path.resolve(options.recipes));
+    } catch (error) {
+      process.stderr.write(`Recipes cannot be read: ${error.message}\n`);
+      process.exitCode = 2;
+      return;
+    }
+  }
+  const result = analyzeMotionLayoutTrace(trace, recipes);
   process.stdout.write(`${JSON.stringify(result, null, options.pretty ? 2 : 0)}\n`);
   if (result.status !== 'pass') process.exitCode = 1;
 }

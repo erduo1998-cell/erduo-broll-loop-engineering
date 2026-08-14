@@ -8,7 +8,7 @@
 | macOS + Claude Code | experimental | 安装目标和契约受测试覆盖，尚缺与 Codex 同输入的当前版本端到端对照 |
 | macOS 首次安装 | supported installer | 安装器、离线 mock 与安全边界受自动化测试覆盖；硬件、网络和宿主差异仍可能要求人工处理 |
 | HyperFrames runtime | supported production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；可由 auto 或显式单后端计划选择 |
-| Remotion runtime | project-local supported workflow | 具备前置识别、独立 Build/Integrate/Render Skill 和失败关闭验证；每个单元隔离源码，相同精确依赖身份在本次生产内只安装一次，不承诺与 HyperFrames 视觉一致 |
+| Remotion runtime | project-local supported workflow | 具备前置识别、独立 Builder 制作和失败关闭验证；每个单元交付源码与已验证片段，相同精确依赖身份在本次生产内只安装一次，不承诺与 HyperFrames 视觉一致 |
 | Hybrid frozen-media route | contract + validator supported | 逐镜证据规划、连续区块聚合、冻结媒体 schema/hash validator 和 FFmpeg 集成已进入公开契约；FFprobe/完整解码由阶段实跑留证；尚不构成双后端成片或视觉一致性 witness |
 | Windows | unverified | 保留路径和配置兼容设计；没有真实 Windows 运行证据 |
 | 剪映/CapCut 桌面 GUI | unverified | 输出以常见 MP4/MOV 交付为目标；尚未完成当前版本 GUI 实机导入认证 |
@@ -16,6 +16,24 @@
 稳定版本只冻结公开契约，不会把未完成的环境验证自动提升为 `verified`。Windows 与剪映 GUI 必须保持本表声明，直到取得对应实机证据。
 
 官方 doctor 可能因为 npm 上已有更新版本而把顶层 `ok` 置为 false。只在 doctor 的 `_meta.version` 精确等于本发行包锁定的 `0.7.104`、失败项只是“newer version available”，且 Node、FFmpeg、FFprobe、Chrome 等选中本地渲染事实全部通过时，本项目把它记录为非阻断更新提示；版本不明、版本不符或任何渲染事实失败仍会关闭发布/生产门。
+
+## v0.9 Creative Production 合同
+
+`0.9.0` 保留 Director、Assets 与多 Builder 的创作分工，把固定、可重复的生产工作移交给脚本；一条生产任务共用素材与相同依赖。Director 先明确内容含义和画面任务，再自由选择构图、隐喻、动画复杂度和视觉语言，不用固定模板代替创作。
+
+| 项目 | 当前状态 | 证据边界 |
+| --- | --- | --- |
+| Director + Assets + 多 Builder | production contract | Builder 按工作量分担镜头并只读取自己的任务和必要相邻信息；多 Agent 分工不代表审美天然一致 |
+| 非创作步骤脚本化 | deterministic workflow | Parent 直接执行环境、规划、分发、校验、片段拼接和预览准备，不需要 Runtime Planner / Integrator / Render Agent；脚本不作内容创意决定 |
+| Builder 双交付 | production contract | 每个单元交付可编辑源码与统一规格、已验证的视频片段；脚本只拼接片段，不直接理解任意双后端源码，也不构成双后端视觉一致性证明 |
+| 快速完整预览 | deterministic script | 最高 1080p，固定 `veryfast / CRF 22`；identity 绑定 runtime plan、narrative envelope、visual system、全部 shot contracts 与冻结片段 hashes |
+| 正式 Master | deterministic script | deliver 必须重新传入 `--plan`、`--narrative-envelope`、`--visual-system` 和全部 `--contract`；身份复核后从冻结片段重新生成完整规格 `medium / CRF 16` Master，不复制 preview |
+| 共用素材与依赖 | deterministic production layout | 同一任务不复制完整工程、全部素材或相同工具链；不同精确依赖身份仍保持隔离 |
+| 语义节拍落地 | contract + measurable checks | 每个计划节拍必须对应主体、空间、层级、关系或视觉重点的可见发展；检测只能确认计划与可测变化，不能证明动画质量 |
+| 定点返工 | production contract | 问题回到原责任 Director 或 Builder，不用完整历史创建替代 Agent；无法自动保证一次返工必然通过 |
+| 唯一完整动态预览 | user gate | 用户仍只在完整动态预览判断整体表达和审美；技术通过不等于动画高级或隐喻有效 |
+
+本版不限制抽象比例、构图变化、镜头复杂度或新视觉语言，也不承诺脚本可以判断审美。实际耗时、Agent 调用量、上下文消耗和生产目录体积取决于输入、素材、宿主模型与机器；目标值不是所有任务的保证。
 
 ## v0.8 Production Slim 合同
 
@@ -52,7 +70,7 @@
 
 ## Runtime adapter 与 Shotcraft 知识层
 
-运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由确定性 Runtime Planner 按 capability 与 exact pattern/backend evidence 逐镜选择后端、聚合连续区块并生成聚焦 authoring units。用户可强制整片单后端；空白新项目默认 auto。Planner 不读语义关键词。
+运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由 Parent 直接运行确定性 `plan-runtime.mjs`，按 capability 与 exact pattern/backend evidence 逐镜选择后端、聚合连续区块并生成聚焦 authoring units。用户可强制整片单后端；空白新项目默认 auto。脚本不读语义关键词。
 
 能力状态必须按镜头机制逐项判断：
 

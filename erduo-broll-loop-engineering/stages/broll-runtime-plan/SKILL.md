@@ -1,89 +1,29 @@
 ---
 name: broll-runtime-plan
-description: Deterministically assign validated runtime-neutral Shot Recipes to HyperFrames or Remotion, merge backend blocks, and partition focused authoring units after Direction.
+description: Read and verify legacy Runtime Planner handoffs from production records created before v0.9. Do not use or dispatch this stage in the normal v0.9 workflow; the Parent now runs the deterministic planning script directly.
 ---
 
-# B-roll Runtime Planner
+# Legacy B-roll Runtime Planner
 
-Act only as the post-Director runtime planner. Do not change Shot Recipes,
-reinterpret the SRT, collect assets, install a backend, author source, render,
-or integrate media.
+Treat this stage as read-only compatibility for old production records. Do not
+dispatch it in a normal v0.9 production, do not create a new plan here, and do
+not reinterpret or edit an existing plan.
 
-## Inputs
+In v0.9 the Parent runs `scripts/plan-runtime.mjs` directly with the Director's
+validated Recipes, runtime selection, narrative envelope, visual system, and
+new production root. The script validates those inputs, writes the immutable
+runtime plan, and writes one minimal assignment packet per authoring unit.
 
-- validated `runtime-selection.json`;
-- Director `narrative-envelope.json`, `visual-system.json`, `shot-recipes/`,
-  and handoff;
-- `../../references/runtime/capability-matrix.json`;
-- the pinned Shotcraft Remotion source index;
-- production root and one unused planner output directory.
+When reading a legacy handoff, verify only that:
 
-The initial selector records intent. `auto` and explicit `hybrid` do not prove
-backend readiness. Existing-project or explicit `hyperframes`/`remotion`
-selection remains a forced single-backend route unless a native capability
-conflict stops planning.
+- its plan JSON passes `scripts/validate-runtime-plan.mjs` using
+  `../../references/runtime/capability-matrix.json`;
+- every Director shot appears exactly once in a backend block and authoring
+  unit;
+- time coverage is continuous and unit boundaries contain whole shots;
+- evidence and warnings are preserved without subjective reinterpretation.
 
-## Deterministic planning
-
-Run the parent Skill's bundled command through the safe child environment:
-
-```text
-node scripts/plan-runtime.mjs \
-  --recipes <director-shot-recipes> \
-  --selection <runtime-selection.json> \
-  --json
-```
-
-Preserve stdout exactly as `broll-production/01-runtime-plan/runtime-plan.json`
-and run `scripts/validate-runtime-plan.mjs` against it. Do not edit generated
-JSON by hand.
-
-The planner uses only declared capability IDs, capability-matrix planning
-evidence, exact selected `patternRef`, and the pinned backend source index. It
-never reads semantics as keywords and never infers complexity from prose. A
-Remotion reference source is preference evidence, not a render witness; the
-plan must expose it under `unverifiedPreferences`. Operator-confirmed
-production experience is a preference, not a parity claim.
-
-Runtime is decided per shot. Adjacent shots assigned to the same runtime are
-then merged into one contiguous block. Do not create an extra runtime switch
-for style variety. Explicit `hybrid` must still have evidence-backed work for
-both backends; if planning collapses to one backend, stop instead of forcing an
-artificial split. `auto` may legitimately resolve to one backend or hybrid.
-
-Within every backend block, accept only the planner-generated
-`authoringUnits`. Each unit must contain whole adjacent semantic shots, belong
-to exactly one block/runtime, default to 1–3 shots, and never exceed 40,000
-milliseconds. A hero, complex asset-fusion, or complex camera/spatial shot may
-form a single-shot unit only when the shot itself is at most 40,000
-milliseconds. Reject any longer Director shot and return it to Director for a
-semantic shot split; there is no solo exception. Never split one shot across
-units or manually rebalance units in prose. Unit coverage must be a closed,
-ordered partition of every block.
-
-## Deliverables
-
-Write only:
-
-- `broll-production/01-runtime-plan/runtime-plan.json`;
-- `broll-production/01-runtime-plan/handoff.md`.
-
-The handoff reports selection identity, resulting route, block boundaries,
-authoring-unit IDs/ranges and their adjacent seam locators,
-required backend readiness targets, warnings, unverified preferences, planner
-identity, and validator result.
-
-## Completion and stop
-
-Complete only when every Director shot appears once in blocks and once in
-authoring units, coverage is continuous from zero, blocks and unit partitions
-are contiguous, every unit obeys its block/runtime and size bounds, plan
-identity validates, and the required backend set is exact.
-
-Stop as `action-required` for conflicting equal-priority evidence, incompatible
-native requirements, explicit-single conflicts, explicit-hybrid collapse,
-unknown capability or pattern evidence, recipe drift, gaps, or overlaps. Return
-the issue to Director or runtime selection; never resolve it with subjective
-keywords.
-Also stop and return to Director when any complete semantic shot exceeds the
-40,000-millisecond authoring-unit ceiling; Planner must not split it itself.
+Return a compact recovery report to the Parent with the last trustworthy plan
+identity, available artifacts, concrete mismatch, and safest next owner. Do not
+repair the record, convert it into a v0.9 plan, or continue an old Planner →
+Integrator → Render chain as though it were the current workflow.

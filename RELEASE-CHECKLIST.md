@@ -37,15 +37,27 @@
 
 ## 生产验证
 
+- [ ] `0.9.0` 保留 Director、Assets 与多 Builder 的创作分工；没有把镜头改成固定模板，没有新增抽象比例、固定构图、最少视觉机制或复杂度限制。
+- [ ] Director 先记录每镜口播含义、画面任务和第一眼重点，再自由完成视觉设计；这些字段保持紧凑，不形成新的长篇交接文档。
+- [ ] 环境检查、运行时规划、任务分发、结构校验、片段拼接、预览准备和技术验证均由 Parent 直接运行脚本，正常生产不启动 Runtime Planner、Integrator 或 Render Agent；对应旧阶段 Skill 只用于读取历史记录。
+- [ ] 每个 Builder 单元同时交付可编辑源码与统一规格、身份和时间均已验证的视频片段；最终脚本只拼接视频片段，不直接合并任意双后端源码。
+- [ ] preview 输出不超过 1080p，并固定使用 `veryfast / CRF 22`；preview identity 精确绑定 runtime plan、narrative envelope、visual system、全部 shot contracts 和冻结片段 hashes。
+- [ ] deliver 必须重新提供 `--plan`、`--narrative-envelope`、`--visual-system` 和全部 `--contract`；缺失、重复、不属于 plan、内容漂移或片段 hash 漂移均失败关闭。CLI 输入顺序不作为身份，脚本按 plan 的实际顺序装配。
+- [ ] deliver 从冻结片段重新生成请求完整规格的 `medium / CRF 16` Master；测试明确证明没有复制、重命名或复用 preview 文件作为 Master。
+- [ ] 同一生产任务只保留一份共享素材库和每种精确依赖身份的一份工具链；Builder 单元不含完整工程、全部素材、无关镜头或完整生产历史。
+- [ ] 多 Builder 按工作量分担完整镜头；返工由原责任 Builder 定点完成，不创建继承完整历史的替代 Builder。
+- [ ] 每个计划动画节拍都能在对应时间看到主体、空间、大小、层级、材料、关系或视觉重点的发展；只有装饰线条、粒子或背景循环运动的反例被拒绝。
+- [ ] 至少一个长镜头夹具证明画面会随语义持续发展；创作规则不规定动画每几秒变化、固定节拍数量或固定构图模板。检测可以使用公开、经过测试的长段风险阈值，只用于发现未声明静止，不作为审美标准。
+- [ ] 完整动态预览仍是用户唯一默认审美关卡；任何脚本或自动检查都没有宣称能判断动画是否高级、抽象隐喻是否有效或整体审美已经通过。
 - [ ] `0.8.0` 三项核心变化有真实证据：正常生产 Onboarding Agent 为 0；motion-layout 通过时不产生默认抽帧；父默认和三条路线 Prompt 代理达到冻结结果。
 - [ ] `node scripts/measure-context.mjs --baseline v0.7.0 --current v0.8.0` 与 `docs/V0.8.0-CONTEXT-MEASUREMENT.json` 一致：父默认 `95.89%`、HyperFrames `79.93%`、Remotion `79.87%`、Hybrid `82.58%`；这是冻结 tag 的 bytes 代理，不冒充当前工作树或真实 token/I-O。
 - [ ] 真实限制已公开：代码不能证明故事、重量、弧线、夸张或 appeal；HyperFrames 无 geometry hook 时标记 `unmeasured`；Remotion 真捕获依赖目标项目本地浏览器/精确依赖；不声明双端视觉一致。
 - [ ] 从本版本执行一次全新 Codex 真实 SRT 端到端，完成官方 HyperFrames check、render 和媒体验证。
 - [ ] Claude Code 使用同输入独立执行并比较公开交付契约。
 - [ ] Assets 按 v2 shot-specific material need 条件触发：空 material need 的纯原生 MG 没有 Pexels/生成调用；需要普通媒体时真实运行所选来源路线并保留来源、权利、hash、裁切、字体和 fusion geometry。
-- [ ] Builder、Integrator、Render/Delivery 的官方 HyperFrames Skill 加载有真实宿主 trace。
+- [ ] HyperFrames Builder 的官方 HyperFrames Skill 加载有真实宿主 trace；片段验证、拼接与交付脚本有可重复运行证据。
 - [ ] 最终 master 连续覆盖 SRT，分辨率、时长、帧率、音频策略和完整解码符合请求。
-- [ ] 用户已观看绑定最终 composition identity 的 preview 并明确批准正式渲染；技术成功没有被表述为审美通过。
+- [ ] 用户已观看绑定 plan/contracts/media identity 的 preview 并明确批准正式交付；技术成功没有被表述为审美通过。
 - [ ] Windows 与剪映 GUI 保持 `unverified`，除非已有对应实机证据。
 
 ## Runtime adapter 与 Shotcraft 知识层
@@ -53,11 +65,11 @@
 - [ ] Narrative envelope、shared visual system、Shot Recipe v2、Runtime Plan v2、能力矩阵、运行时映射文档与零依赖校验器均通过确定性校验；枚举、必填字段、时间包含关系、唯一 ID、artifact identity 和引用闭集无漂移。
 - [ ] Shot Recipe v1 与 Runtime Plan v1 fixture 继续通过 read compatibility；旧 run 不追溯迁移，v1/v2 混用、版本伪装和 identity drift 失败关闭。
 - [ ] Runtime selector 遵循显式选择优先、既有项目证据识别、双信号停止和空白新项目默认 auto；目录名不作为判断依据。
-- [ ] Runtime Planner 只按 capability 与 exact pattern/backend evidence 决策，逐镜选择、相邻聚合，并确定性生成每个完整镜头恰好一次的 `authoringUnits`；unit 只属于一个 block，默认 1–3 镜且绝不超过 40 秒；validator 拒绝 gap/overlap、越界、冲突和 identity drift。
-- [ ] Hybrid Builder 输出 frozen block schema；validator 核验实际 hash、profile/audio、FFprobe/full decode、plan closure；Integrator/Render 禁止实时嵌套或源码互导。
+- [ ] Parent 直接运行 `plan-runtime.mjs`；脚本只按 capability 与 exact pattern/backend evidence 决策，逐镜选择、相邻聚合，并确定性生成每个完整镜头恰好一次的 `authoringUnits` 与最小 Builder 任务包；unit 只属于一个 block，默认 1–3 镜且绝不超过 40 秒；validator 拒绝 gap/overlap、越界、冲突和 identity drift。
+- [ ] Hybrid Builder 输出统一片段 schema；validator 核验实际 hash、profile/audio、FFprobe/full decode、plan closure；最终脚本只拼接片段，禁止实时嵌套或源码互导。
 - [ ] 正常生产只运行缓存式轻量 preflight，Onboarding Agent 调用数为 0；缓存缺失、安装身份变化或真实工具故障才进入定点诊断。
 - [ ] 初始 Runtime Router 保持只读且不执行项目本地 CLI；Remotion 项目依赖由 targeted preflight 按 package/lock/local CLI 身份验证，缺失时返回项目修复，不触发全量环境审计。
-- [ ] Remotion Build/Integrate/Render 是独立后段；目标项目的 `remotion`、`@remotion/cli` 声明、共享工具链收据、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
+- [ ] Remotion Builder 是独立制作路线并交付源码与已验证片段；目标项目的 `remotion`、`@remotion/cli` 声明、共享工具链收据、安装版本与 local CLI 必须精确一致，失败时不偷偷切回 HyperFrames。
 - [ ] 多 Remotion 单元只隔离源码与证据：相同依赖身份只执行一次 `npm ci` 并共享一份工具链；不同依赖身份各自隔离；安装、typecheck、浏览器捕获和渲染的并发实测不超过 2。
 - [ ] 发行版不硬编码单一 Remotion 版本；新项目解析一个稳定版本后精确锁定，既有项目保留通过证据门的精确 lock；`latest`、range 和网络下载式 `npx` 均不能进入生产证据。
 - [ ] `effects.dom-pixel-postprocess` 必须确定性路由到 Remotion，并由同一 package lock、Chrome 和 GL 后端的真实 HTML-in-canvas still canary 放行；WebGPU、嵌套捕获和 silent fallback 保持拒绝。
@@ -82,6 +94,7 @@
 - [ ] 历史基线如实保留：`v0.7.0` Director + Builder I/O 只减少 `5.20%`，handoff prose 减少 `73.59%`；当前版另行报告整体与 Director+Builder 实测，不得用 Prompt 文件大小冒充实际 Agent I-O。
 - [ ] benchmark 与生产链均没有新增 stage、独立视觉审查 Agent、lookdev/逐镜停点或审美评分；最终 composition preview 是唯一默认审美/用户 gate。
 - [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为当前发布版本。
+- [ ] README 五种语言、CHANGELOG、支持矩阵、仓库 Skill、本机已安装 Skill、安装收据与发布归档均显示 `0.9.0`，不存在仍代表当前版本的 `0.8.x` 字段。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] Remotion DOM trace 夹具的 lockfile 与 E2E 安装只使用官方 `https://registry.npmjs.org`，不继承维护者本机第三方镜像。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。

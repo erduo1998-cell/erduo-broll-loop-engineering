@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Hybrid Render"
-  short_description: "Deliver approved frozen hybrid master"
-  default_prompt: "Use $broll-hybrid-render to verify approval identity and deliver one master from frozen block media without live runtime nesting."
+  display_name: "Legacy Hybrid Delivery"
+  short_description: "Inspect legacy hybrid delivery records."
+  default_prompt: "Use $broll-hybrid-render to inspect a pre-v0.9 hybrid delivery record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

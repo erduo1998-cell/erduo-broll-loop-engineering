@@ -1,8 +1,10 @@
 # Remotion production backend
 
-Read this reference only after the runtime router has selected `remotion`.
-It defines the common contract for the Remotion Builder, Integrator, and
-Render/Delivery stages. It does not change the HyperFrames route.
+Read this reference only after the deterministic runtime plan assigns an
+authoring unit to `remotion`. It defines the current Remotion Builder contract;
+the Parent still owns scripted preview assembly and delivery. It does not
+change the HyperFrames route and does not authorize a new Integrator or Render
+Agent.
 
 ## Provenance and scope
 
@@ -60,7 +62,7 @@ selects one concrete Remotion version for which the same
 packages, records the resolution time and package metadata, and then writes
 the exact project declarations and lock. Never put `latest`, a caret, a tilde,
 or a range into a production project. Never let `npx` choose or download a
-runtime during Build, Integration, Preview, or Render.
+runtime during Build or frozen-unit rendering.
 
 Before installing or invoking Remotion, show the user the official
 [Remotion licensing page](https://www.remotion.dev/docs/licensing) and record
@@ -71,7 +73,7 @@ Add another package only when the selected native implementation needs it.
 Pin it exactly, resolve it through `https://registry.npmjs.org/`, review its
 license, and record the reason and license in build notes. Generate the lock
 before preparation and inspect it for non-registry sources. Run only binaries
-through the unit/master's `node_modules` link and checked-in Node entry points;
+through the unit's `node_modules` link and checked-in Node entry points;
 do not let a command silently download a different CLI. `package.json` scripts
 may expose the same exact commands for user convenience, but production stages
 must invoke the local Node entry points directly.
@@ -79,13 +81,13 @@ must invoke the local Node entry points directly.
 ## Shared dependency toolchain
 
 Source isolation does not require dependency duplication. Run the bundled
-preparer from the parent Skill root for every Remotion unit and master:
+preparer from the parent Skill root for every Remotion unit:
 
 ```text
 node scripts/remotion-toolchain.mjs prepare \
-  --project <unit-or-master-project> \
+  --project <unit-project> \
   --production-root <broll-production> \
-  --receipt <unit-or-master-evidence/toolchain.json>
+  --receipt <unit-evidence/toolchain.json>
 ```
 
 The script derives an identity from the exact dependency declarations, full
@@ -97,13 +99,13 @@ delete an existing private dependency tree automatically; stop and migrate it
 explicitly. The dependency link is the only permitted project symlink and the
 verifier continues to exclude dependency bytes from production identity.
 
-Wrap every install, typecheck, browser geometry trace, diagnostic render,
-block freeze, Studio launch, and formal render:
+Wrap every install, typecheck, browser geometry trace, diagnostic render, and
+frozen-unit render:
 
 ```text
 node scripts/remotion-toolchain.mjs run-heavy \
   --production-root <broll-production> \
-  --cwd <unit-or-master-project> -- \
+  --cwd <unit-project> -- \
   <direct executable> [arguments...]
 ```
 
@@ -147,11 +149,11 @@ use, ambient animation loops, and silent visual fallbacks are outside this
 contract. A failed support check or still canary is `unsupported` for this
 capability, not permission to weaken the Recipe or switch backend.
 
-For WebGL2, freeze either `angle` or `swangle` in the identity-bound
+For WebGL2, freeze either `angle` or `swangle` in the source-identity-bound
 `remotion.config.ts` through
 `Config.setChromiumOpenGlRenderer()`. Use `angle` when the verified render host
-has the required GPU path and `swangle` for a verified software path. Builder,
-Integrator, Studio/preflight, and formal Render must use the same value.
+has the required GPU path and `swangle` for a verified software path. Builder
+capture, diagnostics, and frozen-unit render must use the same value.
 
 When this capability appears in any shot, `remotion-project.json` must declare:
 
@@ -204,7 +206,7 @@ Record boundary quantization in technical verification.
 
 ## Project and manifest contract
 
-Each runnable block project and integrated master contains:
+Each runnable authoring-unit project contains:
 
 - `src/index.ts`, which calls `registerRoot`;
 - `src/Root.tsx`, which registers exactly the declared `Composition`;
@@ -225,28 +227,20 @@ Run from the installed parent Skill root:
 node scripts/remotion-verify.mjs \
   --project <project-directory> \
   --manifest <project-directory>/remotion-project.json \
-  --expect <block|master> \
+  --expect block \
   --json
 ```
 
-The master Integrator creates the approval identity atomically by adding:
-
-```text
---write-identity <new-composition-identity.json>
-```
-
-The command refuses to overwrite an identity. On preview and render passes,
-compare the unchanged project with:
-
-```text
---identity <composition-identity.json>
-```
-
-The identity covers the manifest and every production file recorded in it.
+The Builder binds the manifest and every production file recorded in it to the
+unit source identity and frozen-media contract.
 The verifier ignores only root `.git/` and root `node_modules/`; every other
 file under `project/` must appear in the manifest and identity. Put caches,
-stills, previews, logs, and rendered outputs in sibling evidence directories
+stills, logs, and rendered outputs in sibling evidence directories
 outside `project/`, where they never enter the identity.
+
+The schema still reads legacy `kind: master`, `--expect master`,
+`--write-identity`, and `--identity` records so a pre-v0.9 task can be audited.
+Do not use those legacy modes to start or continue a new v0.9 production.
 
 ## Deterministic source rules
 
@@ -280,20 +274,20 @@ The Builder runs, in order:
 4. runtime capture of meaningful DOM/scene geometry for every frame through
    the same wrapper;
 5. `scripts/motion-layout-lint.mjs` against that trace, with rendered
-   diagnostics only for returned finding windows.
+   diagnostics only for returned finding windows;
+6. one continuous frozen-unit render in the runtime plan's immutable common
+   profile;
+7. FFprobe, full decode, duration/frame/audio checks, source identity, media
+   SHA-256, and schema-valid `block-media.json` closure.
 
-The Integrator runs the verifier with `--expect master`, reuses unchanged
-Builder toolchain/typecheck receipts, prepares the master against the same
-dependency identity when possible, typechecks only integration glue, captures and lints the full master geometry
-once, then writes `composition-identity.json`. It does not repeat unit stills
-or create a second preview.
-
-The Render/Delivery stage verifies unchanged identity and the prior master lint
-instead of repeating install, typecheck, trace, or still sets. It launches
-Remotion Studio as the single human moving-preview surface and stops for
-explicit approval bound to the composition identity. The approved pass verifies
-the same identity, renders to a new attempt path, and uses FFprobe plus a
-complete decode before moving one verified file to the unused final path.
+After all Builder units pass, the Parent runs
+`scripts/assemble-frozen-production.mjs preview` with the plan, shared Director
+artifacts, and every unit contract. The script resolves contracts and assembles
+them in plan order, creates the one bounded moving preview, fully decodes it,
+and freezes the approval identity. After user approval, the Parent runs
+`deliver` with the same evidence and encodes a new full-spec master. No
+Integrator or Render Agent is dispatched, and the preview is never copied as
+the master.
 
 Read `references/motion-layout-lint.md` for the shared trace contract and
 limits. Static source regex cannot establish geometry or easing quality. A
@@ -303,13 +297,14 @@ exaggeration, appeal, or story clarity, so the final moving preview remains the
 only aesthetic decision.
 
 Invoke `node node_modules/@remotion/cli/remotion-cli.js` with the manifest's
-entry point and Composition ID explicitly for studio, still, and render.
+entry point and Composition ID explicitly for diagnostic stills and the
+frozen-unit render.
 Never infer a composition ID from file names, use
 `latest`, overwrite an output, treat an exit code alone as evidence, or claim
 visual parity with HyperFrames.
 
 For a faceless or otherwise silent audio policy, pass `--muted` explicitly to
-every preview and formal render. Do not infer silence from the absence of an
+every diagnostic clip and frozen-unit render. Do not infer silence from the absence of an
 `Audio` component: Remotion may otherwise emit a near-silent audio stream and
 extend the container beyond the exact frame duration. Verify zero audio
 streams and `durationInFrames / fps` container duration with FFprobe.
@@ -319,7 +314,11 @@ streams and `durationInFrames / fps` container duration with FFprobe.
 Remotion and HyperFrames share the Director Recipe, selected pattern intent,
 and frozen Assets handoff. They do not share runtime source. A production run
 uses a validated post-Director runtime plan before build, and every later
-handoff preserves its block binding. A single-backend plan never mixes blocks.
-A hybrid plan exchanges only schema-valid frozen block media through the Hybrid
-Integrator. Do not convert a failed block to the other runtime or pre-render it
-merely to disguise a reroute.
+handoff preserves its authoring-unit and block binding. Every route exchanges
+only schema-valid frozen unit media at the Parent's assembly boundary. Do not
+convert a failed unit to the other runtime or pre-render it merely to disguise
+a reroute.
+
+Legacy Integrator, Studio-approval, and Render records remain readable only for
+explicit pre-v0.9 recovery. Their stage Skills return read-only recovery
+reports and must not be dispatched for a new production.

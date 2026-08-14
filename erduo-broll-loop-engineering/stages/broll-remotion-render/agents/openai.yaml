@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Remotion Render and Delivery"
-  short_description: "Preview, render, and verify the Remotion master."
-  default_prompt: "Use $broll-remotion-render to verify the identity-bound Remotion composition, obtain preview approval, and deliver one technically verified master."
+  display_name: "Legacy Remotion Delivery"
+  short_description: "Inspect legacy Remotion delivery records."
+  default_prompt: "Use $broll-remotion-render to inspect a pre-v0.9 Remotion delivery record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

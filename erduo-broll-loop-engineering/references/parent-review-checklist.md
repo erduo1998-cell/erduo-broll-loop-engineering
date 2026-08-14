@@ -45,9 +45,17 @@ gate: the user's decision on the final identity-bound composition preview.
 - Uncertain facts use safe wording; no copied third-party code, prompt,
   example, media, or wording enters the artifacts.
 
-## Runtime plan
+## Runtime plan and assignments
 
-- Generated JSON passes the bundled validator and was not hand-edited.
+- The Parent generated `production-profile.json` with
+  `create-production-profile.mjs`; it did not hand-write output policy JSON.
+- The Parent ran `plan-runtime.mjs` directly with Recipes, selection, narrative
+  envelope, visual system, `--production-profile`, and an unused production
+  root. No Runtime Planner Agent was dispatched.
+- The plan and every Builder assignment carry the generated profile's same hash
+  identity.
+- Generated plan and assignment JSON pass bundled validation and were not
+  hand-edited or created by redirecting stdout.
 - Every shot appears exactly once in one backend block and one authoring unit.
 - Blocks remain contiguous runtime/integration boundaries.
 - Authoring units remain inside one block, contain whole adjacent shots,
@@ -102,21 +110,24 @@ gate: the user's decision on the final identity-bound composition preview.
   dependency copy, and every install/typecheck/browser/render command used the
   fixed two-slot heavy queue.
 
-## Integration and delivery
+## Scripted assembly and delivery
 
-- Every planned unit/block is present once and ordered; Recipe-to-runtime
-  traceability, resources, fonts, time coverage, seams, and composition
-  identity close.
+- Every planned unit is present once. Contract CLI arguments may arrive in any
+  order because the script resolves and assembles them in plan order; missing,
+  duplicate, unplanned, or changed contracts fail closed.
+- Recipe-to-runtime traceability, resources, fonts, time coverage, seams, and
+  composition identity close.
 - Hybrid crosses runtimes only through validated frozen media; no live nesting
   or generated-source interchange occurs.
-- Integrators change only integration-owned structure and run typecheck/check
-  plus one full-composition motion/layout lint. A pass creates no routine
-  static analysis; findings alone trigger bounded diagnostic frames or clips.
-- Render compares unchanged identity and runs only delivery-local checks. The
-  final composition preview is the only user aesthetic stop; no independent
-  visual review precedes it.
-- A different fresh Render Agent receives identity-bound approval, rechecks
-  unchanged identity, and renders only to unused targets.
+- The Parent ran `assemble-frozen-production.mjs preview`; it validated unit
+  media, assembled the one bounded moving preview, fully decoded it, and froze
+  the approval identity. No Integrator or Render Agent was dispatched.
+- After approval, the Parent ran `assemble-frozen-production.mjs deliver` with
+  the same plan, shared artifacts, contracts, preview, and identity. It
+  revalidated unchanged inputs and encoded a new full-spec master to an unused
+  path rather than copying the preview.
+- The final composition preview is the only user aesthetic stop. Script checks
+  and the bounded original-Director witness do not claim aesthetic approval.
 - Exactly one verified master passes FFprobe and complete decode. Technical
   facts are not presented as aesthetic approval.
 

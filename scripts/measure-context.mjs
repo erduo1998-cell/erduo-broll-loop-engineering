@@ -27,26 +27,41 @@ export const V070_PARENT_DEFAULT = [
   'erduo-broll-loop-engineering/references/runtime/frozen-block.schema.json',
 ];
 
-const COMMON = [
+const V070_COMMON = [
   'erduo-broll-loop-engineering/stages/broll-director/SKILL.md',
   'erduo-broll-loop-engineering/stages/broll-runtime-plan/SKILL.md',
   'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md',
 ];
 
-export const ROUTES = {
-  hyperframes: [...COMMON,
+export const V070_ROUTES = {
+  hyperframes: [...V070_COMMON,
     'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-render/SKILL.md'],
-  remotion: [...COMMON,
+  remotion: [...V070_COMMON,
     'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-remotion-integrate/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-remotion-render/SKILL.md'],
-  hybrid: [...COMMON,
+  hybrid: [...V070_COMMON,
     'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-hybrid-integrate/SKILL.md',
     'erduo-broll-loop-engineering/stages/broll-hybrid-render/SKILL.md'],
+};
+
+const CURRENT_COMMON = [
+  'erduo-broll-loop-engineering/stages/broll-director/SKILL.md',
+  'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md',
+];
+
+export const ROUTES = {
+  hyperframes: [...CURRENT_COMMON,
+    'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md'],
+  remotion: [...CURRENT_COMMON,
+    'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md'],
+  hybrid: [...CURRENT_COMMON,
+    'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md'],
 };
 
 const SAFETY_MARKERS = [
@@ -77,15 +92,35 @@ export async function gitReader(ref, root = repoRoot) {
   };
 }
 
-export async function measureSnapshot(label, reader, { parentDefault = PARENT_DEFAULT } = {}) {
-  const files = [...new Set([...parentDefault, ...Object.values(ROUTES).flat()])];
+function variableAgentModel(route) {
+  return {
+    fixed_creative_agents: 2,
+    fixed_roles: ['Director', 'Assets'],
+    builder_agents: 'task input',
+    total_formula: '2 + builder_count',
+    builder_skills: route === 'hyperframes'
+      ? ['broll-master-build']
+      : route === 'remotion'
+        ? ['broll-remotion-build']
+        : ['broll-master-build', 'broll-remotion-build'],
+    script_steps_counted_as_agents: false,
+    director_visual_witness: 'same Director; 0 additional agents',
+  };
+}
+
+export async function measureSnapshot(label, reader, {
+  parentDefault = PARENT_DEFAULT,
+  routes = ROUTES,
+  agentModel = 'variable-builders',
+} = {}) {
+  const files = [...new Set([...parentDefault, ...Object.values(routes).flat()])];
   const entries = {};
   for (const file of files) {
     const text = await reader(file);
     entries[file] = { text, bytes: Buffer.byteLength(text) };
   }
   const parentBytes = parentDefault.reduce((sum, file) => sum + entries[file].bytes, 0);
-  const routePromptBytes = Object.fromEntries(Object.entries(ROUTES).map(([route, routeFiles]) => [
+  const routePromptBytes = Object.fromEntries(Object.entries(routes).map(([route, routeFiles]) => [
     route,
     parentBytes + routeFiles.reduce((sum, file) => sum + entries[file].bytes, 0),
   ]));
@@ -98,8 +133,14 @@ export async function measureSnapshot(label, reader, { parentDefault = PARENT_DE
     parent_default_files: parentDefault,
     parent_default_required_bytes: parentBytes,
     route_prompt_bytes: routePromptBytes,
-    route_default_agent_count: Object.fromEntries(Object.entries(ROUTES)
-      .map(([route, routeFiles]) => [route, routeFiles.length])),
+    route_default_agent_count: Object.fromEntries(Object.entries(routes)
+      .map(([route, routeFiles]) => [
+        route,
+        agentModel === 'legacy-fixed' ? routeFiles.length : variableAgentModel(route),
+      ])),
+    ...(agentModel === 'variable-builders' ? {
+      agent_count_policy: 'Builder count comes from the generated task plan. Director, Assets, and Builders are Agents; deterministic planning, validation, assembly, preview, and delivery scripts are not Agents.',
+    } : {}),
     proxies: {
       safety_implementation_copy_files: safetyFiles,
       safety_implementation_copy_count: safetyFiles.length,
@@ -133,6 +174,10 @@ export function compareSnapshots(baseline, current) {
   };
 }
 
+function usesLegacyRouteModel(ref) {
+  return /^v0\.(?:[0-7](?:\.|$)|8(?:\.|$))/u.test(ref);
+}
+
 export async function buildContextMeasurement({
   baselineRef = 'v0.7.0',
   currentRef = 'worktree',
@@ -141,15 +186,24 @@ export async function buildContextMeasurement({
 } = {}) {
   const readBaseline = baselineReader ?? await gitReader(baselineRef);
   const readCurrent = currentReader ?? await gitReader(currentRef);
+  const baselineLegacy = usesLegacyRouteModel(baselineRef);
+  const currentLegacy = usesLegacyRouteModel(currentRef);
   const baseline = await measureSnapshot(baselineRef, readBaseline, {
     parentDefault: baselineRef === 'v0.7.0' ? V070_PARENT_DEFAULT : PARENT_DEFAULT,
+    routes: baselineLegacy ? V070_ROUTES : ROUTES,
+    agentModel: baselineLegacy ? 'legacy-fixed' : 'variable-builders',
   });
-  const current = await measureSnapshot(currentRef, readCurrent);
+  const current = await measureSnapshot(currentRef, readCurrent, {
+    routes: currentLegacy ? V070_ROUTES : ROUTES,
+    agentModel: currentLegacy ? 'legacy-fixed' : 'variable-builders',
+  });
   const currentArgument = currentRef === 'worktree' ? '' : ` --current ${currentRef}`;
   return {
-    schema_version: 1,
+    schema_version: currentLegacy ? 1 : 2,
     command: `node scripts/measure-context.mjs --baseline ${baselineRef}${currentArgument}`,
-    scope: 'Deterministic default prompt-load byte proxy; actual host token and artifact I/O remain end-to-end benchmark facts.',
+    scope: currentLegacy
+      ? 'Deterministic default prompt-load byte proxy; actual host token and artifact I/O remain end-to-end benchmark facts.'
+      : 'Deterministic creative-Agent prompt-load byte proxy. Builder count is a task input; deterministic script steps are excluded from Agent counts. Actual host token and artifact I/O remain end-to-end benchmark facts.',
     baseline,
     current,
     comparison: compareSnapshots(baseline, current),

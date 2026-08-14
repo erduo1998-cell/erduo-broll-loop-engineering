@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Runtime Planner"
-  short_description: "Plan backends and focused authoring units."
-  default_prompt: "Use $broll-runtime-plan after Direction to generate and validate one deterministic backend plan with whole-shot authoring units of at most 40 seconds."
+  display_name: "Legacy B-roll Runtime Planner"
+  short_description: "Inspect legacy runtime planning records."
+  default_prompt: "Use $broll-runtime-plan to inspect a pre-v0.9 runtime-planning record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

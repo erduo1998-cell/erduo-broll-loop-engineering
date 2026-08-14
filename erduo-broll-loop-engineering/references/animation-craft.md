@@ -12,10 +12,14 @@ Use this protocol together with the shared visual system, compact Recipe v2
 rules in every Recipe or expand it into a longer downstream prompt.
 
 Do not begin with an effect, easing curve, spring, transition, catalog card, or
-runtime primitive. Generate each shot in this order:
+runtime primitive. Separate the content decision from the creative solution and
+generate each shot in this order:
 
 ```text
-meaning
+spoken meaning
+→ audience obstacle
+→ visual job
+→ freely chosen visual idea
 → attention
 → body and material
 → causal action
@@ -101,24 +105,30 @@ This compiles **Exaggeration**, the expressive side of **Timing**, and
 
 Generate the shot without Shotcraft from these questions:
 
-1. What must the audience understand, and what is the one first-read focus?
-2. How does attention reach that focus before the decisive change?
-3. What are the subject's material, mass, depth, support, and motion character?
-4. What are the initial state, decisive action, settled result, and readable
+1. What must the audience understand, what may be hard to grasp from speech
+   alone, and what job should the picture perform?
+2. What original concrete, abstract, metaphorical, diagrammatic, typographic,
+   media-led, or mixed visual idea best performs that job? Explore freely; no
+   route is the default and style must not decide meaning first.
+3. What is the one first-read focus, and how does attention reach it before the
+   decisive change?
+4. What are the subject's material, mass, depth, support, and motion character?
+5. What are the initial state, decisive action, settled result, and readable
    stable interval?
-5. Which layers lead, which depend on them, and how do dependent layers finish?
-6. Does the idea need authored key states or deterministic continuous motion?
-7. What is the one expressive peak, and what remains restrained around it?
-8. How does this action inherit from or hand energy to the neighboring shot?
+6. Which layers lead, which depend on them, and how do dependent layers finish?
+7. Does the idea need authored key states or deterministic continuous motion?
+8. What is the one expressive peak, and what remains restrained around it?
+9. How does this action inherit from or hand energy to the neighboring shot?
 
-Translate the answers into the existing runtime-neutral Recipe fields:
-`semantics.focus`, `semantics.visualLogic`, `visualState`, `motion.phases`,
-`readability`, materials, and neighbor connection. Describe observable motion
-and results, not principle names or backend APIs. If this closes the shot, stop:
-no Shotcraft query or no-pattern receipt is required. Query only for a named
-remaining technique question or an explicit user request. A selected card may
-refine the mechanism but must not originate the shot's meaning or movement
-character.
+Translate the answers into the compact runtime-neutral Recipe fields:
+`audienceUnderstanding`, `visualJob`, `focus`, `heroFrame`, `microBeats`,
+`readableHold`, material needs, and neighbor handoff. Describe observable motion
+and results, not principle names or backend APIs. Give every beat its resulting
+visible state and principal development, and cover intentional stability with a
+`deliberate-stillness` beat. If this closes the shot, stop: no Shotcraft query or
+no-pattern receipt is required. Query only for a named remaining technique
+question or an explicit user request. A selected card may refine the mechanism
+but must not originate the shot's meaning or movement character.
 
 ## HyperFrames Builder generation procedure
 
@@ -139,12 +149,14 @@ Author in this order:
 6. add secondary action only when it strengthens meaning;
 7. remove ambient motion that has no informational or emotional cause.
 
-Use the smallest set of HyperFrames mechanisms that preserves the generated
-direction. For elastic motion pair axial scales coherently rather than tweening
-layout dimensions. Put entrance, continuing motion, and dependent motion on
-separate wrappers when their transform ownership would conflict. All motion
-remains finite, deterministic, and seek-safe under the official HyperFrames
-contract.
+Use as many HyperFrames mechanisms and visual layers as the generated direction
+needs. Do not treat mechanism count as a quality target or collapse a rich idea
+into a caption-plus-image layout. For elastic motion pair axial scales coherently
+rather than tweening layout dimensions. Put entrance, continuing motion, and
+dependent motion on separate wrappers when their transform ownership would
+conflict. All motion remains deterministic and seek-safe under the official
+HyperFrames contract; continuous motion may run through a shot but cannot stand
+in for its planned finite developments.
 
 ## Remotion Builder generation procedure
 
@@ -170,6 +182,18 @@ excessive reversal, synchronized starts, competing motion foci, short or moving
 readable holds, safe-area exits, off-canvas elements, and strong unplanned
 overlap. Only actual rendered DOM or scene geometry qualifies; static source
 regex, Recipe prose, and hand-authored estimates do not.
+
+When Recipes are supplied to the shared lint, it may additionally prove that
+each planned non-still beat is bound to a non-decorative rendered action and that
+the subject actually changes within that beat. Finite actions may transform and
+settle; progressive continuous subject action may fulfill a beat when its end
+state visibly advances. A background loop, particle drift, moving decorative
+line, unbound continuous motion, or a motion declaration with unchanged rendered
+state cannot satisfy a beat. For a long non-still beat, an opening change followed
+by an undeclared long still tail also cannot satisfy the planned window; describe
+intentional stability as `deliberate-stillness`. This is a technical risk filter,
+not a fixed motion interval, beat count, or judgment that the chosen composition,
+metaphor, rhythm, or animation is aesthetically correct.
 
 Technical checks must not claim to prove anticipation, weight, overlap, timing, arcs,
 exaggeration, or appeal. More precisely, these checks do not prove that

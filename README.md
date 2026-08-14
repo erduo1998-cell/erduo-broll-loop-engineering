@@ -4,7 +4,7 @@
 
 **给一份 SRT，Agent 自动完成原创分镜、素材、动画、预览与最终 Master。**
 
-[![Version](https://img.shields.io/badge/version-0.8.2-c87842)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-c87842)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-17120e)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-c87842)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-17120e)](LICENSE)
@@ -44,14 +44,46 @@
 
 | 你交给它 | Agent 完成 | 你收到 |
 | --- | --- | --- |
-| SRT；可选口播视频、Logo、截图和品牌要求 | 原创视觉方向、语义分镜、素材冻结、后端路由、动画构建、代码筛查与整合 | 可编辑工程、唯一完整预览、验证后的 `master.mp4` |
+| SRT；可选口播视频、Logo、截图和品牌要求 | 原创视觉方向、语义分镜、素材冻结、动画构建、片段验证与脚本拼接 | 可编辑源码、唯一完整预览、验证后的 `master.mp4` |
 
 - 时间严格锚定 SRT，不按“一句字幕配一个镜头”机械切片。
 - 默认 `auto`：先完成运行时中立分镜，再按真实能力证据逐镜选择 HyperFrames、Remotion 或 hybrid。
+- Director 负责整片表达，Assets 负责素材，多名 Builder 分担镜头；每名 Builder 只接收自己的任务和必要上下文。
+- 口播中的观点与情绪变化先转成动画节拍；Builder 必须让主体、空间、层级、关系或视觉重点随节拍产生可见发展，装饰循环不能代替主要动画。
 - 运动和构图通过真实逐帧 geometry 代码筛查；通过时不做重复抽帧，异常才定位证据。
 - 正常生产不再重复派 Onboarding Agent；只有安装身份变化或真实工具故障才定点诊断。
-- Remotion 多单元保持源码隔离，但相同精确依赖只安装一次；安装、类型检查、浏览器分析和渲染最多同时运行两个。
+- 后端规划、任务分发、检查、片段拼接和预览准备由 Parent 直接运行脚本，不再启动 Runtime Planner、Integrator 或 Render Agent。
+- 一条生产任务共用素材库与相同依赖；Builder 保持源码隔离，不再复制完整工程和相同素材。
+- 每个 Builder 交付可编辑源码和统一规格、已验证的视频片段；脚本拼接视频片段，不假设能够直接理解任意 HyperFrames 或 Remotion 源码。
+- 完整预览最高 1080p，使用 `veryfast / CRF 22` 快速生成，并绑定运行计划、全部镜头合同和实际片段身份。
+- 用户批准后，交付命令必须重新提供运行计划、整体叙事、视觉系统和全部镜头合同；脚本从冻结片段重新生成完整规格的 `medium / CRF 16` Master，不复制预览文件冒充成片。
 - 默认交付 4K、30 fps、H.264 MP4；字幕不重复烧录，背景音乐不自动添加。
+
+输出规格不会让 Parent 手写 JSON。默认规格与竖屏 1080×1920、25 fps
+规格都由同一个脚本确定生成：
+
+```bash
+node erduo-broll-loop-engineering/scripts/create-production-profile.mjs \
+  --output /path/to/broll-production/production-profile.json
+
+node erduo-broll-loop-engineering/scripts/create-production-profile.mjs \
+  --output /path/to/vertical-production/production-profile.json \
+  --width 1080 --height 1920 --fps 25 \
+  --audio silent --master-format h264-mp4
+```
+
+父流程必须把生成文件通过 `plan-runtime.mjs --production-profile <文件>`
+传入计划。画幅、帧率、音频和输出格式随后以同一个哈希写进计划、每个
+Builder 任务和成片校验；明确的竖屏或其他帧率不会退回默认 4K/30。
+
+## v0.9.0：创作保留，重复工作收敛
+
+- 保留 Director、Assets 和多 Builder 的创作分工，不把镜头收缩成固定模板，也不限制抽象、构图或动画复杂度。
+- Director 先明确口播含义和画面任务，再自由设计视觉语言，避免风格替代内容表达。
+- 非创作步骤交给确定性脚本，共用依赖与素材；Builder 交付可编辑源码和统一规格的已验证视频片段，返工只回到原责任 Builder。
+- 节拍验证不仅检查计划和时间，还要检查对应时段是否出现计划中的可见发展；长镜头不能只靠线条、粒子或背景循环支撑。
+
+这些检查能发现计划未落地、长时间无主要发展和可测的构图风险，不能判断动画是否高级或替用户作审美决定。唯一完整动态预览仍由用户决定是否正式渲染。
 
 ## 工作流
 
@@ -63,12 +95,13 @@
 SRT / 已剪视频 / 用户素材
   → Director 原创分镜
   → Assets 素材冻结
-  → Runtime Planner 选择后端
-  → HyperFrames / Remotion / Hybrid 构建与整合
-  → motion-layout 代码筛查
-  → 唯一完整动态预览
+  → 脚本分配后端和 Builder 任务
+  → Builder 交付可编辑源码 + 已验证视频片段
+  → 脚本按 SRT 拼接片段
+  → 节拍落地 + motion-layout 代码筛查
+  → 最高 1080p 完整动态预览
   → 用户批准
-  → Master + FFprobe + 完整解码验证
+  → 从冻结片段重新生成 Master + 完整验证
 ```
 
 ## 152 张 Shotcraft 卡不会限制创作
@@ -130,9 +163,12 @@ node scripts/uninstall.mjs
 ## 真实边界
 
 - 现有项目按真实特征判断；同时命中两套后端特征时停止并请用户选择，不静默猜测。
-- HyperFrames 走 Build → Integrate → Render；Remotion 走 **Remotion Build → Integrate → Render**。
+- HyperFrames 与 Remotion Builder 分别完成自己的镜头源码和已验证视频片段；最终由脚本按统一规格和 SRT 时间拼接。
 - 安装器不会把 Remotion 加入共享 runtime 或全局安装；每条生产任务使用自己的精确 package/lock，同一依赖身份只在该任务内共享一份本地工具链。
 - `hybrid` 只交换带 hash、FFprobe 和完整解码证据的冻结区块媒体，不实时嵌套两套运行时。
+- 最终脚本只拼接统一规格、身份和时间均已验证的视频片段；各 Builder 源码继续交付用于后续编辑，但不宣称脚本能直接合并任意双后端源码。
+- 预览只用于快速审看：最高 1080p、`veryfast / CRF 22`。批准身份同时绑定运行计划、整体叙事、视觉系统、全部镜头合同和片段 hash。
+- 正式交付必须重新传入 `--plan`、`--narrative-envelope`、`--visual-system` 和每一个 `--contract`；合同参数可以任意排列，脚本会按 plan 顺序装配，并拒绝缺失、重复、不属于 plan 或内容改变的合同。身份复核通过后，脚本从冻结片段重新编码完整规格的 `medium / CRF 16` Master，绝不复制预览文件。
 - 代码筛查能发现跳变、未 settle、遮挡、裁切、拥挤、层级和运动焦点风险，不能自动证明故事感染力、重量感、弧线、夸张或 appeal。
 - 最终完整动态预览仍是唯一默认审美决定；Windows、剪映 / CapCut GUI 和跨后端视觉一致性尚未验证。
 

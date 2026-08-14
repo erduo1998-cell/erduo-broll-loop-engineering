@@ -20,6 +20,22 @@ export function computeRuntimePlanIdentity(plan) {
   return createHash('sha256').update(canonicalJson(identityInput)).digest('hex');
 }
 
+function computeProductionProfileIdentity(profile) {
+  const { identity: _identity, ...identityInput } = profile ?? {};
+  return createHash('sha256').update(canonicalJson(identityInput)).digest('hex');
+}
+
+function validAudioProfile(audio) {
+  if (audio?.policy === 'silent') {
+    return audio.streams === 0 && audio.codec === null
+      && audio.sampleRate === null && audio.channels === null;
+  }
+  return audio?.policy === 'preserve-source' && audio.streams === 1
+    && typeof audio.codec === 'string' && audio.codec.length > 0
+    && Number.isSafeInteger(audio.sampleRate) && audio.sampleRate > 0
+    && Number.isSafeInteger(audio.channels) && audio.channels > 0;
+}
+
 async function readSharedArtifact(file, schemaPath, label, expectedLocator) {
   if (!file) throw new Error(`${label} file is required for runtime plan v2`);
   const absolute = path.resolve(file);
@@ -73,6 +89,15 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
   const errors = validateSchemaValue(plan, schema, schema);
   let shared;
   if (plan?.schemaVersion === '2.0.0') {
+    if (plan.productionProfile?.identity
+      && computeProductionProfileIdentity(plan.productionProfile) !== plan.productionProfile.identity) {
+      errors.push('#/productionProfile/identity: does not match the immutable production profile');
+    }
+    if (!validAudioProfile(plan.productionProfile?.mezzanine?.audio)
+      || !validAudioProfile(plan.productionProfile?.master?.audio)
+      || plan.productionProfile?.mezzanine?.audio?.policy !== plan.productionProfile?.master?.audio?.policy) {
+      errors.push('#/productionProfile: audio policy must be internally complete and identical for mezzanine and master');
+    }
     try {
       shared = await bindSharedArtifacts(sharedArtifactFiles);
       for (const [key, artifact] of Object.entries(shared)) {
@@ -87,9 +112,10 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
   if (plan?.identity && computeRuntimePlanIdentity(plan) !== plan.identity) errors.push('#/identity: aggregate does not match plan contents');
   if (plan?.status === 'planned') {
     if (!plan.resultingRoute || !plan.integrationMode || plan.shots.length === 0 || plan.blocks.length === 0) errors.push('#: a planned route requires shots, blocks, and integration mode');
-    if (plan.resultingRoute === 'hybrid' && plan.integrationMode !== 'frozen-block-media') errors.push('#/integrationMode: hybrid requires frozen-block-media');
-    if (plan.resultingRoute === 'hybrid' && plan.frozenMediaContractVersion !== '1.0.0') errors.push('#/frozenMediaContractVersion: hybrid requires the frozen block contract');
-    if (plan.resultingRoute !== 'hybrid' && plan.integrationMode !== 'single-runtime-source') errors.push('#/integrationMode: single runtime route requires single-runtime-source');
+    if (plan.schemaVersion === '2.0.0' && plan.integrationMode !== 'frozen-block-media') errors.push('#/integrationMode: runtime plan v2 requires frozen authoring-unit media');
+    if (plan.schemaVersion === '2.0.0' && plan.frozenMediaContractVersion !== '1.0.0') errors.push('#/frozenMediaContractVersion: runtime plan v2 requires the frozen media contract');
+    if (plan.schemaVersion === '1.0.0' && plan.resultingRoute === 'hybrid' && plan.integrationMode !== 'frozen-block-media') errors.push('#/integrationMode: hybrid requires frozen-block-media');
+    if (plan.schemaVersion === '1.0.0' && plan.resultingRoute !== 'hybrid' && plan.integrationMode !== 'single-runtime-source') errors.push('#/integrationMode: legacy single runtime route requires single-runtime-source');
     const expectedBackends = [...new Set(plan.shots.map(({ runtime }) => runtime))].sort();
     if (JSON.stringify(expectedBackends) !== JSON.stringify([...plan.requiredBackends].sort())) errors.push('#/requiredBackends: does not match shot assignments');
     const shots = [...plan.shots].sort((a, b) => a.window.startMs - b.window.startMs || a.shotId.localeCompare(b.shotId));

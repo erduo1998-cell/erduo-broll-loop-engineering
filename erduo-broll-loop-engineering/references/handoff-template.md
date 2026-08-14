@@ -27,29 +27,25 @@ the stage defines one.
 - **Director:** narrative-envelope, visual-system, shot-plan, Recipe directory,
   validator, actual material needs/no-need set, and unresolved factual terms.
   Do not repeat the shared system or catalog bodies.
-- **Runtime Planner:** generated plan/validator identity, ordered blocks,
-  authoring units, required backends, warnings, and unverified preferences.
+- **Parent planning script:** generated plan identity, assignment packet
+  locators, ordered blocks/authoring units, required backends, warnings, and
+  unverified preferences. This is a script receipt, not an Agent handoff.
 - **Assets:** selected inventory/font/provenance locators, actual acquisition
   routes, asset-fusion bindings, and conditional Pexels facts. When no request
   reached Pexels, say `pexels: not-invoked (no need)` once.
 - **Builder:** authoring-unit/parent-block ID, Recipe/source/receipt locators,
   shared-system identity, selected 0–2 references, reuse/native-fallback
   decision, material/font bindings, seams, dependency identity and shared
-  toolchain receipt when Remotion, and check locators. Hybrid adds its
-  frozen-media contract/hash/probe/decode locator.
-- **Hybrid block-freeze Builder:** same-backend block ID/window, ordered passed
-  unit receipt/source-export locators, temporary block-level glue locator,
-  per-file hashes and aggregate source identity, same-backend technical command
-  evidence, and the existing `block-media.json`/mezzanine identity. Record no
-  unit-internal source or creative change; return source/hash drift, glue
-  conflict, or render failure to the implicated unit Builder.
-- **Integrator:** ordered unit/block closure, integration-only changes,
-  runtime check/typecheck, full-composition motion/layout lint coverage,
-  exception-triggered diagnostic facts, and composition identity.
-- **Render:** same-environment preflight and identity. Preview pass reports the
-  final preview locator and `action-required` because approval is absent;
-  approved pass reports bound approval, unused attempt/final targets,
-  FFprobe/full-decode facts, and final master.
+  toolchain receipt when Remotion, check locators, and the verified frozen-unit
+  contract/hash/probe/decode locator.
+- **Parent preview/delivery script:** plan-ordered unit closure, preview and
+  identity locators, FFprobe/full-decode facts, approval state, unused final
+  target, and verified master facts. This is a script receipt, not an
+  Integrator or Render handoff.
+- **Legacy Planner/Integrator/Render:** only when the user explicitly asks to
+  inspect or recover a pre-v0.9 task, report the last trustworthy identity,
+  available artifact locators, concrete mismatch, and safest next owner. Do
+  not create new production artifacts or continue the legacy chain.
 - **Shot Export:** source master identity, requested shot windows, outputs,
   FFprobe, and decode facts.
 

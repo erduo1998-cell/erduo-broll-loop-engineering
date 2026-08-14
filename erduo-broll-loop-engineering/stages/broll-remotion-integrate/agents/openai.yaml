@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Remotion Master Integrator"
-  short_description: "Assemble Remotion blocks into one master."
-  default_prompt: "Use $broll-remotion-integrate to assemble all verified Remotion blocks, render integration evidence, and freeze the approval identity."
+  display_name: "Legacy Remotion Integrator"
+  short_description: "Inspect legacy Remotion integration records."
+  default_prompt: "Use $broll-remotion-integrate to inspect a pre-v0.9 Remotion integration record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

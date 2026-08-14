@@ -1,6 +1,6 @@
 ---
 name: broll-remotion-build
-description: Build one runtime-plan-assigned Remotion authoring unit, or freeze one verified Remotion block for hybrid integration.
+description: Build one runtime-plan-assigned Remotion authoring unit and deliver editable source plus one verified continuous frozen unit, or freeze an already verified multi-unit block.
 ---
 
 # Remotion Builder
@@ -19,6 +19,11 @@ Run the Recipe validator. Use only exact project-local Remotion packages and
 CLI; never global packages, download-style `npx`, HyperFrames execution, or
 runtime switching.
 
+Verify the immutable `assignment.productionProfile` against both its assignment
+identity and the runtime plan. Use its exact raster, fps rational, mezzanine
+container/codec/pixel/color/audio, and final-master policy. Never guess or
+substitute an output profile.
+
 Read `animation-craft.md`, `visual-craft.md`, `remotion-backend.md`, and
 `motion-layout-lint.md`. Query only selected craft/card entries and their
 manifest-pinned reference imports. Treat reference TSX as Apache-2.0 knowledge,
@@ -34,8 +39,8 @@ Write an isolated source project only under
 `broll-production/03-remotion-build/<authoring-unit-id>/project/`. Register one
 block Composition and assemble assigned semantic shots with deterministic
 `Sequence` offsets using the backend reference's absolute millisecond/frame
-mapping. Preserve Recipe meaning, focus, material roles, phase boundaries,
-readable holds, and seams.
+mapping. Preserve Recipe meaning, visual job, focus, material roles, beat
+boundaries, readable holds, and seams.
 
 Build the maximum visible hero state first: focus, depth, edge anchors, media
 geometry, support structure, and readable result. Then author attention,
@@ -43,6 +48,14 @@ primary causal action, dependent overlap/follow-through, one expressive peak,
 settle, and hold. Use `spring` only when physical character needs it. Media
 must drive crop, mask, path, annotation, palette, depth, or state—not a generic
 frame.
+
+Implement every non-still Recipe beat as a beat-bound development of a meaningful
+primary, secondary, text, or structural element. Finite action may transform and
+settle; progressive continuous subject action may fulfill a beat when it advances
+to a new visible state. Background loops, particles, decorative lines, unbound
+continuous motion, or unchanged motion declarations cannot fulfill a beat. Do
+not add or compress beats by a fixed duration or count; realize the Director's
+content-derived progression.
 
 All visible motion must derive from current frame/fps, deterministic math, or a
 fixed seed. No CSS time animation, timers, ambient effects/state, render-time
@@ -58,7 +71,11 @@ and explicitly loaded. Never run a private per-unit `npm ci`. Call the bundled
 production-root toolchain through the unit's `node_modules` link.
 
 Run verifier, identity-bound shared-toolchain preparation, the unit typecheck,
-truthful per-frame runtime geometry capture, and motion/layout lint. Route
+truthful per-frame runtime geometry capture, and motion/layout lint with
+`--recipes` pointing to this unit's assigned Recipe directory. Capture runtime
+styling hashes when a planned material-state or attention change is not expressed
+by geometry; never hash text content as a substitute for development. Beat
+delivery cannot claim a pass when its principal development is unmeasured. Route
 install, typecheck, browser trace, diagnostic render, and block freeze render
 through `remotion-toolchain.mjs run-heavy`; its fixed limit is two. A pass produces no routine still,
 unit preview, or AI frame inspection. Findings alone render bounded diagnostic
@@ -67,21 +84,30 @@ must expose semantic bounds, not merely its canvas rectangle.
 
 ## Deliver
 
-Deliver project source, compact `receipt.json`, shared-toolchain receipt, and
-minimal `handoff.md` with Composition ID, dependency identity, manifest/QA
-locators, coverage, seams, exceptions, and next owner. The final integrated
-moving preview remains the only aesthetic review.
+Deliver editable project source, compact `receipt.json`, shared-toolchain
+receipt, one continuous lossless/visually-lossless frozen unit, schema-valid
+`block-media.json`, and minimal `handoff.md` with Composition ID, dependency
+identity, manifest/QA locators, coverage, seams, exceptions, and next owner.
+This frozen delivery is required for every normal authoring unit, not only
+hybrid work. Match the production output policy's single width, height, fps,
+codec, pixel format, color, and audio contract so a later script can concatenate
+units without interpreting their source. Render it only after Recipe-bound lint passes. A silent policy
+passes `--muted`, requires zero audio streams, and verifies exact frame duration
+as `durationInFrames / fps`; FFprobe and fully decode the result and validate the
+existing frozen-block contract. The final integrated moving preview remains the
+only aesthetic review.
+Write a compact source manifest for the editable source closure only: list every
+source-owned file and hash plus its entrypoints; exclude dependencies, caches,
+renders, and generated media. Bind `sourceIdentity` to that manifest so the
+validator checks the declared closure without scanning the whole unit tree.
 
-For a one-unit hybrid block, also render one lossless/visually-lossless
-mezzanine; a silent policy passes `--muted`, requires zero audio streams, and
-verifies exact frame duration as `durationInFrames / fps`. FFprobe/decode it
-and write schema-valid
-`block-media.json`. For multi-unit blocks, `block-freeze` mode consumes only
-passing project receipts, adds minimum Composition/Sequence glue, binds an
-aggregate source identity, runs block gates, and freezes one verified
-mezzanine. Return unit defects to their owner.
+For multi-unit `block-freeze` mode, consume only passing project receipts, add
+minimum Composition/Sequence glue, bind an aggregate source identity, run block
+gates, and freeze one verified mezzanine. Return unit defects to their owner.
 
-Complete only with deterministic runnable TSX, continuous coverage, closed
-assets/fonts/licenses, passing verifier/typecheck and runtime-captured lint or
-resolved bounded findings. Stop for missing facts, unsupported capability,
-unavailable exact dependencies, false trace evidence, or a real failed gate.
+Complete only with deterministic runnable editable TSX, continuous coverage,
+closed assets/fonts/licenses, passing verifier/typecheck, Recipe-bound beat
+delivery and runtime-captured lint, and a verified continuous frozen unit with
+manifest. Stop for missing facts, unsupported capability, unavailable exact
+dependencies, false trace evidence, unmeasured principal beat development, or a
+real failed gate.

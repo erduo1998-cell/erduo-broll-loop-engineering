@@ -51,15 +51,23 @@ knowledge is progressively queried. Never bulk-load it.
 
 The pinned Remotion source index is exact backend-native source evidence for a
 selected card. It is not a registered component, dependency closure, render
-witness, or cross-runtime comparison. Runtime Planner may use it as lower
-priority Remotion preference evidence and must surface
+witness, or cross-runtime comparison. The deterministic planning script may
+use it as lower priority Remotion preference evidence and must surface
 `reference-source-unverified`. A Builder reads only the selected card/source
 closure and replaces every demo asset with Assets-stage material.
 
 ## Deterministic backend planning
 
-After Recipe validation, run `scripts/plan-runtime.mjs` and then
-`scripts/validate-runtime-plan.mjs`. Do not hand-author its JSON.
+After Recipe validation, the Parent runs `scripts/plan-runtime.mjs` with
+`--recipes`, `--selection`, `--narrative-envelope`, `--visual-system`, and an
+unused `--production-root`. Before that call, it runs
+`scripts/create-production-profile.mjs` with the user's width, height, fps,
+audio, and supported output-format constraints, then passes the generated file
+through `--production-profile`. With no explicit constraints the generator
+locks 3840×2160, 30 fps, silent H.264 MP4. The script validates inputs and
+atomically writes the hash-bound profile into the plan plus every minimal
+Builder assignment. Do not dispatch a Runtime Planner Agent or hand-author its
+JSON.
 
 Evidence order is deterministic:
 
@@ -91,69 +99,59 @@ and fonts, produce deterministic seekable source, and record runtime/version,
 time conversion, source identity, pattern/fallback decisions, and honest
 variance. It never reroutes after failure.
 
-For a single-backend plan, retain source through that backend's Integrator and
-Render. Do not flatten merely because media export is possible.
+For every v0.9 route, each Builder also freezes exactly one local lossless or
+visually-lossless mezzanine for its assigned authoring unit and writes a
+schema-valid `block-media.json`. Editable runtime-native source remains beside
+the unit; frozen media is the deterministic assembly boundary, not a
+replacement for source. A live effect that must cross a boundary belongs in
+one authoring unit; otherwise use the declared readable seam.
 
-For a hybrid plan, each Builder additionally freezes exactly one local
-lossless or visually-lossless mezzanine for its planned block and writes a
-schema-valid `block-media.json`. The contract binds:
-
-When the block contains one authoring unit, its Builder may freeze it directly.
-When it contains multiple units, all unit receipts must first pass; then one
-fresh same-backend Builder runs a deterministic `block-freeze` pass over only
-those verified unit source exports/receipts and the block window. It may write
-only temporary block-level composition/sequence glue, must hash the glue and
-all mounted unit source into an aggregate identity, and must run the selected
-backend's normal technical commands to render and verify the mezzanine. It
-cannot change unit-internal creative, timing, shots, or source and cannot
-perform aesthetic review; any source/hash drift, glue conflict, or render
-defect returns to the implicated unit owner.
-This preserves one frozen contract per backend block without adding a stage or
-allowing the Hybrid Integrator to execute an animation backend.
+The contract binds:
 
 - block/runtime/shot/window identity;
 - uniform raster, fps rational, pixel format, color space, mezzanine class,
   and audio policy;
 - relative local media path and actual SHA-256;
 - objective container/codec/duration/frame/audio facts;
-- backend source identity, including block-level glue and mounted unit-source
-  hashes for a multi-unit freeze pass;
+- backend source identity for the owning authoring unit;
 - FFprobe and full decode;
 - `noRealtimeNesting: true`.
 
 `scripts/validate-frozen-blocks.mjs` checks actual media hashes, profile/audio
-closure, plan closure, and duration within one frame. A bad block returns to
-its owning Builder; Integrator never transcodes a defect into compliance.
+closure, plan closure, and duration within one frame. A bad unit returns to its
+owning Builder; assembly never transcodes a defect into compliance.
 
-## Hybrid integration and approval
+## Scripted assembly, approval, and delivery
 
-The runtime-neutral Hybrid Integrator receives only the validated plan and
-frozen block artifacts. It assembles in block order with direct sanitized
-FFmpeg/FFprobe, decodes the one final moving preview, and freezes an identity
-over plan, ordered contracts, media hashes,
-profile/audio policy, and assembly recipe.
+After every planned unit passes, the Parent runs
+`scripts/assemble-frozen-production.mjs preview` with the plan, narrative
+envelope, visual system, every unit contract, a new preview path, and a new
+identity path. The script resolves contracts against the plan and assembles in
+plan order; CLI contract arguments may be supplied in any order. Missing,
+duplicate, unplanned, or changed contracts fail closed.
 
-User approval binds that exact hybrid identity. A different fresh Hybrid
-Render Agent recomputes every identity and contract before formal delivery.
-Any source identity, media hash, contract, profile, audio, plan, or integration
-change invalidates approval. Formal hybrid delivery consumes frozen media only;
-it never opens either animation runtime.
+The preview identity binds the plan, shared artifacts, plan-ordered contract
+hashes, frozen media hashes, profile/audio policy, and preview bytes. User
+approval binds that exact identity. After approval, the Parent runs
+`scripts/assemble-frozen-production.mjs deliver` with the same evidence. It
+revalidates everything and encodes a new full-spec master from frozen unit
+media. It never copies the preview, opens an animation runtime, or dispatches
+an Integrator or Render Agent.
 
 ## Evidence gates
 
 Keep these claims separate:
 
 1. **Intent:** initial selector records auto/hybrid/forced-single intent.
-2. **Plan:** deterministic planner assigns shots and contiguous blocks.
+2. **Plan:** deterministic Parent script assigns shots, blocks, and Builder packets.
 3. **Readiness:** targeted dependencies, CLI, browser, media tools, permissions,
    licensing, and paths pass for exactly the required backends.
 4. **Backend:** each assigned runtime owns deterministic source; Remotion
    installs once per dependency identity and retains unit-specific
    typecheck/geometry receipts.
-5. **Frozen block:** hybrid-only schema, actual hash, probe/decode, and visual
+5. **Frozen unit:** every Builder unit's schema, actual hash, probe/decode, and
    boundary evidence pass.
-6. **Integration:** single-source lint closes, or frozen-media assembly closes
-   one final moving preview.
+6. **Assembly:** plan-ordered frozen-media assembly closes one final moving preview.
 7. **Approval:** the user approves the unchanged integration identity.
 8. **Delivery:** final master passes FFprobe, full decode, duration/audio, and hash.
 9. **Comparison:** only an explicit separate study may claim cross-runtime

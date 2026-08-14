@@ -17,9 +17,10 @@ validated semantic recipe
 ```
 
 New projects default to auto planning, not a runtime. Both branches are
-independent production concerns. Runtime Planner assigns a shot only from exact
-capability or pattern/backend evidence; targeted readiness then verifies the
-required dependencies, licenses, source path, and witnesses.
+independent production concerns. The Parent's deterministic planning script
+assigns a shot only from exact capability or pattern/backend evidence;
+targeted readiness then verifies the required dependencies, licenses, source
+path, and witnesses.
 
 ## Concern mapping
 
@@ -34,7 +35,7 @@ required dependencies, licenses, source path, and witnesses.
 | Text and fonts | selective copy plus font role | load project-local licensed fonts in the runtime project | load project-local licensed fonts in the HyperFrames project |
 | Composition reuse | capability ID and semantic requirements | select a verified Remotion-owned implementation | select a verified HyperFrames-owned implementation |
 | Runtime state | none in canonical recipe | avoid ambient state that cannot be reconstructed from time | avoid hidden mutable state that breaks deterministic seek |
-| Output evidence | expected semantics and time windows | later backend owns check, render, and media facts | existing production stages retain official check, preview, render, and media facts |
+| Output evidence | expected semantics and time windows | Builder owns check, frozen-unit render, and media facts | Builder owns official check, frozen-unit render, and media facts |
 
 ## Non-mechanical mappings
 

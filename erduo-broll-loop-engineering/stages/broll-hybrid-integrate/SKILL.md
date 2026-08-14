@@ -1,72 +1,30 @@
 ---
 name: broll-hybrid-integrate
-description: Validate and assemble evidence-bound frozen block media from mixed HyperFrames and Remotion builders into one runtime-neutral hybrid preview without nesting either animation runtime.
+description: Read and verify legacy hybrid Integrator records or prepare a compact recovery report for a pre-v0.9 task. Do not use or dispatch this stage in a new v0.9 production; the Parent now validates and assembles frozen Builder clips directly.
 ---
 
-# B-roll Hybrid Integrator
+# Legacy Hybrid Integrator
 
-Act only as the mixed-backend Integrator. Do not modify backend source, repair
-Builder output, change routing, redesign shots, formally render the approved
-master, or export individual shots.
+Treat this stage as read-only compatibility for production records created
+before v0.9. Do not dispatch it in a new production, modify Builder output,
+rerun FFmpeg, create a preview, or write a new hybrid identity.
 
-## Boundary and inputs
+When the user explicitly asks to inspect or recover an old task, read the
+existing runtime plan, `../../references/runtime/frozen-block.schema.json`,
+frozen media contracts, integration handoff, preview facts, and hybrid identity.
+Verify from existing evidence that:
 
-Read `../../references/runtime/runtime-plan.schema.json`,
-`../../references/runtime/frozen-block.schema.json`, and the validated hybrid
-runtime plan. Require one Builder-owned `block-media.json` plus its local
-mezzanine file for every planned block.
+- every planned block appears once with matching runtime, shots, window, hash,
+  profile, audio policy, and `noRealtimeNesting`;
+- the recorded assembly followed runtime-plan order;
+- preview and identity records agree without live runtime nesting;
+- missing media, hash drift, profile mismatch, or stale approval is reported
+  precisely.
 
-Never import HyperFrames into Remotion, Remotion into HyperFrames, embed one
-Studio/preview in the other, or use generated source as an interop layer.
-Mixed integration accepts only frozen media. Every backend source remains in
-its Builder directory and is represented by its `sourceIdentity` hash.
+Return a compact recovery report to the Parent with the last trustworthy
+identity, available artifacts, concrete defect, and safest next owner. Do not
+repair, reassemble, or silently migrate the old task.
 
-## Validate before assembly
-
-Run the bundled frozen-block validator with the exact ordered contract
-locators. It verifies runtime/shot/window closure, local regular media files,
-hashes, profile and audio agreement, FFprobe/decode attestations, duration
-tolerance, and the `noRealtimeNesting` invariant. Any red result returns to the
-owning Builder; do not transcode a bad block into compliance.
-
-Require all blocks to use one frozen profile, fps rational, raster, pixel
-format, color space, and audio policy. Boundaries remain the Director's integer
-milliseconds; any unavoidable frame rounding must stay within one frame and be
-recorded.
-
-## Runtime-neutral assembly and identity
-
-Use only direct, sanitized FFmpeg/FFprobe processes without a shell. Assemble
-blocks in runtime-plan order into a temporary hybrid preview. A concat copy is
-allowed only when stream parameters and timing close exactly; otherwise use
-one explicit deterministic normalization encode and record its full profile.
-This is the one final identity-bound moving preview. Verify it through
-FFprobe/full decode without a separate static frame-inspection pass. Do not add
-another technical preview, independent aesthetic review, score, or approval
-stop; the user decides once from this moving preview.
-
-Create `hybrid-composition-identity.json` only after validation and full decode.
-Its canonical hash closure includes runtime-plan identity, ordered
-block contract bytes, block media SHA-256 values, output profile, audio policy,
-and integration recipe. Preview media and logs remain outside that identity.
-
-## Deliverables
-
-Write only under `broll-production/04-hybrid-integrate/`:
-
-- ordered contract index and validation result;
-- `hybrid-composition-identity.json`;
-- `integration-notes.md` with frame rounding and decode evidence;
-- one technically verified preview plus FFprobe/full-decode facts;
-- `handoff.md` naming the preview locator and aggregate identity.
-
-## Completion and stop
-
-Complete when every block appears once, contracts and actual hashes validate,
-coverage closes, no runtime is nested live, preview media decodes fully, and
-the identity is frozen.
-
-Stop for missing or changed blocks, profile mismatch, hash drift, more than
-one frame of duration error, audio-policy mismatch, or
-any attempt to pass runtime source across the boundary. Return Builder-owned
-defects to a fresh Builder.
+For every new v0.9 production, the Parent runs
+`scripts/assemble-frozen-production.mjs preview` and `deliver`; the script
+matches contracts to units and assembles them in plan order.

@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Render and Delivery"
-  short_description: "Render and technically verify one final master."
-  default_prompt: "Use $broll-render to load the official hyperframes Skill, run same-environment doctor and check, obtain preview approval, and verify one final render."
+  display_name: "Legacy HyperFrames Delivery"
+  short_description: "Inspect legacy HyperFrames delivery records."
+  default_prompt: "Use $broll-render to inspect a pre-v0.9 HyperFrames delivery record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

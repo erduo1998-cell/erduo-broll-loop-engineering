@@ -41,7 +41,168 @@ test('motion-layout lint emits a compact pass for stable rendered geometry', () 
   assert.equal(result.status, 'pass');
   assert.equal(result.findingCount, 0);
   assert.deepEqual(result.diagnosticWindows, []);
-  assert.match(result.limitations[0], /cannot prove/u);
+  assert.match(result.limitations.join(' '), /cannot prove/u);
+  assert.match(result.limitations[0], /No Recipes were supplied/u);
+});
+
+function beatRecipes(change = 'relationship') {
+  return new Map([['S01', {
+    schemaVersion: '2.0.0', shotId: 'S01', window: { startMs: 0, endMs: 1000 },
+    microBeats: [
+      { beatId: 'b1', startMs: 0, endMs: 500, change },
+      { beatId: 'b2', startMs: 500, endMs: 1000, change: 'deliberate-stillness' },
+    ],
+  }]]);
+}
+
+function longBeatTrace() {
+  const trace = baseTrace();
+  trace.endFrame = 900;
+  trace.shots[0].endFrame = 900;
+  trace.shots[0].readableHolds = [{ startFrame: 870, endFrame: 900 }];
+  trace.shots[0].elements[0].samples = Array.from({ length: 900 }, (_, frame) => sample(frame, 180, 180));
+  return trace;
+}
+
+function longBeatRecipes(change = 'relationship') {
+  return new Map([['S01', {
+    schemaVersion: '2.0.0', shotId: 'S01', window: { startMs: 0, endMs: 30000 },
+    microBeats: [{ beatId: 'long-beat', startMs: 0, endMs: 30000, change }],
+  }]]);
+}
+
+test('motion-layout lint proves a planned beat only from beat-bound rendered subject development', () => {
+  const trace = baseTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 15, kind: 'transition', expectsSettle: true, beatIds: ['b1'] }];
+  hero.samples = Array.from({ length: 30 }, (_, frame) => {
+    const progress = Math.min(1, frame / 12);
+    const eased = progress * progress * (3 - 2 * progress);
+    return sample(frame, 180 + eased * 180, 180);
+  });
+  const result = analyzeMotionLayoutTrace(trace, beatRecipes());
+  assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
+  assert.match(result.limitations[0], /Beat delivery checks prove/u);
+});
+
+test('motion-layout lint rejects decorative or continuous loops as planned beat delivery', () => {
+  const trace = baseTrace();
+  trace.shots[0].elements.push({
+    id: 'ambient-line', role: 'decorative', focusGroup: 'ambient', layer: 1, visualWeight: 0.1,
+    motions: [{ startFrame: 0, endFrame: 30, kind: 'continuous', expectsSettle: false }],
+    samples: Array.from({ length: 30 }, (_, frame) => sample(frame, 60 + frame * 5, 80, 120, 4)),
+  });
+  const result = analyzeMotionLayoutTrace(trace, beatRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-unbound'));
+  assert.equal(result.status, 'attention');
+});
+
+test('motion-layout lint rejects a declared beat whose rendered subject stays unchanged', () => {
+  const trace = baseTrace();
+  trace.shots[0].elements[0].motions = [{
+    startFrame: 0, endFrame: 15, kind: 'transition', expectsSettle: true, beatIds: ['b1'],
+  }];
+  const result = analyzeMotionLayoutTrace(trace, beatRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-no-development'));
+  assert.equal(result.status, 'attention');
+});
+
+test('motion-layout lint accepts beat-bound progressive continuous subject development', () => {
+  const trace = baseTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 15, kind: 'continuous', expectsSettle: false, beatIds: ['b1'] }];
+  hero.samples = Array.from({ length: 30 }, (_, frame) => sample(frame, 180 + Math.min(frame, 14) * 12, 180));
+  const result = analyzeMotionLayoutTrace(trace, beatRecipes());
+  assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
+});
+
+test('motion-layout lint rejects a 30-second beat that moves only for the first 0.6 seconds', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 18, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => sample(frame, 180 + Math.min(frame, 18) * 10, 180));
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'));
+});
+
+test('motion-layout lint rejects early movement that returns to the original state before a long still tail', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 36, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => {
+    const offset = frame <= 18 ? frame * 10 : Math.max(0, 360 - frame * 10);
+    return sample(frame, 180 + offset, 180);
+  });
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'));
+});
+
+test('motion-layout lint rejects a 30-second beat that is static for 15 seconds, moves briefly, then stays static', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 450, endFrame: 469, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => {
+    const progress = Math.max(0, Math.min(18, frame - 450));
+    return sample(frame, 180 + progress * 10, 180);
+  });
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  const finding = result.findings.find(({ code }) => code === 'rhythm.beat-development-gap');
+  assert.ok(finding);
+  assert.ok(finding.frames[1] - finding.frames[0] + 1 >= 225);
+});
+
+test('motion-layout lint rejects a 22.5-23.1 second burst after a long undeclared leading wait', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 675, endFrame: 694, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => {
+    const progress = Math.max(0, Math.min(18, frame - 675));
+    return sample(frame, 180 + progress * 10, 180);
+  });
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'));
+});
+
+test('motion-layout lint rejects two brief developments separated by a long undeclared internal wait', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [
+    { startFrame: 0, endFrame: 19, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] },
+    { startFrame: 675, endFrame: 694, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] },
+  ];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => {
+    const first = Math.min(18, frame) * 10;
+    const second = Math.max(0, Math.min(18, frame - 675)) * 10;
+    return sample(frame, 180 + first + second, 180);
+  });
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  const finding = result.findings.find(({ code }) => code === 'rhythm.beat-development-gap');
+  assert.ok(finding);
+  assert.ok(finding.frames[0] > 0 && finding.frames[1] < 899);
+});
+
+test('motion-layout lint permits a long developing beat with a bounded final settle', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 721, kind: 'continuous', expectsSettle: false, beatIds: ['long-beat'] }];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => sample(frame, 180 + Math.min(frame, 720) * 0.5, 180));
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
+});
+
+test('motion-layout lint accepts a long beat whose subject keeps forming new states across the beat', () => {
+  const trace = longBeatTrace();
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 870, kind: 'continuous', expectsSettle: false, beatIds: ['long-beat'] }];
+  hero.samples = Array.from({ length: 900 }, (_, frame) => sample(frame, 180 + Math.min(frame, 869) * 0.5, 180));
+  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
+  assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
+});
+
+test('motion-layout lint accepts an explicitly deliberate 30-second stillness beat', () => {
+  const result = analyzeMotionLayoutTrace(longBeatTrace(), longBeatRecipes('deliberate-stillness'));
+  assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
+  assert.equal(result.status, 'pass');
 });
 
 test('motion-layout lint locates jump, unsettled hold, and safe-area failures', () => {

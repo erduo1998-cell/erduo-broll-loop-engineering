@@ -5,13 +5,14 @@
   "description": "A shot-local delta contract. Shared visual, narrative, font, palette, and global prohibition facts belong in the shared artifacts, not here.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "shotId", "window", "cueIds", "audienceUnderstanding", "focus", "compositionFamily", "heroFrame", "microBeats", "materialNeeds", "requiredCapabilities", "readableHold", "neighborHandoff"],
+  "required": ["schemaVersion", "shotId", "window", "cueIds", "audienceUnderstanding", "visualJob", "focus", "compositionFamily", "heroFrame", "microBeats", "materialNeeds", "requiredCapabilities", "readableHold", "neighborHandoff"],
   "properties": {
     "schemaVersion": { "const": "2.0.0" },
     "shotId": { "$ref": "#/$defs/id" },
     "window": { "$ref": "#/$defs/window" },
     "cueIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
     "audienceUnderstanding": { "$ref": "#/$defs/nonEmpty" },
+    "visualJob": { "$ref": "#/$defs/nonEmpty" },
     "focus": { "$ref": "#/$defs/nonEmpty" },
     "compositionFamily": { "$ref": "#/$defs/compositionFamily" },
     "heroFrame": {
@@ -97,13 +98,14 @@
     "microBeat": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["beatId", "startMs", "endMs", "visibleState", "change"],
+      "required": ["beatId", "startMs", "endMs", "visibleState", "change", "development"],
       "properties": {
         "beatId": { "$ref": "#/$defs/id" },
         "startMs": { "type": "integer", "minimum": 0 },
         "endMs": { "type": "integer", "minimum": 1 },
         "visibleState": { "$ref": "#/$defs/nonEmpty" },
-        "change": { "enum": ["subject", "topology", "framing", "depth", "material-state", "relationship", "attention", "deliberate-stillness"] }
+        "change": { "enum": ["subject", "topology", "framing", "depth", "material-state", "relationship", "attention", "deliberate-stillness"] },
+        "development": { "$ref": "#/$defs/nonEmpty" }
       }
     },
     "materialNeed": {

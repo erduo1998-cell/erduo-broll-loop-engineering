@@ -33,21 +33,32 @@ materials, spatial hierarchy and depth; motif meaning; motion character;
 density rises/releases; safe areas; lazy defaults to avoid; and at least three
 content-appropriate composition families. Unity must not mean repeated cards.
 
-For each shot decide:
+For each shot work in this order. First understand the spoken claim and the
+audience's likely obstacle. Second define the picture's job: clarify, reveal,
+compare, prove, counterpoint, embody emotion, or another content-specific job.
+Only then freely invent the composition, metaphor, motion, and visual language.
+Style may shape the answer but must not decide the meaning before these first
+two steps.
 
-- audience understanding, semantic purpose, focus and attention path;
+Record:
+
+- audience understanding, the visual job, semantic purpose, focus and attention path;
 - visible logic/change or deliberate stillness, readable result and screen copy;
 - material role, composition family/hero-state relationship, neighboring seams;
 - attention arrival, causal action, dependent follow-through, expressive peak,
   settle and hold;
-- compact micro-beats that genuinely change subject, topology, scale, depth,
-  material state, relationship, or attention;
+- contiguous compact micro-beats that cover the whole shot and genuinely change
+  subject, topology, scale, depth, material state, relationship, or attention;
 - a precise material need or explicit native-motion no-need.
 
 Start motion from meaning, physical character and causal states—not an effect
 name or Disney-principle checklist. Vary adjacent composition and density.
-Opacity nudges or same-layout copy swaps do not count as development; genuine
-continuous action and purposeful stillness remain valid.
+Opacity nudges, same-layout copy swaps, and decorative loops do not count as a
+planned development. Genuine continuous action and purposeful stillness remain
+valid, but continuous background activity cannot fulfill a non-still beat.
+Declare intentional stillness explicitly so every part of a long shot has a
+reason. Do not impose a beat count, beat duration, abstraction ratio, minimum
+mechanism count, or preferred visual solution.
 
 Finish each shot's content-specific visual and motion logic independently.
 Query Shotcraft only when the user explicitly requests it or one named
@@ -58,13 +69,16 @@ bind at most one primary card/style and record its stable ID, style, pinned
 source revision, reason and runtime-neutral fallback. Query at most one primary
 craft grammar plus optional transition.
 
-Author one compact Recipe v2 per shot. Store only shot deltas: timing, focus,
-composition/hero relationship, micro-beats, material need, optional locators,
-seams and readable hold. Keep shared palette/font/material/safe-area rules in
-the visual system. Never include frame constants, React, CSS, Remotion,
-HyperFrames, component choices, or copied demo content. Record observable
-capabilities truthfully; never add one to steer routing. Use safe generic wording
-for unconfirmed transcript facts.
+Author one compact Recipe v2 per shot. Store only shot deltas: timing, audience
+understanding, visual job, focus, composition/hero relationship, micro-beats,
+material need, optional locators, seams and readable hold. For every micro-beat,
+state both its resulting visible state and its principal observable development.
+The beats must cover the complete shot without gaps; use
+`deliberate-stillness` where stable reading is the intended action. Keep shared
+palette/font/material/safe-area rules in the visual system. Never include frame
+constants, React, CSS, Remotion, HyperFrames, component choices, or copied demo
+content. Record observable capabilities truthfully; never add one to steer
+routing. Use safe generic wording for unconfirmed transcript facts.
 
 ## Deliver
 
@@ -78,4 +92,6 @@ records.
 Complete when coverage closes, visual/material development fits the content,
 shared rules are not repeated per shot, every Recipe validates and maps one to
 one, selected locators resolve, uncertainties are safe, and downstream stages
-can act without inventing creative decisions. Route next to Runtime Planner.
+can act without inventing creative decisions. Return the validated artifacts to
+the Parent so it can run `scripts/plan-runtime.mjs` directly and generate the
+immutable plan plus minimal Builder assignments.

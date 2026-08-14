@@ -40,19 +40,36 @@ Only an authorized Remotion diagnostic/repair after failed cached preflight may 
 It directly runs the project-local CLI with a minimal sanitized environment.
 Selection never downloads a CLI or substitutes a global executable.
 
-## Deterministic planner
+## Deterministic planning script
 
-After Director recipes validate, a fresh Runtime Planner runs:
+After Director recipes validate, the Parent runs the bundled script directly.
+Do not dispatch `broll-runtime-plan` in a normal v0.9 production:
+
+```text
+node <skill-root>/scripts/create-production-profile.mjs \
+  --output <broll-production/production-profile.json> \
+  --width <width> --height <height> --fps <fps> \
+  --audio <silent-or-preserve-source> --master-format h264-mp4
+```
+
+Use no optional flags for the 3840×2160, 30 fps, silent default. Do not write
+the profile JSON manually. Then run:
 
 ```text
 node <skill-root>/scripts/plan-runtime.mjs \
   --recipes <shot-recipes> \
   --selection <runtime-selection.json> \
-  --json
+  --narrative-envelope <narrative-envelope.json> \
+  --visual-system <visual-system.json> \
+  --production-profile <broll-production/production-profile.json> \
+  --production-root <broll-production>
 ```
 
-Preserve stdout as `broll-production/01-runtime-plan/runtime-plan.json` and
-validate it with `scripts/validate-runtime-plan.mjs`. The planner uses only:
+The script atomically writes
+`broll-production/01-runtime-plan/runtime-plan.json` and one minimal assignment
+packet per authoring unit under `01-runtime-plan/assignments/`. The complete
+production profile is hash-bound into both outputs. Never redirect stdout into
+the plan and never edit either output by hand. The script uses only:
 
 - exact `requiredCapabilities` and their matrix classification/preference;
 - exact selected `patternRef` and the pinned backend source index;
@@ -75,7 +92,7 @@ HyperFrames, Remotion, or hybrid.
 Explicit `hybrid` must naturally produce both backends; do not split work
 artificially when evidence resolves to one.
 
-## Readiness and fork
+## Readiness and Builder dispatch
 
 The installer caches stable machine/tool readiness. Common preflight checks
 the cache plus run-specific input/output facts; after planning, targeted
@@ -83,13 +100,17 @@ preflight selects exactly `requiredBackends`. Missing Pexels does not block
 until Assets reaches a real need. Dispatch Onboarding only when preflight
 reports missing or changed stable backend evidence; never prepare both blindly.
 
-Single-backend plans use the existing native Builder → Integrator → Render
-chain. Plans dispatch each authoring unit to its assigned Builder. Hybrid
-handoffs preserve the unit-to-block closure. Each Builder
-then freezes a verified block mezzanine and `block-media.json`. Only the
-runtime-neutral Hybrid Integrator and Hybrid Render may consume those frozen
-artifacts. Generated source is never translated, nested, or executed across
-the runtime boundary.
+The Parent dispatches each generated assignment packet to its named backend
+Builder. Every Builder returns editable source plus one verified continuous
+unit video and `block-media.json`. After all units pass, the Parent runs
+`scripts/assemble-frozen-production.mjs preview`, obtains the one moving-preview
+decision, and then runs `deliver` after approval. This path is the same for
+single-backend and hybrid plans; no Integrator or Render Agent is dispatched.
+Generated source is never translated, nested, or executed across the runtime
+boundary.
+
+Installed Planner, Integrator, and Render stage Skills are legacy readers for
+older production records only. They are not fallback stages for v0.9.
 
 ## Remotion readiness gate
 

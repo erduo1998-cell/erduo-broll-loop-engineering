@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Hybrid Integrator"
-  short_description: "Integrate frozen mixed-backend blocks"
-  default_prompt: "Use $broll-hybrid-integrate to validate frozen block contracts and build one identity-bound runtime-neutral preview."
+  display_name: "Legacy Hybrid Integrator"
+  short_description: "Inspect legacy hybrid integration records."
+  default_prompt: "Use $broll-hybrid-integrate to inspect a pre-v0.9 hybrid integration record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

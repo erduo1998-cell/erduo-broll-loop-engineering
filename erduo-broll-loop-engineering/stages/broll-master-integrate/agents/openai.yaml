@@ -1,4 +1,7 @@
 interface:
-  display_name: "B-roll Master Integrator"
-  short_description: "Assemble verified blocks into one master project."
-  default_prompt: "Use $broll-master-integrate to load the official hyperframes Skill, assemble every completed block in order, and run the official standard check."
+  display_name: "Legacy HyperFrames Integrator"
+  short_description: "Inspect legacy HyperFrames integration records."
+  default_prompt: "Use $broll-master-integrate to inspect a pre-v0.9 HyperFrames integration record and return a read-only recovery report."
+
+policy:
+  allow_implicit_invocation: false

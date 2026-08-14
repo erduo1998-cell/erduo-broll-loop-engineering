@@ -136,6 +136,20 @@ function validateSemanticInvariants(
       errors.push(`#/microBeats/${index}: beats must not overlap or run out of order`);
     }
   }
+  if (recipe.schemaVersion === '2.0.0' && recipe.microBeats?.length > 0
+    && Number.isInteger(startMs) && Number.isInteger(endMs)) {
+    if (recipe.microBeats[0].startMs !== startMs) {
+      errors.push('#/microBeats/0: beats must begin at the shot start');
+    }
+    for (let index = 1; index < recipe.microBeats.length; index += 1) {
+      if (recipe.microBeats[index].startMs !== recipe.microBeats[index - 1].endMs) {
+        errors.push(`#/microBeats/${index}: beats must cover the shot without an unplanned gap`);
+      }
+    }
+    if (recipe.microBeats.at(-1).endMs !== endMs) {
+      errors.push(`#/microBeats/${recipe.microBeats.length - 1}: beats must end at the shot end`);
+    }
+  }
 
   const holdStartMs = recipe.readability?.holdStartMs;
   const holdEndMs = recipe.readability?.holdEndMs;

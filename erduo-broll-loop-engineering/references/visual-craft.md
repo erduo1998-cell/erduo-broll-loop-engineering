@@ -24,14 +24,18 @@ reskin one topology unless cumulative sameness is the argument.
 
 ## Turn time into visible development
 
-Plan micro-beats as observable states. A useful beat changes subject, topology,
+Plan the full shot as contiguous observable beats derived from the spoken
+thought and emotional progression. A useful beat changes subject, topology,
 framing, depth, material state, relationship or attention. Opacity alone, a
-minor nudge, or swapping text inside the same card does not create development.
-Deliberate stillness is valid when it protects meaning or a readable hold.
+minor nudge, swapping text inside the same card, or continuing a decorative loop
+does not create development. Deliberate stillness is valid when it protects
+meaning or a readable hold; declare it as a beat so a long unexplained gap
+cannot hide between planned actions.
 
-Typical generation ranges are two to three states for 3–6 seconds, three to
-four for 6–12 seconds, and four to six beyond 12 seconds. These are direction
-heuristics, never an aesthetic score or validation quota.
+Do not assign beats by a fixed duration or count. A long shot may use few broad
+developments or many intricate ones, but its picture must keep fulfilling the
+changing visual job rather than holding one layout while lines, particles, or
+background texture loop.
 
 ## Fuse material and motion
 
@@ -44,8 +48,9 @@ Query `references/craft/catalog.json` progressively through
 only when needed, one transition entry. Craft locators guide authoring; they do
 not route a backend or prove visual quality.
 
-Reuse a verified registry block, blueprint or local primitive before writing a
-new mechanism, then replace its content, media, typography, palette, layout and
-skin. Implement the hero state first, then attention, causal action, dependent
+Choose freely between a new mechanism and a verified registry block, blueprint,
+or local primitive. Reuse is an implementation option, never a creative
+preference; do not repeat a known solution merely because it already works.
+Implement the hero state first, then attention, causal action, dependent
 follow-through, settle and readable hold. Do not add an approval artifact or
 审美 checklist for this work.

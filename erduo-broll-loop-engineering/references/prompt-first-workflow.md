@@ -26,10 +26,11 @@ hybrid. Hybrid exchanges only schema-valid frozen block media and never nests
 or translates runtime source.
 
 The Director authors one runtime-neutral Shot Recipe per shot. The Assets
-stage preserves runtime-neutral material roles and objective media facts. The
-Builder owns its planned backend source. Single-backend Integrator/Render
-stages accept only their own route. Hybrid uses the dedicated runtime-neutral
-Integrator/Render. Describing a recipe is not backend evidence.
+stage preserves runtime-neutral material roles and objective media facts. Each
+Builder owns its planned backend source and one verified frozen unit. The
+Parent script validates and assembles those units for every route. Normal v0.9
+production never dispatches a Runtime Planner, Integrator, or Render Agent.
+Describing a recipe is not backend evidence.
 
 The bundled Shotcraft catalog is an optional runtime-neutral technique
 reference, not a second backend or a production gate. Original direction is the
@@ -185,47 +186,98 @@ and video searches plus the selection or rejection reasoning.
 
 ## 3. Runtime planning and targeted readiness
 
-Dispatch `broll-runtime-plan`, preserve its generated JSON, and run its schema
-validator. The planner uses declared capability and exact pattern/backend
-evidence, never semantic keywords, then merges adjacent same-runtime shots.
-Run targeted cached preflight only for its `requiredBackends`; launch
-Onboarding only when that preflight reports a missing or changed backend fact.
+The Parent first generates the production profile. The default command produces
+H.264 MP4 at 3840×2160, 30 fps, with no audio:
 
-## 4. Block building
+```text
+node scripts/create-production-profile.mjs \
+  --output <broll-production/production-profile.json>
+```
 
-Dispatch each planned block to its assigned backend Builder. HyperFrames
-Builders load official pinned Skills; Remotion Builders keep source isolated
-but reuse the verified production-root toolchain for an identical dependency
-identity. Each reads only its selected pattern evidence. On
-a hybrid route, every Builder additionally freezes one verified mezzanine and
-schema-valid `block-media.json`; this intermediate is not the master.
+For an explicit vertical 25 fps request, use deterministic flags instead of
+writing JSON:
 
-## 5. Integration
+```text
+node scripts/create-production-profile.mjs \
+  --output <broll-production/production-profile.json> \
+  --width 1080 --height 1920 --fps 25 \
+  --audio silent --master-format h264-mp4
+```
 
-Use the matching single-backend Integrator when the plan resolves to one
-runtime. For hybrid, use `broll-hybrid-integrate`, which validates actual block
-hashes and contracts, assembles only frozen media with FFmpeg/FFprobe, fully
-decodes the moving preview, and freezes a runtime-neutral preview identity. Never live-nest or
-translate runtime source.
+Then the Parent runs:
 
-## 6. Render and delivery
+```text
+node scripts/plan-runtime.mjs \
+  --recipes <broll-production/01-director/shot-recipes> \
+  --selection <runtime-selection.json> \
+  --narrative-envelope <broll-production/01-director/narrative-envelope.json> \
+  --visual-system <broll-production/01-director/visual-system.json> \
+  --production-profile <broll-production/production-profile.json> \
+  --production-root <broll-production>
+```
 
-Use the Render stage matching the integrated identity. HyperFrames retains
-official Skill/check requirements. Remotion retains local CLI,
-shared-toolchain plus Builder-owned typecheck receipts, and integrated trace/lint. Hybrid compares frozen-media identity and
-FFmpeg checks without opening either animation runtime. Missing approval stops
-at preview; a fresh Agent must verify unchanged identity before formal render.
+The script validates inputs, writes the immutable plan, and writes one minimal
+assignment packet per authoring unit. The profile identity binds raster, fps,
+audio policy, intermediate media, and final H.264 MP4 policy into the plan and
+every assignment. Do not redirect stdout into a plan, edit generated JSON, or
+dispatch `broll-runtime-plan`. Run targeted cached preflight
+only for the resulting `requiredBackends`; launch Onboarding only when that
+preflight reports a missing or changed backend fact.
 
-Unattended execution ends at the final preview. Formal render waits for user
-approval. After approval, the Parent dispatches a different fresh Render Agent
-with evidence bound to the unchanged integrated composition. That Agent compares
-identity and runs delivery-local target/media checks before formal render; a changed project requires a new
-preview and approval.
+## 4. Unit building
 
-One final master means one successfully verified delivered master, not one
-render attempt. A failed attempt and any partial file remain failed evidence.
-The Parent dispatches a fresh Render/Delivery Agent, which reuses unchanged identity evidence
-and uses a new unused attempt target. No attempt or final target is overwritten.
+Dispatch each generated assignment packet to its named backend Builder.
+HyperFrames Builders load official pinned Skills; Remotion Builders keep source
+isolated but reuse the verified production-root toolchain for an identical
+dependency identity. Each reads only its unit inputs and selected pattern
+evidence. Every Builder returns editable source plus one verified continuous
+unit video and schema-valid `block-media.json`; this intermediate is not the
+master.
+
+## 5. Preview assembly
+
+After every unit passes, the Parent runs:
+
+```text
+node scripts/assemble-frozen-production.mjs preview \
+  --plan <01-runtime-plan/runtime-plan.json> \
+  --narrative-envelope <01-director/narrative-envelope.json> \
+  --visual-system <01-director/visual-system.json> \
+  --contract <unit-1/block-media.json> \
+  --contract <unit-2/block-media.json> \
+  --output <05-delivery/preview.mp4> \
+  --identity <05-delivery/composition-identity.json>
+```
+
+The script matches contracts to units and assembles them in plan order, even
+when `--contract` arguments arrive in another order. Missing, duplicate,
+unplanned, or changed contracts fail closed. It verifies actual hashes and
+media facts, fully decodes one bounded preview, and freezes its identity. It
+never live-nests or translates runtime source.
+
+## 6. Delivery
+
+Unattended execution ends at the final preview. Formal delivery waits for user
+approval. After approval, the Parent runs:
+
+```text
+node scripts/assemble-frozen-production.mjs deliver \
+  --plan <01-runtime-plan/runtime-plan.json> \
+  --narrative-envelope <01-director/narrative-envelope.json> \
+  --visual-system <01-director/visual-system.json> \
+  --contract <unit-1/block-media.json> \
+  --contract <unit-2/block-media.json> \
+  --identity <05-delivery/composition-identity.json> \
+  --preview <05-delivery/preview.mp4> \
+  --output <unused-master.mp4>
+```
+
+The script revalidates the unchanged plan, shared artifacts, contracts, frozen
+media, and approved preview identity, then encodes and fully decodes a new
+full-spec master. It does not copy the preview or dispatch an Integrator or
+Render Agent. A changed input requires a new preview and approval. A failed
+attempt uses a new unused output path; no preview, identity, attempt, or final
+target is overwritten.
 
 Technical verification proves media behavior, not visual taste. The user
 decides aesthetic acceptance by watching the master.

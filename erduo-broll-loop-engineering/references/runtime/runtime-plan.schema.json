@@ -4,7 +4,7 @@
   "title": "Post-Director runtime plan v2 with focused authoring units",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "status", "planningMode", "selection", "sharedArtifacts", "resultingRoute", "requiredBackends", "integrationMode", "frozenMediaContractVersion", "shots", "blocks", "authoringUnits", "warnings", "identity"],
+  "required": ["schemaVersion", "status", "planningMode", "selection", "sharedArtifacts", "productionProfile", "resultingRoute", "requiredBackends", "integrationMode", "frozenMediaContractVersion", "shots", "blocks", "authoringUnits", "warnings", "identity"],
   "properties": {
     "schemaVersion": { "const": "2.0.0" },
     "status": { "enum": ["planned", "action-required"] },
@@ -19,6 +19,7 @@
         "visualSystem": { "$ref": "#/$defs/sharedArtifact" }
       }
     },
+    "productionProfile": { "$ref": "#/$defs/productionProfile" },
     "resultingRoute": { "type": ["string", "null"], "enum": ["hyperframes", "hybrid", "remotion", null] },
     "requiredBackends": { "type": "array", "uniqueItems": true, "items": { "enum": ["hyperframes", "remotion"] } },
     "integrationMode": { "type": ["string", "null"], "enum": ["single-runtime-source", "frozen-block-media", null] },
@@ -30,6 +31,20 @@
     "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
   },
   "$defs": {
+    "color": { "type": "object", "additionalProperties": false, "required": ["space", "transfer", "primaries", "range"], "properties": { "space": { "type": "string", "minLength": 1 }, "transfer": { "type": "string", "minLength": 1 }, "primaries": { "type": "string", "minLength": 1 }, "range": { "enum": ["tv", "pc"] } } },
+    "audio": { "type": "object", "additionalProperties": false, "required": ["policy", "streams", "codec", "sampleRate", "channels"], "properties": { "policy": { "enum": ["silent", "preserve-source"] }, "streams": { "type": "integer", "minimum": 0, "maximum": 1 }, "codec": { "type": ["string", "null"] }, "sampleRate": { "type": ["integer", "null"], "minimum": 1 }, "channels": { "type": ["integer", "null"], "minimum": 1 } } },
+    "productionProfile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "raster", "fps", "mezzanine", "master", "identity"],
+      "properties": {
+        "schemaVersion": { "const": "1.0.0" },
+        "raster": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 2 }, "height": { "type": "integer", "minimum": 2 } } },
+        "fps": { "type": "object", "additionalProperties": false, "required": ["numerator", "denominator"], "properties": { "numerator": { "type": "integer", "minimum": 1 }, "denominator": { "type": "integer", "minimum": 1 } } },
+        "mezzanine": { "type": "object", "additionalProperties": false, "required": ["container", "codec", "pixelFormat", "class", "color", "audio"], "properties": { "container": { "type": "string", "minLength": 1 }, "codec": { "type": "string", "minLength": 1 }, "pixelFormat": { "type": "string", "minLength": 1 }, "class": { "enum": ["lossless", "visually-lossless"] }, "color": { "$ref": "#/$defs/color" }, "audio": { "$ref": "#/$defs/audio" } } },
+        "master": { "type": "object", "additionalProperties": false, "required": ["container", "codec", "encoder", "pixelFormat", "preset", "crf", "fastStart", "color", "audio"], "properties": { "container": { "const": "mp4" }, "codec": { "const": "h264" }, "encoder": { "const": "libx264" }, "pixelFormat": { "type": "string", "minLength": 1 }, "preset": { "type": "string", "minLength": 1 }, "crf": { "type": "integer", "minimum": 0, "maximum": 51 }, "fastStart": { "type": "boolean" }, "color": { "$ref": "#/$defs/color" }, "audio": { "$ref": "#/$defs/audio" } } },
+        "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
     "window": { "type": "object", "additionalProperties": false, "required": ["startMs", "endMs"], "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 } } },
     "sharedArtifact": { "type": "object", "additionalProperties": false, "required": ["locator", "schemaVersion", "sha256"], "properties": { "locator": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" }, "schemaVersion": { "const": "1.0.0" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } } },
     "evidence": { "type": "object", "additionalProperties": false, "required": ["kind", "id", "runtime", "priority", "verification", "locator"], "properties": { "kind": { "enum": ["forced", "native-capability", "capability-preference", "pattern-reference", "portable-default"] }, "id": { "type": "string", "minLength": 1 }, "runtime": { "enum": ["hyperframes", "remotion"] }, "priority": { "type": "integer", "minimum": 0, "maximum": 1000 }, "verification": { "type": "string", "minLength": 1 }, "locator": { "type": "string", "minLength": 1 } } },

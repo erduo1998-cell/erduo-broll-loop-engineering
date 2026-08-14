@@ -68,10 +68,25 @@ import {
 import { validateRecipeDirectory } from '../erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs';
 import { queryCraft } from '../erduo-broll-loop-engineering/scripts/query-craft.mjs';
 import { validateCraftCatalog } from '../erduo-broll-loop-engineering/scripts/craft-catalog.mjs';
-import { planRuntime } from '../erduo-broll-loop-engineering/scripts/plan-runtime.mjs';
+import {
+  DEFAULT_PRODUCTION_PROFILE,
+  bindProductionProfile,
+  planRuntime,
+  writeProductionPlan,
+} from '../erduo-broll-loop-engineering/scripts/plan-runtime.mjs';
+import {
+  createProductionProfile,
+} from '../erduo-broll-loop-engineering/scripts/create-production-profile.mjs';
 import { validateRuntimePlan } from '../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs';
-import { validateSchemaValue } from '../erduo-broll-loop-engineering/scripts/runtime-schema-validator.mjs';
-import { validateFrozenBlocks } from '../erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs';
+import { canonicalJson, validateSchemaValue } from '../erduo-broll-loop-engineering/scripts/runtime-schema-validator.mjs';
+import {
+  runFrozenMediaCommand,
+  validateFrozenBlocks,
+} from '../erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs';
+import {
+  assembleFrozenPreview,
+  deliverFrozenMaster,
+} from '../erduo-broll-loop-engineering/scripts/assemble-frozen-production.mjs';
 import {
   runSafeSpawn,
   sanitizedEnvironment as sanitizedSkillEnvironment,
@@ -94,6 +109,7 @@ import {
   PARENT_DEFAULT,
   ROUTES,
   V070_PARENT_DEFAULT,
+  V070_ROUTES,
   buildContextMeasurement,
   compareSnapshots,
   measureSnapshot,
@@ -162,6 +178,137 @@ async function writeSharedDirectorArtifacts(directory, endMs = 3000) {
     prohibitedLazyDefaults: ['generic card grid'], safeAreaPolicy: 'Use task safe area.',
   })}\n`);
   return { narrativeEnvelopeFile, visualSystemFile };
+}
+
+async function writeV09PlanningFixture(base) {
+  const productionRoot = path.join(base, 'broll-production');
+  const directorRoot = path.join(productionRoot, '01-director');
+  const recipesDirectory = path.join(directorRoot, 'shot-recipes');
+  await mkdir(recipesDirectory, { recursive: true });
+  const shared = await writeSharedDirectorArtifacts(directorRoot, 2000);
+  const common = [
+    'semantic.integer-ms-window',
+    'semantic.visual-state-transition',
+    'semantic.readable-hold',
+  ];
+  for (const [index, [startMs, endMs]] of [[0, 1000], [1000, 2000]].entries()) {
+    const shotId = `S${String(index + 1).padStart(2, '0')}`;
+    const recipe = {
+      schemaVersion: '2.0.0', shotId, window: { startMs, endMs }, cueIds: [`cue-${index + 1}`],
+      audienceUnderstanding: `Understand ${shotId}`,
+      visualJob: `Make ${shotId} visible without adding another puzzle.`,
+      focus: `Focus ${shotId}`,
+      compositionFamily: 'data-diagram-evidence',
+      heroFrame: {
+        relationship: 'Evidence supports focus.',
+        layers: { background: 'field', midground: 'evidence', foreground: 'focus' },
+      },
+      microBeats: [{
+        beatId: 'b1', startMs, endMs, visibleState: 'Complete state.', change: 'relationship',
+        development: 'The central relationship visibly changes across the beat.',
+      }],
+      materialNeeds: [], requiredCapabilities: common,
+      readableHold: { startMs, endMs, items: [] },
+      neighborHandoff: { incoming: 'Enter.', outgoing: 'Leave.' },
+      ...(index === 1 ? { authoring: { solo: true, reason: 'Independent hero unit.' } } : {}),
+    };
+    await writeFile(path.join(recipesDirectory, `${shotId}.json`), `${JSON.stringify(recipe)}\n`);
+  }
+  const selectionFile = path.join(productionRoot, 'runtime-selection.json');
+  await writeFile(selectionFile, `${JSON.stringify({
+    schemaVersion: '2.0.0', status: 'selected', selectedRuntime: 'hyperframes', selectionSource: 'explicit',
+  })}\n`);
+  return { productionRoot, recipesDirectory, selectionFile, ...shared };
+}
+
+function frozenFacts(overrides = {}) {
+  return {
+    container: 'matroska,webm', codec: 'ffv1', width: 3840, height: 2160,
+    fps: '30/1', pixelFormat: 'yuv444p10le', colorSpace: 'bt709',
+    colorTransfer: 'bt709', colorPrimaries: 'bt709', colorRange: 'tv',
+    durationSeconds: 1, frameCount: 30, audioStreams: 0, startTimeSeconds: 0,
+    ...overrides,
+  };
+}
+
+function probePayload(facts) {
+  return JSON.stringify({
+    streams: [
+      {
+        codec_type: 'video', codec_name: facts.codec, width: facts.width, height: facts.height,
+        avg_frame_rate: facts.fps, pix_fmt: facts.pixelFormat,
+        color_space: facts.colorSpace, color_transfer: facts.colorTransfer,
+        color_primaries: facts.colorPrimaries, color_range: facts.colorRange,
+        nb_read_frames: String(facts.frameCount), start_time: String(facts.startTimeSeconds),
+      },
+      ...Array.from({ length: facts.audioStreams }, () => ({ codec_type: 'audio', codec_name: 'pcm_s24le', sample_rate: '48000', channels: 2 })),
+    ],
+    format: {
+      format_name: facts.container,
+      duration: String(facts.durationSeconds),
+      start_time: String(facts.startTimeSeconds),
+    },
+  });
+}
+
+function controlledMediaRunner({
+  factsByFile = new Map(), failDecode = new Set(), previewFacts = {}, masterFacts = {}, commands = [],
+} = {}) {
+  return async ({ executable, args }) => {
+    commands.push({ executable, args: [...args] });
+    const output = path.resolve(args.at(-1));
+    const comparable = (file) => file.startsWith('/private/var/') ? file.slice('/private'.length) : file;
+    const lookup = (file) => [...factsByFile].find(([candidate]) => comparable(candidate) === comparable(file))?.[1];
+    if (executable.includes('ffprobe')) {
+      const facts = lookup(output);
+      if (!facts) return { code: 1, stdout: '', stderr: `unregistered controlled media ${output}` };
+      return { code: 0, stderr: '', stdout: probePayload(facts) };
+    }
+    if (executable.includes('ffmpeg') && args.includes('concat')) {
+      const isMaster = path.basename(output).startsWith('.master-');
+      const scale = args[args.indexOf('-vf') + 1]?.match(/^scale=(\d+):(\d+)$/u);
+      await writeFile(output, Buffer.from(isMaster ? 'CONTROLLED_MASTER_MEDIA' : 'CONTROLLED_PREVIEW_MEDIA'));
+      factsByFile.set(output, frozenFacts({
+        container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
+        width: isMaster ? 3840 : Number(scale?.[1] ?? 1920),
+        height: isMaster ? 2160 : Number(scale?.[2] ?? 1080),
+        durationSeconds: 2, frameCount: 60,
+        ...(isMaster ? masterFacts : previewFacts),
+      }));
+      return { code: 0, stderr: '', stdout: '' };
+    }
+    if (executable.includes('ffmpeg') && args.includes('-f') && args.includes('null')) {
+      const input = path.resolve(args[args.indexOf('-i') + 1]);
+      const shouldFail = [...failDecode].some((candidate) => comparable(candidate) === comparable(input));
+      return shouldFail
+        ? { code: 1, stderr: 'controlled truncated media', stdout: '' }
+        : { code: 0, stderr: '', stdout: '' };
+    }
+    return { code: 1, stdout: '', stderr: `unexpected controlled command ${executable}` };
+  };
+}
+
+async function writeEditableSourceClosure(unitRoot, label) {
+  const sourceRoot = path.join(unitRoot, 'source');
+  await mkdir(sourceRoot, { recursive: true });
+  const body = Buffer.from(`editable-${label}`);
+  await writeFile(path.join(sourceRoot, 'entry.txt'), body);
+  const manifest = {
+    schemaVersion: '1.0.0',
+    files: [{
+      path: 'entry.txt', sha256: createHash('sha256').update(body).digest('hex'), sizeBytes: body.length,
+    }],
+  };
+  const manifestBody = Buffer.from(`${JSON.stringify(manifest)}\n`);
+  await writeFile(path.join(unitRoot, 'source-manifest.json'), manifestBody);
+  return {
+    source: {
+      root: 'source', manifestPath: 'source-manifest.json',
+      manifestSha256: createHash('sha256').update(manifestBody).digest('hex'),
+      fileCount: 1, entrypoints: ['entry.txt'],
+    },
+    sourceIdentity: createHash('sha256').update(canonicalJson(manifest)).digest('hex'),
+  };
 }
 
 async function isolated(t) {
@@ -852,7 +999,7 @@ test('public documentation states telemetry defaults, network boundaries, and ex
   }
 });
 
-test('public runtime claims expose two independent backends without globally bundling Remotion', async () => {
+test('public runtime claims expose independent Builder backends and deterministic clip assembly', async () => {
   const publicPackage = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
   const runtimePackage = JSON.parse(
     await readFile(path.join(root, 'runtime', 'package.json'), 'utf8'),
@@ -869,18 +1016,85 @@ test('public runtime claims expose two independent backends without globally bun
   const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
   const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
   assert.match(readme, /默认 `auto`/u);
-  assert.match(readme, /Remotion Build → Integrate → Render/u);
+  assert.match(readme, /HyperFrames 与 Remotion Builder 分别完成自己的镜头源码和已验证视频片段/u);
+  assert.match(readme, /最终脚本只拼接统一规格/u);
+  assert.match(readme, /不再启动 Runtime Planner、Integrator 或 Render Agent/u);
+  assert.match(readme, /最高 1080p[^。\n]*veryfast \/ CRF 22/u);
+  assert.match(readme, /--plan[^。\n]*--narrative-envelope[^。\n]*--visual-system[^。\n]*--contract/u);
+  assert.match(readme, /medium \/ CRF 16[^。\n]*Master/u);
+  assert.match(readme, /绝不复制预览文件/u);
   assert.match(readme, /不会把 Remotion 加入共享 runtime 或全局安装/u);
   assert.match(readme, /现有项目按真实特征判断/u);
   assert.match(readme, /hybrid[^。\n]*冻结区块媒体/u);
   assert.match(readme, /152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件/u);
   assert.match(support, /Remotion runtime \| project-local supported workflow/u);
   assert.match(support, /不全局安装 Remotion/u);
+  assert.match(support, /最高 1080p[^\n]*veryfast \/ CRF 22/u);
+  assert.match(support, /deliver[^\n]*--plan[^\n]*--narrative-envelope[^\n]*--visual-system[^\n]*--contract/u);
+  assert.match(checklist, /preview identity[^\n]*runtime plan[^\n]*shot contracts[^\n]*hashes/u);
+  assert.match(checklist, /没有复制、重命名或复用 preview 文件作为 Master/u);
+  assert.match(checklist, /缺失、重复、不属于 plan、内容漂移或片段 hash 漂移/u);
+  assert.match(checklist, /CLI 输入顺序不作为身份[^\n]*按 plan 的实际顺序装配/u);
   assert.match(checklist, /Remotion/u);
 
   for (const [name, text] of [['README.md', readme], ['SUPPORT-MATRIX.md', support]]) {
     assert.doesNotMatch(text, /(?:已完成|支持)(?:任意|全部|所有)[^。\n]*(?:Remotion|双端)[^。\n]*(?:转换|渲染)/u, name);
     assert.doesNotMatch(text, /(?:Remotion|双端)[^。\n]*(?:完全一致|全自动转换已完成|生产可用已验证)/u, name);
+  }
+});
+
+test('v0.9 workflow documents use the real Parent script contract and isolate legacy stages', async () => {
+  const files = {
+    legacyPlanner: 'erduo-broll-loop-engineering/stages/broll-runtime-plan/SKILL.md',
+    selection: 'erduo-broll-loop-engineering/references/runtime/runtime-selection.md',
+    contract: 'erduo-broll-loop-engineering/references/runtime/runtime-contract.md',
+    workflow: 'erduo-broll-loop-engineering/references/prompt-first-workflow.md',
+    orchestration: 'erduo-broll-loop-engineering/references/stage-orchestration.md',
+    review: 'erduo-broll-loop-engineering/references/parent-review-checklist.md',
+    director: 'erduo-broll-loop-engineering/stages/broll-director/SKILL.md',
+    onboarding: 'erduo-broll-loop-engineering/references/first-run-onboarding.md',
+    handoff: 'erduo-broll-loop-engineering/references/handoff-template.md',
+    remotion: 'erduo-broll-loop-engineering/references/remotion-backend.md',
+    motionLint: 'erduo-broll-loop-engineering/references/motion-layout-lint.md',
+  };
+  const documents = Object.fromEntries(await Promise.all(Object.entries(files).map(async ([key, file]) => (
+    [key, await readFile(path.join(root, file), 'utf8')]
+  ))));
+
+  assert.match(documents.legacyPlanner, /read-only compatibility[\s\S]*Do not\s+dispatch it in a normal v0\.9 production/u);
+  assert.match(documents.legacyPlanner, /Do not\s+repair (?:it|the record), convert it into a v0\.9 plan/u);
+  assert.match(documents.selection, /Parent runs the bundled script directly/u);
+  assert.match(documents.selection, /create-production-profile\.mjs[\s\S]*--width[\s\S]*--height[\s\S]*--fps[\s\S]*--audio[\s\S]*--master-format/u);
+  assert.match(documents.selection, /--recipes[\s\S]*--selection[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--production-profile[\s\S]*--production-root/u);
+  assert.match(documents.workflow, /create-production-profile\.mjs[\s\S]*1080[\s\S]*1920[\s\S]*25/u);
+  assert.match(documents.orchestration, /create-production-profile\.mjs[\s\S]*--production-profile/u);
+  assert.match(documents.workflow, /assemble-frozen-production\.mjs preview[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--contract[\s\S]*--output[\s\S]*--identity/u);
+  assert.match(documents.workflow, /assemble-frozen-production\.mjs deliver[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--contract[\s\S]*--identity[\s\S]*--preview[\s\S]*--output/u);
+  assert.match(documents.contract, /CLI contract arguments may be supplied in any order/u);
+  assert.match(documents.contract, /assembles in\s+plan order/u);
+  assert.match(documents.review, /No Runtime Planner\s+Agent was dispatched/u);
+  assert.match(documents.review, /No Integrator or Render Agent was dispatched/u);
+  assert.match(documents.director, /Return the validated artifacts to\s+the Parent so it can run `scripts\/plan-runtime\.mjs` directly/u);
+  assert.doesNotMatch(documents.director, /Route next to Runtime Planner/u);
+  assert.match(documents.onboarding, /After the deterministic runtime plan is written/u);
+  assert.doesNotMatch(documents.onboarding, /After Runtime Planner/u);
+  assert.match(documents.handoff, /Parent planning script/u);
+  assert.match(documents.handoff, /Parent preview\/delivery script/u);
+  assert.match(documents.handoff, /Legacy Planner\/Integrator\/Render/u);
+  assert.doesNotMatch(documents.handoff, /^- \*\*(?:Runtime Planner|Integrator|Render):/mu);
+  assert.match(documents.remotion, /current Remotion Builder contract/u);
+  assert.match(documents.remotion, /assemble-frozen-production\.mjs preview[\s\S]*No\s+Integrator or Render Agent is dispatched/u);
+  assert.match(documents.remotion, /Legacy Integrator, Studio-approval, and Render records/u);
+  assert.match(documents.motionLint, /Use this reference only in a backend Builder\./u);
+  assert.doesNotMatch(documents.motionLint, /full-composition lint once after integration/u);
+  for (const [name, text] of Object.entries(documents)) {
+    assert.doesNotMatch(text, /plan-runtime\.mjs[\s\\]*[\s\S]{0,500}--json/u, name);
+  }
+  for (const file of ['README.md', 'README.en.md', 'README.ja.md', 'README.ko.md', 'README.zh-TW.md']) {
+    const text = await readFile(path.join(root, file), 'utf8');
+    assert.match(text, /create-production-profile\.mjs/u, file);
+    assert.match(text, /plan-runtime\.mjs --production-profile/u, file);
+    assert.match(text, /1080[^\n]*1920[^\n]*25/u, file);
   }
 });
 
@@ -1394,6 +1608,7 @@ test('runtime recipe schemas preserve a runtime-neutral integer-millisecond v1/v
       'requiredCapabilities',
       'schemaVersion',
       'shotId',
+      'visualJob',
       'window',
     ],
   );
@@ -1428,7 +1643,7 @@ test('runtime recipe schemas preserve a runtime-neutral integer-millisecond v1/v
   assert.deepEqual(schema.$defs.window.required.toSorted(), ['endMs', 'startMs']);
   assert.deepEqual(
     schema.$defs.microBeat.required.toSorted(),
-    ['beatId', 'change', 'endMs', 'startMs', 'visibleState'],
+    ['beatId', 'change', 'development', 'endMs', 'startMs', 'visibleState'],
   );
 });
 
@@ -1549,15 +1764,17 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
 
   const compactRecipe = {
     schemaVersion: '2.0.0', shotId: 'S01', window: { startMs: 0, endMs: 2000 },
-    cueIds: ['cue-1'], audienceUnderstanding: 'The value increases.', focus: 'Primary value',
+    cueIds: ['cue-1'], audienceUnderstanding: 'The value increases.',
+    visualJob: 'Make the increase visibly undeniable.', focus: 'Primary value',
     compositionFamily: 'data-diagram-evidence',
     heroFrame: {
       relationship: 'The value sits on its verified baseline.',
       layers: { background: 'baseline field', midground: 'evidence axis', foreground: 'result value' },
     },
     microBeats: [
-      { beatId: 'b1', startMs: 0, endMs: 1000, visibleState: 'Baseline appears.', change: 'topology' },
-      { beatId: 'b2', startMs: 1000, endMs: 1600, visibleState: 'Value lands.', change: 'attention' },
+      { beatId: 'b1', startMs: 0, endMs: 1000, visibleState: 'Baseline appears.', change: 'topology', development: 'The evidence axis builds around the baseline.' },
+      { beatId: 'b2', startMs: 1000, endMs: 1600, visibleState: 'Value lands.', change: 'attention', development: 'The result moves into primary focus.' },
+      { beatId: 'b3', startMs: 1600, endMs: 2000, visibleState: 'The result remains readable.', change: 'deliberate-stillness', development: 'The completed result holds without decorative distraction.' },
     ],
     materialNeeds: [], requiredCapabilities: recipe.requiredCapabilities,
     readableHold: { startMs: 1600, endMs: 2000, items: ['value'] },
@@ -1595,6 +1812,11 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
     ...compactRecipe, craft: { primary: { entryId: 'semantic-seam-carry', semanticReason: 'Invalid category.' } },
   }, null, 2)}\n`);
   await assert.rejects(validateRecipeDirectory(recipeDirectory), /primary locator must not reference the transition category/u);
+  await writeFile(recipePath, `${JSON.stringify({
+    ...compactRecipe,
+    microBeats: compactRecipe.microBeats.map((beat, index) => index === 1 ? { ...beat, startMs: 1100 } : beat),
+  }, null, 2)}\n`);
+  await assert.rejects(validateRecipeDirectory(recipeDirectory), /without an unplanned gap/u);
   await writeFile(recipePath, `${JSON.stringify({ ...compactRecipe, schemaVersion: '3.0.0' }, null, 2)}\n`);
   await assert.rejects(validateRecipeDirectory(recipeDirectory), /unsupported recipe schema version/u);
 
@@ -1736,9 +1958,9 @@ test('runtime planner partitions focused units deterministically at shot, count,
     const shotId = `S${String(index + 1).padStart(2, '0')}`;
     const recipe = {
       schemaVersion: '2.0.0', shotId, window: { startMs, endMs }, cueIds: [`cue-${index + 1}`],
-      audienceUnderstanding: shotId, focus: shotId, compositionFamily: 'data-diagram-evidence',
+      audienceUnderstanding: shotId, visualJob: `Develop ${shotId} visibly.`, focus: shotId, compositionFamily: 'data-diagram-evidence',
       heroFrame: { relationship: 'Evidence supports focus.', layers: { background: 'field', midground: 'evidence', foreground: 'focus' } },
-      microBeats: [{ beatId: 'b1', startMs, endMs, visibleState: 'Complete state.', change: 'relationship' }],
+      microBeats: [{ beatId: 'b1', startMs, endMs, visibleState: 'Complete state.', change: 'relationship', development: 'The evidence relationship becomes visible.' }],
       materialNeeds: [], requiredCapabilities: common,
       readableHold: { startMs, endMs, items: [] }, neighborHandoff: { incoming: 'In.', outgoing: 'Out.' },
       ...(index === 2 ? { authoring: { solo: true, reason: 'Hero shot.' } } : {}),
@@ -1794,6 +2016,9 @@ test('runtime planner partitions focused units deterministically at shot, count,
 
 test('frozen block validator checks actual hashes and rejects profile, audio, and media drift', async (t) => {
   const state = await isolated(t);
+  const factsByFile = new Map();
+  const failDecode = new Set();
+  const runner = controlledMediaRunner({ factsByFile, failDecode });
   const plan = {
     schemaVersion: '1.0.0', status: 'planned', planningMode: 'auto',
     selection: { schemaVersion: '2.0.0', selectedRuntime: 'auto', selectionSource: 'default' },
@@ -1815,15 +2040,16 @@ test('frozen block validator checks actual hashes and rejects profile, audio, an
   for (const [index, block] of plan.blocks.entries()) {
     const directory = path.join(state.base, block.blockId);
     await mkdir(directory);
-    const mediaPath = path.join(directory, 'block.mkv');
-    const body = Buffer.from(`frozen-block-${index}`);
+    const mediaPath = path.join(directory, 'block.mock-media');
+    const body = Buffer.from(`CONTROLLED_MEDIA_${index}_${'x'.repeat(64)}`);
     await writeFile(mediaPath, body);
+    factsByFile.set(path.resolve(mediaPath), frozenFacts({ width: 1920, height: 1080 }));
     const contract = {
       schemaVersion: '1.0.0', blockId: block.blockId, runtime: block.runtime,
       window: block.window, shotIds: block.shotIds,
-      profile: { width: 1920, height: 1080, fpsNumerator: 30, fpsDenominator: 1, pixelFormat: 'yuv444p10le', colorSpace: 'bt709', mezzanineClass: 'lossless' },
+      profile: { width: 1920, height: 1080, fpsNumerator: 30, fpsDenominator: 1, pixelFormat: 'yuv444p10le', colorSpace: 'bt709', colorTransfer: 'bt709', colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'lossless' },
       audioPolicy: 'silent',
-      media: { path: 'block.mkv', sha256: createHash('sha256').update(body).digest('hex'), container: 'matroska', codec: 'ffv1', durationMs: 1000, frameCount: 30, audioStreams: 0 },
+      media: { path: 'block.mock-media', sha256: createHash('sha256').update(body).digest('hex'), container: 'matroska', codec: 'ffv1', durationMs: 1000, frameCount: 30, audioStreams: 0, startTimeMs: 0 },
       sourceIdentity: String(index + 1).repeat(64),
       verification: { ffprobePassed: true, fullDecodePassed: true, openingFrameInspected: true, closingFrameInspected: true },
       noRealtimeNesting: true,
@@ -1832,17 +2058,86 @@ test('frozen block validator checks actual hashes and rejects profile, audio, an
     await writeFile(contractFile, `${JSON.stringify(contract, null, 2)}\n`);
     contractFiles.push(contractFile);
   }
-  const valid = await validateFrozenBlocks(plan, contractFiles);
+  const validationOptions = { runner, ffmpeg: 'ffmpeg-controlled', ffprobe: 'ffprobe-controlled' };
+  const valid = await validateFrozenBlocks(plan, contractFiles, validationOptions);
   assert.equal(valid.status, 'valid');
   assert.equal(valid.blocks, 2);
 
   const second = JSON.parse(await readFile(contractFiles[1], 'utf8'));
   await writeFile(contractFiles[1], `${JSON.stringify({ ...second, profile: { ...second.profile, width: 1280 } }, null, 2)}\n`);
-  await assert.rejects(validateFrozenBlocks(plan, contractFiles), /profile differs across blocks/u);
+  await assert.rejects(validateFrozenBlocks(plan, contractFiles, validationOptions), /actual width|profile differs across blocks/u);
   await writeFile(contractFiles[1], `${JSON.stringify({ ...second, media: { ...second.media, sha256: '0'.repeat(64) } }, null, 2)}\n`);
-  await assert.rejects(validateFrozenBlocks(plan, contractFiles), /media SHA-256 mismatch/u);
+  await assert.rejects(validateFrozenBlocks(plan, contractFiles, validationOptions), /media SHA-256 mismatch/u);
   await writeFile(contractFiles[1], `${JSON.stringify({ ...second, media: { ...second.media, audioStreams: 1 } }, null, 2)}\n`);
-  await assert.rejects(validateFrozenBlocks(plan, contractFiles), /silent block contains audio streams/u);
+  await assert.rejects(validateFrozenBlocks(plan, contractFiles, validationOptions), /audio stream count|silent block contains audio streams/u);
+
+  const dishonest = structuredClone(second);
+  dishonest.profile.width = 1280;
+  dishonest.profile.height = 720;
+  dishonest.profile.fpsNumerator = 24;
+  dishonest.media.frameCount = 24;
+  await writeFile(contractFiles[1], `${JSON.stringify(dishonest, null, 2)}\n`);
+  await assert.rejects(
+    validateFrozenBlocks(plan, contractFiles, validationOptions),
+    /actual width|actual height|actual fps rational/u,
+  );
+
+  const truncatedPath = path.join(path.dirname(contractFiles[1]), second.media.path);
+  const truncated = Buffer.from('CONTROLLED_TRUNCATED');
+  await writeFile(truncatedPath, truncated);
+  failDecode.add(path.resolve(truncatedPath));
+  const rehashed = structuredClone(second);
+  rehashed.media.sha256 = createHash('sha256').update(truncated).digest('hex');
+  await writeFile(contractFiles[1], `${JSON.stringify(rehashed, null, 2)}\n`);
+  await assert.rejects(
+    validateFrozenBlocks(plan, contractFiles, validationOptions),
+    /full media decode failed/u,
+  );
+});
+
+test('frozen media default child process sanitizes secrets, disables telemetry, avoids a shell, and bounds output', async (t) => {
+  const state = await isolated(t);
+  const shellMarker = path.join(state.base, 'shell-must-not-run');
+  const literalArgument = `$(touch ${shellMarker})`;
+  const mixedCredentialField = [...PEXELS_ENV_FIELD]
+    .map((character, index) => (index % 2 === 0 ? character.toLowerCase() : character))
+    .join('');
+  const mixedCredentialCanary = ['mixed', 'case', 'canary'].join('-');
+  const uppercaseCredentialCanary = ['uppercase', 'canary'].join('-');
+  const childCode = `
+    process.stdout.write('x'.repeat(70000));
+    process.stderr.write('y'.repeat(70000));
+    const envKeys = Object.keys(process.env).sort();
+    process.stdout.write('ENV_CANARY:' + JSON.stringify({
+      envKeys,
+      telemetry: process.env.HYPERFRAMES_NO_TELEMETRY,
+      argv: process.argv.slice(1),
+    }));
+    process.exitCode = 7;
+  `;
+  const result = await runFrozenMediaCommand({
+    executable: process.execPath,
+    args: ['-e', childCode, literalArgument, '; touch should-not-run'],
+    cwd: state.base,
+    env: {
+      PATH: process.env.PATH ?? '',
+      [mixedCredentialField]: mixedCredentialCanary,
+      [PEXELS_ENV_FIELD]: uppercaseCredentialCanary,
+      hyperframes_no_telemetry: '0',
+    },
+  });
+  assert.equal(result.code, 7);
+  assert.equal(result.signal, null);
+  assert.ok(result.stdout.length <= 64 * 1024);
+  assert.ok(result.stderr.length <= 64 * 1024);
+  const marker = 'ENV_CANARY:';
+  const payload = JSON.parse(result.stdout.slice(result.stdout.lastIndexOf(marker) + marker.length));
+  assert.equal(payload.telemetry, '1');
+  assert.equal(payload.envKeys.some((name) => name.toLowerCase() === 'pexels_api_key'), false);
+  assert.deepEqual(payload.argv, [literalArgument, '; touch should-not-run']);
+  assert.equal(existsSync(shellMarker), false);
+  assert.equal(result.stdout.includes(mixedCredentialCanary), false);
+  assert.equal(result.stdout.includes(uppercaseCredentialCanary), false);
 });
 
 test('runtime capability matrix is closed, traceable, and makes no render-parity claim', async () => {
@@ -1942,7 +2237,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
   assert.match(contract, /No semantic keyword, directory name, agent taste, or signal count participates/u);
   assert.match(contract, /reference-source-unverified/u);
   assert.match(contract, /Never translate generated source, import one runtime into the\s+other, or nest live previews\/renderers/u);
-  assert.match(contract, /Intent:[\s\S]*Plan:[\s\S]*Readiness:[\s\S]*Backend:[\s\S]*Frozen block:[\s\S]*Integration:[\s\S]*Approval:[\s\S]*Delivery:[\s\S]*Comparison:/u);
+  assert.match(contract, /Intent:[\s\S]*Plan:[\s\S]*Readiness:[\s\S]*Backend:[\s\S]*Frozen unit:[\s\S]*Assembly:[\s\S]*Approval:[\s\S]*Delivery:[\s\S]*Comparison:/u);
   assert.match(concernMap, /do not treat a mechanical\s+TSX-to-HyperFrames rewrite as the compatibility layer/u);
   assert.match(concernMap, /must not be generalized into automatic\s+Remotion\/HyperFrames render parity/u);
 
@@ -1993,19 +2288,29 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'utf8',
   );
   assert.match(directorSkill, /`validate-shot-recipes\.mjs`/u);
-  const renderSkill = await readFile(
-    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-render', 'SKILL.md'),
-    'utf8',
-  );
-  assert.match(renderSkill, /optional prior approval evidence/u);
-  assert.match(renderSkill, /dispatches a different fresh\s+Render\/Delivery Agent/u);
-  assert.match(renderSkill, /Recompute and compare the\s+Integrator's `composition-identity\.json`/u);
-  assert.doesNotMatch(renderSkill, /- explicit user approval of the official final composition preview/u);
-  const integratorSkill = await readFile(
-    path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-master-integrate', 'SKILL.md'),
-    'utf8',
-  );
-  assert.match(integratorSkill, /aggregate SHA-256 of that canonical list/u);
+  const legacyStages = [
+    'broll-runtime-plan',
+    'broll-master-integrate',
+    'broll-remotion-integrate',
+    'broll-hybrid-integrate',
+    'broll-render',
+    'broll-remotion-render',
+    'broll-hybrid-render',
+  ];
+  for (const stage of legacyStages) {
+    const [stageSkill, stageMetadata] = await Promise.all([
+      readFile(path.join(root, 'erduo-broll-loop-engineering', 'stages', stage, 'SKILL.md'), 'utf8'),
+      readFile(path.join(root, 'erduo-broll-loop-engineering', 'stages', stage, 'agents', 'openai.yaml'), 'utf8'),
+    ]);
+    assert.match(stageSkill, /read-only compatibility/u, stage);
+    assert.match(stageSkill, /Do not dispatch it in a new production|Do not\s+dispatch it in a normal v0\.9 production/u, stage);
+    assert.match(stageSkill, /compact recovery report/u, stage);
+    assert.match(stageMetadata, /display_name: "Legacy /u, stage);
+    assert.match(stageMetadata, /short_description: "Inspect legacy /u, stage);
+    assert.match(stageMetadata, new RegExp(`default_prompt: "Use \\$${stage}[^\n]*read-only recovery report\\."`, 'u'), stage);
+    assert.match(stageMetadata, /allow_implicit_invocation: false/u, stage);
+    assert.doesNotMatch(stageMetadata, /assemble all|deliver one|generate and validate|obtain preview approval/iu, stage);
+  }
 
   const hyperframesBuilderSkill = await readFile(
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-master-build', 'SKILL.md'),
@@ -2077,12 +2382,15 @@ test('Remotion production contracts close silent-audio and local-font evidence',
   for (const [name, text] of [
     ['backend', backend],
     ['build', build],
-    ['integrate', integrate],
-    ['render', render],
   ]) {
     assert.match(text, /--muted/u, name);
     assert.match(text, /zero\s+audio\s+streams|no\s+audio\s+stream/u, name);
     assert.match(text, /durationInFrames\s*\/\s*fps|exact\s+frame\s+duration/u, name);
+  }
+  for (const [name, text] of [['integrate', integrate], ['render', render]]) {
+    assert.match(text, /read-only compatibility/u, name);
+    assert.match(text, /Do not dispatch it in a new production/u, name);
+    assert.match(text, /compact recovery report/u, name);
   }
   assert.match(backend, /Generic or host\s+system fallbacks/u);
   assert.match(build, /Fonts must be project-local\s+and explicitly loaded/u);
@@ -2870,6 +3178,29 @@ test('context measurement is deterministic and production prompts share one exec
   const second = await measureSnapshot('fixture', async (file) => fixture.get(file));
   assert.deepEqual(first, second);
   assert.equal(compareSnapshots(first, second).parent_default_reduction_percent, 0);
+  for (const route of ['hyperframes', 'remotion', 'hybrid']) {
+    assert.equal(first.route_default_agent_count[route].fixed_creative_agents, 2);
+    assert.equal(first.route_default_agent_count[route].builder_agents, 'task input');
+    assert.equal(first.route_default_agent_count[route].total_formula, '2 + builder_count');
+    assert.equal(first.route_default_agent_count[route].script_steps_counted_as_agents, false);
+  }
+  assert.equal(Object.values(ROUTES).flat().some((file) => (
+    /broll-(?:runtime-plan|master-integrate|remotion-integrate|hybrid-integrate|render|remotion-render|hybrid-render)\/SKILL\.md/u.test(file)
+  )), false);
+  const legacyFixture = new Map();
+  for (const file of [...new Set([...V070_PARENT_DEFAULT, ...Object.values(V070_ROUTES).flat()])]) {
+    legacyFixture.set(file, `legacy ${file}\n`);
+  }
+  const legacy = await measureSnapshot('v0.7.0-fixture', async (file) => legacyFixture.get(file), {
+    parentDefault: V070_PARENT_DEFAULT,
+    routes: V070_ROUTES,
+    agentModel: 'legacy-fixed',
+  });
+  assert.deepEqual(legacy.route_default_agent_count, {
+    hyperframes: 6,
+    remotion: 6,
+    hybrid: 7,
+  });
   if (!RELEASE_PACKAGE_MODE) {
     const frozen = JSON.parse(await readFile(path.join(root, 'docs', 'V0.8.0-CONTEXT-MEASUREMENT.json'), 'utf8'));
     const live = await buildContextMeasurement({ baselineRef: 'v0.7.0', currentRef: 'v0.8.0' });
@@ -4316,12 +4647,30 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const publicPackage = JSON.parse(await readFile(path.join(root, 'package.json')));
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
+  const readme = await readFile(path.join(root, 'README.md'), 'utf8');
+  const changelog = await readFile(path.join(root, 'CHANGELOG.md'), 'utf8');
+  const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
+  const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
+  const translatedReadmes = await Promise.all(
+    ['README.en.md', 'README.ja.md', 'README.ko.md', 'README.zh-TW.md']
+      .map((name) => readFile(path.join(root, name), 'utf8')),
+  );
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.8.2');
+  assert.equal(RELEASE_VERSION, '0.9.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
   assert.equal(lock.packages[''].version, RELEASE_VERSION);
+  assert.match(readme, /version-0\.9\.0-/u);
+  assert.match(changelog, /## 0\.9\.0 —/u);
+  assert.match(support, /`0\.9\.0`/u);
+  assert.match(checklist, /`0\.9\.0`/u);
+  for (const translatedReadme of translatedReadmes) {
+    assert.match(translatedReadme, /## v0\.9 Creative Production/u);
+    assert.match(translatedReadme, /1080p[^\n]*veryfast \/ CRF 22/u);
+    assert.match(translatedReadme, /--plan[^\n]*--narrative-envelope[^\n]*--visual-system[^\n]*--contract/u);
+    assert.match(translatedReadme, /medium \/ CRF 16[^\n]*[Mm]aster/u);
+  }
   assert.equal(packageJson.dependencies.hyperframes, '0.7.104');
   assert.equal(packageJson.dependencies.skills, SKILLS_CLI_VERSION);
   assert.equal(lock.lockfileVersion, 3);
@@ -4713,6 +5062,278 @@ test('private directory creation rejects an intermediate symbolic-link component
   );
   assert.equal(fetched, false);
   assert.equal(await entryExists(path.join(outsideAppDir, 'config.json')), true);
+});
+
+test('production profile CLI creates default and vertical policies and planning preserves the selected profile', async (t) => {
+  const state = await isolated(t);
+  const fixture = await writeV09PlanningFixture(state.base);
+  const profileScript = path.join(
+    root, 'erduo-broll-loop-engineering', 'scripts', 'create-production-profile.mjs',
+  );
+  const planScript = path.join(root, 'erduo-broll-loop-engineering', 'scripts', 'plan-runtime.mjs');
+  const defaultFile = path.join(state.base, 'default-production-profile.json');
+  await execFileAsync(process.execPath, [profileScript, '--output', defaultFile]);
+  const defaultProfile = JSON.parse(await readFile(defaultFile, 'utf8'));
+  assert.deepEqual(defaultProfile, createProductionProfile());
+  assert.deepEqual(defaultProfile.raster, { width: 3840, height: 2160 });
+  assert.deepEqual(defaultProfile.fps, { numerator: 30, denominator: 1 });
+
+  const customFile = path.join(fixture.productionRoot, 'production-profile.json');
+  await execFileAsync(process.execPath, [
+    profileScript,
+    '--output', customFile,
+    '--width', '1080', '--height', '1920', '--fps', '25',
+    '--audio', 'silent', '--master-format', 'h264-mp4',
+  ]);
+  const customProfile = JSON.parse(await readFile(customFile, 'utf8'));
+  assert.deepEqual(customProfile.raster, { width: 1080, height: 1920 });
+  assert.deepEqual(customProfile.fps, { numerator: 25, denominator: 1 });
+  assert.equal(customProfile.master.container, 'mp4');
+  assert.equal(customProfile.master.codec, 'h264');
+  assert.notEqual(customProfile.identity, defaultProfile.identity);
+
+  const { stdout } = await execFileAsync(process.execPath, [
+    planScript,
+    '--recipes', fixture.recipesDirectory,
+    '--selection', fixture.selectionFile,
+    '--narrative-envelope', fixture.narrativeEnvelopeFile,
+    '--visual-system', fixture.visualSystemFile,
+    '--production-profile', customFile,
+    '--production-root', fixture.productionRoot,
+  ]);
+  const result = JSON.parse(stdout);
+  assert.deepEqual(result.plan.productionProfile, customProfile);
+  const assignments = await Promise.all(result.assignments.map(async (file) => (
+    JSON.parse(await readFile(path.join(fixture.productionRoot, file), 'utf8'))
+  )));
+  assert.equal(assignments.length, 2);
+  for (const assignment of assignments) {
+    assert.deepEqual(assignment.productionProfile, customProfile);
+    assert.equal(assignment.productionProfileIdentity, customProfile.identity);
+  }
+
+  const factsByFile = new Map();
+  const commands = [];
+  const runner = controlledMediaRunner({
+    factsByFile,
+    commands,
+    previewFacts: {
+      width: 606, height: 1080, fps: '25/1', frameCount: 50,
+    },
+    masterFacts: {
+      width: 1080, height: 1920, fps: '25/1', frameCount: 50,
+    },
+  });
+  const contractFiles = [];
+  for (const [index, assignment] of assignments.entries()) {
+    const unitRoot = path.join(fixture.productionRoot, assignment.output.workDirectory);
+    await mkdir(unitRoot, { recursive: true });
+    const mediaFile = path.join(unitRoot, 'unit.mock-media');
+    const media = Buffer.from(`VERTICAL_UNIT_MEDIA_${index}_${'x'.repeat(64)}`);
+    await writeFile(mediaFile, media);
+    factsByFile.set(path.resolve(mediaFile), frozenFacts({
+      width: 1080, height: 1920, fps: '25/1', frameCount: 25,
+    }));
+    const sourceClosure = await writeEditableSourceClosure(unitRoot, assignment.unitId);
+    const contract = {
+      schemaVersion: '1.0.0', blockId: assignment.blockId, runtime: assignment.runtime,
+      window: assignment.window, shotIds: assignment.shotIds,
+      profile: {
+        width: 1080, height: 1920, fpsNumerator: 25, fpsDenominator: 1,
+        pixelFormat: 'yuv444p10le', colorSpace: 'bt709', colorTransfer: 'bt709',
+        colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'lossless',
+      },
+      audioPolicy: 'silent',
+      media: {
+        path: 'unit.mock-media', sha256: createHash('sha256').update(media).digest('hex'),
+        container: 'matroska', codec: 'ffv1', durationMs: 1000, frameCount: 25,
+        audioStreams: 0, startTimeMs: 0,
+      },
+      productionProfileIdentity: customProfile.identity,
+      ...sourceClosure,
+      verification: {
+        ffprobePassed: true, fullDecodePassed: true,
+        openingFrameInspected: true, closingFrameInspected: true,
+      },
+      noRealtimeNesting: true,
+    };
+    const contractFile = path.join(unitRoot, 'block-media.json');
+    await writeFile(contractFile, `${JSON.stringify(contract)}\n`);
+    contractFiles.push(contractFile);
+  }
+
+  const planFile = path.join(fixture.productionRoot, '01-runtime-plan', 'runtime-plan.json');
+  const preview = path.join(fixture.productionRoot, '05-delivery', 'preview.mp4');
+  const identity = path.join(fixture.productionRoot, '05-delivery', 'composition-identity.json');
+  await assembleFrozenPreview({
+    planFile, contractFiles,
+    narrativeEnvelopeFile: fixture.narrativeEnvelopeFile,
+    visualSystemFile: fixture.visualSystemFile,
+    outputFile: preview, identityFile: identity, runner,
+  });
+  factsByFile.set(path.resolve(preview), frozenFacts({
+    container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
+    width: 606, height: 1080, fps: '25/1', durationSeconds: 2, frameCount: 50,
+  }));
+  const master = path.join(fixture.productionRoot, '05-delivery', 'master.mp4');
+  const delivery = await deliverFrozenMaster({
+    planFile, contractFiles,
+    narrativeEnvelopeFile: fixture.narrativeEnvelopeFile,
+    visualSystemFile: fixture.visualSystemFile,
+    identityFile: identity, previewFile: preview, outputFile: master, runner,
+  });
+  assert.equal(delivery.mediaFacts.width, 1080);
+  assert.equal(delivery.mediaFacts.height, 1920);
+  assert.equal(delivery.mediaFacts.fps, '25/1');
+  const masterCommand = commands.find(({ args }) => path.basename(args.at(-1)).startsWith('.master-'));
+  assert.ok(masterCommand);
+  assert.deepEqual(masterCommand.args.slice(masterCommand.args.indexOf('-c:v'), masterCommand.args.indexOf('-c:v') + 8), [
+    '-c:v', 'libx264', '-preset', 'medium', '-crf', '16', '-pix_fmt', 'yuv420p',
+  ]);
+});
+
+test('v0.9 planning writes one immutable plan and minimal Builder task per authoring unit', async (t) => {
+  const state = await isolated(t);
+  const fixture = await writeV09PlanningFixture(state.base);
+  const result = await writeProductionPlan(fixture);
+  assert.equal(result.plan.status, 'planned');
+  assert.equal(result.plan.integrationMode, 'frozen-block-media');
+  assert.equal(result.plan.frozenMediaContractVersion, '1.0.0');
+  assert.deepEqual(result.plan.productionProfile, bindProductionProfile(DEFAULT_PRODUCTION_PROFILE));
+  assert.deepEqual(result.assignments, [
+    '01-runtime-plan/assignments/U001.json',
+    '01-runtime-plan/assignments/U002.json',
+  ]);
+  const assignments = await Promise.all(result.assignments.map(async (file) => (
+    JSON.parse(await readFile(path.join(fixture.productionRoot, file), 'utf8'))
+  )));
+  assert.deepEqual(assignments[0].shotIds, ['S01']);
+  assert.deepEqual(assignments[0].contextFiles.recipes, ['01-director/shot-recipes/S01.json']);
+  assert.deepEqual(assignments[1].contextFiles.recipes, ['01-director/shot-recipes/S02.json']);
+  for (const assignment of assignments) {
+    assert.equal(assignment.output.editableSourceRequired, true);
+    assert.equal(assignment.output.frozenMediaRequired, true);
+    assert.equal(assignment.shared.copyAssetsIntoUnit, false);
+    assert.deepEqual(assignment.productionProfile, result.plan.productionProfile);
+    assert.equal(assignment.productionProfileIdentity, result.plan.productionProfile.identity);
+    assert.match(assignment.contextPolicy, /Do not inherit the parent transcript/u);
+    assert.match(assignment.seamLimit, /cannot cross independently rendered units/u);
+  }
+  assert.deepEqual(
+    (await readdir(path.join(fixture.productionRoot, '01-runtime-plan'))).toSorted(),
+    ['assignments', 'runtime-plan.json'],
+  );
+  const tamperedProfilePlan = structuredClone(result.plan);
+  tamperedProfilePlan.productionProfile.raster.width = 1920;
+  await assert.rejects(
+    validateRuntimePlan(tamperedProfilePlan, fixture),
+    /productionProfile\/identity|aggregate does not match/u,
+  );
+  await assert.rejects(writeProductionPlan(fixture), /output already exists/u);
+});
+
+test('v0.9 frozen unit media makes a low-cost preview and revalidates it before full master delivery', async (t) => {
+  const state = await isolated(t);
+  const fixture = await writeV09PlanningFixture(state.base);
+  const { plan, assignments: assignmentFiles } = await writeProductionPlan(fixture);
+  const factsByFile = new Map();
+  const runner = controlledMediaRunner({ factsByFile });
+  const assignments = await Promise.all(assignmentFiles.map(async (file) => (
+    JSON.parse(await readFile(path.join(fixture.productionRoot, file), 'utf8'))
+  )));
+  const contractFiles = [];
+  for (const [index, assignment] of assignments.entries()) {
+    const unitRoot = path.join(fixture.productionRoot, assignment.output.workDirectory);
+    await mkdir(unitRoot, { recursive: true });
+    const mediaFile = path.join(unitRoot, 'unit.mock-media');
+    const media = Buffer.from(`CONTROLLED_UNIT_MEDIA_${index}_${'x'.repeat(64)}`);
+    await writeFile(mediaFile, media);
+    factsByFile.set(path.resolve(mediaFile), frozenFacts());
+    const durationMs = assignment.window.endMs - assignment.window.startMs;
+    const sourceClosure = await writeEditableSourceClosure(unitRoot, assignment.unitId);
+    const contract = {
+      schemaVersion: '1.0.0', blockId: assignment.blockId, runtime: assignment.runtime,
+      window: assignment.window, shotIds: assignment.shotIds,
+      profile: {
+        width: 3840, height: 2160, fpsNumerator: 30, fpsDenominator: 1,
+        pixelFormat: 'yuv444p10le', colorSpace: 'bt709', colorTransfer: 'bt709',
+        colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'lossless',
+      },
+      audioPolicy: 'silent',
+      media: {
+        path: 'unit.mock-media', sha256: createHash('sha256').update(media).digest('hex'),
+        container: 'matroska', codec: 'ffv1', durationMs, frameCount: 30,
+        audioStreams: 0, startTimeMs: 0,
+      },
+      productionProfileIdentity: assignment.productionProfileIdentity,
+      ...sourceClosure,
+      verification: {
+        ffprobePassed: true, fullDecodePassed: true,
+        openingFrameInspected: true, closingFrameInspected: true,
+      },
+      noRealtimeNesting: true,
+    };
+    const contractFile = path.join(unitRoot, 'block-media.json');
+    await writeFile(contractFile, `${JSON.stringify(contract)}\n`);
+    contractFiles.push(contractFile);
+  }
+  assert.equal(plan.blocks.length, 1);
+  assert.equal(plan.authoringUnits.length, 2);
+  assert.deepEqual(
+    await validateFrozenBlocks(plan, contractFiles, { ...fixture, runner }),
+    {
+      status: 'valid', blocks: 2, startMs: 0, endMs: 2000,
+      aggregateIdentity: (await validateFrozenBlocks(plan, contractFiles, { ...fixture, runner })).aggregateIdentity,
+    },
+  );
+  const editableSource = path.join(
+    fixture.productionRoot, assignments[1].output.workDirectory, 'source', 'entry.txt',
+  );
+  await writeFile(editableSource, 'tampered editable source');
+  await assert.rejects(
+    validateFrozenBlocks(plan, contractFiles, { ...fixture, runner }),
+    /differs from its editable closure/u,
+  );
+  await writeFile(editableSource, `editable-${assignments[1].unitId}`);
+  const preview = path.join(fixture.productionRoot, '05-delivery', 'preview.mp4');
+  const identity = path.join(fixture.productionRoot, '05-delivery', 'composition-identity.json');
+  const previewResult = await assembleFrozenPreview({
+    planFile: path.join(fixture.productionRoot, '01-runtime-plan', 'runtime-plan.json'),
+    contractFiles,
+    narrativeEnvelopeFile: fixture.narrativeEnvelopeFile,
+    visualSystemFile: fixture.visualSystemFile,
+    outputFile: preview,
+    identityFile: identity,
+    runner,
+  });
+  assert.equal(previewResult.status, 'preview-ready');
+  assert.equal(previewResult.units, 2);
+  factsByFile.set(path.resolve(preview), frozenFacts({
+    container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
+    width: 1920, height: 1080, durationSeconds: 2, frameCount: 60,
+  }));
+  const master = path.join(fixture.productionRoot, '05-delivery', 'master.mp4');
+  const delivery = await deliverFrozenMaster({
+    planFile: path.join(fixture.productionRoot, '01-runtime-plan', 'runtime-plan.json'),
+    contractFiles,
+    narrativeEnvelopeFile: fixture.narrativeEnvelopeFile,
+    visualSystemFile: fixture.visualSystemFile,
+    identityFile: identity, previewFile: preview, outputFile: master, runner,
+  });
+  assert.equal(delivery.status, 'master-ready');
+  assert.notDeepEqual(await readFile(master), await readFile(preview));
+  assert.equal(delivery.mediaFacts.width, 3840);
+  await writeFile(preview, 'changed-after-approval');
+  await assert.rejects(deliverFrozenMaster({
+    planFile: path.join(fixture.productionRoot, '01-runtime-plan', 'runtime-plan.json'),
+    contractFiles,
+    narrativeEnvelopeFile: fixture.narrativeEnvelopeFile,
+    visualSystemFile: fixture.visualSystemFile,
+    identityFile: identity,
+    previewFile: preview,
+    outputFile: path.join(fixture.productionRoot, '05-delivery', 'master-2.mp4'),
+    runner,
+  }), /changed after identity/u);
 });
 
 test('public release source contains the parent plus thirteen prompt stage Skills', async () => {
