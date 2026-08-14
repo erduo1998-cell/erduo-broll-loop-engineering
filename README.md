@@ -4,7 +4,7 @@
 
 **给一份 SRT，Agent 自动完成原创分镜、素材、动画、预览与最终 Master。**
 
-[![Version](https://img.shields.io/badge/version-0.8.1-c87842)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.8.2-c87842)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-17120e)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-c87842)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-17120e)](LICENSE)

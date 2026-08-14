@@ -1,6 +1,6 @@
 {
   "name": "erduo-broll-loop-engineering-runtime",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "private": true,
   "dependencies": {
     "hyperframes": "0.7.104",

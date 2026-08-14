@@ -4317,7 +4317,7 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
   const packageJson = JSON.parse(await readFile(path.join(root, 'runtime', 'package.json')));
   const lock = JSON.parse(await readFile(path.join(root, 'runtime', 'package-lock.json')));
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.8.1');
+  assert.equal(RELEASE_VERSION, '0.8.2');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
