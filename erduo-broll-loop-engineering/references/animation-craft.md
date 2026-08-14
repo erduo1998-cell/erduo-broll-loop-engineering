@@ -99,8 +99,7 @@ This compiles **Exaggeration**, the expressive side of **Timing**, and
 
 ## Director generation procedure
 
-Before querying Shotcraft or describing motion phases, generate the shot from
-these questions:
+Generate the shot without Shotcraft from these questions:
 
 1. What must the audience understand, and what is the one first-read focus?
 2. How does attention reach that focus before the decisive change?
@@ -115,9 +114,11 @@ these questions:
 Translate the answers into the existing runtime-neutral Recipe fields:
 `semantics.focus`, `semantics.visualLogic`, `visualState`, `motion.phases`,
 `readability`, materials, and neighbor connection. Describe observable motion
-and results, not principle names or backend APIs. Query Shotcraft only after
-this motion direction exists; a card may refine the mechanism but must not
-originate the shot's meaning or movement character.
+and results, not principle names or backend APIs. If this closes the shot, stop:
+no Shotcraft query or no-pattern receipt is required. Query only for a named
+remaining technique question or an explicit user request. A selected card may
+refine the mechanism but must not originate the shot's meaning or movement
+character.
 
 ## HyperFrames Builder generation procedure
 

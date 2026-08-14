@@ -135,18 +135,20 @@ export function compareSnapshots(baseline, current) {
 
 export async function buildContextMeasurement({
   baselineRef = 'v0.7.0',
+  currentRef = 'worktree',
   baselineReader,
   currentReader,
 } = {}) {
   const readBaseline = baselineReader ?? await gitReader(baselineRef);
-  const readCurrent = currentReader ?? await gitReader('worktree');
+  const readCurrent = currentReader ?? await gitReader(currentRef);
   const baseline = await measureSnapshot(baselineRef, readBaseline, {
     parentDefault: baselineRef === 'v0.7.0' ? V070_PARENT_DEFAULT : PARENT_DEFAULT,
   });
-  const current = await measureSnapshot('worktree', readCurrent);
+  const current = await measureSnapshot(currentRef, readCurrent);
+  const currentArgument = currentRef === 'worktree' ? '' : ` --current ${currentRef}`;
   return {
     schema_version: 1,
-    command: `node scripts/measure-context.mjs --baseline ${baselineRef}`,
+    command: `node scripts/measure-context.mjs --baseline ${baselineRef}${currentArgument}`,
     scope: 'Deterministic default prompt-load byte proxy; actual host token and artifact I/O remain end-to-end benchmark facts.',
     baseline,
     current,
@@ -155,12 +157,20 @@ export async function buildContextMeasurement({
 }
 
 async function main(argv) {
-  const baselineIndex = argv.indexOf('--baseline');
-  const baselineRef = baselineIndex >= 0 ? argv[baselineIndex + 1] : 'v0.7.0';
-  if (!baselineRef || argv.some((arg, index) => arg.startsWith('--') && !(arg === '--baseline' && index === baselineIndex))) {
-    throw new Error('Usage: node scripts/measure-context.mjs [--baseline <git-ref>]');
+  let baselineRef = 'v0.7.0';
+  let currentRef = 'worktree';
+  for (let index = 0; index < argv.length; index += 1) {
+    const option = argv[index];
+    if (!['--baseline', '--current'].includes(option)
+      || !argv[index + 1]
+      || argv[index + 1].startsWith('--')) {
+      throw new Error('Usage: node scripts/measure-context.mjs [--baseline <git-ref>] [--current <git-ref|worktree>]');
+    }
+    if (option === '--baseline') baselineRef = argv[index + 1];
+    else currentRef = argv[index + 1];
+    index += 1;
   }
-  process.stdout.write(`${JSON.stringify(await buildContextMeasurement({ baselineRef }), null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify(await buildContextMeasurement({ baselineRef, currentRef }), null, 2)}\n`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -34,8 +34,9 @@ Give each child:
   and authoring-unit assignment, capability evidence, and relevant
   contract/Recipe locators;
 - the validated runtime-selection artifact and its evidence bindings;
-- for Director, Assets, and Builder, progressive craft/Shotcraft query commands
-  and only the selected locators needed by that stage; never full catalogs;
+- for Director, Assets, and Builder, only actually selected craft/Shotcraft
+  locators; expose query commands only for a named unresolved technique
+  question or explicit user request, never as a per-shot gate or full catalog;
 - the unique new output directory, default `master.mp4` H.264 MP4 at
   3840×2160, 30 fps, high quality, or the user's explicit alternative;
 - the shared Markdown handoff format;
@@ -104,9 +105,9 @@ Pass only the unit Recipes, its exact unit/block assignment, immediate seam
 summaries, shared narrative-envelope/visual-system locators, frozen
 assets/fonts, capability evidence, and 0–2 actually selected references.
 Builders must not read all film Recipes or full catalogs. They resolve only a
-Recipe's primary craft/card locators, then record a
-one-to-one mapping from each recipe to its runtime-owned implementation and
-pattern reference. Do not let the Director embed runtime code, let a Builder
+Recipe's present craft/card locators, then map each Recipe to its runtime-owned
+implementation and, only when present, its pattern reference. Do not let the
+Director embed runtime code, let a Builder
 silently weaken semantic results for runtime convenience, or treat an
 unselected card as authorization to change the shot. This release does not
 claim automatic source translation or a library of preverified components.

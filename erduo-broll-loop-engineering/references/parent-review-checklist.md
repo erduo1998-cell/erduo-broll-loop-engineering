@@ -38,9 +38,10 @@ gate: the user's decision on the final identity-bound composition preview.
 - A micro-beat changes subject, topology, scale, depth, material state,
   relationship, or attention; deliberate stillness is explicit. Beat-count
   heuristics are not a pass/fail score.
-- Each shot has at most one primary craft grammar and one Shotcraft pattern;
-  selected locators resolve progressively. Craft never supplies runtime
-  routing evidence.
+- Shotcraft may be unused across the whole film. When a named technique
+  question justified a query, that shot has at most one pattern and its locator
+  resolves progressively; no per-shot no-pattern record is required. Craft
+  never supplies runtime routing evidence.
 - Uncertain facts use safe wording; no copied third-party code, prompt,
   example, media, or wording enters the artifacts.
 

@@ -31,12 +31,15 @@ Builder owns its planned backend source. Single-backend Integrator/Render
 stages accept only their own route. Hybrid uses the dedicated runtime-neutral
 Integrator/Render. Describing a recipe is not backend evidence.
 
-The bundled Shotcraft catalog is a runtime-neutral pattern reference, not a
-second backend. Start with `scripts/query-shotcraft.mjs --stats`, then use a
-directed cross-category `--search` or a category-filtered `--list` for compact
-discovery, and `--card <id> --style <key>` only for the selected card. Search
-uses whitespace-separated AND terms; retry a zero-result phrase with one or
-two discriminating terms. Never run an unfiltered `--list` during production.
+The bundled Shotcraft catalog is an optional runtime-neutral technique
+reference, not a second backend or a production gate. Original direction is the
+default; a complete film may use zero queries. Only after independent shot
+logic leaves one named technique question, or the user explicitly requests the
+reference, start with a directed `--search` or category-filtered `--list`, then
+use `--card <id> --style <key>` only for the selected card. Search uses
+whitespace-separated AND terms; retry a zero-result phrase with one or two
+discriminating terms. Never query merely to prove compliance or run an
+unfiltered `--list` during production.
 Do not load `references/shotcraft/catalog.json` or all card bodies into a stage
 context. The catalog excludes upstream TSX, demo media, audio, textures, and
 runtime assets; its entries are not verified HyperFrames components or
@@ -138,11 +141,12 @@ whole film, and writes:
 - `material-requests.md`
 - `handoff.md`
 
-After establishing each shot's meaning, the Director searches the catalog and
-selects at most one primary pattern, or records an explicit no-pattern
-decision in the shot plan. A selected `patternRef` records a resolvable card
-ID, style key, pinned upstream Git commit, semantic reason, and fallback.
-Pattern selection never replaces the shot's content-specific visual logic.
+The Director completes content-specific visual and motion logic without the
+catalog. Only a justified query may add at most one primary `patternRef` with a
+resolvable card ID, style key, pinned upstream Git commit, semantic reason and
+fallback. No query and no `patternRef` is a complete valid result; do not write
+per-shot no-pattern decisions. Pattern selection never replaces the shot's
+content-specific visual logic.
 
 The visual direction arises from the current content, audience, goal, and
 optional material. It is not selected from a bundled theme. The shot plan must

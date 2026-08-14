@@ -38,7 +38,7 @@
 ## 生产验证
 
 - [ ] `0.8.0` 三项核心变化有真实证据：正常生产 Onboarding Agent 为 0；motion-layout 通过时不产生默认抽帧；父默认和三条路线 Prompt 代理达到冻结结果。
-- [ ] `node scripts/measure-context.mjs --baseline v0.7.0` 与 `docs/V0.8.0-CONTEXT-MEASUREMENT.json` 一致：父默认 `95.89%`、HyperFrames `79.93%`、Remotion `79.87%`、Hybrid `82.58%`；明确这是 bytes 代理而非真实 token/I-O。
+- [ ] `node scripts/measure-context.mjs --baseline v0.7.0 --current v0.8.0` 与 `docs/V0.8.0-CONTEXT-MEASUREMENT.json` 一致：父默认 `95.89%`、HyperFrames `79.93%`、Remotion `79.87%`、Hybrid `82.58%`；这是冻结 tag 的 bytes 代理，不冒充当前工作树或真实 token/I-O。
 - [ ] 真实限制已公开：代码不能证明故事、重量、弧线、夸张或 appeal；HyperFrames 无 geometry hook 时标记 `unmeasured`；Remotion 真捕获依赖目标项目本地浏览器/精确依赖；不声明双端视觉一致。
 - [ ] 从本版本执行一次全新 Codex 真实 SRT 端到端，完成官方 HyperFrames check、render 和媒体验证。
 - [ ] Claude Code 使用同输入独立执行并比较公开交付契约。

@@ -1219,6 +1219,35 @@ test('Shotcraft query keeps discovery concise and loads only an explicitly selec
   );
 });
 
+test('Shotcraft is a problem-triggered reference, never a per-shot creativity gate', async () => {
+  const promptPaths = [
+    'erduo-broll-loop-engineering/SKILL.md',
+    'erduo-broll-loop-engineering/stages/broll-director/SKILL.md',
+    'erduo-broll-loop-engineering/references/animation-craft.md',
+    'erduo-broll-loop-engineering/references/prompt-first-workflow.md',
+    'erduo-broll-loop-engineering/references/stage-orchestration.md',
+    'erduo-broll-loop-engineering/references/parent-review-checklist.md',
+  ];
+  const prompts = (await Promise.all(promptPaths.map(async (relative) => ({
+    relative,
+    body: await readFile(path.join(root, relative), 'utf8'),
+  }))));
+  const combined = prompts.map(({ body }) => body).join('\n');
+
+  assert.match(combined, /A complete film may use zero Shotcraft cards/u);
+  assert.match(combined, /do not manufacture a question to justify/u);
+  assert.match(combined, /No query and no `patternRef` is a complete valid result/u);
+  assert.match(combined, /never as a per-shot gate/u);
+  assert.doesNotMatch(combined, /Director searches the catalog/u);
+  assert.doesNotMatch(combined, /explicit no-pattern decisions?/u);
+
+  const recipeSchema = JSON.parse(await readFile(
+    path.join(root, 'erduo-broll-loop-engineering/references/runtime/shot-recipe.schema.json'),
+    'utf8',
+  ));
+  assert.equal(recipeSchema.required.includes('patternRef'), false);
+});
+
 test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as a manifest closure', async (t) => {
   if (RELEASE_PACKAGE_MODE) {
     t.skip('repository-only synchronization maintenance is not shipped in the release archive');
@@ -2687,7 +2716,7 @@ test('context measurement is deterministic and production prompts share one exec
   assert.equal(compareSnapshots(first, second).parent_default_reduction_percent, 0);
   if (!RELEASE_PACKAGE_MODE) {
     const frozen = JSON.parse(await readFile(path.join(root, 'docs', 'V0.8.0-CONTEXT-MEASUREMENT.json'), 'utf8'));
-    const live = await buildContextMeasurement({ baselineRef: 'v0.7.0' });
+    const live = await buildContextMeasurement({ baselineRef: 'v0.7.0', currentRef: 'v0.8.0' });
     assert.deepStrictEqual(frozen, live);
   }
   assert.deepEqual(V070_PARENT_DEFAULT, [

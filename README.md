@@ -146,13 +146,14 @@ node erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs <shot-recipe
 
 ## 镜头能力目录
 
-`0.7.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。Director 和目标后段 Builder 把这些原文作为运行时中立的镜头知识消费：先查询小型目录，再只加载命中的卡片，避免一次把完整卡库塞进 Agent 上下文。
+`0.7.0` 继续收录 **152 张上游 Markdown 镜头卡原文**，覆盖目录中的 **209 个 style 条目**。本项目另外生成带 `adaptationNotice` 的检索目录和完整性 manifest。它们是按需查询的技法辞典，不是每镜必经的选型菜单：Director 必须先独立完成创意，只有遇到具体未解技法问题或用户明确要求时才查询；整片 0 次查询、0 张卡也是完整有效的结果。
 
 请准确理解这里的“吸收”：
 
 - 已验证的是卡片数量、style 覆盖、唯一 ID、来源 commit、逐文件哈希、查询闭集和发布包闭集；
 - 上游卡片正文用于两个后端的镜头语义；Remotion Builder 还可以只读取所选卡片 manifest 绑定的固定 TSX 来源作为改编参考，但必须替换 fixture/媒体并写入独立目标项目，不能在运行时直接导入参考树；
 - **152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件**，也不等于 Remotion TSX 可以自动转换；
+- 镜头卡不提供用户素材；图片、视频、Logo、UI 与字体仍独立走用户素材 → 可控生成 → Pexels → 运行时原生结构路由；
 - 实际镜头仍由 Director 选择、Assets 准备素材、目标后段 Builder 原生实现，并接受该运行时的检查、预览和渲染验证；
 - 上游文本及 Remotion 来源子集依据 Apache-2.0 收录并保留逐文件来源和哈希；发布包不携带上游预览媒体、音频、字体、纹理或 Remotion 运行时依赖。
 

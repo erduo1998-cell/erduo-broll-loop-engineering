@@ -14,10 +14,11 @@ and runtime intent for traceability. Do not request a design file or private
 example.
 
 Read `animation-craft.md` and `visual-craft.md`. Use bundled validators instead
-of loading schemas or the capability matrix. Query Shotcraft/craft progressively:
-start with compact search, then read only a candidate selected for a real shot.
-Never load a full catalog. A card is optional knowledge, not source, a template,
-a score, or runtime evidence. All commands follow `safe-execution.md`.
+of loading schemas or the capability matrix. Do not query Shotcraft while
+forming the visual world or initial shot logic. A card is optional technique
+knowledge, not source, a template, a score, or runtime evidence. If a later
+query is justified, start with compact search and read only the selected
+candidate; never load a full catalog. All commands follow `safe-execution.md`.
 
 ## Direct
 
@@ -48,11 +49,14 @@ name or Disney-principle checklist. Vary adjacent composition and density.
 Opacity nudges or same-layout copy swaps do not count as development; genuine
 continuous action and purposeful stillness remain valid.
 
-After the shot logic exists, query Shotcraft by purpose, relationship, material
-and energy. Bind at most one primary card/style per shot only when it improves
-understanding and its material prerequisites can be met; otherwise use none.
-Record its stable ID, style, pinned source revision, reason and runtime-neutral
-fallback. Query at most one primary craft grammar plus optional transition.
+Finish each shot's content-specific visual and motion logic independently.
+Query Shotcraft only when the user explicitly requests it or one named
+technique question remains unresolved; do not manufacture a question to justify
+a lookup. A complete film may use zero queries and zero cards. When a query
+materially improves an already-directed shot and its prerequisites can be met,
+bind at most one primary card/style and record its stable ID, style, pinned
+source revision, reason and runtime-neutral fallback. Query at most one primary
+craft grammar plus optional transition.
 
 Author one compact Recipe v2 per shot. Store only shot deltas: timing, focus,
 composition/hero relationship, micro-beats, material need, optional locators,
@@ -67,8 +71,9 @@ for unconfirmed transcript facts.
 Write narrative-envelope.json, visual-system.json, shot-plan.md, one Recipe per
 shot, material-requests.md, and a minimal handoff under
 `broll-production/01-director/`. Run `validate-shot-recipes.mjs`; JSON parsing
-alone is not validation. Record only compact selected queries/locators and
-explicit no-pattern decisions.
+alone is not validation. Record only a query's named question and selected
+locator when a query actually occurred; do not create per-shot no-pattern
+records.
 
 Complete when coverage closes, visual/material development fits the content,
 shared rules are not repeated per shot, every Recipe validates and maps one to

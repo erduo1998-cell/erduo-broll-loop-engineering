@@ -73,6 +73,7 @@
 | 镜头卡目录 | verified data | 152 张卡、209 个全局唯一 style key；目录、来源 commit 与 manifest 由自动化测试核验 |
 | 卡片全文 | verified upstream artifact | 每卡与 pinned upstream Markdown byte-identical，并有稳定 ID、上游 URL、本地路径、字节数与 SHA-256；正文作为运行时中立镜头知识消费 |
 | 查询 | verified CLI | 支持 stats、list、search 与 card；`--style` 只能随 card 限定卡内 style，只有 card 模式加载卡片全文 |
+| 创作触发 | optional reference | Director 默认不查询，先独立完成视觉与运动逻辑；只在具名的未解技法问题或用户明确要求时查询。整片 0 次查询、0 个 `patternRef` 完全有效，不需逐镜记录“无卡片” |
 | 固定 Remotion 来源 | verified source subset | 仅收录 manifest 声明、逐文件哈希验证的源码与最小 fixture，供 Remotion 后段按来源证据借鉴；不因此安装运行时 |
 | 上游媒体 | not bundled | 不复制预览、音频、纹理、字体或其他媒体资产 |
 | HyperFrames 组件 | not implied | 152 张知识卡不等于 152 个已经构建、seek 和渲染验证的 HyperFrames 组件 |

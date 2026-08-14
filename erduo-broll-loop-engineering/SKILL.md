@@ -55,6 +55,10 @@ turn the film into repeated cards or subtitle copy.
 
 Direction and Builders load animation/visual craft only inside their own stage.
 Patterns are optional knowledge, not templates, scores, or routing evidence.
+Original direction is the default. Do not query Shotcraft merely because a shot
+exists or to prove process compliance; use it only for a named technique
+question that remains after independent direction, or when the user explicitly
+requests that reference. A complete film may use zero Shotcraft cards.
 Build the maximum visible hero state first, then attention, causal action,
 dependent follow-through, settle, and readable hold. Media must shape crop,
 mask, path, annotation, palette, depth, or state—not sit in a generic frame.
