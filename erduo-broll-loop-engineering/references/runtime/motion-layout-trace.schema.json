@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "runtime", "compositionId", "compositionIdentity", "capture", "fps", "width", "height", "startFrame", "endFrame", "frameStep", "safeArea", "shots"],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "enum": ["1.0.0", "1.1.0"] },
     "runtime": { "enum": ["remotion", "hyperframes"] },
     "compositionId": { "type": "string", "minLength": 1 },
     "compositionIdentity": { "$ref": "#/$defs/sha256" },
@@ -44,7 +44,11 @@
         "startFrame": { "type": "integer", "minimum": 0 },
         "endFrame": { "type": "integer", "minimum": 1 },
         "readableHolds": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/window" } },
-        "elements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/element" } }
+        "elements": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/element" } },
+        "diagramFrames": {
+          "description": "Optional runtime-captured readable-hold topology. Required by the lint when a Recipe selects a diagram-* craft entry.",
+          "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/diagramFrame" }
+        }
       }
     },
     "window": {
@@ -98,6 +102,52 @@
           "description": "Optional SHA-256 of runtime-captured visible styling (for example fill, stroke, color, filter, clip, and rendered path state), excluding text content and hand-authored labels.",
           "$ref": "#/$defs/sha256"
         }
+      }
+    },
+    "diagramFrame": {
+      "type": "object", "additionalProperties": false,
+      "required": ["frame", "nodes", "connectors", "labels"],
+      "properties": {
+        "frame": { "type": "integer", "minimum": 0 },
+        "nodes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/diagramNode" } },
+        "connectors": { "type": "array", "items": { "$ref": "#/$defs/diagramConnector" } },
+        "labels": { "type": "array", "items": { "$ref": "#/$defs/diagramLabel" } }
+      }
+    },
+    "diagramNode": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "x", "y", "width", "height"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "x": { "type": "number" }, "y": { "type": "number" },
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "diagramConnector": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "fromNodeId", "toNodeId", "points"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "fromNodeId": { "type": "string", "minLength": 1 },
+        "toNodeId": { "type": "string", "minLength": 1 },
+        "points": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/diagramPoint" } }
+      }
+    },
+    "diagramPoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+    },
+    "diagramLabel": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "connectorId", "x", "y", "width", "height"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "connectorId": { "type": "string", "minLength": 1 },
+        "x": { "type": "number" }, "y": { "type": "number" },
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 }
       }
     }
   }

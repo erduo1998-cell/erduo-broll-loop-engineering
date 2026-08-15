@@ -7,6 +7,12 @@
     "licenseObservedAtAudit": null,
     "useBoundary": "Design ideas and observable behavior informed the product goal; no code, prompts, examples, media, or prose were copied."
   },
+  "licensedReference": {
+    "repository": "https://github.com/cathrynlavery/diagram-design",
+    "commit": "09df49d8d1a1c7fb2efdfcdc7a2a0713534350a6",
+    "license": "MIT",
+    "useBoundary": "The relationship-first routing and diagram readability ideas informed eight original compact video grammars and rendered-geometry checks. No upstream Skill, templates, examples, icons, scripts, motion controller, brand profile, or visual skin are distributed."
+  },
   "independentDerivations": [
     "The micro-beat change taxonomy is an original project contract.",
     "The strict Recipe, authoring-unit, timing, source, and backend-isolation contracts are original project work."

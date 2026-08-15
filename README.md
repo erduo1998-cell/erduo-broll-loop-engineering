@@ -4,7 +4,7 @@
 
 **给一份 SRT，Agent 自动完成原创分镜、素材、动画、预览与最终 Master。**
 
-[![Version](https://img.shields.io/badge/version-0.9.0-c87842)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.1-c87842)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-17120e)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-c87842)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-17120e)](LICENSE)
@@ -76,12 +76,14 @@ node erduo-broll-loop-engineering/scripts/create-production-profile.mjs \
 传入计划。画幅、帧率、音频和输出格式随后以同一个哈希写进计划、每个
 Builder 任务和成片校验；明确的竖屏或其他帧率不会退回默认 4K/30。
 
-## v0.9.0：创作保留，重复工作收敛
+## v0.9.1：创作保留，图解更容易看懂
 
 - 保留 Director、Assets 和多 Builder 的创作分工，不把镜头收缩成固定模板，也不限制抽象、构图或动画复杂度。
 - Director 先明确口播含义和画面任务，再自由设计视觉语言，避免风格替代内容表达。
 - 非创作步骤交给确定性脚本，共用依赖与素材；Builder 交付可编辑源码和统一规格的已验证视频片段，返工只回到原责任 Builder。
 - 节拍验证不仅检查计划和时间，还要检查对应时段是否出现计划中的可见发展；长镜头不能只靠线条、粒子或背景循环支撑。
+- 当口播必须解释流程、因果、时间顺序、层级、循环、依赖、系统路径或同标准对比时，Director 可以按需选择 8 种轻量图解关系；没有图解数量要求，也不会加载外部完整 Skill 或套用固定视觉皮肤。
+- Builder 仍按全片视觉系统自由设计空间、材质和动画。脚本只根据真实渲染结果检查连线穿过无关节点、文字压线/压节点、连线路径重叠和画面越界，不评价图解风格。
 
 这些检查能发现计划未落地、长时间无主要发展和可测的构图风险，不能判断动画是否高级或替用户作审美决定。唯一完整动态预览仍由用户决定是否正式渲染。
 

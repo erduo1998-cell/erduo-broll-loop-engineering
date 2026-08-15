@@ -26,7 +26,7 @@
 - 提供素材を優先し、必要なショットだけ追加素材を取得。
 - 全体プレビューで承認を待ち、承認後に 4K Master を正式レンダリングして技術検証。
 
-## v0.9 Creative Production
+## v0.9.1 Creative Production と読みやすい図解
 
 - Director、Assets、複数の担当 Builder という創作分担を維持します。固定テンプレートへ縮小せず、構図、比喩、動きの複雑さを制限しません。
 - Parent が backend 計画、タスク配布、検査、clip 結合、preview 準備の決定的な script を直接実行し、Runtime Planner / Integrator / Render Agent は起動しません。同一制作では素材と同一依存環境を共有し、完全な project を重複コピーしません。
@@ -34,6 +34,8 @@
 - 全体 preview は最大 1080p、`veryfast / CRF 22` で生成します。承認 identity は runtime plan、narrative envelope、visual system、全 shot contract、実際の clip hash に結び付けます。
 - 納品時は `--plan`、`--narrative-envelope`、`--visual-system`、全 `--contract` を再指定します。identity を再確認し、凍結 clip から完全仕様の `medium / CRF 16` Master を作成します。preview のコピーは使用しません。
 - 口頭内容の意味と感情の進行を animation beat に変換します。主体、空間、階層、関係または視覚的焦点を実際に発展させ、装飾的な loop を主 animation の代わりにしません。
+- 発話が process、因果、時間順序、階層、feedback、依存、system route、同一基準の比較を説明する場合だけ、Director は 8 種類の軽量 diagram grammar から 1 つを選べます。使用数のノルマ、外部 Skill 全体の読み込み、固定 visual skin はありません。
+- Builder は映像全体の visual system に合わせて空間、素材、animation を自由に設計します。script は実際の render geometry から、無関係な node を横切る connector、label と path/node の接触、connector path の重複、canvas 外への逸脱だけを検出し、図解の style は採点しません。
 - 修正は元の担当 Builder にだけ戻し、各 Builder に制作履歴全体を渡しません。
 
 検査は計画された発展の不足や、測定可能な motion/layout リスクを検出できます。ただし animation の高度さや美的価値は判断できません。最終判断は一度だけの全体動画 preview です。backend 間の見た目の一致は保証しません。

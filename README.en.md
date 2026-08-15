@@ -26,7 +26,7 @@ This 12-second concept film travels through one continuous world: SRT timing, se
 - Uses supplied media first and sources extra material only when a shot requires it.
 - Stops at the complete composition preview for approval, then renders and verifies one 4K master.
 
-## v0.9 Creative Production
+## v0.9.1 Creative Production and Clearer Diagrams
 
 - Keeps one Director, one Assets role, and multiple focused Builders. It does not reduce animation to fixed templates or restrict composition, metaphor, or motion complexity.
 - The Parent directly runs deterministic scripts for backend planning, task dispatch, validation, clip assembly, and preview preparation, with no Runtime Planner, Integrator, or Render Agent. One production shares assets and identical dependencies instead of copying complete projects.
@@ -34,6 +34,8 @@ This 12-second concept film travels through one continuous world: SRT timing, se
 - The complete preview is capped at 1080p and encoded with `veryfast / CRF 22`. Its approval identity binds the runtime plan, narrative envelope, visual system, every shot contract, and the actual clip hashes.
 - Delivery must pass `--plan`, `--narrative-envelope`, `--visual-system`, and every `--contract` again. It rechecks identity and creates the full-spec `medium / CRF 16` master from frozen clips; it never copies the preview as the master.
 - Turns spoken meaning and emotion into animation beats. Builders must make the subject, space, hierarchy, relationships, or visual focus visibly develop; decorative loops do not count as the main animation.
+- When speech depends on process, cause, time order, hierarchy, feedback, dependency, a system route, or aligned comparison, the Director may select one of eight compact diagram grammars. There is no diagram quota, external full Skill load, or fixed visual skin.
+- Builders still design space, material, and motion from the film's visual system. Runtime-captured checks only reject connectors crossing unrelated nodes, labels touching paths or nodes, shared connector paths, and canvas escape; they do not score the diagram style.
 - Sends targeted revisions back to the responsible Builder without giving every Builder the full production history.
 
 The checks can flag missing planned development and measurable motion/layout risks. They cannot judge whether animation is sophisticated or make an aesthetic decision, so the single complete moving preview remains the user gate. Cross-backend visual parity is not claimed.

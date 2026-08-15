@@ -26,7 +26,7 @@
 - 사용자가 제공한 미디어를 우선 사용하고, 필요한 샷에만 추가 소재를 확보합니다.
 - 전체 프리뷰에서 승인을 기다린 뒤 4K Master를 렌더링하고 기술 검증합니다.
 
-## v0.9 Creative Production
+## v0.9.1 Creative Production과 더 이해하기 쉬운 다이어그램
 
 - Director, Assets, 여러 담당 Builder의 창작 분업을 유지합니다. 고정 템플릿으로 축소하지 않으며 구도, 은유, 움직임의 복잡성을 제한하지 않습니다.
 - Parent가 backend 계획, 작업 배정, 검사, clip 결합, preview 준비 script를 직접 실행하며 Runtime Planner / Integrator / Render Agent를 실행하지 않습니다. 한 제작 안에서는 소재와 동일한 의존 환경을 공유하고 전체 project를 반복 복사하지 않습니다.
@@ -34,6 +34,8 @@
 - 전체 preview는 최대 1080p, `veryfast / CRF 22`로 생성합니다. 승인 identity는 runtime plan, narrative envelope, visual system, 모든 shot contract와 실제 clip hash에 연결됩니다.
 - 전달 단계에서는 `--plan`, `--narrative-envelope`, `--visual-system`, 모든 `--contract`를 다시 지정합니다. identity를 재확인한 뒤 동결 clip에서 전체 규격 `medium / CRF 16` Master를 만들며 preview를 복사하지 않습니다.
 - 말의 의미와 감정 변화를 animation beat로 바꿉니다. Builder는 주체, 공간, 계층, 관계 또는 시각적 초점이 실제로 발전하도록 만들며 장식용 loop를 주요 animation으로 대신할 수 없습니다.
+- 말의 핵심이 과정, 인과, 시간 순서, 계층, feedback, 의존 관계, system route 또는 같은 기준의 비교일 때만 Director가 8개의 가벼운 diagram grammar 중 하나를 선택할 수 있습니다. 사용 개수 의무, 외부 Skill 전체 로딩, 고정 visual skin은 없습니다.
+- Builder는 전체 visual system에 맞춰 공간, 재질, animation을 자유롭게 설계합니다. script는 실제 render geometry를 기준으로 무관한 node를 가로지르는 connector, label과 path/node의 접촉, connector path 중복, canvas 이탈만 검사하며 다이어그램 style은 평가하지 않습니다.
 - 수정은 원래 담당 Builder에게만 돌아가며 모든 Builder에게 전체 제작 기록을 전달하지 않습니다.
 
 검사는 계획된 발전의 누락과 측정 가능한 motion/layout 위험을 찾을 수 있지만 animation의 수준이나 미적 가치를 판단할 수는 없습니다. 최종 판단은 한 번의 전체 동영상 preview로 남습니다. backend 간 시각적 동일성은 보장하지 않습니다.

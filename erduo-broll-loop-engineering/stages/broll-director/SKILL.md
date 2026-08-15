@@ -40,6 +40,15 @@ Only then freely invent the composition, metaphor, motion, and visual language.
 Style may shape the answer but must not decide the meaning before these first
 two steps.
 
+When the audience obstacle is an explicit order, branch, causal link, time
+sequence, hierarchy, feedback loop, layered dependency, system route, or
+criteria-based comparison, consider a diagram grammar as one possible visual
+answer. Choose it only after deciding that seeing the relationship is clearer
+than interpreting a metaphor. Query the compact `diagram` craft category and
+bind one selected entry; do not load an external diagram Skill, copy its house
+style, or turn unrelated emotional, material, or character-led shots into
+diagrams. There is no diagram quota.
+
 Record:
 
 - audience understanding, the visual job, semantic purpose, focus and attention path;

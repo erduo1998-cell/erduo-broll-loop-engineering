@@ -1343,6 +1343,18 @@ test('Shotcraft catalog and manifest close 152 upstream cards and 209 unique sty
     digest(license),
     'b2ce9877a55547ada9b870150664d1468ff777e67cc9888806a73927d31c5771',
   );
+  const diagramLicense = await readFile(
+    path.join(root, 'third_party', 'licenses', 'diagram-design-MIT.txt'),
+  );
+  assert.equal(diagramLicense.length, 1071);
+  assert.equal(
+    digest(diagramLicense),
+    'bb7e12e91fecef43024111123ff784cec6c485585561d8b552557c0173b3ed29',
+  );
+  const thirdPartyNotices = await readFile(path.join(root, 'THIRD-PARTY-NOTICES.md'), 'utf8');
+  assert.match(thirdPartyNotices, /cathrynlavery\/diagram-design/u);
+  assert.match(thirdPartyNotices, /09df49d8d1a1c7fb2efdfcdc7a2a0713534350a6/u);
+  assert.match(thirdPartyNotices, /不复制其 Skill、模板、示例、图标、脚本、动画控制器/u);
   assert.equal(
     RELEASE_FILES
       .filter((file) => /\.(?:tsx?|jsx?)$/iu.test(file))
@@ -1648,6 +1660,10 @@ test('runtime recipe schemas preserve a runtime-neutral integer-millisecond v1/v
 });
 
 test('shared narrative and visual contracts are strict and craft query is progressively bounded', async () => {
+  assert.match(
+    validateSchemaValue(0, { type: 'number', exclusiveMinimum: 0 }, { type: 'number', exclusiveMinimum: 0 })[0],
+    /greater than 0/u,
+  );
   const [narrativeSchema, visualSchema, catalog] = await Promise.all([
     readFile(path.join(runtimeReferenceRoot, 'narrative-envelope.schema.json'), 'utf8').then(JSON.parse),
     readFile(path.join(runtimeReferenceRoot, 'visual-system.schema.json'), 'utf8').then(JSON.parse),
@@ -1677,14 +1693,28 @@ test('shared narrative and visual contracts are strict and craft query is progre
   assert.match(validateSchemaValue({ ...visual, compositionFamilies: ['full-bleed-material'] }, visualSchema, visualSchema)[0], /too few items/u);
 
   const summary = queryCraft(catalog, { summary: true });
-  assert.equal(summary.entries, 11);
+  assert.equal(summary.entries, 18);
   assert.equal(summary.categories.length, 11);
   assert.equal(JSON.stringify(summary).includes('motionGrammar'), false);
   const category = queryCraft(catalog, { category: 'asset-fusion' });
   assert.deepEqual(category.results.map(({ id }) => id), ['media-geometry-fusion']);
   assert.equal('motionGrammar' in category.results[0], false);
+  const diagramCategory = queryCraft(catalog, { category: 'diagram' });
+  assert.deepEqual(diagramCategory.results.map(({ id }) => id), [
+    'diagram-causal-transform',
+    'diagram-process-branch',
+    'diagram-time-sequence',
+    'diagram-hierarchy-tree',
+    'diagram-cycle-loop',
+    'diagram-layered-system',
+    'diagram-system-map',
+    'diagram-comparison-matrix',
+  ]);
+  assert.equal(diagramCategory.results.every((entry) => !('motionGrammar' in entry)), true);
   const search = queryCraft(catalog, { search: 'readable result' });
-  assert.deepEqual(search.results.map(({ id }) => id), ['diagram-causal-transform', 'resolved-hold']);
+  assert.deepEqual(search.results.map(({ id }) => id), [
+    'diagram-causal-transform', 'diagram-process-branch', 'resolved-hold',
+  ]);
   const selected = queryCraft(catalog, { entry: 'media-geometry-fusion' });
   assert.equal(selected.category, 'asset-fusion');
   assert.match(selected.motionGrammar, /media geometry/u);
@@ -4656,17 +4686,17 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
       .map((name) => readFile(path.join(root, name), 'utf8')),
   );
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.9.0');
+  assert.equal(RELEASE_VERSION, '0.9.1');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
   assert.equal(lock.packages[''].version, RELEASE_VERSION);
-  assert.match(readme, /version-0\.9\.0-/u);
-  assert.match(changelog, /## 0\.9\.0 —/u);
-  assert.match(support, /`0\.9\.0`/u);
-  assert.match(checklist, /`0\.9\.0`/u);
+  assert.match(readme, /version-0\.9\.1-/u);
+  assert.match(changelog, /## 0\.9\.1 —/u);
+  assert.match(support, /`0\.9\.1`/u);
+  assert.match(checklist, /`0\.9\.1`/u);
   for (const translatedReadme of translatedReadmes) {
-    assert.match(translatedReadme, /## v0\.9 Creative Production/u);
+    assert.match(translatedReadme, /## v0\.9\.1 Creative Production/u);
     assert.match(translatedReadme, /1080p[^\n]*veryfast \/ CRF 22/u);
     assert.match(translatedReadme, /--plan[^\n]*--narrative-envelope[^\n]*--visual-system[^\n]*--contract/u);
     assert.match(translatedReadme, /medium \/ CRF 16[^\n]*[Mm]aster/u);

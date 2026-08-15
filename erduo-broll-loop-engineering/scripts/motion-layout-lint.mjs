@@ -54,6 +54,76 @@ function parseArgs(argv) {
   return options;
 }
 
+function validateDiagramFrames(shot, label, errors) {
+  if (shot.diagramFrames === undefined) return;
+  if (!Array.isArray(shot.diagramFrames) || shot.diagramFrames.length === 0) {
+    errors.push(`${label}.diagramFrames must be a non-empty array when present`);
+    return;
+  }
+  const frames = new Set();
+  for (const [frameIndex, diagramFrame] of shot.diagramFrames.entries()) {
+    const frameLabel = `${label}.diagramFrames[${frameIndex}]`;
+    if (!isRecord(diagramFrame) || !Number.isInteger(diagramFrame.frame)
+      || diagramFrame.frame < shot.startFrame || diagramFrame.frame >= shot.endFrame) {
+      errors.push(`${frameLabel}.frame is invalid`);
+      continue;
+    }
+    if (frames.has(diagramFrame.frame)) errors.push(`${label}.diagramFrames repeats frame ${diagramFrame.frame}`);
+    frames.add(diagramFrame.frame);
+    if (!Array.isArray(diagramFrame.nodes) || diagramFrame.nodes.length === 0
+      || !Array.isArray(diagramFrame.connectors) || !Array.isArray(diagramFrame.labels)) {
+      errors.push(`${frameLabel} requires nodes, connectors, and labels arrays`);
+      continue;
+    }
+    const nodeIds = new Set();
+    for (const [nodeIndex, node] of diagramFrame.nodes.entries()) {
+      const nodeLabel = `${frameLabel}.nodes[${nodeIndex}]`;
+      if (!isRecord(node) || typeof node.id !== 'string' || node.id.length === 0
+        || !['x', 'y', 'width', 'height'].every((key) => finite(node[key]))
+        || node.width <= 0 || node.height <= 0) {
+        errors.push(`${nodeLabel} is invalid`);
+        continue;
+      }
+      if (nodeIds.has(node.id)) errors.push(`${frameLabel} repeats node ${node.id}`);
+      nodeIds.add(node.id);
+    }
+    const connectorIds = new Set();
+    for (const [connectorIndex, connector] of diagramFrame.connectors.entries()) {
+      const connectorLabel = `${frameLabel}.connectors[${connectorIndex}]`;
+      if (!isRecord(connector) || typeof connector.id !== 'string' || connector.id.length === 0
+        || typeof connector.fromNodeId !== 'string' || !nodeIds.has(connector.fromNodeId)
+        || typeof connector.toNodeId !== 'string' || !nodeIds.has(connector.toNodeId)
+        || !Array.isArray(connector.points) || connector.points.length < 2
+        || connector.points.some((point) => !isRecord(point) || !finite(point.x) || !finite(point.y))) {
+        errors.push(`${connectorLabel} is invalid`);
+        continue;
+      }
+      if (connectorIds.has(connector.id)) errors.push(`${frameLabel} repeats connector ${connector.id}`);
+      connectorIds.add(connector.id);
+      for (let pointIndex = 1; pointIndex < connector.points.length; pointIndex += 1) {
+        const previous = connector.points[pointIndex - 1];
+        const current = connector.points[pointIndex];
+        if (previous.x === current.x && previous.y === current.y) {
+          errors.push(`${connectorLabel} contains a zero-length segment`);
+        }
+      }
+    }
+    const labelIds = new Set();
+    for (const [labelIndex, connectorLabel] of diagramFrame.labels.entries()) {
+      const itemLabel = `${frameLabel}.labels[${labelIndex}]`;
+      if (!isRecord(connectorLabel) || typeof connectorLabel.id !== 'string' || connectorLabel.id.length === 0
+        || typeof connectorLabel.connectorId !== 'string' || !connectorIds.has(connectorLabel.connectorId)
+        || !['x', 'y', 'width', 'height'].every((key) => finite(connectorLabel[key]))
+        || connectorLabel.width <= 0 || connectorLabel.height <= 0) {
+        errors.push(`${itemLabel} is invalid`);
+        continue;
+      }
+      if (labelIds.has(connectorLabel.id)) errors.push(`${frameLabel} repeats label ${connectorLabel.id}`);
+      labelIds.add(connectorLabel.id);
+    }
+  }
+}
+
 function validateTrace(trace) {
   const errors = [];
   if (!isRecord(trace)) return ['Trace must be an object'];
@@ -64,7 +134,7 @@ function validateTrace(trace) {
   for (const key of Object.keys(trace)) {
     if (!topAllowed.has(key)) errors.push(`Unknown trace property: ${key}`);
   }
-  if (trace.schemaVersion !== '1.0.0') errors.push('schemaVersion must be 1.0.0');
+  if (!['1.0.0', '1.1.0'].includes(trace.schemaVersion)) errors.push('schemaVersion must be 1.0.0 or 1.1.0');
   if (!['remotion', 'hyperframes'].includes(trace.runtime)) errors.push('runtime must be remotion or hyperframes');
   if (typeof trace.compositionId !== 'string' || trace.compositionId.length === 0) errors.push('compositionId is required');
   if (!/^[0-9a-f]{64}$/.test(trace.compositionIdentity ?? '')) errors.push('compositionIdentity must be a SHA-256');
@@ -172,6 +242,7 @@ function validateTrace(trace) {
         }
       }
     }
+    validateDiagramFrames(shot, shot.shotId ?? `shots[${shotIndex}]`, errors);
   }
   return errors;
 }
@@ -351,6 +422,177 @@ function overlapArea(left, right) {
   return overlapWidth * overlapHeight;
 }
 
+function diagramRectangle(item) {
+  return {
+    left: item.x,
+    top: item.y,
+    right: item.x + item.width,
+    bottom: item.y + item.height,
+  };
+}
+
+function rectanglesTouch(left, right) {
+  return left.left <= right.right && left.right >= right.left
+    && left.top <= right.bottom && left.bottom >= right.top;
+}
+
+function segmentTouchesRectangle(start, end, rectangle) {
+  let minimum = 0;
+  let maximum = 1;
+  const deltaX = end.x - start.x;
+  const deltaY = end.y - start.y;
+  const boundaries = [
+    [-deltaX, start.x - rectangle.left],
+    [deltaX, rectangle.right - start.x],
+    [-deltaY, start.y - rectangle.top],
+    [deltaY, rectangle.bottom - start.y],
+  ];
+  for (const [direction, distanceToBoundary] of boundaries) {
+    if (direction === 0) {
+      if (distanceToBoundary < 0) return false;
+      continue;
+    }
+    const ratio = distanceToBoundary / direction;
+    if (direction < 0) minimum = Math.max(minimum, ratio);
+    else maximum = Math.min(maximum, ratio);
+    if (minimum > maximum) return false;
+  }
+  return true;
+}
+
+function connectorSegments(connector) {
+  return connector.points.slice(1).map((point, index) => ({
+    start: connector.points[index],
+    end: point,
+  }));
+}
+
+function collinearOverlapLength(left, right) {
+  const ax = left.end.x - left.start.x;
+  const ay = left.end.y - left.start.y;
+  const lengthSquared = ax ** 2 + ay ** 2;
+  if (lengthSquared === 0) return 0;
+  const cross = (point) => ax * (point.y - left.start.y) - ay * (point.x - left.start.x);
+  const tolerance = Math.max(0.01, Math.sqrt(lengthSquared) * 0.001);
+  if (Math.abs(cross(right.start)) > tolerance || Math.abs(cross(right.end)) > tolerance) return 0;
+  const projection = (point) => ((point.x - left.start.x) * ax + (point.y - left.start.y) * ay) / lengthSquared;
+  const rightStart = projection(right.start);
+  const rightEnd = projection(right.end);
+  const overlap = Math.min(1, Math.max(rightStart, rightEnd)) - Math.max(0, Math.min(rightStart, rightEnd));
+  return Math.max(0, overlap) * Math.sqrt(lengthSquared);
+}
+
+function diagramRecipe(recipe) {
+  return typeof recipe?.craft?.primary?.entryId === 'string'
+    && recipe.craft.primary.entryId.startsWith('diagram-');
+}
+
+function analyzeDiagramLayouts(trace, recipes) {
+  const findings = [];
+  const emitted = new Set();
+  const emit = (code, message, shotId, elementIds, frame) => {
+    const key = `${code}\0${shotId}\0${frame}\0${[...elementIds].sort().join('\0')}`;
+    if (emitted.has(key)) return;
+    emitted.add(key);
+    findings.push(finding(code, 'error', message, shotId, [...elementIds].sort(), [frame]));
+  };
+  for (const shot of trace.shots) {
+    const frames = shot.diagramFrames ?? [];
+    const recipe = recipes instanceof Map ? recipes.get(shot.shotId) : null;
+    if (diagramRecipe(recipe)) {
+      if (frames.length === 0) {
+        findings.push(finding(
+          'diagram.runtime-geometry-missing', 'error',
+          'A selected diagram craft has no runtime-captured node, connector, and connector-label geometry.',
+          shot.shotId, [], [shot.startFrame],
+        ));
+      } else {
+        for (const hold of shot.readableHolds) {
+          if (!frames.some(({ frame }) => frame >= hold.startFrame && frame < hold.endFrame)) {
+            findings.push(finding(
+              'diagram.hold-evidence-missing', 'error',
+              'A diagram readable hold has no runtime-captured topology frame.',
+              shot.shotId, [], [hold.startFrame, hold.endFrame - 1],
+            ));
+          }
+        }
+      }
+    }
+    for (const diagramFrame of frames) {
+      const nodes = new Map(diagramFrame.nodes.map((node) => [node.id, node]));
+      const connectors = new Map(diagramFrame.connectors.map((connector) => [connector.id, connector]));
+      for (const item of [...diagramFrame.nodes, ...diagramFrame.labels]) {
+        const rectangle = diagramRectangle(item);
+        if (rectangle.left < 0 || rectangle.top < 0
+          || rectangle.right > trace.width || rectangle.bottom > trace.height) {
+          emit(
+            'diagram.outside-canvas',
+            'A diagram node or connector label leaves the canvas in a declared readable state.',
+            shot.shotId, [item.id], diagramFrame.frame,
+          );
+        }
+      }
+      for (const connector of diagramFrame.connectors) {
+        const segments = connectorSegments(connector);
+        if (connector.points.some(({ x, y }) => x < 0 || y < 0 || x > trace.width || y > trace.height)) {
+          emit(
+            'diagram.outside-canvas',
+            'A diagram connector leaves the canvas in a declared readable state.',
+            shot.shotId, [connector.id], diagramFrame.frame,
+          );
+        }
+        for (const node of diagramFrame.nodes) {
+          if ([connector.fromNodeId, connector.toNodeId].includes(node.id)) continue;
+          if (segments.some(({ start, end }) => segmentTouchesRectangle(start, end, diagramRectangle(node)))) {
+            emit(
+              'diagram.connector-crosses-node',
+              'A connector crosses a node that is not its source or destination.',
+              shot.shotId, [connector.id, node.id], diagramFrame.frame,
+            );
+          }
+        }
+      }
+      for (const label of diagramFrame.labels) {
+        const rectangle = diagramRectangle(label);
+        for (const node of nodes.values()) {
+          if (rectanglesTouch(rectangle, diagramRectangle(node))) {
+            emit(
+              'diagram.label-touches-node',
+              'A connector label touches or overlaps a diagram node.',
+              shot.shotId, [label.id, node.id], diagramFrame.frame,
+            );
+          }
+        }
+        for (const connector of connectors.values()) {
+          if (connectorSegments(connector).some(({ start, end }) => segmentTouchesRectangle(start, end, rectangle))) {
+            emit(
+              'diagram.label-touches-connector',
+              'A connector label touches or overlaps a connector path.',
+              shot.shotId, [label.id, connector.id], diagramFrame.frame,
+            );
+          }
+        }
+      }
+      for (let leftIndex = 0; leftIndex < diagramFrame.connectors.length; leftIndex += 1) {
+        for (let rightIndex = leftIndex + 1; rightIndex < diagramFrame.connectors.length; rightIndex += 1) {
+          const left = diagramFrame.connectors[leftIndex];
+          const right = diagramFrame.connectors[rightIndex];
+          const overlaps = connectorSegments(left).some((leftSegment) => connectorSegments(right)
+            .some((rightSegment) => collinearOverlapLength(leftSegment, rightSegment) > 1));
+          if (overlaps) {
+            emit(
+              'diagram.connector-path-overlap',
+              'Two connectors share a visible path segment and cannot be traced independently.',
+              shot.shotId, [left.id, right.id], diagramFrame.frame,
+            );
+          }
+        }
+      }
+    }
+  }
+  return findings;
+}
+
 function occupiedGridRatio(entries, bounds, columns = 24, rows = 14) {
   let occupied = 0;
   for (let row = 0; row < rows; row += 1) {
@@ -394,7 +636,10 @@ export function analyzeMotionLayoutTrace(trace, recipes = null) {
     };
   }
 
-  const findings = analyzeBeatDelivery(trace, recipes);
+  const findings = [
+    ...analyzeBeatDelivery(trace, recipes),
+    ...analyzeDiagramLayouts(trace, recipes),
+  ];
   const { width, height, fps } = trace;
   const safe = trace.safeArea;
   for (const shot of trace.shots) {
@@ -581,6 +826,7 @@ export function analyzeMotionLayoutTrace(trace, recipes = null) {
       recipes instanceof Map
         ? `Beat delivery checks prove bounded non-decorative rendered state development. For non-still beats at least ${LONG_BEAT_RISK_SECONDS} seconds long, they also flag any leading, internal, or trailing interval of at least ${Math.round(LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION * 100)}% with no new bound subject state; this does not require motion at fixed intervals or judge rhythm quality.`
         : 'No Recipes were supplied, so planned beat delivery was not evaluated.',
+      'Selected diagram craft additionally requires runtime-captured readable-hold topology; checks cover missing evidence, label/path collisions, connectors crossing unrelated nodes, shared connector paths, and canvas escape without prescribing a diagram style.',
       'Geometry can detect discontinuity, instability, crowding, clipping, and staging risk; it cannot prove story meaning, weight, arcs, exaggeration, or appeal.',
       'The final identity-bound moving preview remains the single human aesthetic decision.',
     ],

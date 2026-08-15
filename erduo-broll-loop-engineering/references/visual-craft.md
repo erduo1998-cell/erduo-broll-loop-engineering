@@ -48,6 +48,15 @@ Query `references/craft/catalog.json` progressively through
 only when needed, one transition entry. Craft locators guide authoring; they do
 not route a backend or prove visual quality.
 
+Use the `diagram` category only after the visual job has established that the
+audience must see a concrete relationship: order/branch, cause, time exchange,
+hierarchy, feedback, dependency, system route, or aligned comparison. Query the
+category summary, then load only the chosen entry. The grammar supplies a
+readable relationship skeleton—not a visual skin, fixed coordinates, node
+quota, animation duration, or permission to make every shot a diagram. Name
+the real entities and relationships in the Recipe's hero frame and beats; do
+not replace them with generic boxes or an unexplained metaphor.
+
 Choose freely between a new mechanism and a verified registry block, blueprint,
 or local primitive. Reuse is an implementation option, never a creative
 preference; do not repeat a known solution merely because it already works.

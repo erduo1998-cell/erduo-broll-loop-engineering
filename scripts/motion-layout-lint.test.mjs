@@ -55,6 +55,71 @@ function beatRecipes(change = 'relationship') {
   }]]);
 }
 
+function diagramRecipes() {
+  return new Map([['S01', {
+    schemaVersion: '2.0.0', shotId: 'S01', window: { startMs: 0, endMs: 1000 },
+    craft: { primary: { entryId: 'diagram-system-map', semanticReason: 'Show the verified route.' } },
+    microBeats: [{
+      beatId: 'diagram-hold', startMs: 0, endMs: 1000,
+      change: 'deliberate-stillness', development: 'Hold the complete route for reading.',
+    }],
+  }]]);
+}
+
+function cleanDiagramFrame() {
+  return {
+    frame: 20,
+    nodes: [
+      { id: 'source', x: 200, y: 200, width: 200, height: 100 },
+      { id: 'service', x: 700, y: 200, width: 200, height: 100 },
+      { id: 'result', x: 1200, y: 200, width: 200, height: 100 },
+    ],
+    connectors: [
+      { id: 'request', fromNodeId: 'source', toNodeId: 'service', points: [{ x: 400, y: 250 }, { x: 700, y: 250 }] },
+      { id: 'response', fromNodeId: 'service', toNodeId: 'result', points: [{ x: 900, y: 250 }, { x: 1200, y: 250 }] },
+    ],
+    labels: [
+      { id: 'request-label', connectorId: 'request', x: 490, y: 200, width: 120, height: 30 },
+      { id: 'response-label', connectorId: 'response', x: 990, y: 200, width: 120, height: 30 },
+    ],
+  };
+}
+
+test('diagram craft passes only with clean runtime-captured readable-hold topology', () => {
+  const trace = baseTrace();
+  trace.schemaVersion = '1.1.0';
+  trace.shots[0].diagramFrames = [cleanDiagramFrame()];
+  const result = analyzeMotionLayoutTrace(trace, diagramRecipes());
+  assert.equal(result.status, 'pass');
+  assert.equal(result.findings.some(({ code }) => code.startsWith('diagram.')), false);
+});
+
+test('diagram craft rejects missing runtime geometry at its readable hold', () => {
+  const trace = baseTrace();
+  const result = analyzeMotionLayoutTrace(trace, diagramRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'diagram.runtime-geometry-missing'));
+});
+
+test('diagram topology rejects connector, label, and shared-path collisions from rendered geometry', () => {
+  const trace = baseTrace();
+  trace.schemaVersion = '1.1.0';
+  const diagramFrame = cleanDiagramFrame();
+  diagramFrame.connectors.push({
+    id: 'bypass', fromNodeId: 'source', toNodeId: 'result',
+    points: [{ x: 400, y: 250 }, { x: 1200, y: 250 }],
+  });
+  diagramFrame.labels[0] = {
+    id: 'request-label', connectorId: 'request', x: 360, y: 240, width: 120, height: 30,
+  };
+  trace.shots[0].diagramFrames = [diagramFrame];
+  const result = analyzeMotionLayoutTrace(trace, diagramRecipes());
+  const codes = new Set(result.findings.map(({ code }) => code));
+  assert.ok(codes.has('diagram.connector-crosses-node'));
+  assert.ok(codes.has('diagram.label-touches-connector'));
+  assert.ok(codes.has('diagram.label-touches-node'));
+  assert.ok(codes.has('diagram.connector-path-overlap'));
+});
+
 function longBeatTrace() {
   const trace = baseTrace();
   trace.endFrame = 900;

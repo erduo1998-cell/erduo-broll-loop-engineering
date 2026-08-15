@@ -37,7 +37,9 @@
 
 ## 生产验证
 
-- [ ] `0.9.0` 保留 Director、Assets 与多 Builder 的创作分工；没有把镜头改成固定模板，没有新增抽象比例、固定构图、最少视觉机制或复杂度限制。
+- [ ] `0.9.1` 保留 Director、Assets 与多 Builder 的创作分工；没有把镜头改成固定模板，没有新增抽象比例、固定构图、最少视觉机制或复杂度限制。
+- [ ] 图解只在口播需要看清具体关系时按需选择；8 种 grammar 通过紧凑 catalog 查询，发行包不复制上游完整 Skill、模板、示例、脚本、动画控制器或视觉皮肤。
+- [ ] `diagram-*` 镜头在每个 readable hold 提供真实运行时 `diagramFrames`；测试证明缺失证据、连线穿过无关节点、标签压线/压节点、共享连线路径和画面越界会失败。
 - [ ] Director 先记录每镜口播含义、画面任务和第一眼重点，再自由完成视觉设计；这些字段保持紧凑，不形成新的长篇交接文档。
 - [ ] 环境检查、运行时规划、任务分发、结构校验、片段拼接、预览准备和技术验证均由 Parent 直接运行脚本，正常生产不启动 Runtime Planner、Integrator 或 Render Agent；对应旧阶段 Skill 只用于读取历史记录。
 - [ ] 每个 Builder 单元同时交付可编辑源码与统一规格、身份和时间均已验证的视频片段；最终脚本只拼接视频片段，不直接合并任意双后端源码。
@@ -94,7 +96,7 @@
 - [ ] 历史基线如实保留：`v0.7.0` Director + Builder I/O 只减少 `5.20%`，handoff prose 减少 `73.59%`；当前版另行报告整体与 Director+Builder 实测，不得用 Prompt 文件大小冒充实际 Agent I-O。
 - [ ] benchmark 与生产链均没有新增 stage、独立视觉审查 Agent、lookdev/逐镜停点或审美评分；最终 composition preview 是唯一默认审美/用户 gate。
 - [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为当前发布版本。
-- [ ] README 五种语言、CHANGELOG、支持矩阵、仓库 Skill、本机已安装 Skill、安装收据与发布归档均显示 `0.9.0`，不存在仍代表当前版本的 `0.8.x` 字段。
+- [ ] README 五种语言、CHANGELOG、支持矩阵、仓库 Skill、本机已安装 Skill、安装收据与发布归档均显示 `0.9.1`，不存在仍代表当前版本的 `0.8.x` 字段。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] Remotion DOM trace 夹具的 lockfile 与 E2E 安装只使用官方 `https://registry.npmjs.org`，不继承维护者本机第三方镜像。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。

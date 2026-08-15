@@ -33,6 +33,8 @@ export function validateSchemaValue(value, rule, rootSchema, pointer = '#', erro
   if (resolved.enum && !resolved.enum.includes(value)) errors.push(`${pointer}: value is outside the allowed enum`);
   if (typeof value === 'number' && 'minimum' in resolved && value < resolved.minimum) errors.push(`${pointer}: must be at least ${resolved.minimum}`);
   if (typeof value === 'number' && 'maximum' in resolved && value > resolved.maximum) errors.push(`${pointer}: must be at most ${resolved.maximum}`);
+  if (typeof value === 'number' && 'exclusiveMinimum' in resolved && value <= resolved.exclusiveMinimum) errors.push(`${pointer}: must be greater than ${resolved.exclusiveMinimum}`);
+  if (typeof value === 'number' && 'exclusiveMaximum' in resolved && value >= resolved.exclusiveMaximum) errors.push(`${pointer}: must be less than ${resolved.exclusiveMaximum}`);
   if (typeof value === 'string') {
     if ('minLength' in resolved && value.length < resolved.minLength) errors.push(`${pointer}: is too short`);
     if (resolved.pattern && !(new RegExp(resolved.pattern, 'u')).test(value)) errors.push(`${pointer}: does not match the required pattern`);

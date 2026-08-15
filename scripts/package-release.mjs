@@ -48,6 +48,7 @@ const SHOTCRAFT_CATALOG_FILE = `${SHOTCRAFT_ROOT}/catalog.json`;
 const SHOTCRAFT_ATTRIBUTION_FILE = `${SHOTCRAFT_ROOT}/upstream-attribution.md`;
 const SHOTCRAFT_QUERY_FILE = 'erduo-broll-loop-engineering/scripts/query-shotcraft.mjs';
 const SHOTCRAFT_LICENSE_FILE = 'third_party/licenses/video-shotcraft-APACHE-2.0.txt';
+const DIAGRAM_DESIGN_LICENSE_FILE = 'third_party/licenses/diagram-design-MIT.txt';
 const SHOTCRAFT_REMOTION_ROOT = `${SHOTCRAFT_ROOT}/remotion-sources`;
 const SHOTCRAFT_REMOTION_MANIFEST_FILE = `${SHOTCRAFT_REMOTION_ROOT}/manifest.json`;
 const SHOTCRAFT_UPSTREAM = Object.freeze({
@@ -327,6 +328,7 @@ export const RELEASE_FILES = Object.freeze([
   ...ROOT_FILES,
   ...SCRIPT_FILES,
   ...SKILL_FILES,
+  DIAGRAM_DESIGN_LICENSE_FILE,
   SHOTCRAFT_LICENSE_FILE,
 ].toSorted());
 

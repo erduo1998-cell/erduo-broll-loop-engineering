@@ -1,6 +1,6 @@
 # 第三方说明
 
-本仓库原创代码和文档采用 MIT License。以下组件与运行期内容保留各自许可和服务条款。链接与版本最后核对日期：**2026-08-10**。
+本仓库原创代码和文档采用 MIT License。以下组件与运行期内容保留各自许可和服务条款。链接与版本最后核对日期：**2026-08-15**。
 
 ## 随发布包分发的适配内容
 
@@ -8,6 +8,7 @@
 - 本仓库按 byte-identical 方式收录该固定版本的 152 张上游 Markdown 卡片原文；另外生成带 `adaptationNotice` 的 catalog、209 个 style 索引、查询器和完整性 manifest。生成的适配元数据保留上游路径、pinned commit URL 与稳定来源字段。
 - `0.3.0` 还按独立 manifest 收录固定来源的 Remotion TSX 实现子集、最小 fixture 与布局证据，供本项目 Remotion 后段按 Apache-2.0 借鉴；逐文件来源、字节数和 SHA-256 随包核对。本仓库仍不复制上游预览图片/视频、音频、纹理、字体或其他媒体。
 - Apache License 2.0 完整文本随包保存在 [`third_party/licenses/video-shotcraft-APACHE-2.0.txt`](third_party/licenses/video-shotcraft-APACHE-2.0.txt)。卡库内部的 [`upstream-attribution.md`](erduo-broll-loop-engineering/references/shotcraft/upstream-attribution.md) 用于研究溯源；机器可核对的文件闭集由 `manifest.json` 提供。
+- v0.9.1 参考 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design) 固定 commit `09df49d8d1a1c7fb2efdfcdc7a2a0713534350a6` 的“先判断内容关系、再选择图解结构”思路与基础可读性原则，原创改写为 8 条紧凑视频图解 grammar 和运行时几何检查。发布包不复制其 Skill、模板、示例、图标、脚本、动画控制器、品牌配置或视觉皮肤；MIT 原许可与作者声明仍随包保存在 [`third_party/licenses/diagram-design-MIT.txt`](third_party/licenses/diagram-design-MIT.txt)。
 
 除 Apache-2.0 明示授予的权利外，第三方名称与商标不因此获得额外授权。卡片正文是上游原文；本项目生成的 catalog、manifest 和工作流适配不应被误认为上游原始实现或官方背书。
 

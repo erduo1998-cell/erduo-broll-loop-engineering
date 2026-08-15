@@ -20,7 +20,11 @@ every frame. It can report:
   independent groups;
 - when supplied the validated Shot Recipe directory, whether every planned
   non-still beat is bound to a non-decorative rendered action and produces an
-  actual rendered geometry, visibility, or captured appearance change.
+  actual rendered geometry, visibility, or captured appearance change;
+- for a Recipe selecting a `diagram-*` craft entry, whether every readable
+  hold includes actual rendered node/connector/connector-label geometry, and
+  whether labels touch paths or nodes, connectors cross unrelated nodes, two
+  connectors share a path, or diagram geometry leaves the canvas.
 
 These are code-checkable projections of slow in/slow out, timing, follow
 through, staging, and readable composition. They are risk signals, not a
@@ -48,6 +52,14 @@ source, or hand-authored estimates. Instrument the rendered composition:
    against `references/runtime/motion-layout-trace.schema.json`;
 6. run `motion-layout-lint.mjs --trace <trace> --recipes <assigned-recipes>` and
    preserve its compact JSON result outside production source.
+
+When the Recipe's primary craft ID begins with `diagram-`, use trace schema
+`1.1.0` and add one `diagramFrames` entry inside every readable hold. Capture
+node rectangles, connector polylines, and connector-label rectangles from the
+same rendered DOM or scene at that exact frame. Connector labels are separate
+from labels intentionally contained inside nodes. The check rejects contact
+or collision only; it does not prescribe diagonal versus orthogonal lines,
+node shapes, spacing grids, palette, number of nodes, or a house style.
 
 The Recipe directory is mandatory for a Builder pass. The lint maps each
 Recipe beat into its rendered shot window. A non-still beat passes only when a
@@ -103,5 +115,6 @@ specific long-beat risk where short actions leave a long undeclared interval
 with no measurable development. The four-second activation threshold and
 proportional longest-gap check are technical risk filters, not a cadence
 prescription or aesthetic score. It does not prove that a metaphor is
-understandable, a rhythm feels right, or an animation is beautiful; those
-remain creative judgments in the final moving preview.
+understandable, a diagram is the right explanation, a rhythm feels right, or
+an animation is beautiful; those remain creative judgments in the final moving
+preview.

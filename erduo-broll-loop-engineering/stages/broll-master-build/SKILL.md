@@ -66,6 +66,14 @@ development is unmeasured. A pass produces no still, clip, preview, or AI frame
 inspection. Only findings render their bounded diagnostic windows, after which
 rerun affected checks and lint.
 
+For a selected `diagram-*` craft entry, also capture actual rendered diagram
+geometry at every declared readable hold: node rectangles, connector
+polylines, and connector-label rectangles in canvas coordinates. Store it in
+the shot's `diagramFrames` trace field. The shared lint rejects missing diagram
+evidence, a connector crossing an unrelated node, a label touching a connector
+or node, and two connectors sharing a visible path segment. Do not hand-author
+or infer this evidence from source.
+
 ## Deliver
 
 Deliver editable renderable source, local dependency locators, compact

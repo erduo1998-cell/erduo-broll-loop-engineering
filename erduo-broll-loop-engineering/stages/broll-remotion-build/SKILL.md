@@ -82,6 +82,14 @@ unit preview, or AI frame inspection. Findings alone render bounded diagnostic
 windows; fix owning source and rerun only affected gates. Canvas/WebGL content
 must expose semantic bounds, not merely its canvas rectangle.
 
+For a selected `diagram-*` craft entry, also capture actual rendered diagram
+geometry at every declared readable hold: node rectangles, connector
+polylines, and connector-label rectangles in canvas coordinates. Store it in
+the shot's `diagramFrames` trace field. The shared lint rejects missing diagram
+evidence, a connector crossing an unrelated node, a label touching a connector
+or node, and two connectors sharing a visible path segment. Do not hand-author
+or infer this evidence from JSX or SVG source.
+
 ## Deliver
 
 Deliver editable project source, compact `receipt.json`, shared-toolchain
