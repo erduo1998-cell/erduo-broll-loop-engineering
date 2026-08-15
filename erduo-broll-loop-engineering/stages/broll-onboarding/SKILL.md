@@ -76,9 +76,9 @@ For a genuinely new Remotion project, confirm the official license terms and
 the exact proposed local package set before authorization. Create only the
 minimal locked project shell; composition authoring remains Builder work.
 
-Never delete files for disk space, rewrite shell profiles, silently replace a
-system Node, install an arbitrary browser, or treat a host sandbox limitation
-as an installation defect.
+Never delete files for disk space, rewrite shell profiles, alter an existing
+machine-wide Node.js installation, prepare a browser outside the official
+pinned runtime, or treat a host sandbox limitation as an installation defect.
 
 ## Shared execution boundary
 

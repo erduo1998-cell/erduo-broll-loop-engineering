@@ -26,6 +26,10 @@ This 12-second concept film travels through one continuous world: SRT timing, se
 - Uses supplied media first and sources extra material only when a shot requires it.
 - Stops at the complete composition preview for approval, then renders and verifies one 4K master.
 
+## v0.9.2 Same Production, Safer Installation
+
+v0.9.2 changes packaging and installation only. Director, Assets, multiple Builders, 152 Shotcraft cards, eight diagram grammars, runtime routing, preview approval, and delivery contracts are unchanged from v0.9.1. The standard Skill archive excludes the environment bootstrapper, test fixtures, and release tooling; the full archive keeps the pinned one-click environment setup.
+
 ## v0.9.1 Creative Production and Clearer Diagrams
 
 - Keeps one Director, one Assets role, and multiple focused Builders. It does not reduce animation to fixed templates or restrict composition, metaphor, or motion complexity.
@@ -46,7 +50,20 @@ The checks can flag missing planned development and measurable motion/layout ris
 
 ## Install
 
-Requirements: macOS, Node.js 20 or later, FFmpeg/FFprobe, and Codex or Claude Code.
+### Standard Skill install
+
+Use this on a machine that already has the pinned HyperFrames environment and only needs the fourteen project Skills registered in one host. Download `erduo-broll-loop-engineering-skills-v0.9.2.tar.gz` from the [v0.9.2 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v0.9.2), extract it into a permanent directory, then run:
+
+```bash
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*' --agent codex --global --full-depth
+# replace codex with claude-code for Claude Code
+```
+
+This path uses the Skills CLI universal host store and does not execute this repository's one-click environment bootstrapper. It never silently prepares Node, a browser, or FFmpeg and never reduces production capability. If Node 22.20+, FFmpeg/FFprobe, the pinned HyperFrames runtime, its eight official Skills, or its browser are missing, preflight stops and the full install below is required.
+
+### Full environment install
+
+Use this for a first install or when machine readiness is unknown.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
@@ -54,7 +71,7 @@ cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
-Restart your host after installation. The installer provisions the pinned HyperFrames environment and thirteen stage Skills. It does not use `sudo`, edit your shell profile, or install Remotion globally.
+Restart your host after installation. The installer provisions the pinned HyperFrames environment and thirteen stage Skills. It does not use `sudo`, edit your shell profile, or install Remotion globally. The same full package is available as `erduo-broll-loop-engineering-v0.9.2.tar.gz` on the v0.9.2 Release.
 
 ## First run
 

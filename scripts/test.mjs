@@ -62,6 +62,7 @@ import { runUninstall } from './uninstall.mjs';
 import {
   RELEASE_FILES,
   REPOSITORY_ONLY_FILES,
+  STANDARD_RELEASE_FILES,
   buildRelease,
   verifyReleaseArchiveRaw,
 } from './package-release.mjs';
@@ -463,9 +464,9 @@ async function mockPinnedOfficialCommand(command, args, options) {
   return null;
 }
 
-function expectedArchiveDirectoryCount() {
+function expectedArchiveDirectoryCount(files = RELEASE_FILES) {
   const directories = new Set(['.']);
-  for (const file of RELEASE_FILES) {
+  for (const file of files) {
     let directory = path.posix.dirname(file);
     while (directory !== '.') {
       directories.add(directory);
@@ -4686,17 +4687,17 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
       .map((name) => readFile(path.join(root, name), 'utf8')),
   );
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.9.1');
+  assert.equal(RELEASE_VERSION, '0.9.2');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
   assert.equal(lock.packages[''].version, RELEASE_VERSION);
-  assert.match(readme, /version-0\.9\.1-/u);
-  assert.match(changelog, /## 0\.9\.1 —/u);
-  assert.match(support, /`0\.9\.1`/u);
-  assert.match(checklist, /`0\.9\.1`/u);
+  assert.match(readme, /version-0\.9\.2-/u);
+  assert.match(changelog, /## 0\.9\.2 —/u);
+  assert.match(support, /`0\.9\.2`/u);
+  assert.match(checklist, /`0\.9\.2`/u);
   for (const translatedReadme of translatedReadmes) {
-    assert.match(translatedReadme, /## v0\.9\.1 Creative Production/u);
+    assert.match(translatedReadme, /## v0\.9\.2/u);
     assert.match(translatedReadme, /1080p[^\n]*veryfast \/ CRF 22/u);
     assert.match(translatedReadme, /--plan[^\n]*--narrative-envelope[^\n]*--visual-system[^\n]*--contract/u);
     assert.match(translatedReadme, /medium \/ CRF 16[^\n]*[Mm]aster/u);
@@ -4866,6 +4867,25 @@ test('release packager accepts only the explicit tree and rejects media, SRT, en
     'canonical tar/gzip output must be byte-for-byte reproducible',
   );
 
+  const standardArchive = path.join(state.base, 'skills-release.tar.gz');
+  const standard = await buildRelease({
+    repoRoot: fixture,
+    output: standardArchive,
+    profile: 'standard',
+  });
+  assert.equal(standard.profile, 'standard');
+  assert.deepEqual(standard.raw_archive, {
+    regular: STANDARD_RELEASE_FILES.length + 1,
+    directories: expectedArchiveDirectoryCount(STANDARD_RELEASE_FILES),
+    metadata: 0,
+    appledouble: 0,
+    symlinks: 0,
+    special: 0,
+    checksum_entries: STANDARD_RELEASE_FILES.length,
+  });
+  assert.equal(await verifyReleaseArchiveRaw(standardArchive, {}, 'standard')
+    .then((result) => result.regular), STANDARD_RELEASE_FILES.length + 1);
+
   const fixtureManifestPath = path.join(
     fixture,
     'erduo-broll-loop-engineering',
@@ -5025,7 +5045,7 @@ test('old repository name remains only in the bounded migration surface', async 
   assert.deepEqual(filesWithOldName.toSorted(), [
     '.gitignore',
     'Install.command',
-    'scripts/lib.mjs',
+    'erduo-broll-loop-engineering/scripts/lib.mjs',
   ]);
 
   const readme = await readFile(path.join(root, 'README.md'), 'utf8');
@@ -5378,6 +5398,15 @@ test('public release source contains the parent plus thirteen prompt stage Skill
       : [...RELEASE_FILES, ...REPOSITORY_ONLY_FILES]).toSorted(),
   );
   assert.equal(SKILL_NAMES.length, 14);
+  assert.equal(STANDARD_RELEASE_FILES.includes('Install.command'), false);
+  assert.equal(STANDARD_RELEASE_FILES.includes('scripts/install.mjs'), false);
+  assert.equal(STANDARD_RELEASE_FILES.includes('scripts/test.mjs'), false);
+  assert.equal(RELEASE_FILES.includes('scripts/test.mjs'), false);
+  assert.equal(RELEASE_FILES.includes('scripts/package-release.mjs'), false);
+  assert.deepEqual(
+    STANDARD_RELEASE_FILES.filter((file) => file.startsWith('erduo-broll-loop-engineering/')),
+    RELEASE_FILES.filter((file) => file.startsWith('erduo-broll-loop-engineering/')),
+  );
   assert.deepEqual(AUTO_HYBRID_SKILL_NAMES, [
     'broll-runtime-plan',
     'broll-hybrid-integrate',

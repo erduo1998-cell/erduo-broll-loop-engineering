@@ -35,7 +35,8 @@ import {
 } from './lib.mjs';
 
 const execFileAsync = promisify(execFile);
-const PACKAGE_NAME = `erduo-broll-loop-engineering-${RELEASE_VERSION}`;
+const FULL_PACKAGE_NAME = `erduo-broll-loop-engineering-${RELEASE_VERSION}`;
+const STANDARD_PACKAGE_NAME = `erduo-broll-loop-engineering-skills-${RELEASE_VERSION}`;
 const TAR_BLOCK_SIZE = 512;
 const MAX_ARCHIVE_BYTES = 16 * 1024 * 1024;
 const MAX_UNCOMPRESSED_BYTES = 128 * 1024 * 1024;
@@ -228,7 +229,6 @@ const ROOT_FILES = [
   'README.ja.md',
   'README.ko.md',
   'README.zh-TW.md',
-  'RELEASE-CHECKLIST.md',
   'SECURITY.md',
   'SUPPORT-MATRIX.md',
   'THIRD-PARTY-NOTICES.md',
@@ -242,14 +242,7 @@ const SCRIPT_FILES = [
   'scripts/doctor.mjs',
   'scripts/install.mjs',
   'scripts/lib.mjs',
-  'scripts/measure-context.mjs',
-  'scripts/motion-layout-lint.test.mjs',
-  'scripts/package-release.mjs',
   'scripts/production-preflight.mjs',
-  'scripts/remotion-dom-trace.e2e.test.mjs',
-  'scripts/fixtures/remotion-dom-trace/package.json',
-  'scripts/fixtures/remotion-dom-trace/package-lock.json',
-  'scripts/test.mjs',
   'scripts/uninstall.mjs',
 ];
 
@@ -282,6 +275,10 @@ const SKILL_FILES = [
   'erduo-broll-loop-engineering/references/runtime/remotion-project.schema.json',
   'erduo-broll-loop-engineering/references/remotion-backend.md',
   'erduo-broll-loop-engineering/scripts/detect-runtime.mjs',
+  'erduo-broll-loop-engineering/scripts/config.mjs',
+  'erduo-broll-loop-engineering/scripts/doctor.mjs',
+  'erduo-broll-loop-engineering/scripts/lib.mjs',
+  'erduo-broll-loop-engineering/scripts/production-preflight.mjs',
   'erduo-broll-loop-engineering/scripts/assemble-frozen-production.mjs',
   'erduo-broll-loop-engineering/scripts/create-production-profile.mjs',
   'erduo-broll-loop-engineering/scripts/motion-layout-lint.mjs',
@@ -332,6 +329,29 @@ export const RELEASE_FILES = Object.freeze([
   SHOTCRAFT_LICENSE_FILE,
 ].toSorted());
 
+const STANDARD_ONLY_EXCLUSIONS = new Set([
+  'Install.command',
+  'package.json',
+  'runtime/package.json',
+  'runtime/package-lock.json',
+  'scripts/install.mjs',
+  'scripts/uninstall.mjs',
+]);
+
+export const STANDARD_RELEASE_FILES = Object.freeze(
+  RELEASE_FILES.filter((file) => !STANDARD_ONLY_EXCLUSIONS.has(file)),
+);
+
+function releaseProfile(profile = 'full') {
+  if (profile === 'full') {
+    return Object.freeze({ name: FULL_PACKAGE_NAME, files: RELEASE_FILES, profile });
+  }
+  if (profile === 'standard') {
+    return Object.freeze({ name: STANDARD_PACKAGE_NAME, files: STANDARD_RELEASE_FILES, profile });
+  }
+  throw new ActionRequiredError('usage', 'Release profile must be full or standard.');
+}
+
 const REPOSITORY_DEMO_FILES = Object.freeze([
   'docs/images/demos/homepage-showcase.gif',
   'docs/images/demos/quick-start.gif',
@@ -339,6 +359,7 @@ const REPOSITORY_DEMO_FILES = Object.freeze([
 
 export const REPOSITORY_ONLY_FILES = Object.freeze([
   '.github/workflows/ci.yml',
+  'RELEASE-CHECKLIST.md',
   ...REPOSITORY_DEMO_FILES,
   'docs/V0.8.0-CONTEXT-MEASUREMENT.json',
   'docs/V0.8.0-IMPLEMENTATION-PLAN.md',
@@ -347,6 +368,13 @@ export const REPOSITORY_ONLY_FILES = Object.freeze([
   'docs/images/workflow-zh.svg',
   'scripts/sync-video-shotcraft.mjs',
   'scripts/sync-video-shotcraft-remotion.mjs',
+  'scripts/measure-context.mjs',
+  'scripts/motion-layout-lint.test.mjs',
+  'scripts/package-release.mjs',
+  'scripts/remotion-dom-trace.e2e.test.mjs',
+  'scripts/fixtures/remotion-dom-trace/package.json',
+  'scripts/fixtures/remotion-dom-trace/package-lock.json',
+  'scripts/test.mjs',
 ].toSorted());
 
 const SENSITIVE_EXTENSIONS = /\.(?:srt|vtt|jpg|jpeg|png|gif|webp|heic|mp4|mov|mkv|webm|avi|mp3|wav|m4a|pem|key|p12|pfx)$/iu;
@@ -628,9 +656,9 @@ async function hashFile(file) {
   return createHash('sha256').update(await readFile(file)).digest('hex');
 }
 
-async function writeChecksums(packageRoot) {
+async function writeChecksums(packageRoot, releaseFiles = RELEASE_FILES) {
   const lines = [];
-  for (const relative of RELEASE_FILES) {
+  for (const relative of releaseFiles) {
     lines.push(`${await hashFile(path.join(packageRoot, relative))}  ${relative}`);
   }
   const file = path.join(packageRoot, 'SHA256SUMS.txt');
@@ -708,7 +736,7 @@ function verifyTarHeaderChecksum(header) {
   if (stored !== calculated) throw archiveError();
 }
 
-function validateMemberPath(rawPath, type) {
+function validateMemberPath(rawPath, type, profile = releaseProfile()) {
   if (typeof rawPath !== 'string' || rawPath === '' || rawPath.includes('\0')
     || rawPath.includes('\\') || rawPath.startsWith('/') || rawPath.includes('//')
     || rawPath.normalize('NFC') !== rawPath) {
@@ -724,7 +752,7 @@ function validateMemberPath(rawPath, type) {
   if (parts.some((part) => part.startsWith('._') || part.toUpperCase() === '__MACOSX')) {
     throw archiveError('release_archive_appledouble_forbidden');
   }
-  if (parts[0] !== PACKAGE_NAME) throw archiveError('release_archive_members_mismatch');
+  if (parts[0] !== profile.name) throw archiveError('release_archive_members_mismatch');
   return logical;
 }
 
@@ -735,16 +763,16 @@ function rejectAppleDoublePath(rawPath) {
   }
 }
 
-function expectedArchiveMembers() {
-  const files = [...RELEASE_FILES, 'SHA256SUMS.txt']
-    .map((relative) => `${PACKAGE_NAME}/${relative}`)
+function expectedArchiveMembers(profile = releaseProfile()) {
+  const files = [...profile.files, 'SHA256SUMS.txt']
+    .map((relative) => `${profile.name}/${relative}`)
     .toSorted();
-  const directories = new Set([PACKAGE_NAME]);
+  const directories = new Set([profile.name]);
   for (const file of files) {
     let current = path.posix.dirname(file);
     while (current !== '.') {
       directories.add(current);
-      if (current === PACKAGE_NAME) break;
+      if (current === profile.name) break;
       current = path.posix.dirname(current);
     }
   }
@@ -840,7 +868,7 @@ function decompressSingleCanonicalGzip(compressed) {
   return tar;
 }
 
-function verifyChecksumManifest(contents, regularContents) {
+function verifyChecksumManifest(contents, regularContents, profile = releaseProfile()) {
   let text;
   try {
     text = new TextDecoder('utf-8', { fatal: true }).decode(contents);
@@ -849,28 +877,29 @@ function verifyChecksumManifest(contents, regularContents) {
   }
   if (!text.endsWith('\n')) throw archiveError('release_archive_checksum_invalid');
   const lines = text.slice(0, -1).split('\n');
-  if (lines.length !== RELEASE_FILES.length) {
+  if (lines.length !== profile.files.length) {
     throw archiveError('release_archive_checksum_invalid');
   }
   const seen = new Set();
   for (const line of lines) {
     const match = /^([0-9a-f]{64})  (.+)$/u.exec(line);
     const relative = match?.[2];
-    const archivePath = relative ? `${PACKAGE_NAME}/${relative}` : '';
+    const archivePath = relative ? `${profile.name}/${relative}` : '';
     const body = regularContents.get(archivePath);
-    if (!match || seen.has(relative) || !RELEASE_FILES.includes(relative) || !body
+    if (!match || seen.has(relative) || !profile.files.includes(relative) || !body
       || createHash('sha256').update(body).digest('hex') !== match[1]) {
       throw archiveError('release_archive_checksum_invalid');
     }
     seen.add(relative);
   }
-  if (JSON.stringify([...seen].toSorted()) !== JSON.stringify(RELEASE_FILES)) {
+  if (JSON.stringify([...seen].toSorted()) !== JSON.stringify(profile.files)) {
     throw archiveError('release_archive_checksum_invalid');
   }
   return seen.size;
 }
 
-export async function verifyReleaseArchiveRaw(archive, io = {}) {
+export async function verifyReleaseArchiveRaw(archive, io = {}, profileName = 'full') {
+  const profile = releaseProfile(profileName);
   const compressed = await readBoundedRegularFile(archive, MAX_ARCHIVE_BYTES, io);
   const tar = decompressSingleCanonicalGzip(compressed);
   if (tar.length < TAR_BLOCK_SIZE * 2 || tar.length % TAR_BLOCK_SIZE !== 0) {
@@ -948,7 +977,7 @@ export async function verifyReleaseArchiveRaw(archive, io = {}) {
       throw archiveError();
     }
 
-    const logicalPath = validateMemberPath(memberPath, memberType);
+    const logicalPath = validateMemberPath(memberPath, memberType, profile);
     const collisionKey = logicalPath.normalize('NFC').toLocaleLowerCase('en-US');
     if (collisionKeys.has(collisionKey)) throw archiveError();
     collisionKeys.add(collisionKey);
@@ -961,13 +990,15 @@ export async function verifyReleaseArchiveRaw(archive, io = {}) {
   }
   if (!ended) throw archiveError();
 
-  const expected = expectedArchiveMembers();
+  const expected = expectedArchiveMembers(profile);
   if (JSON.stringify(files.toSorted()) !== JSON.stringify(expected.files)
     || JSON.stringify(directories.toSorted()) !== JSON.stringify(expected.directories)) {
     throw archiveError('release_archive_members_mismatch');
   }
-  const manifestPath = `${PACKAGE_NAME}/SHA256SUMS.txt`;
-  const checksums = verifyChecksumManifest(regularContents.get(manifestPath), regularContents);
+  const manifestPath = `${profile.name}/SHA256SUMS.txt`;
+  const checksums = verifyChecksumManifest(
+    regularContents.get(manifestPath), regularContents, profile,
+  );
   return Object.freeze({
     regular: files.length,
     directories: directories.length,
@@ -979,8 +1010,8 @@ export async function verifyReleaseArchiveRaw(archive, io = {}) {
   });
 }
 
-async function normalizePackageTree(tempRoot) {
-  const expected = expectedArchiveMembers();
+async function normalizePackageTree(tempRoot, profile = releaseProfile()) {
+  const expected = expectedArchiveMembers(profile);
   for (const member of expected.files) {
     const absolute = path.join(tempRoot, ...member.split('/'));
     await chmod(
@@ -996,7 +1027,7 @@ async function normalizePackageTree(tempRoot) {
   }
 }
 
-async function verifyExtractedTree(extracted) {
+async function verifyExtractedTree(extracted, profile = releaseProfile()) {
   const files = [];
   const directories = [];
   async function visit(directory, relative = '') {
@@ -1013,11 +1044,11 @@ async function verifyExtractedTree(extracted) {
     }
   }
   await visit(extracted);
-  const expected = expectedArchiveMembers();
-  const expectedFiles = expected.files.map((member) => member.slice(PACKAGE_NAME.length + 1));
+  const expected = expectedArchiveMembers(profile);
+  const expectedFiles = expected.files.map((member) => member.slice(profile.name.length + 1));
   const expectedDirectories = expected.directories
-    .filter((member) => member !== PACKAGE_NAME)
-    .map((member) => member.slice(PACKAGE_NAME.length + 1));
+    .filter((member) => member !== profile.name)
+    .map((member) => member.slice(profile.name.length + 1));
   if (JSON.stringify(files.toSorted()) !== JSON.stringify(expectedFiles.toSorted())
     || JSON.stringify(directories.toSorted()) !== JSON.stringify(expectedDirectories.toSorted())) {
     throw archiveError('release_archive_members_mismatch');
@@ -1027,19 +1058,19 @@ async function verifyExtractedTree(extracted) {
 async function verifyArchive(archive, tempRoot, {
   env,
   tarRunner,
-}) {
-  const raw = await verifyReleaseArchiveRaw(archive);
+}, profile = releaseProfile()) {
+  const raw = await verifyReleaseArchiveRaw(archive, {}, profile.profile);
 
   const verifyRoot = path.join(tempRoot, 'verify');
   await mkdir(verifyRoot);
   await tarRunner('tar', ['-xzf', archive, '-C', verifyRoot], {
     env: releaseChildEnv(env),
   });
-  const extracted = path.join(verifyRoot, PACKAGE_NAME);
-  await verifyExtractedTree(extracted);
+  const extracted = path.join(verifyRoot, profile.name);
+  await verifyExtractedTree(extracted, profile);
   const checksumText = await readFile(path.join(extracted, 'SHA256SUMS.txt'), 'utf8');
   const checksumLines = checksumText.trimEnd().split('\n');
-  if (checksumLines.length !== RELEASE_FILES.length) {
+  if (checksumLines.length !== profile.files.length) {
     throw new ActionRequiredError(
       'release_checksum_invalid',
       'Extracted release checksum verification failed.',
@@ -1048,7 +1079,7 @@ async function verifyArchive(archive, tempRoot, {
   const seen = new Set();
   for (const line of checksumLines) {
     const match = /^([0-9a-f]{64})  (.+)$/u.exec(line);
-    if (!match || seen.has(match[2]) || !RELEASE_FILES.includes(match[2])
+    if (!match || seen.has(match[2]) || !profile.files.includes(match[2])
       || await hashFile(path.join(extracted, match[2])) !== match[1]) {
       throw new ActionRequiredError(
         'release_checksum_invalid',
@@ -1057,7 +1088,7 @@ async function verifyArchive(archive, tempRoot, {
     }
     seen.add(match[2]);
   }
-  if (JSON.stringify([...seen].toSorted()) !== JSON.stringify(RELEASE_FILES)) {
+  if (JSON.stringify([...seen].toSorted()) !== JSON.stringify(profile.files)) {
     throw new ActionRequiredError(
       'release_checksum_invalid',
       'Extracted release checksum verification failed.',
@@ -1071,7 +1102,9 @@ export async function buildRelease({
   output,
   env = process.env,
   tarRunner = execFileAsync,
+  profile: profileName = 'full',
 } = {}) {
+  const profile = releaseProfile(profileName);
   const canonicalRepo = await realpath(repoRoot);
   if (typeof output !== 'string' || !path.isAbsolute(output)) {
     throw new ActionRequiredError(
@@ -1107,17 +1140,17 @@ export async function buildRelease({
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'erduo-release-'));
   let outputCreated = false;
   try {
-    const packageRoot = path.join(tempRoot, PACKAGE_NAME);
+    const packageRoot = path.join(tempRoot, profile.name);
     await mkdir(packageRoot);
-    for (const relative of RELEASE_FILES) {
+    for (const relative of profile.files) {
       const destination = path.join(packageRoot, relative);
       await mkdir(path.dirname(destination), { recursive: true });
       await copyFile(path.join(canonicalRepo, relative), destination);
       await chmod(destination, relative === 'Install.command' ? 0o755 : 0o644);
     }
-    await writeChecksums(packageRoot);
-    await normalizePackageTree(tempRoot);
-    const rawTar = path.join(tempRoot, `${PACKAGE_NAME}.tar`);
+    await writeChecksums(packageRoot, profile.files);
+    await normalizePackageTree(tempRoot, profile);
+    const rawTar = path.join(tempRoot, `${profile.name}.tar`);
     await tarRunner('tar', [
       '--no-xattrs',
       '--format', 'ustar',
@@ -1127,7 +1160,7 @@ export async function buildRelease({
       '--gname', 'root',
       '-cf', rawTar,
       '-C', tempRoot,
-      PACKAGE_NAME,
+      profile.name,
     ], {
       env: releaseChildEnv(env),
     });
@@ -1137,11 +1170,12 @@ export async function buildRelease({
     verifyCanonicalGzipHeader(compressed);
     await writeFile(output, compressed, { flag: 'wx', mode: 0o644 });
     outputCreated = true;
-    const raw = await verifyArchive(output, tempRoot, { env, tarRunner });
+    const raw = await verifyArchive(output, tempRoot, { env, tarRunner }, profile);
     return {
       status: 'packaged',
+      profile: profile.profile,
       version: RELEASE_VERSION,
-      files: RELEASE_FILES.length + 1,
+      files: profile.files.length + 1,
       archive: output,
       raw_archive: raw,
     };
@@ -1154,13 +1188,26 @@ export async function buildRelease({
 }
 
 async function main(argv) {
-  if (argv.length !== 2 || argv[0] !== '--output') {
+  let profile = 'full';
+  let output = null;
+  for (let index = 0; index < argv.length; index += 1) {
+    if (argv[index] === '--profile') {
+      profile = argv[index + 1];
+      index += 1;
+    } else if (argv[index] === '--output') {
+      output = argv[index + 1];
+      index += 1;
+    } else {
+      throw new ActionRequiredError('usage', 'Unknown release option.');
+    }
+  }
+  if (!output) {
     throw new ActionRequiredError(
       'usage',
-      'Usage: package-release.mjs --output /absolute/external/path.tar.gz',
+      'Usage: package-release.mjs [--profile full|standard] --output /absolute/external/path.tar.gz',
     );
   }
-  const report = await buildRelease({ output: argv[1] });
+  const report = await buildRelease({ output, profile });
   process.stdout.write(`${JSON.stringify(report)}\n`);
 }
 

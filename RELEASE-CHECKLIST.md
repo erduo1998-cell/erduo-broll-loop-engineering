@@ -8,7 +8,8 @@
 - [ ] MIT、第三方说明与 `third_party/licenses/video-shotcraft-APACHE-2.0.txt` 完整。
 - [ ] `auto-motion` clean-room 边界绑定审计 commit `17ead629d010f7e5495f645d46fafd6876482c32` 和“审计时无 LICENSE”事实；归因 manifest、发布包与静态扫描证明没有复制其代码、Prompt、Skill、范例、素材或文字。
 - [ ] 只对最终归档内容重新生成逐文件 SHA-256 清单；不得复用 staging 或历史清单，并在独立解压目录复核。
-- [ ] 只使用 `node scripts/package-release.mjs --output <外部绝对路径>` 打包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar 并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 regular member 精确闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部摘要逐条一致，再完成独立解包复核。成员数量从白名单与 Shotcraft manifest 推导，不在文档中硬编码旧版本计数。
+- [ ] 分别使用 `node scripts/package-release.mjs --profile full --output <外部绝对路径>` 与 `--profile standard` 生成完整环境包和标准 Skill 包；创建 tar 的子进程显式设置 `COPYFILE_DISABLE=1`，输出纯 ustar并忽略扩展属性，owner、权限、时间和 gzip header 均通过规范化检查；gzip 必须只有一个 member、footer CRC32/ISIZE 正确且无尾随，每个 tar body padding 全零；Node 原始 tar 解析确认 regular member 精确闭集、0 PAX/GNU metadata、0 AppleDouble/symlink/special，内部摘要逐条一致，再完成独立解包复核。
+- [ ] 标准 Skill 包不含 `Install.command`、runtime lock、安装/卸载脚本、测试夹具或发布工具；完整环境包也不携带测试夹具和发布工具。两包中的 `erduo-broll-loop-engineering/` 全部文件哈希逐项一致。
 - [ ] README、PRIVACY 与第三方说明明确：本仓库自身无遥测；包外直接调用 HyperFrames 时，其隐私行为受 HyperFrames 自身政策约束。
 - [ ] 宿主无环境映射注入能力时，bundled `safe-spawn.mjs` 的 no-log、大小写碰撞拒绝、Pexels Key 全变体移除、`shell: false` 与退出码传递均通过真实子进程回归。
 
@@ -37,7 +38,7 @@
 
 ## 生产验证
 
-- [ ] `0.9.1` 保留 Director、Assets 与多 Builder 的创作分工；没有把镜头改成固定模板，没有新增抽象比例、固定构图、最少视觉机制或复杂度限制。
+- [ ] `0.9.2` 保留 Director、Assets 与多 Builder 的创作分工；没有把镜头改成固定模板，没有新增抽象比例、固定构图、最少视觉机制或复杂度限制。
 - [ ] 图解只在口播需要看清具体关系时按需选择；8 种 grammar 通过紧凑 catalog 查询，发行包不复制上游完整 Skill、模板、示例、脚本、动画控制器或视觉皮肤。
 - [ ] `diagram-*` 镜头在每个 readable hold 提供真实运行时 `diagramFrames`；测试证明缺失证据、连线穿过无关节点、标签压线/压节点、共享连线路径和画面越界会失败。
 - [ ] Director 先记录每镜口播含义、画面任务和第一眼重点，再自由完成视觉设计；这些字段保持紧凑，不形成新的长篇交接文档。
@@ -96,7 +97,7 @@
 - [ ] 历史基线如实保留：`v0.7.0` Director + Builder I/O 只减少 `5.20%`，handoff prose 减少 `73.59%`；当前版另行报告整体与 Director+Builder 实测，不得用 Prompt 文件大小冒充实际 Agent I-O。
 - [ ] benchmark 与生产链均没有新增 stage、独立视觉审查 Agent、lookdev/逐镜停点或审美评分；最终 composition preview 是唯一默认审美/用户 gate。
 - [ ] `package.json`、`runtime/package.json`、`runtime/package-lock.json` 根版本与 `scripts/lib.mjs` 全部为当前发布版本。
-- [ ] README 五种语言、CHANGELOG、支持矩阵、仓库 Skill、本机已安装 Skill、安装收据与发布归档均显示 `0.9.1`，不存在仍代表当前版本的 `0.8.x` 字段。
+- [ ] README 五种语言、CHANGELOG、支持矩阵、仓库 Skill、本机已安装 Skill、安装收据与发布归档均显示 `0.9.2`，不存在仍代表当前版本的 `0.8.x` 字段。
 - [ ] `npm test`、Skill quick validation 和确定性发布包验证均通过，CI workflow 只运行可在公开 clone 中重现的命令。
 - [ ] Remotion DOM trace 夹具的 lockfile 与 E2E 安装只使用官方 `https://registry.npmjs.org`，不继承维护者本机第三方镜像。
 - [ ] 发布 commit、tag 与归档 SHA-256 已记录；远端 tag 只指向审过的发布 commit。

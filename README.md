@@ -4,7 +4,7 @@
 
 **给一份 SRT，Agent 自动完成原创分镜、素材、动画、预览与最终 Master。**
 
-[![Version](https://img.shields.io/badge/version-0.9.1-c87842)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.2-c87842)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-17120e)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-c87842)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-17120e)](LICENSE)
@@ -76,6 +76,10 @@ node erduo-broll-loop-engineering/scripts/create-production-profile.mjs \
 传入计划。画幅、帧率、音频和输出格式随后以同一个哈希写进计划、每个
 Builder 任务和成片校验；明确的竖屏或其他帧率不会退回默认 4K/30。
 
+## v0.9.2：创作不变，安装更容易通过审查
+
+v0.9.2 只调整发行和安装入口。Director、Assets、多 Builder、152 张镜头卡、8 种图解 grammar、HyperFrames / Remotion 路由、预览审批和正式交付标准与 v0.9.1 相同。标准 Skill 包不含一键环境安装器、测试夹具或发布工具；完整环境包继续提供固定版本的一键准备。
+
 ## v0.9.1：创作保留，图解更容易看懂
 
 - 保留 Director、Assets 和多 Builder 的创作分工，不把镜头收缩成固定模板，也不限制抽象、构图或动画复杂度。
@@ -120,13 +124,30 @@ v0.8.1 已把 Shotcraft 从“逐镜必查菜单”改成真正按需使用的�
 
 ## 安装
 
+### 标准 Skill 安装
+
+适合已经准备好本项目固定 HyperFrames 环境、只需要向一个宿主注册 14 个项目 Skill 的用户。标准包不含一键环境安装器、测试夹具或发布工具，也不会静默安装 Node、浏览器或 FFmpeg。
+
+从 [v0.9.2 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v0.9.2) 下载 `erduo-broll-loop-engineering-skills-v0.9.2.tar.gz`，解压到长期保留的目录，然后选择一个宿主：
+
+```bash
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*' --agent codex --global --full-depth
+# 或把 codex 改成 claude-code
+```
+
+这条路径通过 Skills CLI 的宿主通用 Skill 目录注册项目 Skill，不直接运行本仓库的一键环境安装器；它不会降低能力，也不负责准备运行环境。Node 22.20+、FFmpeg/FFprobe、固定 HyperFrames runtime、八个官方 HyperFrames Skill 或浏览器缺失时，生产前检查会明确停止；此时使用下面的完整环境安装。
+
+### 完整环境安装
+
+适合首次安装或不确定本机环境的用户：
+
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
 cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
-安装完成后重启 Codex 或 Claude Code。不会 Git 时，可从绿色 **Code → Download ZIP** 下载，解压到长期保留的目录，再双击 `Install.command`。
+安装完成后重启 Codex 或 Claude Code。不会 Git 时，可从 v0.9.2 Release 下载 `erduo-broll-loop-engineering-v0.9.2.tar.gz`，解压到长期保留的目录，再双击 `Install.command`。
 
 > [!IMPORTANT]
 > 安装器会让宿主 Skill 指向当前仓库目录。安装成功后不要随意移动或删除它；确需移动时，在新位置重新运行 `Install.command`。

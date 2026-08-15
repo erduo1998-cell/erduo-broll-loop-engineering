@@ -26,6 +26,10 @@
 - 사용자가 제공한 미디어를 우선 사용하고, 필요한 샷에만 추가 소재를 확보합니다.
 - 전체 프리뷰에서 승인을 기다린 뒤 4K Master를 렌더링하고 기술 검증합니다.
 
+## v0.9.2 제작 성능은 그대로, 설치 경로는 더 명확하게
+
+v0.9.2는 배포 형식과 설치 진입점만 변경합니다. Director, Assets, 다중 Builder, 152개 카드, 8개 다이어그램 grammar, 런타임 라우팅, 프리뷰 승인과 납품 계약은 v0.9.1과 동일합니다.
+
 ## v0.9.1 Creative Production과 더 이해하기 쉬운 다이어그램
 
 - Director, Assets, 여러 담당 Builder의 창작 분업을 유지합니다. 고정 템플릿으로 축소하지 않으며 구도, 은유, 움직임의 복잡성을 제한하지 않습니다.
@@ -45,6 +49,19 @@
 </p>
 
 ## 설치
+
+### 표준 Skill 설치
+
+고정 HyperFrames 환경이 이미 준비된 컴퓨터용입니다. v0.9.2 Release에서 `erduo-broll-loop-engineering-skills-v0.9.2.tar.gz`를 내려받아 압축을 푼 뒤 실행합니다.
+
+```bash
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*' --agent codex --global --full-depth
+# Claude Code는 codex를 claude-code로 변경
+```
+
+이 경로는 14개 프로젝트 Skill만 등록하며 Node, 브라우저, FFmpeg를 준비하지 않습니다. 필수 환경이 없으면 작업을 중단하고 아래의 전체 환경 설치를 사용합니다.
+
+### 전체 환경 설치
 
 필수 환경: macOS, Node.js 20 이상, FFmpeg/FFprobe, Codex 또는 Claude Code.
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.2 — 2026-08-15
+
+- 新增标准 Skill 发行包：保留父 Skill、十三个阶段 Skill、生产脚本、引用、来源与许可证，排除一键环境安装器、测试夹具和发布工具，降低第三方安全扫描的无关命中。
+- 完整环境发行包继续提供固定 Node、HyperFrames、官方 Skill、浏览器和 FFmpeg 准备；两种包中的项目 Skill 文件逐字节一致。
+- README 五种语言拆分“标准 Skill 安装”和“完整环境安装”，明确标准路径只注册项目 Skill，不会静默准备或降低运行环境。
+- 未修改 Director、Assets、Builder、Shot Recipe、runtime plan、镜头卡、图解 grammar、预览审批、渲染或交付合同。
+
 本项目遵循 Semantic Versioning。稳定版本冻结公开的 Skill、目录、查询与发布包契约；运行时支持等级仍以支持矩阵的实际证据为准。
 
 ## Unreleased
