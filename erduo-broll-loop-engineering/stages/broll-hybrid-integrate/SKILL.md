@@ -1,6 +1,6 @@
 ---
 name: broll-hybrid-integrate
-description: Read and verify legacy hybrid Integrator records or prepare a compact recovery report for a pre-v0.9 task. Do not use or dispatch this stage in a new v0.9 production; the Parent now validates and assembles frozen Builder clips directly.
+description: Read and verify legacy hybrid Integrator records for a pre-v0.9 task. Never dispatch this stage in a new v1 production; the Parent validates and assembles frozen Builder media directly.
 ---
 
 # Legacy Hybrid Integrator
@@ -25,6 +25,6 @@ Return a compact recovery report to the Parent with the last trustworthy
 identity, available artifacts, concrete defect, and safest next owner. Do not
 repair, reassemble, or silently migrate the old task.
 
-For every new v0.9 production, the Parent runs
+For every new v1 production, the Parent runs
 `scripts/assemble-frozen-production.mjs preview` and `deliver`; the script
 matches contracts to units and assembles them in plan order.

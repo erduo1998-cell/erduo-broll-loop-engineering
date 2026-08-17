@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/visual-lock.schema.json",
+  "title": "v1 visual lock and executable visual source contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "planIdentity", "representativeScenesIdentity", "status", "tokens", "representativeScenes", "runtimeSources", "directorWitness", "userDecision", "identity"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "planIdentity": { "$ref": "#/$defs/hash" },
+    "representativeScenesIdentity": { "$ref": "#/$defs/hash" },
+    "status": { "enum": ["pending", "ready-for-review", "approved", "revision-required", "skipped"] },
+    "tokens": { "type": ["object", "null"] },
+    "representativeScenes": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/representativeScene" } },
+    "runtimeSources": { "type": "array", "maxItems": 2, "items": { "$ref": "#/$defs/runtimeSource" } },
+    "directorWitness": { "$ref": "#/$defs/directorWitness" },
+    "userDecision": { "$ref": "#/$defs/userDecision" },
+    "identity": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "artifact": { "type": "object", "additionalProperties": false, "required": ["locator", "sha256"], "properties": { "locator": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/hash" } } },
+    "representativeScene": { "type": "object", "additionalProperties": false, "required": ["shotId", "runtime", "media"], "properties": { "shotId": { "type": "string", "minLength": 1 }, "runtime": { "enum": ["hyperframes", "remotion"] }, "media": { "$ref": "#/$defs/artifact" } } },
+    "runtimeSource": { "type": "object", "additionalProperties": false, "required": ["runtime", "rootLocator", "files", "sourceIdentity"], "properties": { "runtime": { "enum": ["hyperframes", "remotion"] }, "rootLocator": { "type": "string", "minLength": 1 }, "files": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/artifact" } }, "sourceIdentity": { "$ref": "#/$defs/hash" } } },
+    "witnessItem": { "type": "object", "additionalProperties": false, "required": ["shotId", "criterion", "observation", "target"], "properties": { "shotId": { "type": "string", "minLength": 1 }, "criterion": { "enum": ["content-correspondence", "first-glance-comprehension", "text-readability", "motion-result", "whole-film-applicability"] }, "observation": { "type": "string", "minLength": 1 }, "target": { "type": "string", "minLength": 1 } } },
+    "directorWitness": { "type": "object", "additionalProperties": false, "required": ["status", "items"], "properties": { "status": { "enum": ["pending", "passed", "revision-required", "skipped"] }, "items": { "type": "array", "items": { "$ref": "#/$defs/witnessItem" } } } },
+    "userDecision": { "type": "object", "additionalProperties": false, "required": ["status", "riskAcknowledgement", "approvedContentIdentity"], "properties": { "status": { "enum": ["pending", "approved", "revision-required", "skipped"] }, "riskAcknowledgement": { "type": ["string", "null"] }, "approvedContentIdentity": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" } } }
+  }
+}

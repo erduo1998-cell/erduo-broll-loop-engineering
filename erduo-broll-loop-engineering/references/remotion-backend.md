@@ -271,8 +271,9 @@ The Builder runs, in order:
    dependency identity;
 3. the project-local TypeScript check through the two-slot wrapper and
    `node node_modules/typescript/bin/tsc --noEmit`;
-4. runtime capture of meaningful DOM/scene geometry for every frame through
-   the same wrapper;
+4. runtime capture of meaningful DOM/scene geometry at Recipe boundaries,
+   holds, cuts, and required mechanism samples through the same wrapper, with
+   dense/per-frame escalation only for bounded findings or exact path evidence;
 5. `scripts/motion-layout-lint.mjs` against that trace, with rendered
    diagnostics only for returned finding windows;
 6. one continuous frozen-unit render in the runtime plan's immutable common
@@ -282,7 +283,8 @@ The Builder runs, in order:
 
 After all Builder units pass, the Parent runs
 `scripts/assemble-frozen-production.mjs preview` with the plan, shared Director
-artifacts, and every unit contract. The script resolves contracts and assembles
+artifacts, validated visual lock, and every unit contract. For plan v3 it
+rechecks the lock and each Remotion contract's shared-source identity before it resolves contracts and assembles
 them in plan order, creates the one bounded moving preview, fully decodes it,
 and freezes the approval identity. After user approval, the Parent runs
 `deliver` with the same evidence and encodes a new full-spec master. No
@@ -293,8 +295,9 @@ Read `references/motion-layout-lint.md` for the shared trace contract and
 limits. Static source regex cannot establish geometry or easing quality. A
 passing trace suppresses AI frame inspection; findings alone trigger bounded
 diagnostic renders. Code cannot prove perceived weight, meaningful arcs,
-exaggeration, appeal, or story clarity, so the final moving preview remains the
-only aesthetic decision.
+exaggeration, appeal, or story clarity. Representative moving scenes provide
+the early visual-lock decision and the complete moving preview provides the
+final aesthetic decision.
 
 Invoke `node node_modules/@remotion/cli/remotion-cli.js` with the manifest's
 entry point and Composition ID explicitly for diagnostic stills and the

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/production-event.schema.json",
+  "title": "Provider-neutral production event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "occurredAt", "type"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "eventId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "occurredAt": { "type": "string", "minLength": 20 },
+    "type": { "enum": ["stage-start", "stage-end", "agent-call", "operation", "failure", "retry"] },
+    "stage": { "enum": ["director", "runtime-plan", "assets", "lead-builder", "visual-lock", "builder", "revision", "assembly", "delivery", "other"] },
+    "spanId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "unitId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "status": { "enum": ["passed", "failed", "action-required"] },
+    "agentRole": { "enum": ["director", "assets", "builder", "revision", "other"] },
+    "contextMode": { "enum": ["minimal", "full-history", "not-applicable"] },
+    "operation": { "enum": ["render", "trace", "full-decode", "hash-scan", "other"] },
+    "bytesProcessed": { "type": "integer", "minimum": 0 },
+    "responsibilityUnit": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "detailCode": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" }
+  }
+}

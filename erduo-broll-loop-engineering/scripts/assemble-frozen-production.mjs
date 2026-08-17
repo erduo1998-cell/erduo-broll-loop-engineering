@@ -98,7 +98,7 @@ async function verifyMedia(file, { ffmpeg, ffprobe, runner, cwd }) {
   if (videoStreams.length !== 1) throw new Error('assembled media must contain exactly one video stream');
   const decode = await runner({
     executable: ffmpeg,
-    args: ['-v', 'error', '-nostdin', '-i', file, '-f', 'null', '-'],
+    args: ['-v', 'error', '-nostdin', '-xerror', '-i', file, '-map', '0', '-f', 'null', '-'],
     cwd,
   });
   if (decode.code !== 0) throw commandFailure('full decode', decode);
@@ -130,6 +130,8 @@ export async function assembleFrozenPreview({
   contractFiles,
   narrativeEnvelopeFile,
   visualSystemFile,
+  representativeScenesFile,
+  visualLockFile,
   outputFile,
   identityFile,
   ffmpeg = 'ffmpeg',
@@ -144,11 +146,16 @@ export async function assembleFrozenPreview({
   const validation = await validateFrozenBlocks(plan, contractFiles.map((file) => path.resolve(file)), {
     narrativeEnvelopeFile,
     visualSystemFile,
+    representativeScenesFile,
+    visualLockFile,
+    productionRoot: path.dirname(path.dirname(absolutePlan)),
     ffmpeg,
     ffprobe,
     runner,
   });
-  const records = validation.verifiedRecords.map(({ file, contract: value }) => ({ file, value }));
+  const records = validation.verifiedRecords.map(({ file, contract: value, contractSha256 }) => ({
+    file, value, contractSha256,
+  }));
   await mkdir(path.dirname(output), { recursive: true });
   await mkdir(path.dirname(identity), { recursive: true });
   const temporaryId = randomUUID();
@@ -193,16 +200,18 @@ export async function assembleFrozenPreview({
       throw new Error('assembled preview duration differs from the runtime plan by more than one frame');
     }
     const previewSha256 = await hashFile(temporaryOutput);
-    const contractBindings = await Promise.all(records.map(async ({ file }) => ({
-      sha256: await hashFile(file),
-    })));
+    const contractBindings = records.map(({ contractSha256 }) => ({ sha256: contractSha256 }));
     const identityValue = {
       schemaVersion: '1.0.0',
       planIdentity: plan.identity,
       frozenMediaIdentity: validation.aggregateIdentity,
+      ...(plan.schemaVersion === '3.0.0'
+        ? { visualLockIdentity: validation.visualLockIdentity }
+        : {}),
       orderedContracts: contractBindings,
       sourceProfile: profile,
       previewProfile,
+      assemblyStrategy: 'single-reencode',
       preview: { sha256: previewSha256, mediaFacts },
       identity: '',
     };
@@ -217,6 +226,9 @@ export async function assembleFrozenPreview({
       identity: identity,
       planIdentity: plan.identity,
       frozenMediaIdentity: validation.aggregateIdentity,
+      ...(plan.schemaVersion === '3.0.0'
+        ? { visualLockIdentity: validation.visualLockIdentity }
+        : {}),
       units: records.length,
       mediaFacts,
     };
@@ -234,6 +246,8 @@ export async function deliverFrozenMaster({
   contractFiles,
   narrativeEnvelopeFile,
   visualSystemFile,
+  representativeScenesFile,
+  visualLockFile,
   identityFile,
   previewFile,
   outputFile,
@@ -261,6 +275,9 @@ export async function deliverFrozenMaster({
   const validation = await validateFrozenBlocks(plan, contractFiles.map((file) => path.resolve(file)), {
     narrativeEnvelopeFile,
     visualSystemFile,
+    representativeScenesFile,
+    visualLockFile,
+    productionRoot: path.dirname(path.dirname(path.resolve(planFile))),
     ffmpeg,
     ffprobe,
     runner,
@@ -269,8 +286,14 @@ export async function deliverFrozenMaster({
     || validation.aggregateIdentity !== identity.frozenMediaIdentity) {
     throw new Error('plan or frozen unit media changed after preview approval');
   }
-  const records = validation.verifiedRecords.map(({ file, contract: value }) => ({ file, value }));
-  const contractBindings = await Promise.all(records.map(async ({ file }) => ({ sha256: await hashFile(file) })));
+  if (plan.schemaVersion === '3.0.0'
+    && validation.visualLockIdentity !== identity.visualLockIdentity) {
+    throw new Error('visual lock changed after preview approval');
+  }
+  const records = validation.verifiedRecords.map(({ file, contract: value, contractSha256 }) => ({
+    file, value, contractSha256,
+  }));
+  const contractBindings = records.map(({ contractSha256 }) => ({ sha256: contractSha256 }));
   if (canonicalJson(contractBindings) !== canonicalJson(identity.orderedContracts)) {
     throw new Error('frozen unit contract changed after preview approval');
   }
@@ -364,7 +387,7 @@ function parseArgs(argv) {
       options.contracts.push(path.resolve(rest[++index]));
       continue;
     }
-    if (!['--plan', '--narrative-envelope', '--visual-system', '--output', '--identity', '--preview', '--ffmpeg', '--ffprobe'].includes(name)) {
+    if (!['--plan', '--narrative-envelope', '--visual-system', '--representative-scenes', '--visual-lock', '--output', '--identity', '--preview', '--ffmpeg', '--ffprobe'].includes(name)) {
       throw new Error(`unknown argument ${name}`);
     }
     const value = rest[++index];
@@ -387,6 +410,8 @@ async function main() {
       contractFiles: options.contracts,
       narrativeEnvelopeFile: options['narrative-envelope'],
       visualSystemFile: options['visual-system'],
+      representativeScenesFile: options['representative-scenes'],
+      visualLockFile: options['visual-lock'],
       outputFile: options.output,
       identityFile: options.identity,
       ffmpeg: options.ffmpeg,
@@ -402,6 +427,8 @@ async function main() {
       contractFiles: options.contracts,
       narrativeEnvelopeFile: options['narrative-envelope'],
       visualSystemFile: options['visual-system'],
+      representativeScenesFile: options['representative-scenes'],
+      visualLockFile: options['visual-lock'],
       identityFile: options.identity,
       previewFile: options.preview,
       outputFile: options.output,

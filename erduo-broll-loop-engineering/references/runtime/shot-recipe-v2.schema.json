@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-recipe.schema.json",
-  "title": "Compact runtime-neutral shot recipe v3",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-recipe-v2.schema.json",
+  "title": "Compact runtime-neutral shot recipe v2",
   "description": "A shot-local delta contract. Shared visual, narrative, font, palette, and global prohibition facts belong in the shared artifacts, not here.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "shotId", "window", "cueIds", "audienceUnderstanding", "visualJob", "focus", "compositionFamily", "heroFrame", "microBeats", "materialNeeds", "requiredCapabilities", "readableHold", "neighborHandoff"],
   "properties": {
-    "schemaVersion": { "const": "3.0.0" },
+    "schemaVersion": { "const": "2.0.0" },
     "shotId": { "$ref": "#/$defs/id" },
     "window": { "$ref": "#/$defs/window" },
     "cueIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
@@ -60,7 +60,6 @@
       }
     },
     "patternRef": { "$ref": "#/$defs/patternRef" },
-    "durationRationale": { "$ref": "#/$defs/nonEmpty" },
     "neighborHandoff": {
       "type": "object",
       "additionalProperties": false,
@@ -76,8 +75,7 @@
       "required": ["solo", "reason"],
       "properties": {
         "solo": { "type": "boolean" },
-        "reason": { "$ref": "#/$defs/nonEmpty" },
-        "continuityGroup": { "$ref": "#/$defs/id" }
+        "reason": { "$ref": "#/$defs/nonEmpty" }
       }
     },
     "notes": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" } }

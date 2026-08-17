@@ -2,32 +2,37 @@
 
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { lstat, readFile, writeFile } from 'node:fs/promises';
+import { lstat, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 function usage() {
   return `Usage:
-  node scripts/remotion-dom-trace.mjs --project <remotion-project> --url <http://127.0.0.1:port/trace.html> --output <new.json> --identity <64-hex> [--browser <chrome>] [--metadata <json>]
+  node scripts/remotion-dom-trace.mjs --project <remotion-project> --url <http://127.0.0.1:port/trace.html> --output <new.json> --identity <64-hex> [--recipes <directory>] [--dense-window <start:end>] [--browser <chrome>] [--metadata <json>]
 
 The loaded page must expose window.__ERDUO_REMOTION_TRACE__ with metadata and
 an async seek(frame) function. Mark real rendered DOM elements with
 data-erduo-trace-id, data-erduo-role, data-erduo-focus-group,
 data-erduo-layer, and data-erduo-visual-weight. The runner reads actual
-getBoundingClientRect() values after every requested Remotion frame settles.
+getBoundingClientRect() values after each Recipe/cut/hold sample settles.
+Repeat --dense-window to escalate only a bounded [start,end) finding window.
 Canvas/WebGL internals are not inferred by this adapter.`;
 }
 
 function parseArgs(argv) {
-  const options = {};
+  const options = { denseWindows: [] };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === '--help' || argument === '-h') return { help: true };
-    const key = { '--project': 'project', '--url': 'url', '--output': 'output', '--identity': 'identity', '--browser': 'browser', '--metadata': 'metadata' }[argument];
+    const key = { '--project': 'project', '--url': 'url', '--output': 'output', '--identity': 'identity', '--browser': 'browser', '--metadata': 'metadata', '--recipes': 'recipes', '--dense-window': 'denseWindow' }[argument];
     if (!key) throw new Error(`Unknown argument: ${argument}`);
     const value = argv[index + 1];
     if (!value || value.startsWith('--')) throw new Error(`Missing value for ${argument}`);
-    options[key] = value;
+    if (key === 'denseWindow') {
+      const match = /^(\d+):(\d+)$/u.exec(value);
+      if (!match || Number(match[2]) <= Number(match[1])) throw new Error(`Invalid --dense-window: ${value}`);
+      options.denseWindows.push({ startFrame: Number(match[1]), endFrame: Number(match[2]) });
+    } else options[key] = value;
     index += 1;
   }
   for (const required of ['project', 'url', 'output', 'identity']) if (!options[required]) throw new Error(`Missing --${required}`);
@@ -54,11 +59,72 @@ function validateMetadata(metadata) {
   if (metadata.endFrame <= metadata.startFrame) throw new Error('Trace page frame window is invalid');
 }
 
+async function loadRecipes(directory) {
+  if (!directory) return new Map();
+  const recipes = new Map();
+  for (const entry of (await readdir(path.resolve(directory), { withFileTypes: true }))
+    .filter((item) => item.isFile() && path.extname(item.name).toLowerCase() === '.json')
+    .toSorted((left, right) => left.name.localeCompare(right.name))) {
+    const recipe = JSON.parse(await readFile(path.join(path.resolve(directory), entry.name), 'utf8'));
+    if (typeof recipe.shotId !== 'string' || recipe.shotId.length === 0) throw new Error(`${entry.name} has no shotId`);
+    if (recipes.has(recipe.shotId)) throw new Error(`Duplicate Recipe shotId: ${recipe.shotId}`);
+    recipes.set(recipe.shotId, recipe);
+  }
+  if (recipes.size === 0) throw new Error('Recipe directory contains no JSON Recipes');
+  return recipes;
+}
+
+function addFrame(frames, frame, startFrame, endFrame) {
+  if (Number.isInteger(frame) && frame >= startFrame && frame < endFrame) frames.add(frame);
+}
+
+function addWindowSamples(frames, startFrame, endFrame, traceStart, traceEnd) {
+  const start = Math.max(traceStart, startFrame);
+  const end = Math.min(traceEnd, endFrame);
+  if (end <= start) return;
+  addFrame(frames, start, traceStart, traceEnd);
+  addFrame(frames, Math.floor((start + end - 1) / 2), traceStart, traceEnd);
+  addFrame(frames, end - 1, traceStart, traceEnd);
+}
+
+function captureFrames(metadata, recipes, denseWindows) {
+  const frames = new Set();
+  for (const shot of metadata.shots) {
+    addWindowSamples(frames, shot.startFrame, shot.endFrame, metadata.startFrame, metadata.endFrame);
+    for (const hold of shot.readableHolds ?? []) {
+      addFrame(frames, hold.startFrame - 1, metadata.startFrame, metadata.endFrame);
+      addWindowSamples(frames, hold.startFrame, hold.endFrame, metadata.startFrame, metadata.endFrame);
+    }
+    const recipe = recipes.get(shot.shotId);
+    if (!recipe) continue;
+    const beats = ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
+      ? recipe.microBeats ?? []
+      : (recipe.motion?.phases ?? []).map((phase) => phase);
+    for (const beat of beats) {
+      const toFrame = (milliseconds) => shot.startFrame
+        + Math.round(((milliseconds - recipe.window.startMs) * metadata.fps) / 1000);
+      const startFrame = Math.max(shot.startFrame, toFrame(beat.startMs));
+      const endFrame = Math.min(shot.endFrame, toFrame(beat.endMs));
+      addWindowSamples(frames, startFrame, endFrame, metadata.startFrame, metadata.endFrame);
+      addFrame(frames, startFrame - 1, metadata.startFrame, metadata.endFrame);
+    }
+  }
+  for (const window of denseWindows) {
+    if (window.startFrame < metadata.startFrame || window.endFrame > metadata.endFrame
+      || window.endFrame <= window.startFrame) {
+      throw new Error(`Dense window ${window.startFrame}:${window.endFrame} is outside the trace`);
+    }
+    const { startFrame: start, endFrame: end } = window;
+    for (let frame = start; frame < end; frame += 1) frames.add(frame);
+  }
+  return [...frames].sort((left, right) => left - right);
+}
+
 function sourceMapGetter() {
   return null;
 }
 
-export async function captureRemotionDomTrace({ project, url, output, identity, browserExecutable = defaultBrowser(), metadataFile, rendererModule }) {
+export async function captureRemotionDomTrace({ project, url, output, identity, browserExecutable = defaultBrowser(), metadataFile, recipeDirectory, recipes: providedRecipes, denseWindows = [], rendererModule }) {
   const target = path.resolve(output);
   const stats = await lstat(path.dirname(target));
   if (!stats.isDirectory() || stats.isSymbolicLink()) throw new Error('Output parent must be a real directory');
@@ -89,10 +155,12 @@ export async function captureRemotionDomTrace({ project, url, output, identity, 
     const metadata = metadataFile ? JSON.parse(await readFile(path.resolve(metadataFile), 'utf8')) : pageMetadata;
     validateMetadata(metadata);
     if (metadataFile && JSON.stringify(metadata) !== JSON.stringify(pageMetadata)) throw new Error('External metadata does not match the trace page');
+    const recipes = providedRecipes ?? await loadRecipes(recipeDirectory);
+    const frames = captureFrames(metadata, recipes, denseWindows);
     const shotByFrame = new Map();
     for (const shot of metadata.shots) for (let frame = shot.startFrame; frame < shot.endFrame; frame += 1) shotByFrame.set(frame, shot.shotId);
     const elementsByShot = new Map(metadata.shots.map((shot) => [shot.shotId, new Map()]));
-    for (let frame = metadata.startFrame; frame < metadata.endFrame; frame += 1) {
+    for (const frame of frames) {
       const records = await page.evaluate(async (requestedFrame) => {
         const contract = window.__ERDUO_REMOTION_TRACE__;
         if (!contract || typeof contract.seek !== 'function') throw new Error('Trace page has no seek(frame) contract');
@@ -139,12 +207,15 @@ export async function captureRemotionDomTrace({ project, url, output, identity, 
         shotElements.set(record.id, element);
       }
     }
+    const fullFrameCount = metadata.endFrame - metadata.startFrame;
+    const mode = frames.length === fullFrameCount ? 'dense' : denseWindows.length > 0 ? 'escalated' : 'sampled';
     const trace = {
-      schemaVersion: '1.0.0', runtime: 'remotion', compositionId: metadata.compositionId,
+      schemaVersion: '1.2.0', runtime: 'remotion', compositionId: metadata.compositionId,
       compositionIdentity: identity,
       capture: { mode: 'rendered-dom-geometry', source: 'remotion-dom-trace:getBoundingClientRect' },
       fps: metadata.fps, width: metadata.width, height: metadata.height,
-      startFrame: metadata.startFrame, endFrame: metadata.endFrame, frameStep: 1,
+      startFrame: metadata.startFrame, endFrame: metadata.endFrame, frameStep: mode === 'dense' ? 1 : 0,
+      sampling: { mode, frames, denseWindows },
       safeArea: metadata.safeArea,
       shots: metadata.shots.map((shot) => ({ ...shot, elements: [...elementsByShot.get(shot.shotId).values()] })),
     };
@@ -163,8 +234,8 @@ async function main() {
   }
   if (options.help) { process.stdout.write(`${usage()}\n`); return; }
   try {
-    const trace = await captureRemotionDomTrace({ project: options.project, url: options.url, output: options.output, identity: options.identity, browserExecutable: options.browser, metadataFile: options.metadata });
-    process.stdout.write(`${JSON.stringify({ status: 'captured', frames: trace.endFrame - trace.startFrame, shots: trace.shots.length, output: path.basename(options.output) })}\n`);
+    const trace = await captureRemotionDomTrace({ project: options.project, url: options.url, output: options.output, identity: options.identity, browserExecutable: options.browser, metadataFile: options.metadata, recipeDirectory: options.recipes, denseWindows: options.denseWindows });
+    process.stdout.write(`${JSON.stringify({ status: 'captured', mode: trace.sampling.mode, frames: trace.sampling.frames.length, shots: trace.shots.length, output: path.basename(options.output) })}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`); process.exitCode = 1;
   }

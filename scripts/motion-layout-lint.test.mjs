@@ -36,6 +36,15 @@ function baseTrace() {
   };
 }
 
+function sampledTrace(frames = [0, 7, 14, 15, 22, 29]) {
+  const trace = baseTrace();
+  trace.schemaVersion = '1.2.0';
+  trace.frameStep = 0;
+  trace.sampling = { mode: 'sampled', frames, denseWindows: [] };
+  trace.shots[0].elements[0].samples = frames.map((frame) => sample(frame, 180, 180));
+  return trace;
+}
+
 test('motion-layout lint emits a compact pass for stable rendered geometry', () => {
   const result = analyzeMotionLayoutTrace(baseTrace());
   assert.equal(result.status, 'pass');
@@ -45,9 +54,46 @@ test('motion-layout lint emits a compact pass for stable rendered geometry', () 
   assert.match(result.limitations[0], /No Recipes were supplied/u);
 });
 
-function beatRecipes(change = 'relationship') {
+test('sample-first trace passes stable Recipe, hold, and cut evidence without all-frame capture', () => {
+  const trace = sampledTrace();
+  const result = analyzeMotionLayoutTrace(trace);
+  assert.equal(result.status, 'pass');
+  assert.equal(trace.sampling.frames.length < trace.endFrame - trace.startFrame, true);
+  assert.deepEqual(result.diagnosticWindows, []);
+  assert.match(result.limitations.join(' '), /normal trace is sampled/u);
+});
+
+test('sample-first trace escalates only a suspicious transition interval', () => {
+  const trace = sampledTrace([0, 7, 10, 14, 15, 22, 29]);
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 15, kind: 'transition', expectsSettle: true }];
+  hero.samples = trace.sampling.frames.map((frame) => sample(frame, frame < 10 ? 180 : 700, 180));
+  const result = analyzeMotionLayoutTrace(trace);
+  const finding = result.findings.find(({ code }) => code === 'evidence.dense-motion-required');
+  assert.ok(finding);
+  assert.deepEqual(finding.frames, [7, 10]);
+  assert.equal(result.diagnosticWindows.length, 1);
+  assert.ok(result.diagnosticWindows[0].endFrame - result.diagnosticWindows[0].startFrame < trace.endFrame);
+});
+
+test('bounded dense escalation resolves suspicion and locates the original jump', () => {
+  const frames = [0, 7, 8, 9, 10, 14, 15, 22, 29];
+  const trace = sampledTrace(frames);
+  trace.sampling = {
+    mode: 'escalated', frames,
+    denseWindows: [{ startFrame: 7, endFrame: 11 }],
+  };
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 0, endFrame: 15, kind: 'transition', expectsSettle: true }];
+  hero.samples = frames.map((frame) => sample(frame, frame < 8 ? 180 : 700, 180));
+  const result = analyzeMotionLayoutTrace(trace);
+  assert.ok(result.findings.some(({ code }) => code === 'motion.jump'));
+  assert.equal(result.findings.some(({ code }) => code === 'evidence.dense-motion-required'), false);
+});
+
+function beatRecipes(change = 'relationship', schemaVersion = '2.0.0') {
   return new Map([['S01', {
-    schemaVersion: '2.0.0', shotId: 'S01', window: { startMs: 0, endMs: 1000 },
+    schemaVersion, shotId: 'S01', window: { startMs: 0, endMs: 1000 },
     microBeats: [
       { beatId: 'b1', startMs: 0, endMs: 500, change },
       { beatId: 'b2', startMs: 500, endMs: 1000, change: 'deliberate-stillness' },
@@ -148,6 +194,8 @@ test('motion-layout lint proves a planned beat only from beat-bound rendered sub
   const result = analyzeMotionLayoutTrace(trace, beatRecipes());
   assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
   assert.match(result.limitations[0], /Beat delivery checks prove/u);
+  const v3Result = analyzeMotionLayoutTrace(trace, beatRecipes('relationship', '3.0.0'));
+  assert.equal(v3Result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
 });
 
 test('motion-layout lint rejects decorative or continuous loops as planned beat delivery', () => {
@@ -170,6 +218,17 @@ test('motion-layout lint rejects a declared beat whose rendered subject stays un
   const result = analyzeMotionLayoutTrace(trace, beatRecipes());
   assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-no-development'));
   assert.equal(result.status, 'attention');
+});
+
+test('sample-first beat with unchanged checkpoints requests only bounded dense evidence', () => {
+  const trace = sampledTrace();
+  trace.shots[0].elements[0].motions = [{
+    startFrame: 0, endFrame: 15, kind: 'transition', expectsSettle: true, beatIds: ['b1'],
+  }];
+  const result = analyzeMotionLayoutTrace(trace, beatRecipes());
+  assert.ok(result.findings.some(({ code }) => code === 'evidence.dense-development-required'));
+  assert.equal(result.findings.some(({ code }) => code === 'rhythm.beat-no-development'), false);
+  assert.ok(result.diagnosticWindows.every(({ startFrame, endFrame }) => endFrame - startFrame < 30));
 });
 
 test('motion-layout lint accepts beat-bound progressive continuous subject development', () => {

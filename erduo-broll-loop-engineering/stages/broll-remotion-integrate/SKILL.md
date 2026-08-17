@@ -1,6 +1,6 @@
 ---
 name: broll-remotion-integrate
-description: Read and verify legacy Remotion Integrator records or prepare a compact recovery report for a pre-v0.9 task. Do not use or dispatch this stage in a new v0.9 production; the Parent now assembles verified Builder clips directly.
+description: Read and verify legacy Remotion Integrator records for a pre-v0.9 task. Never dispatch this stage in a new v1 production; the Parent assembles verified Builder media directly.
 ---
 
 # Legacy Remotion Integrator
@@ -32,6 +32,6 @@ Return a compact recovery report to the Parent with the last trustworthy
 identity, available artifacts, concrete defect, and safest next owner. Do not
 repair, render, or silently migrate the old task.
 
-For every new v0.9 production, Builders return editable source plus verified
+For every new v1 production, Builders return editable source plus verified
 frozen unit media and the Parent runs the deterministic preview/delivery
 assembler directly.

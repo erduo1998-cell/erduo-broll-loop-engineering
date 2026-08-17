@@ -14,7 +14,12 @@ import { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateRecipeDirectory } from './validate-shot-recipes.mjs';
-import { bindSharedArtifacts, computeRuntimePlanIdentity, validateRuntimePlan } from './validate-runtime-plan.mjs';
+import {
+  bindRepresentativeScenes,
+  bindSharedArtifacts,
+  computeRuntimePlanIdentity,
+  validateRuntimePlan,
+} from './validate-runtime-plan.mjs';
 import { canonicalJson } from './runtime-schema-validator.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -27,7 +32,9 @@ export const DEFAULT_PRODUCTION_PROFILE = Object.freeze({
   raster: { width: 3840, height: 2160 },
   fps: { numerator: 30, denominator: 1 },
   mezzanine: {
-    container: 'matroska', codec: 'ffv1', pixelFormat: 'yuv444p10le', class: 'lossless',
+    container: 'mp4', codec: 'h264', encoder: 'libx264', pixelFormat: 'yuv420p',
+    class: 'visually-lossless', preset: 'medium', crf: 12, gopFrames: 60,
+    keyframeScenecut: false, upgradeReason: null,
     color: { space: 'bt709', transfer: 'bt709', primaries: 'bt709', range: 'tv' },
     audio: { policy: 'silent', streams: 0, codec: null, sampleRate: null, channels: null },
   },
@@ -83,55 +90,126 @@ function buildBlocks(shots) {
   return blocks;
 }
 
-function buildAuthoringUnits(blocks, shots, recipes, sharedArtifactBindings) {
+function makeUnitFactory(shots, recipes, sharedArtifactBindings) {
   const recipeById = new Map(recipes.map((recipe) => [recipe.shotId, recipe]));
   const shotById = new Map(shots.map((shot) => [shot.shotId, shot]));
   const shotIndexById = new Map(shots.map((shot, index) => [shot.shotId, index]));
-  const incoming = (recipe) => recipe.schemaVersion === '2.0.0'
+  const incoming = (recipe) => ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
     ? recipe.neighborHandoff.incoming : recipe.semantics.neighborConnection;
-  const outgoing = (recipe) => recipe.schemaVersion === '2.0.0'
+  const outgoing = (recipe) => ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
     ? recipe.neighborHandoff.outgoing : recipe.semantics.neighborConnection;
+  return (units, block, pending) => {
+    if (!pending.length) return;
+    const first = shotById.get(pending[0]);
+    const last = shotById.get(pending.at(-1));
+    const firstIndex = shotIndexById.get(first.shotId);
+    const lastIndex = shotIndexById.get(last.shotId);
+    const previousRecipe = firstIndex > 0 ? recipeById.get(shots[firstIndex - 1].shotId) : null;
+    const nextRecipe = lastIndex < shots.length - 1 ? recipeById.get(shots[lastIndex + 1].shotId) : null;
+    const firstRecipe = recipeById.get(first.shotId);
+    const lastRecipe = recipeById.get(last.shotId);
+    units.push({
+      unitId: `U${String(units.length + 1).padStart(3, '0')}`,
+      blockId: block.blockId,
+      runtime: block.runtime,
+      window: { startMs: first.window.startMs, endMs: last.window.endMs },
+      shotIds: [...pending],
+      context: {
+        narrativeEnvelope: sharedArtifactBindings.narrativeEnvelope.locator,
+        visualSystem: sharedArtifactBindings.visualSystem.locator,
+        recipes: pending.map((shotId) => `shot-recipes/${shotId}.json`),
+        previousSeam: previousRecipe
+          ? `${outgoing(previousRecipe)} | ${incoming(firstRecipe)}` : null,
+        nextSeam: nextRecipe
+          ? `${outgoing(lastRecipe)} | ${incoming(nextRecipe)}` : null,
+      },
+    });
+  };
+}
+
+function buildLegacyAuthoringUnits(blocks, shots, recipes, sharedArtifactBindings) {
+  const recipeById = new Map(recipes.map((recipe) => [recipe.shotId, recipe]));
+  const shotById = new Map(shots.map((shot) => [shot.shotId, shot]));
+  const appendUnit = makeUnitFactory(shots, recipes, sharedArtifactBindings);
   const units = [];
   for (const block of blocks) {
     let pending = [];
     const flush = () => {
-      if (!pending.length) return;
-      const first = shotById.get(pending[0]);
-      const last = shotById.get(pending.at(-1));
-      const firstIndex = shotIndexById.get(first.shotId);
-      const lastIndex = shotIndexById.get(last.shotId);
-      const previousRecipe = firstIndex > 0 ? recipeById.get(shots[firstIndex - 1].shotId) : null;
-      const nextRecipe = lastIndex < shots.length - 1 ? recipeById.get(shots[lastIndex + 1].shotId) : null;
-      const firstRecipe = recipeById.get(first.shotId);
-      const lastRecipe = recipeById.get(last.shotId);
-      units.push({
-        unitId: `U${String(units.length + 1).padStart(3, '0')}`,
-        blockId: block.blockId,
-        runtime: block.runtime,
-        window: { startMs: first.window.startMs, endMs: last.window.endMs },
-        shotIds: [...pending],
-        context: {
-          narrativeEnvelope: sharedArtifactBindings.narrativeEnvelope.locator,
-          visualSystem: sharedArtifactBindings.visualSystem.locator,
-          recipes: pending.map((shotId) => `shot-recipes/${shotId}.json`),
-          previousSeam: previousRecipe
-            ? `${outgoing(previousRecipe)} | ${incoming(firstRecipe)}` : null,
-          nextSeam: nextRecipe
-            ? `${outgoing(lastRecipe)} | ${incoming(nextRecipe)}` : null,
-        },
-      });
+      appendUnit(units, block, pending);
       pending = [];
     };
     for (const shotId of block.shotIds) {
       const shot = shotById.get(shotId);
       const recipe = recipeById.get(shotId);
-      const solo = recipe.schemaVersion === '2.0.0' && recipe.authoring?.solo === true;
+      const solo = ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
+        && recipe.authoring?.solo === true;
       const proposedStart = pending.length ? shotById.get(pending[0]).window.startMs : shot.window.startMs;
       if (solo || pending.length >= 3 || shot.window.endMs - proposedStart > 40_000) flush();
       pending.push(shotId);
       if (solo || shot.window.endMs - shot.window.startMs > 40_000) flush();
     }
     flush();
+  }
+  return units;
+}
+
+const TARGET_MAX_SHOTS_PER_UNIT = 8;
+
+function continuityAtoms(shotIds, recipeById) {
+  const atoms = [];
+  for (const shotId of shotIds) {
+    const recipe = recipeById.get(shotId);
+    const group = recipe.schemaVersion === '3.0.0' ? recipe.authoring?.continuityGroup : null;
+    if (group && atoms.at(-1)?.continuityGroup === group) atoms.at(-1).shotIds.push(shotId);
+    else atoms.push({ shotIds: [shotId], continuityGroup: group ?? null, solo: recipe.authoring?.solo === true });
+  }
+  return atoms;
+}
+
+function balancedChunks(atoms) {
+  const chunks = [];
+  let run = [];
+  const flushRun = () => {
+    if (!run.length) return;
+    const totalShots = run.reduce((sum, atom) => sum + atom.shotIds.length, 0);
+    const targetUnits = Math.max(1, Math.ceil(totalShots / TARGET_MAX_SHOTS_PER_UNIT));
+    let remainingShots = totalShots;
+    let remainingUnits = targetUnits;
+    let pending = [];
+    let pendingCount = 0;
+    for (const atom of run) {
+      const desired = Math.ceil(remainingShots / remainingUnits);
+      if (pending.length && pendingCount + atom.shotIds.length > desired && remainingUnits > 1) {
+        chunks.push(pending.flatMap(({ shotIds }) => shotIds));
+        remainingShots -= pendingCount;
+        remainingUnits -= 1;
+        pending = [];
+        pendingCount = 0;
+      }
+      pending.push(atom);
+      pendingCount += atom.shotIds.length;
+    }
+    if (pending.length) chunks.push(pending.flatMap(({ shotIds }) => shotIds));
+    run = [];
+  };
+  for (const atom of atoms) {
+    if (atom.solo) {
+      flushRun();
+      chunks.push([...atom.shotIds]);
+    } else run.push(atom);
+  }
+  flushRun();
+  return chunks;
+}
+
+function buildV3AuthoringUnits(blocks, shots, recipes, sharedArtifactBindings) {
+  const recipeById = new Map(recipes.map((recipe) => [recipe.shotId, recipe]));
+  const appendUnit = makeUnitFactory(shots, recipes, sharedArtifactBindings);
+  const units = [];
+  for (const block of blocks) {
+    for (const chunk of balancedChunks(continuityAtoms(block.shotIds, recipeById))) {
+      appendUnit(units, block, chunk);
+    }
   }
   return units;
 }
@@ -146,9 +224,9 @@ async function readRecipes(directory) {
   return recipes.sort((left, right) => left.window.startMs - right.window.startMs || left.shotId.localeCompare(right.shotId));
 }
 
-function actionPlan(selection, mode, warnings, sharedArtifacts, productionProfile) {
+function actionPlan(selection, mode, warnings, sharedArtifacts, productionProfile, schemaVersion = '2.0.0') {
   const plan = {
-    schemaVersion: '2.0.0', status: 'action-required', planningMode: mode,
+    schemaVersion, status: 'action-required', planningMode: mode,
     selection: {
       schemaVersion: selection.schemaVersion,
       selectedRuntime: selection.selectedRuntime,
@@ -169,21 +247,25 @@ export async function planRuntime({
   selectionFile,
   narrativeEnvelopeFile,
   visualSystemFile,
+  representativeScenesFile,
   matrixFile = defaultMatrix,
   remotionIndexFile = defaultRemotionIndex,
   productionProfile: requestedProductionProfile = DEFAULT_PRODUCTION_PROFILE,
 }) {
-  const [recipes, selection, matrix, remotionIndex, sharedArtifactData] = await Promise.all([
+  const [recipes, selection, matrix, remotionIndex, sharedArtifactData, representativeSceneData] = await Promise.all([
     readRecipes(recipesDirectory),
     readFile(selectionFile, 'utf8').then(JSON.parse),
     readFile(matrixFile, 'utf8').then(JSON.parse),
     readFile(remotionIndexFile, 'utf8').then(JSON.parse),
     bindSharedArtifacts({ narrativeEnvelopeFile, visualSystemFile }),
+    representativeScenesFile ? bindRepresentativeScenes(representativeScenesFile) : null,
   ]);
   const sharedArtifacts = {
     narrativeEnvelope: sharedArtifactData.narrativeEnvelope.binding,
     visualSystem: sharedArtifactData.visualSystem.binding,
+    ...(representativeSceneData ? { representativeScenes: representativeSceneData.binding } : {}),
   };
+  const planSchemaVersion = representativeSceneData ? '3.0.0' : '2.0.0';
   const productionProfile = bindProductionProfile(requestedProductionProfile);
   if (selection.status !== 'selected' || !['auto', 'hyperframes', 'hybrid', 'remotion'].includes(selection.selectedRuntime)) {
     throw new Error('runtime selection must be selected and name auto, hyperframes, hybrid, or remotion');
@@ -196,11 +278,24 @@ export async function planRuntime({
   const conflicts = [];
   const shots = [];
 
+  const recipeSchemaVersion = recipes[0]?.schemaVersion;
+  if (representativeSceneData && recipeSchemaVersion !== '3.0.0') {
+    conflicts.push('visual-lock production requires shot recipe schema v3; legacy v1/v2 Recipes remain read-only compatible');
+  }
+  if (!representativeSceneData && recipeSchemaVersion === '3.0.0') {
+    conflicts.push('shot recipe schema v3 requires representative-scenes.json and runtime plan v3');
+  }
+
   for (const recipe of recipes) {
-    if (recipe.window.endMs - recipe.window.startMs > 40_000) {
+    if (planSchemaVersion === '2.0.0' && recipe.window.endMs - recipe.window.startMs > 40_000) {
       conflicts.push(`${recipe.shotId}: semantic shot exceeds 40000ms; return to Director to split it`);
     }
-    if (recipe.schemaVersion === '2.0.0'
+    if (planSchemaVersion === '3.0.0'
+      && recipe.window.endMs - recipe.window.startMs > 15_000
+      && !recipe.durationRationale) {
+      conflicts.push(`${recipe.shotId}: semantic shot exceeds 15000ms without durationRationale`);
+    }
+    if (['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
       && !sharedArtifactData.visualSystem.value.compositionFamilies.includes(recipe.compositionFamily)) {
       conflicts.push(`${recipe.shotId}: composition family is not declared in visual-system.json`);
     }
@@ -274,17 +369,56 @@ export async function planRuntime({
     if (index === 0 && shots[index].window.startMs !== 0) conflicts.push('shot coverage must begin at 0');
     if (index > 0 && shots[index].window.startMs !== shots[index - 1].window.endMs) conflicts.push(`${shots[index].shotId}: shot coverage has a gap or overlap`);
   }
+  if (planSchemaVersion === '3.0.0') {
+    const shotIds = new Set(shots.map(({ shotId }) => shotId));
+    for (const scene of representativeSceneData.value.scenes) {
+      if (!shotIds.has(scene.shotId)) conflicts.push(`${scene.shotId}: representative scene does not name a planned shot`);
+    }
+    const continuityLocations = new Map();
+    for (const [index, recipe] of recipes.entries()) {
+      const group = recipe.authoring?.continuityGroup;
+      if (!group) continue;
+      const values = continuityLocations.get(group) ?? [];
+      values.push(index);
+      continuityLocations.set(group, values);
+    }
+    for (const [group, indexes] of continuityLocations) {
+      if (indexes.some((value, index) => index > 0 && value !== indexes[index - 1] + 1)) {
+        conflicts.push(`continuity group ${group} must be contiguous`);
+      }
+      const runtimes = new Set(indexes.map((index) => shots[index]?.runtime));
+      if (runtimes.size > 1) conflicts.push(`continuity group ${group} cannot cross backends`);
+    }
+  }
   const backends = [...new Set(shots.map(({ runtime }) => runtime))].sort();
+  if (planSchemaVersion === '3.0.0') {
+    const representativeBackends = new Set(representativeSceneData.value.scenes.map(
+      ({ shotId }) => shots.find((shot) => shot.shotId === shotId)?.runtime,
+    ));
+    for (const backend of backends) {
+      if (!representativeBackends.has(backend)) conflicts.push(`representative scenes must include the planned ${backend} backend`);
+    }
+  }
   if (mode === 'forced-hybrid' && backends.length !== 2) conflicts.push('explicit hybrid requires evidence-backed assignments to both backends; do not force an artificial split');
   if (conflicts.length) {
-    const plan = actionPlan(selection, mode, [...warnings, ...conflicts], sharedArtifacts, productionProfile);
-    await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile });
+    const plan = actionPlan(selection, mode, [...warnings, ...conflicts], sharedArtifacts, productionProfile, planSchemaVersion);
+    await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile, representativeScenesFile });
     return plan;
   }
   const resultingRoute = backends.length === 2 ? 'hybrid' : backends[0];
   const blocks = buildBlocks(shots);
+  const authoringUnits = planSchemaVersion === '3.0.0'
+    ? buildV3AuthoringUnits(blocks, shots, recipes, sharedArtifacts)
+    : buildLegacyAuthoringUnits(blocks, shots, recipes, sharedArtifacts);
+  const representativeScenes = representativeSceneData?.value.scenes.map((scene) => ({
+    ...scene,
+    runtime: shots.find(({ shotId }) => shotId === scene.shotId).runtime,
+  }));
+  const leadAssignmentLocators = backends.map((_, index) => (
+    `01-runtime-plan/assignments/L${String(index + 1).padStart(3, '0')}.json`
+  ));
   const plan = {
-    schemaVersion: '2.0.0', status: 'planned', planningMode: mode,
+    schemaVersion: planSchemaVersion, status: 'planned', planningMode: mode,
     selection: {
       schemaVersion: selection.schemaVersion,
       selectedRuntime: selection.selectedRuntime,
@@ -295,11 +429,20 @@ export async function planRuntime({
     resultingRoute, requiredBackends: backends,
     integrationMode: 'frozen-block-media',
     frozenMediaContractVersion: '1.0.0',
-    shots, blocks, authoringUnits: buildAuthoringUnits(blocks, shots, recipes, sharedArtifacts),
+    shots, blocks, authoringUnits,
+    ...(planSchemaVersion === '3.0.0' ? {
+      visualLock: {
+        required: true,
+        contractLocator: '04-visual-lock/visual-lock.json',
+        sourceIsolation: 'per-runtime',
+        representativeScenes,
+        leadAssignmentLocators,
+      },
+    } : {}),
     warnings: [...new Set(warnings)].sort(), identity: '',
   };
   plan.identity = computeRuntimePlanIdentity(plan);
-  await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile });
+  await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile, representativeScenesFile });
   return plan;
 }
 
@@ -326,18 +469,24 @@ export function buildBuilderAssignments(plan, {
   recipesDirectory,
   narrativeEnvelopeFile,
   visualSystemFile,
+  representativeScenesFile,
 } = {}) {
-  if (plan?.schemaVersion !== '2.0.0' || plan.status !== 'planned') {
-    throw new Error('Builder assignments require one planned runtime plan v2');
+  if (!['2.0.0', '3.0.0'].includes(plan?.schemaVersion) || plan.status !== 'planned') {
+    throw new Error('Builder assignments require one planned runtime plan v2 or v3');
   }
   const root = path.resolve(productionRoot);
   const recipeRoot = path.resolve(recipesDirectory);
   const narrativeEnvelope = locator(root, narrativeEnvelopeFile);
   const visualSystem = locator(root, visualSystemFile);
-  return plan.authoringUnits.map((unit) => {
+  const productionAssignments = plan.authoringUnits.map((unit) => {
     const workDirectory = unitDirectory(unit);
     return {
-      schemaVersion: '1.0.0',
+      schemaVersion: plan.schemaVersion === '3.0.0' ? '2.0.0' : '1.0.0',
+      ...(plan.schemaVersion === '3.0.0' ? {
+        assignmentId: unit.unitId,
+        role: 'builder',
+        phase: 'production',
+      } : {}),
       planIdentity: plan.identity,
       unitId: unit.unitId,
       blockId: unit.blockId,
@@ -376,10 +525,64 @@ export function buildBuilderAssignments(plan, {
           : 'shared-pinned-runtime',
         dependencyRoot: unit.runtime === 'remotion' ? '.remotion-toolchains' : null,
       },
+      ...(plan.schemaVersion === '3.0.0' ? {
+        visualLock: {
+          required: true,
+          contract: plan.visualLock.contractLocator,
+          requiredStatus: ['approved', 'skipped'],
+          sourceRoot: `04-visual-lock/${unit.runtime}/shared-source`,
+          sourceIsolation: 'same-runtime-only',
+        },
+      } : {}),
       contextPolicy: 'Load only the listed files, selected references named by the assigned Recipes, and files named by the shared asset plans. Do not inherit the parent transcript or read unrelated Recipes.',
       seamLimit: 'A live transition cannot cross independently rendered units. Keep a live shared-element transition inside one unit; otherwise close this unit on the planned readable state and use the declared matched seam.',
     };
   });
+  if (plan.schemaVersion !== '3.0.0') return productionAssignments;
+  const leadAssignments = plan.requiredBackends.map((runtime, index) => {
+    const assignmentId = `L${String(index + 1).padStart(3, '0')}`;
+    const scenes = plan.visualLock.representativeScenes.filter((scene) => scene.runtime === runtime);
+    const workDirectory = `04-visual-lock/${runtime}`;
+    return {
+      schemaVersion: '2.0.0',
+      assignmentId,
+      planIdentity: plan.identity,
+      role: 'lead',
+      phase: 'visual-lock',
+      runtime,
+      shotIds: scenes.map(({ shotId }) => shotId),
+      representativeScenes: scenes,
+      stageSkill: runtime === 'remotion' ? 'broll-remotion-build' : 'broll-master-build',
+      contextFiles: {
+        assignment: `01-runtime-plan/assignments/${assignmentId}.json`,
+        runtimePlan: '01-runtime-plan/runtime-plan.json',
+        narrativeEnvelope,
+        visualSystem,
+        representativeScenes: locator(root, representativeScenesFile),
+        recipes: scenes.map(({ shotId }) => locator(root, path.join(recipeRoot, `${shotId}.json`))),
+        materialPlan: '02-assets/material-plan.md',
+        fontPlan: '02-assets/font-plan.md',
+      },
+      productionProfile: plan.productionProfile,
+      productionProfileIdentity: plan.productionProfile.identity,
+      output: {
+        workDirectory,
+        representativeMediaRoot: `${workDirectory}/scenes`,
+        sharedSourceRoot: `${workDirectory}/shared-source`,
+        visualLockContract: plan.visualLock.contractLocator,
+        editableSourceRequired: true,
+        frozenMediaRequired: false,
+      },
+      shared: {
+        assetsRoot: '02-assets',
+        copyAssetsIntoUnit: false,
+        sourceIsolation: 'per-runtime',
+        mayImportRuntimeSourceFrom: runtime,
+      },
+      contextPolicy: 'Load only the listed representative Recipes and shared plans. Do not inherit the parent transcript or read unrelated Recipes.',
+    };
+  });
+  return [...leadAssignments, ...productionAssignments];
 }
 
 export async function writeProductionPlan({ productionRoot, ...planOptions }) {
@@ -404,7 +607,7 @@ export async function writeProductionPlan({ productionRoot, ...planOptions }) {
     await mkdir(path.join(temporaryDirectory, 'assignments'), { recursive: true });
     await writeFile(path.join(temporaryDirectory, 'runtime-plan.json'), `${JSON.stringify(plan, null, 2)}\n`, { flag: 'wx' });
     await Promise.all(assignments.map((assignment) => writeFile(
-      path.join(temporaryDirectory, 'assignments', `${assignment.unitId}.json`),
+      path.join(temporaryDirectory, 'assignments', `${assignment.assignmentId ?? assignment.unitId}.json`),
       `${JSON.stringify(assignment, null, 2)}\n`,
       { flag: 'wx' },
     )));
@@ -416,7 +619,7 @@ export async function writeProductionPlan({ productionRoot, ...planOptions }) {
   return {
     plan,
     directory: finalDirectory,
-    assignments: assignments.map(({ unitId }) => `01-runtime-plan/assignments/${unitId}.json`),
+    assignments: assignments.map((assignment) => `01-runtime-plan/assignments/${assignment.assignmentId ?? assignment.unitId}.json`),
   };
 }
 
@@ -425,7 +628,7 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
     if (name === '--json') continue;
-    if (!['--recipes', '--selection', '--narrative-envelope', '--visual-system', '--matrix', '--remotion-index', '--production-root', '--production-profile'].includes(name)) throw new Error(`unknown argument ${name}`);
+    if (!['--recipes', '--selection', '--narrative-envelope', '--visual-system', '--representative-scenes', '--matrix', '--remotion-index', '--production-root', '--production-profile'].includes(name)) throw new Error(`unknown argument ${name}`);
     const value = argv[index + 1];
     if (!value) throw new Error(`${name} requires a path`);
     options[name.slice(2)] = path.resolve(value);
@@ -435,6 +638,7 @@ function parseArgs(argv) {
   const parsed = {
     recipesDirectory: options.recipes, selectionFile: options.selection,
     narrativeEnvelopeFile: options['narrative-envelope'], visualSystemFile: options['visual-system'],
+    representativeScenesFile: options['representative-scenes'],
     matrixFile: options.matrix, remotionIndexFile: options['remotion-index'],
     productionProfileFile: options['production-profile'],
   };

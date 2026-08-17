@@ -4,8 +4,8 @@
 
 | 环境 | 当前状态 | 证据边界 |
 | --- | --- | --- |
-| macOS + Codex | supported | 已有当前提示词架构的真实 SRT 生产和 master 证据；具体机器仍须先运行 doctor |
-| macOS + Claude Code | experimental | 安装目标和契约受测试覆盖，尚缺与 Codex 同输入的当前版本端到端对照 |
+| macOS + Codex | supported core / v1 technical witness | [v1.0.0 公开基准](docs/V1.0.0-BENCHMARK.md)已完成 `179.866` 秒同 SRT 生产、完整 preview/Master 解码和 80 帧 Director 技术/语义抽检；用户未观看，visual lock 为 `skipped`，不构成审美批准 |
+| macOS + Claude Code | experimental | 安装目标和 v1 契约受测试覆盖，尚缺与 Codex 同输入的 v1 端到端对照 |
 | macOS 首次安装 | supported installer | 安装器、离线 mock 与安全边界受自动化测试覆盖；硬件、网络和宿主差异仍可能要求人工处理 |
 | HyperFrames runtime | supported production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；可由 auto 或显式单后端计划选择 |
 | Remotion runtime | project-local supported workflow | 具备前置识别、独立 Builder 制作和失败关闭验证；每个单元交付源码与已验证片段，相同精确依赖身份在本次生产内只安装一次，不承诺与 HyperFrames 视觉一致 |
@@ -16,6 +16,21 @@
 稳定版本只冻结公开契约，不会把未完成的环境验证自动提升为 `verified`。Windows 与剪映 GUI 必须保持本表声明，直到取得对应实机证据。
 
 官方 doctor 可能因为 npm 上已有更新版本而把顶层 `ok` 置为 false。只在 doctor 的 `_meta.version` 精确等于本发行包锁定的 `0.7.104`、失败项只是“newer version available”，且 Node、FFmpeg、FFprobe、Chrome 等选中本地渲染事实全部通过时，本项目把它记录为非阻断更新提示；版本不明、版本不符或任何渲染事实失败仍会关闭发布/生产门。
+
+## v1.0 Production Loop 合同
+
+| 项目 | 当前状态 | 证据边界 |
+| --- | --- | --- |
+| 短语义镜头 + 聚合工作包 | deterministic planner + tests | Director 默认约 5–12 秒完整语义镜头；Runtime Plan v3 可将约 5–8 个普通短镜头聚合成一个 unit，并以 2–3 Builder 作为普通约 180 秒单后端规划目标。复杂、独占、后端边界和 live transition 可以例外，数量不是审美或性能保证 |
+| 三个代表场景 | schema + deterministic selection | 固定 opening、information-dense、late 三种覆盖及选择理由；它们用于提前暴露方向风险，不代表前三镜，也不证明整片审美 |
+| Visual lock | identity-bound gate + tests | Lead Builder 提供真实动态代表场景、字体/资产/视觉 token 与每实际后端共享源码；Director 见证和用户 approve/revise/skip 进入合同。未通过时普通 Builder 默认不能 fan-out；skip 会留下风险记录 |
+| 共享视觉母体 | per-runtime source contract | 同 backend Builder 可导入源码；Hybrid 只共享运行时中立 token，不能把 HyperFrames/Remotion 实现文件跨端复用。母体不是整片模板，不能保证 Builder 输出天然一致 |
+| 轻量冻结媒体 | codec fixture + validator | 普通单后端默认 H.264 MP4（`libx264 / medium / CRF 12 / yuv420p`）；短 fixture 已证明 H.264、显式 FFV1、concat 和完整解码。CRF 12 是高质量工程策略，不是视觉质量或真实长片耗时证明 |
+| 显式 lossless upgrade | profile + policy validator | Hybrid、透明、后期再编码或真实无损交换需求可选择 FFV1；必须记录原因。旧 FFV1 run 继续按 legacy 合同读取，不会被静默重写 |
+| 分层 motion/layout | scripts + positive/negative fixtures | 先采样关键边界；异常窗口和精密图解/path 再高密度 trace。现有负例继续定位，通过时不生成全片 PNG；无法捕获的主要发展仍为 unmeasured |
+| Production metrics | public-safe schema + tests | 单次目录扫描汇总阶段、Agent、unit、文件/字节、媒体操作、失败/重试及可选 host Token。无法取得 Token 时写 unknown；计量事实依赖 Parent/host 正确记录事件 |
+| 用户决定 | two explicit gates | visual lock 只批准批量方向；完整动态 preview 才批准正式交付。Agent、schema、截图或技术测试均不能宣布审美通过 |
+| v1 真实验收 | Codex measured / Claude pending | [公开报告](docs/V1.0.0-BENCHMARK.md)记录 Codex 的 20 镜头、10 次 Agent 调用、3 个 production unit、阶段耗时、输出 hash、单次目录扫描和完整解码。目录/文件目标通过；Lead 与首次 preview 时间目标未通过；Token unknown；用户审美未执行；Claude 同输入对照 pending |
 
 ## v0.9 Creative Production 合同
 

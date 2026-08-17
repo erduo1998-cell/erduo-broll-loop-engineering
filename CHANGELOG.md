@@ -1,15 +1,28 @@
 # Changelog
 
+本项目遵循 Semantic Versioning。稳定版本冻结公开的 Skill、目录、查询与发布包契约；运行时支持等级仍以支持矩阵的实际证据为准。
+
+## Unreleased
+
+## 1.0.0 — 2026-08-18
+
+- 从 v0.9.2 原地升级正常生产闭环，不另建 fast pipeline；继续保留 Parent、Director、Assets、多 Builder、HyperFrames、Remotion、Hybrid、可编辑源码、素材来源与冻结装配边界。
+- Shot Recipe v3 默认使用约 5–12 秒的完整语义镜头；Runtime Plan v3 独立聚合 Builder 工作包，允许一个 unit 包含超过 3 个镜头和 40 秒，普通约 180 秒单后端任务以 2–3 个 Builder 为规划目标，同时保留复杂镜头、后端和 live transition 例外。
+- 新增三个代表场景与 visual-lock 合同。Lead Builder 先交付真实动态场景和每实际后端可导入的共享视觉源码；Director 见证与用户批准、返修或明确跳过均绑定 identity，未通过时普通 Builder 默认不能批量展开。
+- 普通单后端冻结媒体默认改为高质量 H.264 MP4（`libx264 / medium / CRF 12 / yuv420p / fixed GOP`）。FFV1 只作为有明确原因的 lossless upgrade；assembler 保留 hash、FFprobe、完整解码、连续覆盖、批准 identity，并对 preview 和 Master 各执行稳定的单次重编码。
+- 新增 provider-neutral `production-events.ndjson` 与 `production-metrics.json` 工具，记录阶段耗时、Agent 调用、unit、文件/字节、render/trace/decode/hash、失败/重试和可选宿主 Token。Token 不可得时明确为 unknown，不读取私人 session 路径或估算。
+- motion/layout 默认改为节拍边界、readable hold、切点和必要采样优先；仅异常窗口、复杂 connector/path、Canvas/WebGL 或明确要求时升级高密度 trace，正常通过不产生全片逐帧 PNG。
+- Director/Builder 合同加强第一眼具体锚点、动作、结果、中文优先与内容驱动发展；抽象隐喻仍允许，但不能只靠材质、能量线、巨型文字或背景循环承担含义。
+- 保留 Shot Recipe v1/v2、Runtime Plan v1/v2 与旧 run 的读取/验证边界；新生产默认写 v3，不静默迁移历史记录。
+- 版本表面、五语 README、支持矩阵、发布检查表和 v1 设计文档同步到 1.0.0。
+- 新增 [v1.0.0 公开生产基准](docs/V1.0.0-BENCHMARK.md)：Codex 用同一份 `179.866` 秒、`124` 条 cue 的 SRT 完成 `20` 镜头生产，`1` 名 Lead + `3` 名 production Builder、`10` 次 Agent 调用、`0` 次 full-history 调用、`0` 件外部素材。目录为 `213` 个文件、磁盘占用 `156,980 KiB`，preview 与 Master 完整解码通过；但首次 preview 约 `242.05` 分钟和 Lead `62.90` 分钟均未达目标。Director 拒绝一次 visual lock 后定点返修通过，用户没有观看或审美批准，状态为 `skipped`；Token 未知、音画同步未测，Claude Code 同输入对照仍为 pending。
+
 ## 0.9.2 — 2026-08-15
 
 - 新增标准 Skill 发行包：保留父 Skill、十三个阶段 Skill、生产脚本、引用、来源与许可证，排除一键环境安装器、测试夹具和发布工具，降低第三方安全扫描的无关命中。
 - 完整环境发行包继续提供固定 Node、HyperFrames、官方 Skill、浏览器和 FFmpeg 准备；两种包中的项目 Skill 文件逐字节一致。
 - README 五种语言拆分“标准 Skill 安装”和“完整环境安装”，明确标准路径只注册项目 Skill，不会静默准备或降低运行环境。
 - 未修改 Director、Assets、Builder、Shot Recipe、runtime plan、镜头卡、图解 grammar、预览审批、渲染或交付合同。
-
-本项目遵循 Semantic Versioning。稳定版本冻结公开的 Skill、目录、查询与发布包契约；运行时支持等级仍以支持矩阵的实际证据为准。
-
-## Unreleased
 
 ## 0.9.1 — 2026-08-15
 

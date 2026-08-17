@@ -60,7 +60,9 @@ closure and replaces every demo asset with Assets-stage material.
 
 After Recipe validation, the Parent runs `scripts/plan-runtime.mjs` with
 `--recipes`, `--selection`, `--narrative-envelope`, `--visual-system`, and an
-unused `--production-root`. Before that call, it runs
+unused `--production-root`. A normal v1 call also supplies the validated
+`--representative-scenes` artifact; omitting it retains the legacy v2 planning
+path. Before that call, it runs
 `scripts/create-production-profile.mjs` with the user's width, height, fps,
 audio, and supported output-format constraints, then passes the generated file
 through `--production-profile`. With no explicit constraints the generator
@@ -80,31 +82,41 @@ Evidence order is deterministic:
 No semantic keyword, directory name, agent taste, or signal count participates.
 Equal-priority backend conflicts stop. Decisions are made per shot, then
 adjacent same-backend shots merge into contiguous blocks. Inside each block,
-the planner creates ordered whole-shot `authoringUnits` that default to 1–3
-shots and have an absolute maximum of 40 seconds. A hero, complex asset-fusion,
-or complex camera shot may be one unit only when that shot is at most 40
-seconds. Planner rejects an overlong shot and returns it to Director for a
-semantic split; it never crosses a shot over units or accepts a solo exception.
+the planner creates ordered whole-shot `authoringUnits` independently from shot
+duration. Ordinary short-shot units commonly contain 5–8 adjacent shots; for an
+ordinary single-backend film around 180 seconds, target 2–3 production Builders.
+These are deterministic targets, not hard caps. Runtime changes, complex 3D or
+material work, exclusive state, and declared `authoring.continuityGroup`
+boundaries override them. The planner never crosses backends or non-contiguous
+time, splits a shot, or breaks a live transition merely to hit a count.
 Every plan records evidence, unverified
 preferences, warnings, blocks, authoring units, required backends, integration
 mode, and a canonical identity.
 
 ## Backend obligations
 
-Every Builder must validate its assigned authoring unit, Recipes, and plan
-identity; read only that unit, adjacent seam summaries, shared-system locators,
+Every Builder must validate its role/phase assignment, Recipes, and plan
+identity; read only those Recipes, adjacent seam summaries, shared-system locators,
 frozen assets/fonts, and 0–2 selected references; preserve semantic intent and
 exact windows, resolve capabilities, use local materials
 and fonts, produce deterministic seekable source, and record runtime/version,
 time conversion, source identity, pattern/fallback decisions, and honest
 variance. It never reroutes after failure.
 
-For every v0.9 route, each Builder also freezes exactly one local lossless or
+For every v1 production assignment, each Builder also freezes exactly one local lossless or
 visually-lossless mezzanine for its assigned authoring unit and writes a
 schema-valid `block-media.json`. Editable runtime-native source remains beside
 the unit; frozen media is the deterministic assembly boundary, not a
 replacement for source. A live effect that must cross a boundary belongs in
 one authoring unit; otherwise use the declared readable seam.
+
+Before production fan-out, each required backend uses one existing Builder in
+Lead mode to create its assigned representative moving scenes and importable
+runtime-native visual source. Hybrid shares runtime-neutral visual tokens, not
+source. `04-visual-lock/visual-lock.json` binds those scenes, source identities,
+assets/fonts, the original Director's concrete witness, and the user's
+`approved` or explicit `skipped` decision. A deterministic assignment gate
+rejects production packets before that contract validates.
 
 The contract binds:
 
@@ -114,27 +126,30 @@ The contract binds:
 - relative local media path and actual SHA-256;
 - objective container/codec/duration/frame/audio facts;
 - backend source identity for the owning authoring unit;
+- for runtime plan v3, the validated visual-lock identity and the owning
+  backend's runtime-native shared-source identity;
 - FFprobe and full decode;
 - `noRealtimeNesting: true`.
 
 `scripts/validate-frozen-blocks.mjs` checks actual media hashes, profile/audio
-closure, plan closure, and duration within one frame. A bad unit returns to its
+closure, plan closure, v3 visual-lock/shared-source identity, and duration within one frame. A bad unit returns to its
 owning Builder; assembly never transcodes a defect into compliance.
 
 ## Scripted assembly, approval, and delivery
 
 After every planned unit passes, the Parent runs
 `scripts/assemble-frozen-production.mjs preview` with the plan, narrative
-envelope, visual system, every unit contract, a new preview path, and a new
+envelope, visual system, representative scenes, visual lock, every unit contract, a new preview path, and a new
 identity path. The script resolves contracts against the plan and assembles in
 plan order; CLI contract arguments may be supplied in any order. Missing,
 duplicate, unplanned, or changed contracts fail closed.
 
 The preview identity binds the plan, shared artifacts, plan-ordered contract
-hashes, frozen media hashes, profile/audio policy, and preview bytes. User
+hashes, frozen media hashes, v3 visual-lock identity, profile/audio policy, and preview bytes. User
 approval binds that exact identity. After approval, the Parent runs
 `scripts/assemble-frozen-production.mjs deliver` with the same evidence. It
-revalidates everything and encodes a new full-spec master from frozen unit
+revalidates the visual lock, shared-source identities, and everything else,
+then encodes a new full-spec master from frozen unit
 media. It never copies the preview, opens an animation runtime, or dispatches
 an Integrator or Render Agent.
 

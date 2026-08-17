@@ -1,13 +1,16 @@
 # Motion and layout lint
 
 Use this reference only in a backend Builder. It replaces routine
-AI inspection of repeated stills. The final identity-bound moving preview is
-the only default human aesthetic review.
+AI inspection of repeated stills. Representative moving scenes provide the
+early visual-lock decision; the identity-bound complete preview provides the
+final human aesthetic decision.
 
 ## What the lint can establish
 
-`scripts/motion-layout-lint.mjs` consumes runtime-captured element geometry for
-every frame. It can report:
+`scripts/motion-layout-lint.mjs` consumes runtime-captured element geometry.
+The normal first pass samples Recipe beat boundaries, readable holds, scene
+cuts, and only the mechanism-specific points needed to prove the declared
+change. It can report:
 
 - discontinuous position, scale, size, or opacity changes;
 - hard transition edges, abrupt acceleration changes, failure to settle, and
@@ -42,7 +45,8 @@ source, or hand-authored estimates. Instrument the rendered composition:
 1. mark only meaningful visible elements with stable IDs, one role, one focus
    group, safe-area policy, optional allowed overlaps, and finite motion
    windows;
-2. seek the real runtime to every frame in order;
+2. seek the real runtime first to Recipe beat boundaries, readable holds, scene
+   cuts, and the smallest additional samples required by the mechanism;
 3. after layout and paint settle for that requested frame, capture each marked
    element's canvas-space rectangle and effective opacity;
 4. when geometry cannot express a material-state or attention change, capture
@@ -69,15 +73,15 @@ continuous subject action may fulfill a beat when its end state advances;
 ambient, looping, unbound, or decorative motion cannot. An explicit
 `deliberate-stillness` beat needs no fabricated movement.
 
-For the technical risk case of a non-still beat lasting at least four seconds,
-measure the longest continuous interval with no new rendered subject state,
-including the beginning, gaps between developments, and the end. Flag the beat
-when any such interval reaches 25% of its full window. This catches one or more
-short action bursts surrounded by undeclared waiting; merely touching the
-second half no longer passes. It does not require motion every four seconds,
-continuous motion, a fixed beat count, or any particular animation style. If
-waiting or stability is meaningful, the Director describes that window as its
-own `deliberate-stillness` or separate beat.
+For a non-still beat lasting at least four seconds, first sample its beginning,
+declared development points, result, and end. If those samples cannot exclude a
+long undeclared still tail, escalate only that beat window to dense capture and
+measure the longest continuous interval with no new rendered subject state.
+Flag the beat when any such interval reaches 25% of its full window. This does
+not require motion every four seconds, continuous motion, a fixed beat count, or
+any particular animation style. If waiting or stability is meaningful, the
+Director describes that window as its own `deliberate-stillness` or separate
+beat.
 
 For Remotion, capture DOM geometry from the project-local rendered
 Composition. `getBoundingClientRect()` is acceptable only after the exact
@@ -100,17 +104,20 @@ or prose QA report.
 Store the one-line result locator in the compact receipt.
 
 `status: attention` returns `diagnosticWindows`. Render only those bounded
-frames or short clips, repair the owning source, recapture the affected trace,
+frames or short clips, escalate only those windows to dense or per-frame trace
+when necessary, repair the owning source, recapture the affected trace,
 and rerun the lint. Do not sample unrelated frames. An intentional exception
 must name the finding code, affected element, exact reason, and bounded window;
 never waive an error by calling it aesthetic.
 
-Run the lint once for each Builder unit before freezing its media. Do not rerun
+Run the sampled lint once for each Builder assignment before accepting its
+media. Exact connector/path evidence, complex Canvas/WebGL, or an explicit user
+requirement may begin with dense capture. Do not rerun
 an unchanged passing unit trace during Parent assembly or delivery; source and
 media identity comparison is enough. Cross-unit rhythm and seams remain visible
 in the one complete moving preview rather than being claimed by a source lint.
 
-This check rejects a paper plan whose rendered subject does not develop and the
+No passing path generates an all-frame PNG sequence. This check rejects a paper plan whose rendered subject does not develop and the
 specific long-beat risk where short actions leave a long undeclared interval
 with no measurable development. The four-second activation threshold and
 proportional longest-gap check are technical risk filters, not a cadence

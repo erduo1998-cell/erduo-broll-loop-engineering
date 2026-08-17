@@ -38,6 +38,12 @@ gate: the user's decision on the final identity-bound composition preview.
 - A micro-beat changes subject, topology, scale, depth, material state,
   relationship, or attention; deliberate stillness is explicit. Beat-count
   heuristics are not a pass/fail score.
+- Every shot records a concrete first-read anchor, visible action, and readable
+  result. A shot normally spans about 5–12 seconds; one over 15 seconds has a
+  content-driven `durationRationale` and real visible development.
+- `representative-scenes.json` names exactly three distinct Recipe shots with
+  `opening`, `information-dense`, and `late` coverage and concerns that
+  collectively test composition, text, material, and motion.
 - Shotcraft may be unused across the whole film. When a named technique
   question justified a query, that shot has at most one pattern and its locator
   resolves progressively; no per-shot no-pattern record is required. Craft
@@ -50,7 +56,8 @@ gate: the user's decision on the final identity-bound composition preview.
 - The Parent generated `production-profile.json` with
   `create-production-profile.mjs`; it did not hand-write output policy JSON.
 - The Parent ran `plan-runtime.mjs` directly with Recipes, selection, narrative
-  envelope, visual system, `--production-profile`, and an unused production
+  envelope, visual system, the three-shot `--representative-scenes` artifact,
+  `--production-profile`, and an unused production
   root. No Runtime Planner Agent was dispatched.
 - The plan and every Builder assignment carry the generated profile's same hash
   identity.
@@ -59,10 +66,12 @@ gate: the user's decision on the final identity-bound composition preview.
 - Every shot appears exactly once in one backend block and one authoring unit.
 - Blocks remain contiguous runtime/integration boundaries.
 - Authoring units remain inside one block, contain whole adjacent shots,
-  default to 1–3 shots, never exceed 40 seconds, and form a closed ordered
-  partition. A hero/asset-fusion/camera shot may be one unit only within that
-  ceiling. An overlong shot was rejected to Director for semantic splitting;
-  no shot crosses units and no solo exception exists.
+  commonly group 5–8 ordinary short shots, and form a closed ordered partition.
+  An ordinary single-backend film around 180 seconds targets 2–3 production
+  Builders, while backend, complexity, exclusive-state, and
+  `authoring.continuityGroup` constraints override the target. No unit crosses a
+  backend or non-contiguous time, no shot crosses units, and no live transition
+  is split merely to hit a count.
 - Decisions cite capability or exact backend evidence, never semantic keywords
   or craft choice. Unverified Remotion preferences remain marked unverified.
 
@@ -82,6 +91,16 @@ gate: the user's decision on the final identity-bound composition preview.
   media facts, shot binding, focal/crop/safe regions, and an asset-fusion plan.
 
 ## Each focused Builder
+
+- Each required backend's Lead packet passed the deterministic assignment gate,
+  built only its assigned representative Recipes, and returned moving scenes
+  plus directly importable runtime-native shared source and identity.
+- `04-visual-lock/visual-lock.json` binds the three scenes, representative
+  reasons, source identities, assets/fonts, concrete Director witness, and the
+  user's approved or explicit skipped decision. Every production packet passed
+  the gate against that unchanged contract.
+- Hybrid shares only runtime-neutral visual tokens. HyperFrames and Remotion
+  have separate source locators and identities.
 
 - The fresh Agent owns one validated authoring unit only and read only its unit
   Recipes, immediate seam summaries, shared narrative/visual-system locators,
@@ -120,14 +139,15 @@ gate: the user's decision on the final identity-bound composition preview.
 - Hybrid crosses runtimes only through validated frozen media; no live nesting
   or generated-source interchange occurs.
 - The Parent ran `assemble-frozen-production.mjs preview`; it validated unit
-  media, assembled the one bounded moving preview, fully decoded it, and froze
+  media plus v3 visual-lock/shared-source identities, assembled the one bounded moving preview, fully decoded it, and froze
   the approval identity. No Integrator or Render Agent was dispatched.
 - After approval, the Parent ran `assemble-frozen-production.mjs deliver` with
-  the same plan, shared artifacts, contracts, preview, and identity. It
+  the same visual lock, plan, shared artifacts, contracts, preview, and identity. It
   revalidated unchanged inputs and encoded a new full-spec master to an unused
   path rather than copying the preview.
-- The final composition preview is the only user aesthetic stop. Script checks
-  and the bounded original-Director witness do not claim aesthetic approval.
+- The representative scenes are the user's early visual-direction stop and the
+  complete composition preview is the final aesthetic stop. Script checks and
+  both bounded original-Director witnesses do not claim aesthetic approval.
 - Exactly one verified master passes FFprobe and complete decode. Technical
   facts are not presented as aesthetic approval.
 

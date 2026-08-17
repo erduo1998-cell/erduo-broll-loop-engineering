@@ -1,6 +1,6 @@
 ---
 name: broll-master-integrate
-description: Read and verify legacy HyperFrames Integrator records or prepare a compact recovery report for a pre-v0.9 task. Do not use or dispatch this stage in a new v0.9 production; the Parent now assembles verified Builder clips directly.
+description: Read and verify legacy HyperFrames Integrator records for a pre-v0.9 task. Never dispatch this stage in a new v1 production; the Parent assembles verified Builder media directly.
 ---
 
 # Legacy HyperFrames Integrator
@@ -25,8 +25,8 @@ existing evidence that:
 Return a compact recovery report to the Parent with the last trustworthy
 identity, available artifacts, concrete defect, and safest next owner. Do not
 repair the old task, generate new integration artifacts, or convert it silently
-into v0.9.
+into v1.
 
-For every new v0.9 production, the Parent uses
+For every new v1 production, the Parent uses
 `scripts/assemble-frozen-production.mjs preview` and `deliver` after Builders
 return editable source plus verified frozen unit media.

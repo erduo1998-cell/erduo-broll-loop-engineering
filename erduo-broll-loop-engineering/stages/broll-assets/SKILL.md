@@ -8,7 +8,8 @@ Own material only. Always run, but do not change film structure, runtime,
 Recipes, source, integration, or delivery.
 
 Require Director artifacts, validated Recipes/material requests, optional user
-media, ready preflight/runtime plan, and production root. Resolve only selected
+media, the three-shot representative set, ready preflight/runtime plan, and
+production root. Resolve only selected
 Shotcraft cards to learn their material prerequisites and failure modes. Do not
 load catalogs or copy upstream demo media/source. All commands follow
 `safe-execution.md`; only an exact Pexels request receives its credential.
@@ -42,3 +43,9 @@ handoff under `broll-production/02-assets/`. Complete when every real need has
 a lawful local selection or declared fallback, every file binds to a Recipe and
 composition use, and fonts close. Stop rather than inventing an unavailable
 material, license, font, factual source, or pattern prerequisite.
+
+This stage runs once before Lead work and closes material for the complete plan,
+not only the representative scenes. Mark the exact representative-scene media
+and font subset so each Lead receives only what it needs. The visual-lock
+identity binds those files; changing a bound font, asset, license record, or
+fusion decision invalidates the lock and returns to the same Assets owner.

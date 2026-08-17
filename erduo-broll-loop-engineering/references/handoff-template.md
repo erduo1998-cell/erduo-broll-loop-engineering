@@ -25,7 +25,8 @@ the stage defines one.
   secret values. Missing Pexels is `action-required` only for a plan-required
   Pexels route.
 - **Director:** narrative-envelope, visual-system, shot-plan, Recipe directory,
-  validator, actual material needs/no-need set, and unresolved factual terms.
+  representative-scenes, validator, actual material needs/no-need set, and
+  unresolved factual terms.
   Do not repeat the shared system or catalog bodies.
 - **Parent planning script:** generated plan identity, assignment packet
   locators, ordered blocks/authoring units, required backends, warnings, and
@@ -33,7 +34,10 @@ the stage defines one.
 - **Assets:** selected inventory/font/provenance locators, actual acquisition
   routes, asset-fusion bindings, and conditional Pexels facts. When no request
   reached Pexels, say `pexels: not-invoked (no need)` once.
-- **Builder:** authoring-unit/parent-block ID, Recipe/source/receipt locators,
+- **Lead Builder:** role/phase, representative Recipe/media locators,
+  runtime-native shared-source manifest/identity, asset/font subset, checks, and
+  Director-witness next owner. Do not include unrelated Recipes.
+- **Production Builder:** authoring-unit/parent-block ID, Recipe/source/receipt locators,
   shared-system identity, selected 0–2 references, reuse/native-fallback
   decision, material/font bindings, seams, dependency identity and shared
   toolchain receipt when Remotion, check locators, and the verified frozen-unit
@@ -42,6 +46,10 @@ the stage defines one.
   identity locators, FFprobe/full-decode facts, approval state, unused final
   target, and verified master facts. This is a script receipt, not an
   Integrator or Render handoff.
+- **Visual lock:** three representative selections/reasons, runtime-specific
+  moving-scene and shared-source identities, bound assets/fonts, concrete
+  Director witness, user status (`approved` or explicit `skipped`), skip risk
+  when applicable, validator result, and next production packets.
 - **Legacy Planner/Integrator/Render:** only when the user explicitly asks to
   inspect or recover a pre-v0.9 task, report the last trustworthy identity,
   available artifact locators, concrete mismatch, and safest next owner. Do

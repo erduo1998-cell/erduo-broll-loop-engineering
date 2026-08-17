@@ -1,6 +1,6 @@
 ---
 name: broll-hybrid-render
-description: Read and verify legacy hybrid Render and Delivery records or prepare a compact recovery report for a pre-v0.9 task. Do not use or dispatch this stage in a new v0.9 production; the Parent now runs deterministic preview and delivery scripts.
+description: Read and verify legacy hybrid Render records for a pre-v0.9 task. Never dispatch this stage in a new v1 production; the Parent runs deterministic preview and delivery scripts.
 ---
 
 # Legacy Hybrid Render and Delivery
@@ -27,6 +27,6 @@ Return a compact recovery report to the Parent with the last trustworthy
 identity, available artifacts, concrete defect, and safest next owner. Do not
 resume delivery or silently migrate the old task.
 
-For every new v0.9 production, the Parent runs
+For every new v1 production, the Parent runs
 `scripts/assemble-frozen-production.mjs preview` and `deliver` over verified
 Builder unit contracts.
