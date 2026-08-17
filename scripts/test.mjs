@@ -1000,6 +1000,63 @@ test('public documentation states telemetry defaults, network boundaries, and ex
   }
 });
 
+test('v1 public benchmark preserves measured facts, metric scopes, and unfinished gates', async () => {
+  const benchmark = await readFile(path.join(root, 'docs', 'V1.0.0-BENCHMARK.md'), 'utf8');
+  const readmes = await Promise.all([
+    'README.md',
+    'README.en.md',
+    'README.ja.md',
+    'README.ko.md',
+    'README.zh-TW.md',
+  ].map((name) => readFile(path.join(root, name), 'utf8')));
+  const changelog = await readFile(path.join(root, 'CHANGELOG.md'), 'utf8');
+  const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
+  const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
+
+  assert.match(benchmark, /ff5b9fdc104318827804cf9b0be0e48febf1b81685fb5b509497f4e8996f73ea/u);
+  assert.match(benchmark, /179\.866[^\n]*124/u);
+  assert.match(benchmark, /20[^\n]*Shot Recipe v3/u);
+  assert.match(benchmark, /1[^\n]*Lead Builder[^\n]*3[^\n]*production Builder/u);
+  assert.match(benchmark, /10[^\n]*Agent[^\n]*full-history[^\n]*0/u);
+  assert.match(benchmark, /7 \/ 7 \/ 6/u);
+  assert.match(benchmark, /外部素材[^\n]*0|未使用外部素材/u);
+  assert.match(benchmark, /visual lock 状态是 `skipped`/u);
+  assert.match(benchmark, /80[^\n]*技术与语义检查通过/u);
+  assert.match(benchmark, /音画同步/u);
+  assert.match(benchmark, /242\.05/u);
+  assert.match(benchmark, /62\.90/u);
+  assert.match(benchmark, /213[^\n]*158,806,133/u);
+  assert.match(benchmark, /156,980 KiB[^\n]*160,747,520/u);
+  assert.match(benchmark, /76[^\n]*PNG[^\n]*8[^\n]*视频/u);
+  assert.match(benchmark, /Token[^\n]*unknown/u);
+  assert.match(benchmark, /672a6e5be3e2fa10c4972d100114009151c0a7222f4b092c2c580198e7385b15/u);
+  assert.match(benchmark, /895aae45935c27e4d08d61596ed237864811c92ff8d100a5e467a5d18642c3a8/u);
+  assert.match(benchmark, /25,050,505,216/u);
+  assert.match(benchmark, /33,088/u);
+  assert.match(benchmark, /99\.36%/u);
+  assert.match(benchmark, /303,902,720/u);
+  assert.match(benchmark, /Claude Code[^\n]*pending/u);
+  for (const privatePathMarker of [
+    ['/','Users','/'].join(''),
+    ['/','home','/'].join(''),
+    [':\\','Users','\\'].join(''),
+  ]) assert.equal(benchmark.includes(privatePathMarker), false);
+
+  for (const readme of readmes) {
+    assert.match(readme, /docs\/V1\.0\.0-BENCHMARK\.md/u);
+    assert.match(readme, /242\.05/u);
+    assert.match(readme, /62\.90/u);
+    assert.match(readme, /skipped/u);
+    assert.match(readme, /Claude Code[^\n]*pending/u);
+  }
+  assert.match(changelog, /docs\/V1\.0\.0-BENCHMARK\.md/u);
+  assert.match(changelog, /用户没有观看或审美批准[^\n]*`skipped`/u);
+  assert.match(support, /Codex measured \/ Claude pending/u);
+  assert.match(support, /Token unknown/u);
+  assert.match(checklist, /Lead `62\.90` 分钟[^\n]*首次完整 preview[^\n]*`242\.05` 分钟[^\n]*未通过/u);
+  assert.match(checklist, /用户 visual lock 为 `skipped`/u);
+});
+
 test('public runtime claims expose independent Builder backends and deterministic clip assembly', async () => {
   const publicPackage = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
   const runtimePackage = JSON.parse(
@@ -1044,7 +1101,7 @@ test('public runtime claims expose independent Builder backends and deterministi
   }
 });
 
-test('v0.9 workflow documents use the real Parent script contract and isolate legacy stages', async () => {
+test('v1 workflow documents use the real Parent script contract and isolate legacy stages', async () => {
   const files = {
     legacyPlanner: 'erduo-broll-loop-engineering/stages/broll-runtime-plan/SKILL.md',
     selection: 'erduo-broll-loop-engineering/references/runtime/runtime-selection.md',
@@ -1062,15 +1119,15 @@ test('v0.9 workflow documents use the real Parent script contract and isolate le
     [key, await readFile(path.join(root, file), 'utf8')]
   ))));
 
-  assert.match(documents.legacyPlanner, /read-only compatibility[\s\S]*Do not\s+dispatch it in a normal v0\.9 production/u);
-  assert.match(documents.legacyPlanner, /Do not\s+repair (?:it|the record), convert it into a v0\.9 plan/u);
+  assert.match(documents.legacyPlanner, /read-only compatibility[\s\S]*Do not\s+dispatch it in a normal v1 production/u);
+  assert.match(documents.legacyPlanner, /Do not\s+repair (?:it|the record), convert it into a v1 plan/u);
   assert.match(documents.selection, /Parent runs the bundled script directly/u);
   assert.match(documents.selection, /create-production-profile\.mjs[\s\S]*--width[\s\S]*--height[\s\S]*--fps[\s\S]*--audio[\s\S]*--master-format/u);
   assert.match(documents.selection, /--recipes[\s\S]*--selection[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--production-profile[\s\S]*--production-root/u);
   assert.match(documents.workflow, /create-production-profile\.mjs[\s\S]*1080[\s\S]*1920[\s\S]*25/u);
   assert.match(documents.orchestration, /create-production-profile\.mjs[\s\S]*--production-profile/u);
-  assert.match(documents.workflow, /assemble-frozen-production\.mjs preview[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--contract[\s\S]*--output[\s\S]*--identity/u);
-  assert.match(documents.workflow, /assemble-frozen-production\.mjs deliver[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--contract[\s\S]*--identity[\s\S]*--preview[\s\S]*--output/u);
+  assert.match(documents.workflow, /assemble-frozen-production\.mjs preview[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--representative-scenes[\s\S]*--visual-lock[\s\S]*--contract[\s\S]*--output[\s\S]*--identity/u);
+  assert.match(documents.workflow, /assemble-frozen-production\.mjs deliver[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--representative-scenes[\s\S]*--visual-lock[\s\S]*--contract[\s\S]*--identity[\s\S]*--preview[\s\S]*--output/u);
   assert.match(documents.contract, /CLI contract arguments may be supplied in any order/u);
   assert.match(documents.contract, /assembles in\s+plan order/u);
   assert.match(documents.review, /No Runtime Planner\s+Agent was dispatched/u);
@@ -1596,15 +1653,21 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
   ].toSorted());
 });
 
-test('runtime recipe schemas preserve a runtime-neutral integer-millisecond v1/v2 contract', async () => {
-  const [schema, legacy] = await Promise.all([
+test('runtime recipe schemas preserve v1/v2 while v3 owns new production fields', async () => {
+  const [schema, v2, legacy] = await Promise.all([
     readFile(path.join(runtimeReferenceRoot, 'shot-recipe.schema.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(runtimeReferenceRoot, 'shot-recipe-v2.schema.json'), 'utf8').then(JSON.parse),
     readFile(path.join(runtimeReferenceRoot, 'shot-recipe-v1.schema.json'), 'utf8').then(JSON.parse),
   ]);
   assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
   assert.equal(schema.type, 'object');
   assert.equal(schema.additionalProperties, false);
-  assert.equal(schema.properties.schemaVersion.const, '2.0.0');
+  assert.equal(schema.properties.schemaVersion.const, '3.0.0');
+  assert.equal(v2.properties.schemaVersion.const, '2.0.0');
+  assert.equal('durationRationale' in v2.properties, false);
+  assert.equal('continuityGroup' in v2.properties.authoring.properties, false);
+  assert.ok('durationRationale' in schema.properties);
+  assert.ok('continuityGroup' in schema.properties.authoring.properties);
   assert.equal(legacy.properties.schemaVersion.const, '1.0.0');
   assert.deepEqual(
     [...schema.required].toSorted(),
@@ -1848,7 +1911,16 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
     microBeats: compactRecipe.microBeats.map((beat, index) => index === 1 ? { ...beat, startMs: 1100 } : beat),
   }, null, 2)}\n`);
   await assert.rejects(validateRecipeDirectory(recipeDirectory), /without an unplanned gap/u);
-  await writeFile(recipePath, `${JSON.stringify({ ...compactRecipe, schemaVersion: '3.0.0' }, null, 2)}\n`);
+  await writeFile(recipePath, `${JSON.stringify({
+    ...compactRecipe, durationRationale: 'A v3-only field must not mutate the frozen v2 contract.',
+  }, null, 2)}\n`);
+  await assert.rejects(validateRecipeDirectory(recipeDirectory), /durationRationale: additional property is not allowed/u);
+  await writeFile(recipePath, `${JSON.stringify({
+    ...compactRecipe, schemaVersion: '3.0.0',
+    durationRationale: 'One uninterrupted causal transformation needs this continuous span.',
+  }, null, 2)}\n`);
+  assert.deepEqual(await validateRecipeDirectory(recipeDirectory), { status: 'valid', recipes: 1 });
+  await writeFile(recipePath, `${JSON.stringify({ ...compactRecipe, schemaVersion: '4.0.0' }, null, 2)}\n`);
   await assert.rejects(validateRecipeDirectory(recipeDirectory), /unsupported recipe schema version/u);
 
   await writeFile(recipePath, `${JSON.stringify({
@@ -2334,7 +2406,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
       readFile(path.join(root, 'erduo-broll-loop-engineering', 'stages', stage, 'agents', 'openai.yaml'), 'utf8'),
     ]);
     assert.match(stageSkill, /read-only compatibility/u, stage);
-    assert.match(stageSkill, /Do not dispatch it in a new production|Do not\s+dispatch it in a normal v0\.9 production/u, stage);
+    assert.match(stageSkill, /Do not dispatch it in a new production|Do not\s+dispatch it in a normal v1 production/u, stage);
     assert.match(stageSkill, /compact recovery report/u, stage);
     assert.match(stageMetadata, /display_name: "Legacy /u, stage);
     assert.match(stageMetadata, /short_description: "Inspect legacy /u, stage);
@@ -2348,9 +2420,9 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'utf8',
   );
   assert.match(hyperframesBuilderSkill, /Load the pinned official `hyperframes` Skill/u);
-  assert.match(hyperframesBuilderSkill, /truthful rendered DOM or semantic scene\s+bounds for every frame/u);
-  assert.match(hyperframesBuilderSkill, /A pass produces no still, clip, preview, or AI frame\s+inspection/u);
-  assert.match(hyperframesBuilderSkill, /Only findings render their bounded diagnostic windows/u);
+  assert.match(hyperframesBuilderSkill, /bounds first at Recipe beat boundaries, readable holds, scene cuts/u);
+  assert.match(hyperframesBuilderSkill, /A\s+pass produces no all-frame PNG sequence, still, clip, preview, or AI frame\s+inspection/u);
+  assert.match(hyperframesBuilderSkill, /Only findings render (?:their )?bounded diagnostic windows/u);
 });
 
 test('animation craft is prompt-time generation guidance, not a review schema', async () => {
@@ -3878,6 +3950,7 @@ async function listPublicReleaseFiles(directory = root) {
       'artifacts',
     ].includes(entry.name)) continue;
     const absolute = path.join(directory, entry.name);
+    if (path.relative(root, absolute) === 'docs/V1.0.0-IMPLEMENTATION-PR.md') continue;
     if (entry.isDirectory()) files.push(...await listPublicReleaseFiles(absolute));
     else if (entry.isSymbolicLink()) {
       assert.fail(`public release tree contains a symbolic link: ${absolute}`);
@@ -4123,7 +4196,8 @@ test('release tar subprocesses receive the same sanitized child environment', as
   const archive = path.join(state.base, 'release.tar.gz');
   await cp(root, fixture, {
     recursive: true,
-    filter: (source) => !['.git', 'node_modules'].includes(path.basename(source)),
+    filter: (source) => !['.git', 'node_modules'].includes(path.basename(source))
+      && path.relative(root, source) !== 'docs/V1.0.0-IMPLEMENTATION-PR.md',
   });
   const calls = [];
   const tarRunner = async (command, args, options) => {
@@ -4687,15 +4761,15 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
       .map((name) => readFile(path.join(root, name), 'utf8')),
   );
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '0.9.2');
+  assert.equal(RELEASE_VERSION, '1.0.0');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
   assert.equal(lock.packages[''].version, RELEASE_VERSION);
-  assert.match(readme, /version-0\.9\.2-/u);
+  assert.match(readme, /version-1\.0\.0-/u);
   assert.match(changelog, /## 0\.9\.2 —/u);
   assert.match(support, /`0\.9\.2`/u);
-  assert.match(checklist, /`0\.9\.2`/u);
+  assert.match(checklist, /`1\.0\.0`/u);
   for (const translatedReadme of translatedReadmes) {
     assert.match(translatedReadme, /## v0\.9\.2/u);
     assert.match(translatedReadme, /1080p[^\n]*veryfast \/ CRF 22/u);
@@ -5182,6 +5256,7 @@ test('production profile CLI creates default and vertical policies and planning 
     const media = Buffer.from(`VERTICAL_UNIT_MEDIA_${index}_${'x'.repeat(64)}`);
     await writeFile(mediaFile, media);
     factsByFile.set(path.resolve(mediaFile), frozenFacts({
+      container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
       width: 1080, height: 1920, fps: '25/1', frameCount: 25,
     }));
     const sourceClosure = await writeEditableSourceClosure(unitRoot, assignment.unitId);
@@ -5190,13 +5265,13 @@ test('production profile CLI creates default and vertical policies and planning 
       window: assignment.window, shotIds: assignment.shotIds,
       profile: {
         width: 1080, height: 1920, fpsNumerator: 25, fpsDenominator: 1,
-        pixelFormat: 'yuv444p10le', colorSpace: 'bt709', colorTransfer: 'bt709',
-        colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'lossless',
+        pixelFormat: 'yuv420p', colorSpace: 'bt709', colorTransfer: 'bt709',
+        colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'visually-lossless',
       },
       audioPolicy: 'silent',
       media: {
         path: 'unit.mock-media', sha256: createHash('sha256').update(media).digest('hex'),
-        container: 'matroska', codec: 'ffv1', durationMs: 1000, frameCount: 25,
+        container: 'mp4', codec: 'h264', durationMs: 1000, frameCount: 25,
         audioStreams: 0, startTimeMs: 0,
       },
       productionProfileIdentity: customProfile.identity,
@@ -5242,7 +5317,7 @@ test('production profile CLI creates default and vertical policies and planning 
   ]);
 });
 
-test('v0.9 planning writes one immutable plan and minimal Builder task per authoring unit', async (t) => {
+test('v1 planning writes one immutable plan and minimal Builder task per authoring unit', async (t) => {
   const state = await isolated(t);
   const fixture = await writeV09PlanningFixture(state.base);
   const result = await writeProductionPlan(fixture);
@@ -5282,7 +5357,7 @@ test('v0.9 planning writes one immutable plan and minimal Builder task per autho
   await assert.rejects(writeProductionPlan(fixture), /output already exists/u);
 });
 
-test('v0.9 frozen unit media makes a low-cost preview and revalidates it before full master delivery', async (t) => {
+test('v1 lightweight frozen unit media makes a low-cost preview and revalidates it before full master delivery', async (t) => {
   const state = await isolated(t);
   const fixture = await writeV09PlanningFixture(state.base);
   const { plan, assignments: assignmentFiles } = await writeProductionPlan(fixture);
@@ -5298,7 +5373,9 @@ test('v0.9 frozen unit media makes a low-cost preview and revalidates it before 
     const mediaFile = path.join(unitRoot, 'unit.mock-media');
     const media = Buffer.from(`CONTROLLED_UNIT_MEDIA_${index}_${'x'.repeat(64)}`);
     await writeFile(mediaFile, media);
-    factsByFile.set(path.resolve(mediaFile), frozenFacts());
+    factsByFile.set(path.resolve(mediaFile), frozenFacts({
+      container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
+    }));
     const durationMs = assignment.window.endMs - assignment.window.startMs;
     const sourceClosure = await writeEditableSourceClosure(unitRoot, assignment.unitId);
     const contract = {
@@ -5306,13 +5383,13 @@ test('v0.9 frozen unit media makes a low-cost preview and revalidates it before 
       window: assignment.window, shotIds: assignment.shotIds,
       profile: {
         width: 3840, height: 2160, fpsNumerator: 30, fpsDenominator: 1,
-        pixelFormat: 'yuv444p10le', colorSpace: 'bt709', colorTransfer: 'bt709',
-        colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'lossless',
+        pixelFormat: 'yuv420p', colorSpace: 'bt709', colorTransfer: 'bt709',
+        colorPrimaries: 'bt709', colorRange: 'tv', mezzanineClass: 'visually-lossless',
       },
       audioPolicy: 'silent',
       media: {
         path: 'unit.mock-media', sha256: createHash('sha256').update(media).digest('hex'),
-        container: 'matroska', codec: 'ffv1', durationMs, frameCount: 30,
+        container: 'mp4', codec: 'h264', durationMs, frameCount: 30,
         audioStreams: 0, startTimeMs: 0,
       },
       productionProfileIdentity: assignment.productionProfileIdentity,
@@ -5399,6 +5476,8 @@ test('public release source contains the parent plus thirteen prompt stage Skill
   );
   assert.equal(SKILL_NAMES.length, 14);
   assert.equal(STANDARD_RELEASE_FILES.includes('Install.command'), false);
+  assert.equal(RELEASE_FILES.includes('docs/V1.0.0-BENCHMARK.md'), true);
+  assert.equal(STANDARD_RELEASE_FILES.includes('docs/V1.0.0-BENCHMARK.md'), true);
   assert.equal(STANDARD_RELEASE_FILES.includes('scripts/install.mjs'), false);
   assert.equal(STANDARD_RELEASE_FILES.includes('scripts/test.mjs'), false);
   assert.equal(RELEASE_FILES.includes('scripts/test.mjs'), false);

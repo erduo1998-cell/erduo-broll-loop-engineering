@@ -9,6 +9,7 @@ import {
 } from './plan-runtime.mjs';
 
 export const SUPPORTED_MASTER_FORMAT = 'h264-mp4';
+export const SUPPORTED_MEZZANINE_FORMATS = Object.freeze(['h264-mp4', 'ffv1-mkv']);
 
 function positiveInteger(value, label) {
   const parsed = Number(value);
@@ -40,6 +41,8 @@ export function createProductionProfile({
   sampleRate = 48000,
   channels = 2,
   masterFormat = SUPPORTED_MASTER_FORMAT,
+  mezzanineFormat = 'h264-mp4',
+  mezzanineReason,
 } = {}) {
   const raster = {
     width: positiveInteger(width, '--width'),
@@ -51,6 +54,15 @@ export function createProductionProfile({
   if (masterFormat !== SUPPORTED_MASTER_FORMAT) {
     throw new Error(`--master-format currently supports only ${SUPPORTED_MASTER_FORMAT}`);
   }
+  if (!SUPPORTED_MEZZANINE_FORMATS.includes(mezzanineFormat)) {
+    throw new Error(`--mezzanine-format must be one of ${SUPPORTED_MEZZANINE_FORMATS.join(', ')}`);
+  }
+  if (mezzanineFormat === 'ffv1-mkv' && !String(mezzanineReason ?? '').trim()) {
+    throw new Error('--mezzanine-reason is required for an explicit lossless FFV1 upgrade');
+  }
+  if (mezzanineFormat === 'h264-mp4' && mezzanineReason !== undefined) {
+    throw new Error('--mezzanine-reason is only valid with --mezzanine-format ffv1-mkv');
+  }
   if (!['silent', 'preserve-source'].includes(audio)) {
     throw new Error('--audio must be silent or preserve-source');
   }
@@ -60,11 +72,24 @@ export function createProductionProfile({
   const profile = structuredClone(DEFAULT_PRODUCTION_PROFILE);
   profile.raster = raster;
   profile.fps = normalizedFps;
+  profile.mezzanine.gopFrames = Math.max(1, Math.round(
+    2 * normalizedFps.numerator / normalizedFps.denominator,
+  ));
+  if (mezzanineFormat === 'ffv1-mkv') {
+    profile.mezzanine = {
+      container: 'matroska', codec: 'ffv1', encoder: 'ffv1',
+      pixelFormat: 'yuv444p10le', class: 'lossless', preset: null, crf: null,
+      gopFrames: 1, keyframeScenecut: false, upgradeReason: String(mezzanineReason).trim(),
+      color: structuredClone(DEFAULT_PRODUCTION_PROFILE.mezzanine.color),
+      audio: structuredClone(DEFAULT_PRODUCTION_PROFILE.mezzanine.audio),
+    };
+  }
   if (audio === 'preserve-source') {
     const normalizedSampleRate = positiveInteger(sampleRate, '--sample-rate');
     const normalizedChannels = positiveInteger(channels, '--channels');
     profile.mezzanine.audio = {
-      policy: 'preserve-source', streams: 1, codec: 'pcm_s24le',
+      policy: 'preserve-source', streams: 1,
+      codec: mezzanineFormat === 'ffv1-mkv' ? 'pcm_s24le' : 'aac',
       sampleRate: normalizedSampleRate, channels: normalizedChannels,
     };
     profile.master.audio = {
@@ -79,7 +104,7 @@ function parseArgs(argv) {
   const options = {};
   const known = new Set([
     '--output', '--width', '--height', '--fps', '--audio', '--sample-rate',
-    '--channels', '--master-format',
+    '--channels', '--master-format', '--mezzanine-format', '--mezzanine-reason',
   ]);
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
@@ -99,6 +124,8 @@ function parseArgs(argv) {
       sampleRate: options['sample-rate'],
       channels: options.channels,
       masterFormat: options['master-format'],
+      mezzanineFormat: options['mezzanine-format'],
+      mezzanineReason: options['mezzanine-reason'],
     },
   };
 }

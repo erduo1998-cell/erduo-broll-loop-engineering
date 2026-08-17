@@ -4,14 +4,14 @@
 
 **给一份 SRT，Agent 自动完成原创分镜、素材、动画、预览与最终 Master。**
 
-[![Version](https://img.shields.io/badge/version-0.9.2-c87842)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.0-c87842)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-17120e)](SUPPORT-MATRIX.md)
 [![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-c87842)](#支持范围)
 [![License](https://img.shields.io/badge/license-MIT-17120e)](LICENSE)
 
 **简体中文** · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [繁體中文](README.zh-TW.md)
 
-[看成片](#40-秒真实成片) · [看操作](#三步完成) · [安装](#安装) · [真实边界](#真实边界) · [支持范围](#支持范围)
+[看成片](#40-秒真实成片) · [看操作](#四步完成) · [安装](#安装) · [真实边界](#真实边界) · [支持范围](#支持范围)
 
 </div>
 
@@ -23,38 +23,42 @@
 
 > README 中是完整成片的轻量 GIF 版。原始 Master 为 3840 × 2160、30 fps、40 秒；它展示真实视觉能力，不代表所有输入都会得到相同画面，也不构成 HyperFrames 与 Remotion 的视觉一致性保证。
 
-## 三步完成
+## 四步完成
 
 <p align="center">
   <img src="docs/images/demos/quick-start.gif" alt="安装 Skill、把 SRT 交给 Agent、批准正式渲染的 HyperFrames 动画演示" width="100%">
 </p>
 
-| 01 一次安装 | 02 一句话开工 | 03 一次批准 |
-| --- | --- | --- |
-| 安装或升级时完成深度环境检查，以后日常制片只轻检 | 拖入 SRT；口播模式再附已剪视频和品牌素材 | 观看唯一一次完整动态预览，满意后批准正式渲染 |
+| 01 一次安装 | 02 一句话开工 | 03 锁定视觉 | 04 批准成片 |
+| --- | --- | --- | --- |
+| 安装或升级时完成深度环境检查 | 拖入 SRT；可附已剪视频和品牌素材 | 先看三个代表场景，批准、返修或明确跳过 | 观看完整动态预览，满意后批准正式交付 |
 
 最短提示词：
 
 ```text
 使用 erduo-broll-loop-engineering，把这份 SRT 做成 B-roll。
-持续执行，直到完整预览需要我批准时再停下。
+持续执行；三个代表场景需要我锁定视觉，完整预览再由我批准交付。
 ```
 
 ## 它替你完成什么
 
 | 你交给它 | Agent 完成 | 你收到 |
 | --- | --- | --- |
-| SRT；可选口播视频、Logo、截图和品牌要求 | 原创视觉方向、语义分镜、素材冻结、动画构建、片段验证与脚本拼接 | 可编辑源码、唯一完整预览、验证后的 `master.mp4` |
+| SRT；可选口播视频、Logo、截图和品牌要求 | 原创视觉方向、语义分镜、代表场景、视觉母体、动画构建、片段验证与脚本拼接 | 可编辑源码、视觉锁定预览、完整预览、验证后的 `master.mp4` |
 
 - 时间严格锚定 SRT，不按“一句字幕配一个镜头”机械切片。
 - 默认 `auto`：先完成运行时中立分镜，再按真实能力证据逐镜选择 HyperFrames、Remotion 或 hybrid。
 - Director 负责整片表达，Assets 负责素材，多名 Builder 分担镜头；每名 Builder 只接收自己的任务和必要上下文。
+- Director 默认设计约 5–12 秒的完整语义镜头；Planner 再按连续性、后端、素材和复杂度把多个短镜头聚合给同一 Builder，不让“一个短镜头”变成“一个 Agent”。
+- Lead Builder 先完成开头、信息密集段和后段三个代表场景，并为每个实际后端交付可复用的视觉源码；用户批准、返修或明确跳过后，其余 Builder 才批量展开。
 - 口播中的观点与情绪变化先转成动画节拍；Builder 必须让主体、空间、层级、关系或视觉重点随节拍产生可见发展，装饰循环不能代替主要动画。
-- 运动和构图通过真实逐帧 geometry 代码筛查；通过时不做重复抽帧，异常才定位证据。
+- 运动和构图先检查节拍边界、readable hold、切点和必要采样；只有异常窗口或复杂图解/路径才升级高密度 trace，不默认生成全片逐帧 PNG。
 - 正常生产不再重复派 Onboarding Agent；只有安装身份变化或真实工具故障才定点诊断。
 - 后端规划、任务分发、检查、片段拼接和预览准备由 Parent 直接运行脚本，不再启动 Runtime Planner、Integrator 或 Render Agent。
 - 一条生产任务共用素材库与相同依赖；Builder 保持源码隔离，不再复制完整工程和相同素材。
 - 每个 Builder 交付可编辑源码和统一规格、已验证的视频片段；脚本拼接视频片段，不假设能够直接理解任意 HyperFrames 或 Remotion 源码。
+- 普通单后端任务默认冻结为高质量 H.264 MP4（`libx264 / medium / CRF 12`）；FFV1 只在 Hybrid、透明或明确无损交换需要时显式升级并记录原因。
+- `production-metrics.json` 可汇总阶段耗时、Agent 调用、unit、文件/字节、渲染/trace/解码/hash、失败/重试与可选宿主 Token；没有可靠 Token 事实时写“未知”，不估算也不读取私人会话目录。
 - 完整预览最高 1080p，使用 `veryfast / CRF 22` 快速生成，并绑定运行计划、全部镜头合同和实际片段身份。
 - 用户批准后，交付命令必须重新提供运行计划、整体叙事、视觉系统和全部镜头合同；脚本从冻结片段重新生成完整规格的 `medium / CRF 16` Master，不复制预览文件冒充成片。
 - 默认交付 4K、30 fps、H.264 MP4；字幕不重复烧录，背景音乐不自动添加。
@@ -75,6 +79,15 @@ node erduo-broll-loop-engineering/scripts/create-production-profile.mjs \
 父流程必须把生成文件通过 `plan-runtime.mjs --production-profile <文件>`
 传入计划。画幅、帧率、音频和输出格式随后以同一个哈希写进计划、每个
 Builder 任务和成片校验；明确的竖屏或其他帧率不会退回默认 4K/30。
+
+## v1.0.0：先锁定视觉，再批量生产
+
+- 视觉锁定成为默认生产门：三个代表场景、选择理由、字体/颜色/栅格/motion token、真实动态结果、每后端共享源码、Director 见证和用户决定共同绑定身份。
+- Runtime Plan v3 把短语义镜头和 Builder 工作包分开；普通约 180 秒单后端任务以 2–3 个 Builder 为规划目标，但复杂镜头、后端边界和连续转场可以形成例外。
+- 默认轻量冻结媒体改为 H.264，不再默认生成 4K FFV1；预览和 Master 均从已验证片段稳定装配，保留源码、hash、FFprobe、完整解码和批准身份。
+- 生产计量与分层 motion/layout 检查进入公开合同。技术测试不能替用户判断审美；视觉锁定和最终完整预览是两个不同的用户决定点。
+
+[v1.0.0 公开生产基准](docs/V1.0.0-BENCHMARK.md)已完成一次同一 SRT 的 Codex 真实生产：`179.866` 秒、`124` 条 cue、`20` 个 Shot Recipe v3、`1` 名 Lead + `3` 名 production Builder、`10` 次 Agent 调用、`0` 次 full-history 调用，且没有外部素材。最终目录为 `213` 个文件、磁盘占用 `156,980 KiB`；完整 preview 和 Master 均通过完整解码。Director 开始到首次 preview 约 `242.05` 分钟，未达到 `≤120` 分钟目标；Lead `62.90` 分钟，也未达到 `≤45` 分钟目标。Director 对 visual lock 拒绝一次后定点返修通过，但用户没有观看或审美批准，状态为 `skipped`；宿主 Token 未知，音画同步未测，Claude Code 同输入对照仍为 pending。
 
 ## v0.9.2：创作不变，安装更容易通过审查
 
@@ -100,8 +113,10 @@ v0.9.2 只调整发行和安装入口。Director、Assets、多 Builder、152 �
 ```text
 SRT / 已剪视频 / 用户素材
   → Director 原创分镜
+  → 运行计划聚合短镜头为 Builder 工作包
   → Assets 素材冻结
-  → 脚本分配后端和 Builder 任务
+  → Lead Builder 完成三个代表场景 + 每后端视觉母体
+  → 用户视觉锁定（批准 / 返修 / 明确跳过）
   → Builder 交付可编辑源码 + 已验证视频片段
   → 脚本按 SRT 拼接片段
   → 节拍落地 + motion-layout 代码筛查
@@ -128,10 +143,10 @@ v0.8.1 已把 Shotcraft 从“逐镜必查菜单”改成真正按需使用的�
 
 适合已经准备好本项目固定 HyperFrames 环境、只需要向一个宿主注册 14 个项目 Skill 的用户。标准包不含一键环境安装器、测试夹具或发布工具，也不会静默安装 Node、浏览器或 FFmpeg。
 
-从 [v0.9.2 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v0.9.2) 下载 `erduo-broll-loop-engineering-skills-v0.9.2.tar.gz`，解压到长期保留的目录，然后选择一个宿主：
+从 [v1.0.0 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v1.0.0) 下载 `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz`，解压到长期保留的目录，然后选择一个宿主：
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
 # 或把 codex 改成 claude-code
 ```
 
@@ -147,7 +162,7 @@ cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
-安装完成后重启 Codex 或 Claude Code。不会 Git 时，可从 v0.9.2 Release 下载 `erduo-broll-loop-engineering-v0.9.2.tar.gz`，解压到长期保留的目录，再双击 `Install.command`。
+安装完成后重启 Codex 或 Claude Code。不会 Git 时，可从 v1.0.0 Release 下载 `erduo-broll-loop-engineering-v1.0.0.tar.gz`，解压到长期保留的目录，再双击 `Install.command`。
 
 > [!IMPORTANT]
 > 安装器会让宿主 Skill 指向当前仓库目录。安装成功后不要随意移动或删除它；确需移动时，在新位置重新运行 `Install.command`。
@@ -189,11 +204,12 @@ node scripts/uninstall.mjs
 - HyperFrames 与 Remotion Builder 分别完成自己的镜头源码和已验证视频片段；最终由脚本按统一规格和 SRT 时间拼接。
 - 安装器不会把 Remotion 加入共享 runtime 或全局安装；每条生产任务使用自己的精确 package/lock，同一依赖身份只在该任务内共享一份本地工具链。
 - `hybrid` 只交换带 hash、FFprobe 和完整解码证据的冻结区块媒体，不实时嵌套两套运行时。
+- Hybrid 只共享运行时中立视觉 token；HyperFrames 与 Remotion 分别建立自己的视觉母体源码，不能跨后端导入实现文件。
 - 最终脚本只拼接统一规格、身份和时间均已验证的视频片段；各 Builder 源码继续交付用于后续编辑，但不宣称脚本能直接合并任意双后端源码。
 - 预览只用于快速审看：最高 1080p、`veryfast / CRF 22`。批准身份同时绑定运行计划、整体叙事、视觉系统、全部镜头合同和片段 hash。
 - 正式交付必须重新传入 `--plan`、`--narrative-envelope`、`--visual-system` 和每一个 `--contract`；合同参数可以任意排列，脚本会按 plan 顺序装配，并拒绝缺失、重复、不属于 plan 或内容改变的合同。身份复核通过后，脚本从冻结片段重新编码完整规格的 `medium / CRF 16` Master，绝不复制预览文件。
 - 代码筛查能发现跳变、未 settle、遮挡、裁切、拥挤、层级和运动焦点风险，不能自动证明故事感染力、重量感、弧线、夸张或 appeal。
-- 最终完整动态预览仍是唯一默认审美决定；Windows、剪映 / CapCut GUI 和跨后端视觉一致性尚未验证。
+- 三个代表场景只决定是否允许批量展开，最终完整动态预览才决定是否正式交付；两者都不能被 Agent 技术检查替代。Windows、剪映 / CapCut GUI 和跨后端视觉一致性尚未验证。
 
 详细证据见[支持矩阵](SUPPORT-MATRIX.md)，版本变化见[更新记录](CHANGELOG.md)。
 

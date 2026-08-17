@@ -36,6 +36,8 @@
       }
     },
     "productionProfileIdentity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "visualLockIdentity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "runtimeSourceIdentity": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
     "source": {
       "type": "object", "additionalProperties": false,
       "required": ["root", "manifestPath", "manifestSha256", "fileCount", "entrypoints"],

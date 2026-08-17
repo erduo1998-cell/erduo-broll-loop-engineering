@@ -24,8 +24,15 @@ candidate; never load a full catalog. All commands follow `safe-execution.md`.
 
 Use SRT integer milliseconds as time truth. Cover zero through final cue end,
 including gaps. Merge cues that express one idea and cut on semantic turns, not
-subtitle boundaries. No shot may exceed 40 seconds; split only at a real
-development.
+subtitle boundaries. Default a semantic shot to about 5–12 seconds. A shot over
+15 seconds is allowed only when one continuous content development needs the
+span; record that necessity in `durationRationale` and describe its changing
+visible states. Split only at a real development, never mechanically by cue or
+duration.
+
+Write new Shot Recipes with `schemaVersion: 3.0.0`. Schema v1 and v2 remain
+readable only for historical production records; do not add v3 duration or
+continuity fields to an older Recipe version.
 
 Define one concise narrative envelope and one concrete visual system: film
 proposition and sections; original visual world; palette and typography roles;
@@ -52,13 +59,24 @@ diagrams. There is no diagram quota.
 Record:
 
 - audience understanding, the visual job, semantic purpose, focus and attention path;
+- the concrete first-read anchor, what visibly happens to it, and the result the
+  audience can read at the end;
 - visible logic/change or deliberate stillness, readable result and screen copy;
 - material role, composition family/hero-state relationship, neighboring seams;
+- `authoring.continuityGroup` only when a real live shared-element, continuous
+  camera, or cross-shot state must stay in one Builder unit;
 - attention arrival, causal action, dependent follow-through, expressive peak,
   settle and hold;
 - contiguous compact micro-beats that cover the whole shot and genuinely change
   subject, topology, scale, depth, material state, relationship, or attention;
 - a precise material need or explicit native-motion no-need.
+
+Abstract metaphor is allowed only when an immediately readable object,
+relationship, state, or spatial change carries the meaning. Abstract material,
+energy lines, or giant words cannot be the sole explanation. Keep screen copy
+to the few words the audience must actually read. Prefer the audience's
+language and large readable type; use English only for brands, proper names, or
+content-specific terms.
 
 Start motion from meaning, physical character and causal states—not an effect
 name or Disney-principle checklist. Vary adjacent composition and density.
@@ -79,7 +97,8 @@ source revision, reason and runtime-neutral fallback. Query at most one primary
 craft grammar plus optional transition.
 
 Author one compact Recipe v2 per shot. Store only shot deltas: timing, audience
-understanding, visual job, focus, composition/hero relationship, micro-beats,
+understanding, visual job, concrete first-read anchor, visible action and result,
+focus, composition/hero relationship, micro-beats,
 material need, optional locators, seams and readable hold. For every micro-beat,
 state both its resulting visible state and its principal observable development.
 The beats must cover the complete shot without gaps; use
@@ -92,15 +111,33 @@ routing. Use safe generic wording for unconfirmed transcript facts.
 ## Deliver
 
 Write narrative-envelope.json, visual-system.json, shot-plan.md, one Recipe per
-shot, material-requests.md, and a minimal handoff under
+shot, material-requests.md, `representative-scenes.json`, and a minimal handoff under
 `broll-production/01-director/`. Run `validate-shot-recipes.mjs`; JSON parsing
 alone is not validation. Record only a query's named question and selected
 locator when a query actually occurred; do not create per-shot no-pattern
 records.
 
+`representative-scenes.json` uses schema 1.0 and names exactly three distinct
+Recipe `shotId`s. Its three `coverage` values are `opening`,
+`information-dense`, and `late`. For each selection record a content-specific
+reason and concerns that collectively cover composition, text, material, and
+motion. Do not mechanically select the first three shots. This runtime-neutral
+set is the only creative input to Lead assignments; do not include all other
+Recipes in Lead context.
+
+When the Parent reactivates this same Director for visual lock, inspect only the
+three moving representative scenes, their Recipes, shared direction, frozen
+asset/font locators, and Lead shared-source receipt. Return concrete `shotId`
+findings for content correspondence, first-read comprehension, copy
+readability, motion result, and whether the source can govern the rest of the
+film. State an observable repair target for every finding; never return only a
+style adjective or aesthetic score. The later complete-preview witness uses the
+same concrete format and also checks whole-film coherence.
+
 Complete when coverage closes, visual/material development fits the content,
 shared rules are not repeated per shot, every Recipe validates and maps one to
-one, selected locators resolve, uncertainties are safe, and downstream stages
+one, the three representative selections resolve to distinct Recipes, selected
+locators resolve, uncertainties are safe, and downstream stages
 can act without inventing creative decisions. Return the validated artifacts to
 the Parent so it can run `scripts/plan-runtime.mjs` directly and generate the
 immutable plan plus minimal Builder assignments.

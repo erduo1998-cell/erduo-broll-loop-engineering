@@ -136,7 +136,7 @@ function validateSemanticInvariants(
       errors.push(`#/microBeats/${index}: beats must not overlap or run out of order`);
     }
   }
-  if (recipe.schemaVersion === '2.0.0' && recipe.microBeats?.length > 0
+  if (['2.0.0', '3.0.0'].includes(recipe.schemaVersion) && recipe.microBeats?.length > 0
     && Number.isInteger(startMs) && Number.isInteger(endMs)) {
     if (recipe.microBeats[0].startMs !== startMs) {
       errors.push('#/microBeats/0: beats must begin at the shot start');
@@ -170,6 +170,11 @@ function validateSemanticInvariants(
       && (compactHoldStartMs < startMs || compactHoldEndMs > endMs)) {
       errors.push('#/readableHold: hold window must stay inside the shot window');
     }
+  }
+
+  if (recipe.schemaVersion === '3.0.0'
+    && recipe.authoring?.solo === true && recipe.authoring?.continuityGroup) {
+    errors.push('#/authoring: a solo shot cannot also belong to a continuity group');
   }
 
   if (recipe.shotId && `${recipe.shotId}.json` !== fileName) {
@@ -218,7 +223,8 @@ export async function validateRecipeDirectory(directory) {
   const [schemas, matrix, shotcraft, craft] = await Promise.all([
     Promise.all([
       ['1.0.0', 'shot-recipe-v1.schema.json'],
-      ['2.0.0', 'shot-recipe.schema.json'],
+      ['2.0.0', 'shot-recipe-v2.schema.json'],
+      ['3.0.0', 'shot-recipe.schema.json'],
     ].map(async ([version, file]) => [version, JSON.parse(await readFile(path.join(runtimeRoot, file), 'utf8'))])).then((entries) => new Map(entries)),
     readFile(path.join(runtimeRoot, 'capability-matrix.json'), 'utf8').then(JSON.parse),
     readFile(path.join(shotcraftRoot, 'catalog.json'), 'utf8').then(JSON.parse),

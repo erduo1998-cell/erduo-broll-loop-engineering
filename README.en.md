@@ -24,7 +24,17 @@ This 12-second concept film travels through one continuous world: SRT timing, se
 - Freezes a shared visual system and compact shot recipes before implementation.
 - Routes complete shot blocks to HyperFrames, Remotion, or a frozen-media hybrid plan using project evidence.
 - Uses supplied media first and sources extra material only when a shot requires it.
-- Stops at the complete composition preview for approval, then renders and verifies one 4K master.
+- Shows three representative moving scenes for visual lock before bulk production, then stops again at the complete preview before verified delivery.
+
+## v1.0.0 Visual Lock Before Bulk Production
+
+- Director shots normally target about 5–12 seconds of complete meaning. Runtime Plan v3 independently groups several short shots into each Builder unit; 2–3 Builders is the planning target for an ordinary 180-second single-backend film, not a forced quota.
+- A Lead Builder first produces one opening, one information-dense, and one late representative scene plus importable visual source for each actual backend. The user approves, requests revision, or explicitly skips the lock before remaining Builders fan out.
+- Ordinary single-backend units default to high-quality H.264 MP4 (`libx264 / medium / CRF 12`). FFV1 remains an explicit, reason-bound upgrade for Hybrid, transparency, or a real lossless exchange need.
+- Motion/layout checks sample beat boundaries, readable holds, cuts, and necessary points first. Only findings and inherently precise diagrams or paths escalate to dense traces; passing work does not generate full-film frame PNGs.
+- Public-safe production metrics cover stage time, Agent calls, units, files/bytes, render/trace/decode/hash work, failures/retries, and optional host token facts. Missing token facts remain unknown and are never estimated from private session storage.
+
+The [v1.0.0 public production benchmark](docs/V1.0.0-BENCHMARK.md) now records one real Codex run on the same 179.866-second SRT: 20 Shot Recipe v3 files, one Lead plus three production Builders, 10 Agent calls, zero full-history calls, no external assets, 213 files, and 156,980 KiB of disk use. Preview and master passed full decode. Director start to first preview took about 242.05 minutes, missing the 120-minute target; Lead took 62.90 minutes, missing the 45-minute target. One Director visual-lock rejection was fixed and rechecked, but the user did not watch or approve the aesthetics, so visual lock is `skipped`. Host tokens are unknown, A/V sync was not tested, and the same-input Claude Code comparison remains pending.
 
 ## v0.9.2 Same Production, Safer Installation
 
@@ -42,7 +52,7 @@ v0.9.2 changes packaging and installation only. Director, Assets, multiple Build
 - Builders still design space, material, and motion from the film's visual system. Runtime-captured checks only reject connectors crossing unrelated nodes, labels touching paths or nodes, shared connector paths, and canvas escape; they do not score the diagram style.
 - Sends targeted revisions back to the responsible Builder without giving every Builder the full production history.
 
-The checks can flag missing planned development and measurable motion/layout risks. They cannot judge whether animation is sophisticated or make an aesthetic decision, so the single complete moving preview remains the user gate. Cross-backend visual parity is not claimed.
+The checks can flag missing planned development and measurable motion/layout risks. They cannot judge whether animation is sophisticated or make an aesthetic decision. Visual lock controls bulk fan-out; the complete moving preview controls delivery. Cross-backend visual parity is not claimed.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="SRT to approved 4K master workflow" width="100%">
@@ -52,10 +62,10 @@ The checks can flag missing planned development and measurable motion/layout ris
 
 ### Standard Skill install
 
-Use this on a machine that already has the pinned HyperFrames environment and only needs the fourteen project Skills registered in one host. Download `erduo-broll-loop-engineering-skills-v0.9.2.tar.gz` from the [v0.9.2 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v0.9.2), extract it into a permanent directory, then run:
+Use this on a machine that already has the pinned HyperFrames environment and only needs the fourteen project Skills registered in one host. Download `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz` from the [v1.0.0 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v1.0.0), extract it into a permanent directory, then run:
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
 # replace codex with claude-code for Claude Code
 ```
 
@@ -71,7 +81,7 @@ cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
-Restart your host after installation. The installer provisions the pinned HyperFrames environment and thirteen stage Skills. It does not use `sudo`, edit your shell profile, or install Remotion globally. The same full package is available as `erduo-broll-loop-engineering-v0.9.2.tar.gz` on the v0.9.2 Release.
+Restart your host after installation. The installer provisions the pinned HyperFrames environment and thirteen stage Skills. It does not use `sudo`, edit your shell profile, or install Remotion globally. The same full package is available as `erduo-broll-loop-engineering-v1.0.0.tar.gz` on the v1.0.0 Release.
 
 ## First run
 
@@ -79,7 +89,7 @@ Attach an SRT and ask:
 
 ```text
 Use erduo-broll-loop-engineering to turn this SRT into a faceless B-roll master.
-Continue unattended until the final preview requires my approval.
+Continue unattended, but stop for my visual lock on the three representative scenes and again for final-preview delivery approval.
 ```
 
 Talking-head mode also requires the matching edited video. Your images, clips, logos, and screenshots are optional but should be supplied at the start when available.
@@ -90,8 +100,9 @@ UTF-8 SRT input is not restricted to Chinese. Actual language quality depends on
 
 ## Verified scope
 
-- Verified hosts: Codex and Claude Code on macOS.
+- Codex completed the v1.0.0 production benchmark on macOS. Claude Code installation/contracts are covered, but its same-input v1 production comparison remains pending.
 - Default delivery: H.264 MP4, 3840 × 2160, 30 fps.
+- Default unit media: high-quality H.264 MP4. Lossless FFV1 requires an explicit reason; Hybrid never shares runtime-specific visual source across backends.
 - Output policy is generated by `create-production-profile.mjs`, never hand-written. The Parent always passes that file to `plan-runtime.mjs --production-profile`; explicit width, height, fps, audio, and H.264 MP4 policy are hash-bound into the plan, every Builder assignment, and delivery checks. For example, `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4` creates a vertical 25 fps profile instead of falling back to the default.
 - HyperFrames and Remotion are independent backends; visual parity is not claimed.
 - Windows, desktop CapCut/Jianying import, and automatic repair of arbitrary existing projects are not verified.

@@ -1,6 +1,6 @@
 {
   "name": "erduo-broll-loop-engineering",
-  "version": "0.9.2",
+  "version": "1.0.0",
   "private": true,
   "description": "Prompt-first SRT-anchored auto-routed hybrid B-roll parent/child Agent Skills.",
   "type": "module",
@@ -19,11 +19,16 @@
     "create:production-profile": "node erduo-broll-loop-engineering/scripts/create-production-profile.mjs",
     "plan:runtime": "node erduo-broll-loop-engineering/scripts/plan-runtime.mjs",
     "validate:runtime-plan": "node erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs",
+    "validate:visual-lock": "node erduo-broll-loop-engineering/scripts/validate-visual-lock.mjs",
+    "gate:builder-assignment": "node erduo-broll-loop-engineering/scripts/gate-builder-assignment.mjs",
     "validate:frozen-blocks": "node erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs",
+    "metrics:record": "node erduo-broll-loop-engineering/scripts/record-production-event.mjs",
+    "metrics:collect": "node erduo-broll-loop-engineering/scripts/collect-production-metrics.mjs",
+    "verify:lightweight-codec": "node erduo-broll-loop-engineering/scripts/verify-lightweight-codec.mjs",
     "lint:motion-layout": "node erduo-broll-loop-engineering/scripts/motion-layout-lint.mjs",
     "measure:context": "node scripts/measure-context.mjs",
     "test:motion-layout": "node --test scripts/motion-layout-lint.test.mjs",
     "test:remotion-trace": "node --test scripts/remotion-dom-trace.e2e.test.mjs",
-    "test": "node --test scripts/test.mjs scripts/motion-layout-lint.test.mjs scripts/remotion-dom-trace.e2e.test.mjs"
+    "test": "node --test scripts/test.mjs scripts/metrics-media.test.mjs scripts/motion-layout-lint.test.mjs scripts/remotion-dom-trace.e2e.test.mjs scripts/v1-planner-visual-lock.test.mjs"
   }
 }

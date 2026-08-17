@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/production-metrics.schema.json",
+  "title": "Public-safe provider-neutral production metrics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "productionRoot", "plan", "stages", "agentCalls", "files", "operations", "failures", "retries", "tokens", "privacy"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "generatedAt": { "type": "string", "minLength": 20 },
+    "productionRoot": { "const": "." },
+    "plan": {
+      "type": ["object", "null"],
+      "properties": {
+        "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "status": { "type": "string", "minLength": 1 },
+        "authoringUnitCount": { "type": "integer", "minimum": 0 },
+        "units": { "type": "array", "items": { "type": "object" } }
+      }
+    },
+    "stages": { "type": "array", "items": { "type": "object" } },
+    "agentCalls": { "type": "object" },
+    "files": { "type": "object" },
+    "operations": { "type": "object" },
+    "failures": { "type": "array", "items": { "type": "object" } },
+    "retries": { "type": "array", "items": { "type": "object" } },
+    "tokens": { "type": "object" },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["absolutePathsIncluded", "privateSessionPathsRead", "freeformEventTextIncluded"],
+      "properties": {
+        "absolutePathsIncluded": { "const": false },
+        "privateSessionPathsRead": { "const": false },
+        "freeformEventTextIncluded": { "const": false }
+      }
+    }
+  }
+}

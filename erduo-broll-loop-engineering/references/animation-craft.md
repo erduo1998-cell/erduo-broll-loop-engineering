@@ -176,7 +176,8 @@ Preserve the stable result instead of letting procedural motion obscure it.
 ## Boundary of verification
 
 Technical checks may prove time coverage, deterministic seeking, file and font
-closure, rendering, and decoding. Runtime-captured per-frame geometry may also
+closure, rendering, and decoding. Runtime-captured sampled geometry, escalated
+to dense or per-frame evidence only for a bounded risk window, may also
 detect discontinuity, abrupt speed/acceleration changes, failure to settle,
 excessive reversal, synchronized starts, competing motion foci, short or moving
 readable holds, safe-area exits, off-canvas elements, and strong unplanned
@@ -201,6 +202,7 @@ anticipation communicates, mass feels right,
 follow-through is meaningful, arcs are pleasing, exaggeration serves the
 story, or the result has appeal. Do not create a twelve-principle score or
 multiply static review artifacts. Use the shared motion/layout lint as a risk
-filter, render diagnostics only for findings, and leave one final moving
-preview as the user's aesthetic decision. If generated motion is wrong, return
+filter and render diagnostics only for findings. Representative moving scenes
+provide the early visual-lock decision; the complete moving preview provides
+the final aesthetic decision. If generated motion is wrong, return
 to the Director or owning Builder.

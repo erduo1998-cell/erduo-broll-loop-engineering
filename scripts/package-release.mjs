@@ -221,6 +221,8 @@ const ROOT_FILES = [
   '.gitignore',
   'CHANGELOG.md',
   'CONTRIBUTING.md',
+  'docs/V1.0.0-BENCHMARK.md',
+  'docs/V1.0.0-DESIGN.md',
   'Install.command',
   'LICENSE',
   'PRIVACY.md',
@@ -260,6 +262,8 @@ const SKILL_FILES = [
   'erduo-broll-loop-engineering/references/stage-orchestration.md',
   'erduo-broll-loop-engineering/references/runtime/capability-matrix.json',
   'erduo-broll-loop-engineering/references/runtime/frozen-block.schema.json',
+  'erduo-broll-loop-engineering/references/runtime/production-event.schema.json',
+  'erduo-broll-loop-engineering/references/runtime/production-metrics.schema.json',
   'erduo-broll-loop-engineering/references/runtime/motion-layout-trace.schema.json',
   'erduo-broll-loop-engineering/references/runtime/remotion-hyperframes-map.md',
   'erduo-broll-loop-engineering/references/runtime/runtime-contract.md',
@@ -267,10 +271,13 @@ const SKILL_FILES = [
   'erduo-broll-loop-engineering/references/runtime/runtime-selection.md',
   'erduo-broll-loop-engineering/references/runtime/runtime-plan.schema.json',
   'erduo-broll-loop-engineering/references/runtime/runtime-plan-v1.schema.json',
+  'erduo-broll-loop-engineering/references/runtime/representative-scenes.schema.json',
   'erduo-broll-loop-engineering/references/runtime/shot-recipe.schema.json',
   'erduo-broll-loop-engineering/references/runtime/shot-recipe-v1.schema.json',
+  'erduo-broll-loop-engineering/references/runtime/shot-recipe-v2.schema.json',
   'erduo-broll-loop-engineering/references/runtime/narrative-envelope.schema.json',
   'erduo-broll-loop-engineering/references/runtime/visual-system.schema.json',
+  'erduo-broll-loop-engineering/references/runtime/visual-lock.schema.json',
   'erduo-broll-loop-engineering/references/runtime/shot-pattern.schema.json',
   'erduo-broll-loop-engineering/references/runtime/remotion-project.schema.json',
   'erduo-broll-loop-engineering/references/remotion-backend.md',
@@ -280,10 +287,14 @@ const SKILL_FILES = [
   'erduo-broll-loop-engineering/scripts/lib.mjs',
   'erduo-broll-loop-engineering/scripts/production-preflight.mjs',
   'erduo-broll-loop-engineering/scripts/assemble-frozen-production.mjs',
+  'erduo-broll-loop-engineering/scripts/collect-production-metrics.mjs',
   'erduo-broll-loop-engineering/scripts/create-production-profile.mjs',
+  'erduo-broll-loop-engineering/scripts/frozen-media-policy.mjs',
+  'erduo-broll-loop-engineering/scripts/gate-builder-assignment.mjs',
   'erduo-broll-loop-engineering/scripts/motion-layout-lint.mjs',
   'erduo-broll-loop-engineering/scripts/remotion-dom-trace.mjs',
   'erduo-broll-loop-engineering/scripts/remotion-toolchain.mjs',
+  'erduo-broll-loop-engineering/scripts/record-production-event.mjs',
   'erduo-broll-loop-engineering/scripts/plan-runtime.mjs',
   'erduo-broll-loop-engineering/scripts/query-craft.mjs',
   'erduo-broll-loop-engineering/scripts/craft-catalog.mjs',
@@ -291,7 +302,9 @@ const SKILL_FILES = [
   'erduo-broll-loop-engineering/scripts/remotion-verify.mjs',
   'erduo-broll-loop-engineering/scripts/validate-shot-recipes.mjs',
   'erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs',
+  'erduo-broll-loop-engineering/scripts/validate-visual-lock.mjs',
   'erduo-broll-loop-engineering/scripts/validate-frozen-blocks.mjs',
+  'erduo-broll-loop-engineering/scripts/verify-lightweight-codec.mjs',
   'erduo-broll-loop-engineering/scripts/safe-spawn.mjs',
   'erduo-broll-loop-engineering/references/craft/catalog.json',
   'erduo-broll-loop-engineering/references/craft/attribution-manifest.json',
@@ -369,13 +382,19 @@ export const REPOSITORY_ONLY_FILES = Object.freeze([
   'scripts/sync-video-shotcraft.mjs',
   'scripts/sync-video-shotcraft-remotion.mjs',
   'scripts/measure-context.mjs',
+  'scripts/metrics-media.test.mjs',
   'scripts/motion-layout-lint.test.mjs',
   'scripts/package-release.mjs',
   'scripts/remotion-dom-trace.e2e.test.mjs',
+  'scripts/v1-planner-visual-lock.test.mjs',
   'scripts/fixtures/remotion-dom-trace/package.json',
   'scripts/fixtures/remotion-dom-trace/package-lock.json',
   'scripts/test.mjs',
 ].toSorted());
+
+const LOCAL_ONLY_FILES = new Set([
+  'docs/V1.0.0-IMPLEMENTATION-PR.md',
+]);
 
 const SENSITIVE_EXTENSIONS = /\.(?:srt|vtt|jpg|jpeg|png|gif|webp|heic|mp4|mov|mkv|webm|avi|mp3|wav|m4a|pem|key|p12|pfx)$/iu;
 const SENSITIVE_NAMES = /(?:^|\/)(?:\.env(?:\..*)?|cookies?(?:\..*)?|\.netrc)$/iu;
@@ -403,7 +422,9 @@ async function sourceFiles(repoRoot) {
   async function visit(directory) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       if (entry.name === '.git' || entry.name === 'node_modules') continue;
+      if (entry.name === '.DS_Store') continue;
       const absolute = path.join(directory, entry.name);
+      if (LOCAL_ONLY_FILES.has(path.relative(repoRoot, absolute))) continue;
       if (entry.isSymbolicLink()) {
         throw new ActionRequiredError(
           'release_symlink_forbidden',

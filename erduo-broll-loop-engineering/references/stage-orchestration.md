@@ -1,6 +1,6 @@
 # Stage orchestration
 
-## v0.9 ownership
+## v1 ownership
 
 | Work | Owner | Normal output |
 | --- | --- | --- |
@@ -8,11 +8,13 @@
 | Film meaning and visual direction | one Director Agent | `01-director/` |
 | Runtime assignment and task packets | Parent runs `plan-runtime.mjs` | `01-runtime-plan/` |
 | Shared material and fonts | one Assets Agent | `02-assets/` |
+| Representative scenes and runtime-native visual source | existing Builder in Lead assignment mode | `04-visual-lock/<runtime>/` |
+| Visual lock identity and user decision | Parent, original Director witness, then user | `04-visual-lock/visual-lock.json` |
 | Editable authoring and frozen unit media | one focused Builder per task packet | `03-build/<unit>/` or `03-remotion-build/<unit>/` |
 | Unit validation, ordered assembly, preview, identity, delivery | Parent runs `assemble-frozen-production.mjs` | `05-delivery/` |
 | Shot files | request-only export path | `06-shot-export/` |
 
-Do not dispatch Runtime Planner, Integrator, or Render Agents in a normal v0.9
+Do not dispatch Runtime Planner, Integrator, or Render Agents in a normal v1
 production. Their stage Skills remain installed only so old runs and old
 handoffs can still be read. The Parent may run deterministic scripts and
 backend commands, but may not write creative source, select assets, or silently
@@ -41,21 +43,82 @@ node scripts/plan-runtime.mjs \
   --selection <runtime-selection.json> \
   --narrative-envelope <broll-production/01-director/narrative-envelope.json> \
   --visual-system <broll-production/01-director/visual-system.json> \
+  --representative-scenes <broll-production/01-director/representative-scenes.json> \
   --production-profile <broll-production/production-profile.json> \
   --production-root <broll-production>
 ```
 
-The command atomically writes `01-runtime-plan/runtime-plan.json` and one
-`01-runtime-plan/assignments/<unit-id>.json` per planned authoring unit. If that
+The command atomically writes schema-3 `01-runtime-plan/runtime-plan.json`, one
+schema-2 Lead packet per required backend, and schema-2 production packets under
+`01-runtime-plan/assignments/`. Omitting `--representative-scenes` is a legacy
+v2 compatibility path, not a normal v1 production. If that
 directory exists, stop and use a new production root. The plan and every task
 packet carry the same profile identity. Never edit the profile, plan, or a task
 packet by hand.
 
-Each packet contains only its unit/block/runtime, shots, window, owning Builder
+Each packet contains only its role/phase, unit/block/runtime, assigned shots,
+window, owning Builder
 Skill, exact input locators, immediate seams, one output directory, shared asset
 and dependency policy, and editable-source plus frozen-media contract. Do not
 attach the parent transcript, all Recipes, full catalogs, unrelated references,
 other units' source, or long command logs.
+
+The planner groups short semantic shots independently from shot direction. For
+an ordinary single-backend film around 180 seconds, target 2–3 production
+Builders, commonly 5–8 adjacent short shots per unit. These are targets, not
+quotas: backend changes, complex 3D/camera/material work, exclusive state, or a
+real live-transition boundary may require another unit. A declared
+`authoring.continuityGroup` stays inside one unit. Never cross a backend or
+non-contiguous time, split a shot, or destroy a live transition to hit the
+target.
+
+Before dispatching any packet, gate it rather than interpreting its JSON by
+hand:
+
+```text
+node scripts/gate-builder-assignment.mjs \
+  --plan <01-runtime-plan/runtime-plan.json> \
+  --assignment <01-runtime-plan/assignments/packet.json> \
+  --production-root <broll-production> \
+  [--visual-lock <04-visual-lock/visual-lock.json>]
+```
+
+A Lead packet passes before a lock exists. Every production packet fails closed
+until the supplied lock validates with status `approved` or `skipped`.
+
+## Lead scenes and visual lock
+
+Assets closes the complete shared material/font store once, before Lead work.
+For every backend in the plan, dispatch only its `role: lead`,
+`phase: visual-lock` packet. Across those packets the three assigned Recipes are
+exactly the Director's `opening`, `information-dense`, and `late`
+representatives. The Lead receives no unrelated Recipes or parent history.
+
+Each Lead returns real moving scene media and directly importable shared source
+under `04-visual-lock/<runtime>/`. The shared source implements the frozen font
+loading/type hierarchy, palette, grid, safe areas, spacing, background/material/
+depth baseline, common content relationships, and motion tokens. It is not a
+complete-film template. In hybrid, each backend has its own source and source
+identity; only runtime-neutral Director tokens are shared.
+
+Reactivate the original Director with only the representative media and bound
+locators. Its witness names `shotId`, observable problem, and repair target for
+content correspondence, first-read comprehension, copy readability, motion
+result, and whole-film applicability. The Parent binds that witness, moving
+media, shared source identities, assets/fonts, representative reasons, and the
+user decision in `04-visual-lock/visual-lock.json`. Validate it before fan-out:
+
+```text
+node scripts/validate-visual-lock.mjs \
+  <04-visual-lock/visual-lock.json> \
+  <01-runtime-plan/runtime-plan.json> \
+  <broll-production>
+```
+
+The user may approve, request bounded repair, or explicitly skip. A skip must
+bind its risk and identity. Any bound media, source, asset, font, or witness
+drift invalidates the lock. After validation, gate and dispatch each production
+packet with the lock.
 
 ## Shared files, not copies
 
@@ -98,13 +161,17 @@ node scripts/assemble-frozen-production.mjs preview \
   --plan <01-runtime-plan/runtime-plan.json> \
   --narrative-envelope <01-director/narrative-envelope.json> \
   --visual-system <01-director/visual-system.json> \
+  --representative-scenes <01-director/representative-scenes.json> \
+  --visual-lock <04-visual-lock/visual-lock.json> \
   --contract <unit-1/block-media.json> \
   --contract <unit-2/block-media.json> \
   --output <05-delivery/preview.mp4> \
   --identity <05-delivery/composition-identity.json>
 ```
 
-The script orders contracts from the plan, validates their files and hashes,
+For runtime plan v3, the script first revalidates the visual lock and requires
+every unit contract to bind its exact lock and backend shared-source identities.
+It then orders contracts from the plan, validates their files and hashes,
 creates a bounded 1080p-or-smaller H.264 review copy with a fast preset, runs
 FFprobe and a complete decode, and binds the plan plus ordered contract/media
 hashes and preview bytes to one identity. It does not execute either animation
@@ -120,6 +187,8 @@ node scripts/assemble-frozen-production.mjs deliver \
   --plan <01-runtime-plan/runtime-plan.json> \
   --narrative-envelope <01-director/narrative-envelope.json> \
   --visual-system <01-director/visual-system.json> \
+  --representative-scenes <01-director/representative-scenes.json> \
+  --visual-lock <04-visual-lock/visual-lock.json> \
   --contract <unit-1/block-media.json> \
   --contract <unit-2/block-media.json> \
   --identity <05-delivery/composition-identity.json> \
@@ -127,8 +196,9 @@ node scripts/assemble-frozen-production.mjs deliver \
   --output <unused-master.mp4>
 ```
 
-Delivery re-hashes the approved preview, revalidates the same plan, contracts,
-and frozen unit media, then assembles one full-raster H.264 master from those
+Delivery re-hashes the approved preview, revalidates the same visual lock,
+backend shared sources, plan, contracts, and frozen unit media, then assembles
+one full-raster H.264 master from those
 unchanged units and fully decodes it. It performs no second creative pass,
 installation, runtime integration, or Agent work.
 
@@ -136,9 +206,10 @@ This assembler supports H.264 MP4 delivery. Treat an explicit request for a
 different master codec or container as unsupported until a deterministic
 profile is implemented; do not silently substitute formats.
 
-## One bounded visual witness
+## Bounded Director witnesses
 
-Before the user sees the preview, reactivate the original Director once. Pass
+The early visual-lock witness is defined above. Before the user sees the complete
+preview, reactivate the original Director once more. Pass
 only the low-cost complete preview, SRT, shared plans, and Recipe locators. The
 Director returns a compact `shotId` problem list for content mismatch,
 unexplained visual burden, long spans without meaningful development, unreadable
@@ -148,8 +219,9 @@ stop. Route each concrete problem to its original owner, preserve unaffected
 units, and regenerate the identity-bound preview after repairs.
 
 Do not dispatch a new Reviewer Agent. If the host cannot inspect moving video,
-record that limitation and do not claim this witness passed. The user still sees
-only the final complete preview and remains the only aesthetic decision maker.
+record that limitation and do not claim this witness passed. The user decides
+the early visual direction from representative scenes and the final aesthetic
+result from the complete preview; technical checks cannot make either decision.
 
 ## Revisions and blockers
 

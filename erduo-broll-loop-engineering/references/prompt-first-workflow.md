@@ -243,6 +243,8 @@ node scripts/assemble-frozen-production.mjs preview \
   --plan <01-runtime-plan/runtime-plan.json> \
   --narrative-envelope <01-director/narrative-envelope.json> \
   --visual-system <01-director/visual-system.json> \
+  --representative-scenes <01-director/representative-scenes.json> \
+  --visual-lock <04-visual-lock/visual-lock.json> \
   --contract <unit-1/block-media.json> \
   --contract <unit-2/block-media.json> \
   --output <05-delivery/preview.mp4> \
@@ -251,7 +253,8 @@ node scripts/assemble-frozen-production.mjs preview \
 
 The script matches contracts to units and assembles them in plan order, even
 when `--contract` arguments arrive in another order. Missing, duplicate,
-unplanned, or changed contracts fail closed. It verifies actual hashes and
+unplanned, or changed contracts fail closed. Runtime plan v3 also revalidates
+the visual lock and every unit's bound backend shared-source identity. It verifies actual hashes and
 media facts, fully decodes one bounded preview, and freezes its identity. It
 never live-nests or translates runtime source.
 
@@ -265,6 +268,8 @@ node scripts/assemble-frozen-production.mjs deliver \
   --plan <01-runtime-plan/runtime-plan.json> \
   --narrative-envelope <01-director/narrative-envelope.json> \
   --visual-system <01-director/visual-system.json> \
+  --representative-scenes <01-director/representative-scenes.json> \
+  --visual-lock <04-visual-lock/visual-lock.json> \
   --contract <unit-1/block-media.json> \
   --contract <unit-2/block-media.json> \
   --identity <05-delivery/composition-identity.json> \
@@ -272,8 +277,8 @@ node scripts/assemble-frozen-production.mjs deliver \
   --output <unused-master.mp4>
 ```
 
-The script revalidates the unchanged plan, shared artifacts, contracts, frozen
-media, and approved preview identity, then encodes and fully decodes a new
+The script revalidates the unchanged visual lock, backend shared-source
+identities, plan, shared artifacts, contracts, frozen media, and approved preview identity, then encodes and fully decodes a new
 full-spec master. It does not copy the preview or dispatch an Integrator or
 Render Agent. A changed input requires a new preview and approval. A failed
 attempt uses a new unused output path; no preview, identity, attempt, or final

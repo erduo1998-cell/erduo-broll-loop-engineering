@@ -129,12 +129,12 @@ function validateTrace(trace) {
   if (!isRecord(trace)) return ['Trace must be an object'];
   const topAllowed = new Set([
     'schemaVersion', 'runtime', 'compositionId', 'compositionIdentity', 'capture',
-    'fps', 'width', 'height', 'startFrame', 'endFrame', 'frameStep', 'safeArea', 'shots',
+    'fps', 'width', 'height', 'startFrame', 'endFrame', 'frameStep', 'sampling', 'safeArea', 'shots',
   ]);
   for (const key of Object.keys(trace)) {
     if (!topAllowed.has(key)) errors.push(`Unknown trace property: ${key}`);
   }
-  if (!['1.0.0', '1.1.0'].includes(trace.schemaVersion)) errors.push('schemaVersion must be 1.0.0 or 1.1.0');
+  if (!['1.0.0', '1.1.0', '1.2.0'].includes(trace.schemaVersion)) errors.push('schemaVersion must be 1.0.0, 1.1.0, or 1.2.0');
   if (!['remotion', 'hyperframes'].includes(trace.runtime)) errors.push('runtime must be remotion or hyperframes');
   if (typeof trace.compositionId !== 'string' || trace.compositionId.length === 0) errors.push('compositionId is required');
   if (!/^[0-9a-f]{64}$/.test(trace.compositionIdentity ?? '')) errors.push('compositionIdentity must be a SHA-256');
@@ -148,7 +148,37 @@ function validateTrace(trace) {
   if (Number.isInteger(trace.fps) && (trace.fps < 1 || trace.fps > 240)) errors.push('fps must be between 1 and 240');
   if (Number.isInteger(trace.width) && trace.width < 1) errors.push('width must be positive');
   if (Number.isInteger(trace.height) && trace.height < 1) errors.push('height must be positive');
-  if (trace.frameStep !== 1) errors.push('frameStep must be 1 so acceleration and settling are measurable');
+  const sampledTrace = trace.schemaVersion === '1.2.0' && ['sampled', 'escalated'].includes(trace.sampling?.mode);
+  const denseTrace = trace.frameStep === 1;
+  if (trace.schemaVersion === '1.2.0') {
+    if (!isRecord(trace.sampling) || !['sampled', 'escalated', 'dense'].includes(trace.sampling?.mode)) {
+      errors.push('schema 1.2.0 requires sampling.mode');
+    }
+    if (!Array.isArray(trace.sampling?.frames) || trace.sampling.frames.length < 2
+      || trace.sampling.frames.some((frame) => !Number.isInteger(frame))) {
+      errors.push('schema 1.2.0 requires at least two integer sampling.frames');
+    } else {
+      for (let index = 0; index < trace.sampling.frames.length; index += 1) {
+        const frame = trace.sampling.frames[index];
+        if (frame < trace.startFrame || frame >= trace.endFrame) errors.push('sampling.frames must stay inside the trace window');
+        if (index > 0 && frame <= trace.sampling.frames[index - 1]) errors.push('sampling.frames must be unique and increasing');
+      }
+    }
+    if ((trace.sampling?.mode === 'dense' && trace.frameStep !== 1)
+      || (['sampled', 'escalated'].includes(trace.sampling?.mode) && trace.frameStep !== 0)) {
+      errors.push('frameStep must be 1 for dense capture and 0 for irregular sampled capture');
+    }
+    if (trace.sampling?.denseWindows !== undefined && !Array.isArray(trace.sampling.denseWindows)) {
+      errors.push('sampling.denseWindows must be an array');
+    }
+    for (const [index, window] of (trace.sampling?.denseWindows ?? []).entries()) {
+      if (!isRecord(window) || !Number.isInteger(window.startFrame) || !Number.isInteger(window.endFrame)
+        || window.startFrame < trace.startFrame || window.endFrame > trace.endFrame
+        || window.endFrame <= window.startFrame) errors.push(`sampling.denseWindows[${index}] is invalid`);
+    }
+  } else if (trace.frameStep !== 1) {
+    errors.push('legacy trace frameStep must be 1');
+  }
   if (!Number.isInteger(trace.startFrame) || !Number.isInteger(trace.endFrame) || trace.endFrame <= trace.startFrame) {
     errors.push('trace frame window is invalid');
   }
@@ -211,15 +241,19 @@ function validateTrace(trace) {
           continue;
         }
         if (sample.frame < shot.startFrame || sample.frame >= shot.endFrame) errors.push(`${label} sample frame is outside its shot`);
-        if (previousFrame !== null && sample.frame !== previousFrame + 1) errors.push(`${label} samples must cover consecutive frames`);
+        if (previousFrame !== null && sample.frame <= previousFrame) errors.push(`${label} samples must be strictly increasing`);
+        if (denseTrace && previousFrame !== null && sample.frame !== previousFrame + 1) errors.push(`${label} dense samples must cover consecutive frames`);
+        if (sampledTrace && Array.isArray(trace.sampling?.frames) && !trace.sampling.frames.includes(sample.frame)) {
+          errors.push(`${label} sample frame is absent from sampling.frames`);
+        }
         previousFrame = sample.frame;
         if (sample.width < 0 || sample.height < 0 || sample.opacity < 0 || sample.opacity > 1
           || sample.visibleAreaRatio < 0 || sample.visibleAreaRatio > 1) errors.push(`${label} sample geometry is invalid`);
       }
-      if (element.samples?.length > 0) {
+      if (denseTrace && element.samples?.length > 0) {
         if (element.samples[0]?.frame !== shot.startFrame
           || element.samples.at(-1)?.frame !== shot.endFrame - 1) {
-          errors.push(`${label} samples must cover every frame in its shot`);
+          errors.push(`${label} dense samples must cover every frame in its shot`);
         }
       }
       for (const [sampleIndex, sample] of (element.samples ?? []).entries()) {
@@ -264,6 +298,32 @@ function distance(left, right) {
 function speedSeries(samples, width, height) {
   const states = samples.map((sample) => stateVector(sample, width, height));
   return states.slice(1).map((state, index) => distance(state, states[index]));
+}
+
+function traceIsDenseForWindow(trace, startFrame, endFrame) {
+  if (trace.frameStep === 1 || trace.sampling?.mode === 'dense') return true;
+  return (trace.sampling?.denseWindows ?? []).some((window) => (
+    window.startFrame <= startFrame && window.endFrame >= endFrame
+  ));
+}
+
+function largestUnchangedSampleInterval(elements, startFrame, endFrame, width, height) {
+  let largest = null;
+  for (const element of elements) {
+    const samples = samplesWithin(element, startFrame, endFrame);
+    for (let index = 1; index < samples.length; index += 1) {
+      const previous = samples[index - 1];
+      const current = samples[index];
+      if (renderedStateDiffers(previous, current, width, height)) continue;
+      const candidate = {
+        startFrame: previous.frame,
+        endFrame: current.frame + 1,
+        frameCount: current.frame - previous.frame + 1,
+      };
+      if (!largest || candidate.frameCount > largest.frameCount) largest = candidate;
+    }
+  }
+  return largest;
 }
 
 function msWindowToFrames(beat, recipe, shot, fps) {
@@ -328,7 +388,7 @@ function analyzeBeatDelivery(trace, recipes) {
       findings.push(finding('rhythm.recipe-missing', 'error', 'No Shot Recipe was supplied for this rendered shot.', shot.shotId, [], [shot.startFrame]));
       continue;
     }
-    const beats = recipe.schemaVersion === '2.0.0'
+    const beats = ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
       ? recipe.microBeats ?? []
       : (recipe.motion?.phases ?? []).map((phase, index) => ({
         beatId: `${phase.name}-${index + 1}`, startMs: phase.startMs, endMs: phase.endMs,
@@ -350,7 +410,7 @@ function analyzeBeatDelivery(trace, recipes) {
         element,
         motions: (element.motions ?? []).filter((motion) => motion.startFrame < endFrame
           && motion.endFrame > startFrame
-          && (recipe.schemaVersion === '2.0.0'
+          && (['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
             ? motion.beatIds?.includes(beat.beatId)
             : ['transition', 'cut'].includes(motion.kind))),
       })).filter(({ motions }) => motions.length > 0);
@@ -369,26 +429,49 @@ function analyzeBeatDelivery(trace, recipes) {
         ),
       })).filter(({ evidence }) => evidence.hasDevelopment);
       if (developed.length === 0) {
+        const dense = traceIsDenseForWindow(trace, startFrame, endFrame);
+        const unproven = dense ? null : largestUnchangedSampleInterval(
+          candidates.map(({ element }) => element), startFrame, endFrame, trace.width, trace.height,
+        );
         findings.push(finding(
-          'rhythm.beat-no-development', 'error',
-          `Beat ${beat.beatId} is declared in the Recipe and motion metadata but produces no measurable rendered development.`,
-          shot.shotId, candidates.map(({ element }) => element.id).sort(), [startFrame, endFrame - 1],
+          dense ? 'rhythm.beat-no-development' : 'evidence.dense-development-required', 'error',
+          dense
+            ? `Beat ${beat.beatId} is declared in the Recipe and motion metadata but produces no measurable rendered development.`
+            : `Sampled states cannot prove development for beat ${beat.beatId}; capture only this beat window densely before making a pass claim.`,
+          shot.shotId, candidates.map(({ element }) => element.id).sort(),
+          unproven ? [unproven.startFrame, unproven.endFrame - 1] : [startFrame, endFrame - 1],
         ));
         continue;
       }
       const beatFrames = endFrame - startFrame;
       const longBeatRiskFrames = Math.ceil(trace.fps * LONG_BEAT_RISK_SECONDS);
       const idleRiskFrames = Math.ceil(beatFrames * LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION);
-      const developmentGap = longestUndeclaredDevelopmentGap(
-        developed.flatMap(({ evidence }) => evidence.developmentFrames), startFrame, endFrame,
-      );
-      if (beatFrames >= longBeatRiskFrames && developmentGap.frameCount >= idleRiskFrames) {
-        findings.push(finding(
-          'rhythm.beat-development-gap', 'error',
-          `Long non-still beat ${beat.beatId} leaves at least 25% of its window without a new measurable subject state; split meaningful waiting into deliberate-stillness or deliver the planned development.`,
-          shot.shotId, developed.map(({ element }) => element.id).sort(),
-          [developmentGap.startFrame, developmentGap.endFrame],
-        ));
+      if (beatFrames >= longBeatRiskFrames) {
+        if (traceIsDenseForWindow(trace, startFrame, endFrame)) {
+          const developmentGap = longestUndeclaredDevelopmentGap(
+            developed.flatMap(({ evidence }) => evidence.developmentFrames), startFrame, endFrame,
+          );
+          if (developmentGap.frameCount >= idleRiskFrames) {
+            findings.push(finding(
+              'rhythm.beat-development-gap', 'error',
+              `Long non-still beat ${beat.beatId} leaves at least 25% of its window without a new measurable subject state; split meaningful waiting into deliberate-stillness or deliver the planned development.`,
+              shot.shotId, developed.map(({ element }) => element.id).sort(),
+              [developmentGap.startFrame, developmentGap.endFrame],
+            ));
+          }
+        } else {
+          const unproven = largestUnchangedSampleInterval(
+            candidates.map(({ element }) => element), startFrame, endFrame, trace.width, trace.height,
+          );
+          if (unproven && unproven.frameCount >= idleRiskFrames) {
+            findings.push(finding(
+              'evidence.dense-development-required', 'error',
+              `Sampled states leave a long unchanged interval in beat ${beat.beatId}; capture only this bounded window densely before deciding whether development is missing.`,
+              shot.shotId, candidates.map(({ element }) => element.id).sort(),
+              [unproven.startFrame, unproven.endFrame - 1],
+            ));
+          }
+        }
       }
     }
   }
@@ -674,6 +757,35 @@ export function analyzeMotionLayoutTrace(trace, recipes = null) {
       for (const motion of element.motions ?? []) {
         if (motion.kind !== 'transition') continue;
         const samples = samplesWithin(element, motion.startFrame, motion.endFrame);
+        if (!traceIsDenseForWindow(trace, motion.startFrame, motion.endFrame)) {
+          for (let index = 1; index < samples.length; index += 1) {
+            const previous = samples[index - 1];
+            const current = samples[index];
+            const frameDistance = current.frame - previous.frame;
+            if (frameDistance <= 0) continue;
+            const stateDistance = distance(
+              stateVector(previous, width, height), stateVector(current, width, height),
+            );
+            const averagePerFrame = stateDistance / frameDistance;
+            if (frameDistance === 1 && stateDistance > 0.1) {
+              findings.push(finding(
+                'motion.jump', 'error',
+                'Per-frame geometry change exceeds 10% of the normalized canvas state.',
+                shot.shotId, [element.id], [previous.frame, current.frame],
+              ));
+              break;
+            }
+            if (averagePerFrame > 0.06) {
+              findings.push(finding(
+                'evidence.dense-motion-required', 'error',
+                'Sampled transition states change too quickly to distinguish a smooth move from a jump; capture only this interval densely.',
+                shot.shotId, [element.id], [previous.frame, current.frame],
+              ));
+              break;
+            }
+          }
+          continue;
+        }
         const speeds = speedSeries(samples, width, height);
         if (speeds.length < 3) continue;
         const peak = Math.max(...speeds);
@@ -826,9 +938,12 @@ export function analyzeMotionLayoutTrace(trace, recipes = null) {
       recipes instanceof Map
         ? `Beat delivery checks prove bounded non-decorative rendered state development. For non-still beats at least ${LONG_BEAT_RISK_SECONDS} seconds long, they also flag any leading, internal, or trailing interval of at least ${Math.round(LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION * 100)}% with no new bound subject state; this does not require motion at fixed intervals or judge rhythm quality.`
         : 'No Recipes were supplied, so planned beat delivery was not evaluated.',
+      trace.frameStep === 1
+        ? 'Dense runtime geometry covers every frame in the declared trace window.'
+        : 'The normal trace is sampled at Recipe boundaries, readable holds, cuts, and necessary mechanism points; only reported diagnostic windows require dense recapture.',
       'Selected diagram craft additionally requires runtime-captured readable-hold topology; checks cover missing evidence, label/path collisions, connectors crossing unrelated nodes, shared connector paths, and canvas escape without prescribing a diagram style.',
       'Geometry can detect discontinuity, instability, crowding, clipping, and staging risk; it cannot prove story meaning, weight, arcs, exaggeration, or appeal.',
-      'The final identity-bound moving preview remains the single human aesthetic decision.',
+      'Representative moving scenes provide the early visual-lock decision; the complete identity-bound moving preview provides the final human aesthetic decision.',
     ],
   };
 }

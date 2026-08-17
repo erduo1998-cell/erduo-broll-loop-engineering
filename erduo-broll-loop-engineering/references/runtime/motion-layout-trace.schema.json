@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/motion-layout-trace.schema.json",
   "title": "Rendered motion and layout geometry trace",
-  "description": "Runtime-captured geometry consumed by motion-layout-lint. It is machine evidence, not an aesthetic score.",
+  "description": "Runtime-captured sampled or dense geometry consumed by motion-layout-lint. It is machine evidence, not an aesthetic score.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "runtime", "compositionId", "compositionIdentity", "capture", "fps", "width", "height", "startFrame", "endFrame", "frameStep", "safeArea", "shots"],
   "properties": {
-    "schemaVersion": { "enum": ["1.0.0", "1.1.0"] },
+    "schemaVersion": { "enum": ["1.0.0", "1.1.0", "1.2.0"] },
     "runtime": { "enum": ["remotion", "hyperframes"] },
     "compositionId": { "type": "string", "minLength": 1 },
     "compositionIdentity": { "$ref": "#/$defs/sha256" },
@@ -25,10 +25,56 @@
     "height": { "type": "integer", "minimum": 1 },
     "startFrame": { "type": "integer", "minimum": 0 },
     "endFrame": { "type": "integer", "minimum": 1 },
-    "frameStep": { "const": 1 },
+    "frameStep": {
+      "description": "Legacy dense traces use 1. Schema 1.2 sampled or escalated traces use 0 because their frame spacing is intentionally irregular.",
+      "enum": [0, 1]
+    },
+    "sampling": {
+      "description": "Schema 1.2 capture plan. Frames are Recipe/cut/hold samples plus any explicitly escalated dense windows.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "frames"],
+      "properties": {
+        "mode": { "enum": ["sampled", "escalated", "dense"] },
+        "frames": {
+          "type": "array", "minItems": 2, "uniqueItems": true,
+          "items": { "type": "integer", "minimum": 0 }
+        },
+        "denseWindows": {
+          "type": "array", "items": { "$ref": "#/$defs/window" }
+        }
+      }
+    },
     "safeArea": { "$ref": "#/$defs/rectangle" },
     "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/shot" } }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "schemaVersion": { "const": "1.2.0" } } },
+      "then": { "required": ["sampling"] },
+      "else": { "properties": { "frameStep": { "const": 1 } } }
+    },
+    {
+      "if": {
+        "required": ["schemaVersion", "sampling"],
+        "properties": {
+          "schemaVersion": { "const": "1.2.0" },
+          "sampling": { "required": ["mode"], "properties": { "mode": { "const": "dense" } } }
+        }
+      },
+      "then": { "properties": { "frameStep": { "const": 1 } } }
+    },
+    {
+      "if": {
+        "required": ["schemaVersion", "sampling"],
+        "properties": {
+          "schemaVersion": { "const": "1.2.0" },
+          "sampling": { "required": ["mode"], "properties": { "mode": { "enum": ["sampled", "escalated"] } } }
+        }
+      },
+      "then": { "properties": { "frameStep": { "const": 0 } } }
+    }
+  ],
   "$defs": {
     "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "rectangle": {

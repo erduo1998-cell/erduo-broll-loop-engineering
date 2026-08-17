@@ -43,7 +43,7 @@ Selection never downloads a CLI or substitutes a global executable.
 ## Deterministic planning script
 
 After Director recipes validate, the Parent runs the bundled script directly.
-Do not dispatch `broll-runtime-plan` in a normal v0.9 production:
+Do not dispatch `broll-runtime-plan` in a normal v1 production:
 
 ```text
 node <skill-root>/scripts/create-production-profile.mjs \
@@ -61,13 +61,15 @@ node <skill-root>/scripts/plan-runtime.mjs \
   --selection <runtime-selection.json> \
   --narrative-envelope <narrative-envelope.json> \
   --visual-system <visual-system.json> \
+  --representative-scenes <representative-scenes.json> \
   --production-profile <broll-production/production-profile.json> \
   --production-root <broll-production>
 ```
 
-The script atomically writes
-`broll-production/01-runtime-plan/runtime-plan.json` and one minimal assignment
-packet per authoring unit under `01-runtime-plan/assignments/`. The complete
+The normal command atomically writes schema-3
+`broll-production/01-runtime-plan/runtime-plan.json`, minimal Lead packets, and
+minimal production packets under `01-runtime-plan/assignments/`. Omitting the
+representative set preserves only the legacy v2 planning path. The complete
 production profile is hash-bound into both outputs. Never redirect stdout into
 the plan and never edit either output by hand. The script uses only:
 
@@ -101,7 +103,9 @@ until Assets reaches a real need. Dispatch Onboarding only when preflight
 reports missing or changed stable backend evidence; never prepare both blindly.
 
 The Parent dispatches each generated assignment packet to its named backend
-Builder. Every Builder returns editable source plus one verified continuous
+Builder only after `gate-builder-assignment.mjs` accepts it. Lead packets may
+run before visual lock; production packets require a validated approved or
+explicitly skipped `04-visual-lock/visual-lock.json`. Every production Builder returns editable source plus one verified continuous
 unit video and `block-media.json`. After all units pass, the Parent runs
 `scripts/assemble-frozen-production.mjs preview`, obtains the one moving-preview
 decision, and then runs `deliver` after approval. This path is the same for
@@ -110,7 +114,7 @@ Generated source is never translated, nested, or executed across the runtime
 boundary.
 
 Installed Planner, Integrator, and Render stage Skills are legacy readers for
-older production records only. They are not fallback stages for v0.9.
+older production records only. They are not fallback stages for v1.
 
 ## Remotion readiness gate
 

@@ -24,7 +24,17 @@
 - 구현 전에 공통 비주얼 시스템과 간결한 Shot Recipe를 고정합니다.
 - 프로젝트 증거에 따라 완전한 샷 구간을 HyperFrames, Remotion 또는 동결 미디어 hybrid 방식으로 배정합니다.
 - 사용자가 제공한 미디어를 우선 사용하고, 필요한 샷에만 추가 소재를 확보합니다.
-- 전체 프리뷰에서 승인을 기다린 뒤 4K Master를 렌더링하고 기술 검증합니다.
+- 대량 제작 전에 대표 동영상 3개로 visual lock을 하고, 전체 프리뷰에서 다시 납품 승인을 받은 뒤 Master를 기술 검증합니다.
+
+## v1.0.0 대량 제작 전 Visual Lock
+
+- Director의 의미 샷은 보통 약 5–12초입니다. Runtime Plan v3는 짧은 샷과 Builder unit을 별도로 계획하며, 일반적인 약 180초 단일 backend 영상은 2–3 Builder를 목표로 하지만 강제 수량은 아닙니다.
+- Lead Builder가 opening, 정보 밀집 구간, 후반 대표 장면과 실제 backend별 공유 visual source를 먼저 만듭니다. 사용자가 승인, 수정, 명시적 skip 중 하나를 선택해야 나머지 Builder가 시작됩니다.
+- 일반 단일 backend unit의 기본값은 고품질 H.264 MP4(`libx264 / medium / CRF 12`)입니다. FFV1은 Hybrid, 투명도 또는 실제 lossless 교환 필요가 있을 때만 이유를 기록하고 명시적으로 선택합니다.
+- motion/layout은 beat 경계, readable hold, cut, 필수 sampling을 먼저 검사합니다. 이상 구간과 정밀 diagram/path만 dense trace로 확대하며 정상 작업은 전체 frame PNG를 만들지 않습니다.
+- 공개 안전 production metrics는 단계 시간, Agent 호출, unit, 파일/byte, render/trace/decode/hash, 실패/재시도, 선택적 host token 사실을 기록합니다. token 사실이 없으면 추정하지 않고 unknown으로 둡니다.
+
+[v1.0.0 공개 production benchmark](docs/V1.0.0-BENCHMARK.md)는 동일한 179.866초 SRT를 Codex에서 실제 제작한 결과입니다. Shot Recipe v3 20개, Lead 1명 + production Builder 3명, Agent 호출 10회, full-history 호출 0회, 외부 소재 0개, 파일 213개, disk usage 156,980 KiB였습니다. preview와 Master는 full decode를 통과했습니다. Director 시작부터 첫 preview까지 약 242.05분으로 120분 목표를 넘었고, Lead도 62.90분으로 45분 목표를 넘었습니다. Director의 visual-lock 거절 1회는 지정 수정 후 재검사를 통과했지만 사용자가 시청하거나 미적 승인을 하지 않았으므로 상태는 `skipped`입니다. host token은 unknown이고 음성 동기화는 미검증이며, Claude Code 동일 입력 비교는 pending입니다.
 
 ## v0.9.2 제작 성능은 그대로, 설치 경로는 더 명확하게
 
@@ -42,7 +52,7 @@ v0.9.2는 배포 형식과 설치 진입점만 변경합니다. Director, Assets
 - Builder는 전체 visual system에 맞춰 공간, 재질, animation을 자유롭게 설계합니다. script는 실제 render geometry를 기준으로 무관한 node를 가로지르는 connector, label과 path/node의 접촉, connector path 중복, canvas 이탈만 검사하며 다이어그램 style은 평가하지 않습니다.
 - 수정은 원래 담당 Builder에게만 돌아가며 모든 Builder에게 전체 제작 기록을 전달하지 않습니다.
 
-검사는 계획된 발전의 누락과 측정 가능한 motion/layout 위험을 찾을 수 있지만 animation의 수준이나 미적 가치를 판단할 수는 없습니다. 최종 판단은 한 번의 전체 동영상 preview로 남습니다. backend 간 시각적 동일성은 보장하지 않습니다.
+검사는 계획된 발전의 누락과 측정 가능한 motion/layout 위험을 찾을 수 있지만 animation의 수준이나 미적 가치를 판단할 수는 없습니다. Visual lock은 대량 제작, 전체 preview는 납품을 판단합니다. backend 간 시각적 동일성은 보장하지 않습니다.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/erduo1998-cell/erduo-broll-loop-engineering/main/docs/images/demos/quick-start.gif" alt="SRT에서 승인된 4K Master까지의 사용 흐름" width="100%">
@@ -52,10 +62,10 @@ v0.9.2는 배포 형식과 설치 진입점만 변경합니다. Director, Assets
 
 ### 표준 Skill 설치
 
-고정 HyperFrames 환경이 이미 준비된 컴퓨터용입니다. v0.9.2 Release에서 `erduo-broll-loop-engineering-skills-v0.9.2.tar.gz`를 내려받아 압축을 푼 뒤 실행합니다.
+고정 HyperFrames 환경이 이미 준비된 컴퓨터용입니다. v1.0.0 Release에서 `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz`를 내려받아 압축을 푼 뒤 실행합니다.
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
 # Claude Code는 codex를 claude-code로 변경
 ```
 
@@ -63,7 +73,7 @@ npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-0.9.2 --skill '*'
 
 ### 전체 환경 설치
 
-필수 환경: macOS, Node.js 20 이상, FFmpeg/FFprobe, Codex 또는 Claude Code.
+필수 환경: macOS, Node.js 22.20 이상, FFmpeg/FFprobe, Codex 또는 Claude Code.
 
 ```bash
 git clone https://github.com/erduo1998-cell/erduo-broll-loop-engineering.git
@@ -79,7 +89,7 @@ SRT를 첨부하고 다음과 같이 요청하세요.
 
 ```text
 erduo-broll-loop-engineering을 사용해 이 SRT를 인물이 나오지 않는 B-roll Master로 만들어 주세요.
-전체 프리뷰에서 제 승인이 필요할 때까지 자동으로 계속 진행해 주세요.
+대표 장면 3개의 visual lock과 전체 preview의 납품 승인에서 각각 멈춰 주세요.
 ```
 
 토킹헤드 모드에는 자막과 일치하는 편집 완료 영상도 필요합니다. 이미지, 영상, 로고, 스크린샷이 있다면 처음에 함께 제공하세요.
@@ -90,8 +100,9 @@ UTF-8 SRT 입력은 중국어로 제한되지 않습니다. 실제 언어 품질
 
 ## 검증 범위
 
-- macOS의 Codex와 Claude Code에서 검증했습니다.
+- macOS의 Codex에서 v1.0.0 production benchmark를 완료했습니다. Claude Code 설치/계약은 검증했지만 동일 입력 v1 production 비교는 pending입니다.
 - 기본 결과물: H.264 MP4, 3840 × 2160, 30 fps.
+- 기본 unit media: 고품질 H.264 MP4. FFV1은 이유가 있는 명시적 upgrade만 허용하며 Hybrid는 backend 전용 source를 공유하지 않습니다.
 - 출력 정책은 직접 JSON으로 작성하지 않고 `create-production-profile.mjs`로 생성합니다. Parent는 이 파일을 항상 `plan-runtime.mjs --production-profile`에 전달하며 너비, 높이, fps, 오디오, H.264 MP4 조건을 계획, 각 Builder 작업, 납품 검증에 동일한 해시로 고정합니다. 예를 들어 `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4`는 기본값으로 되돌아가지 않는 세로형 25 fps 프로필을 만듭니다.
 - HyperFrames와 Remotion은 독립 백엔드이며 시각적 동일성을 보장하지 않습니다.
 - Windows, 데스크톱 CapCut/Jianying 가져오기, 임의의 기존 프로젝트 자동 복구는 검증되지 않았습니다.

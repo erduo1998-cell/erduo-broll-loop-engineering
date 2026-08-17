@@ -8,7 +8,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalJson, validateSchemaValue } from './runtime-schema-validator.mjs';
 import { validateRuntimePlan } from './validate-runtime-plan.mjs';
+import { validateVisualLock } from './validate-visual-lock.mjs';
 import { sanitizedEnvironment } from './safe-spawn.mjs';
+import { validateMezzaninePolicy } from './frozen-media-policy.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const schemaPath = path.join(skillRoot, 'references', 'runtime', 'frozen-block.schema.json');
@@ -221,14 +223,55 @@ function compareMedia(contract, facts, productionProfile, errors, label) {
   }
 }
 
+export function validateFrozenV3IdentityBinding(plan, contract, visualLock) {
+  if (plan?.schemaVersion !== '3.0.0') return [];
+  const errors = [];
+  const expectedRuntimeSourceIdentity = visualLock?.runtimeSources
+    ?.find(({ runtime }) => runtime === contract?.runtime)?.sourceIdentity ?? null;
+  if (contract?.visualLockIdentity !== visualLock?.identity) {
+    errors.push('visual-lock identity differs from the validated v3 lock');
+  }
+  if (contract?.runtimeSourceIdentity !== expectedRuntimeSourceIdentity) {
+    errors.push('runtime shared-source identity differs from the validated v3 lock');
+  }
+  return errors;
+}
+
 export async function validateFrozenBlocks(plan, contractFiles, sharedArtifactFiles = {}) {
   const {
     ffmpeg = 'ffmpeg', ffprobe = 'ffprobe', runner = runFrozenMediaCommand,
+    visualLockFile, productionRoot,
     ...runtimeArtifactFiles
   } = sharedArtifactFiles;
   await validateRuntimePlan(plan, runtimeArtifactFiles);
   if (plan.status !== 'planned' || plan.integrationMode !== 'frozen-block-media') {
     throw new Error('frozen media validation requires a planned frozen-media runtime plan');
+  }
+  const modernPlan = ['2.0.0', '3.0.0'].includes(plan.schemaVersion);
+  const mediaPolicyErrors = modernPlan
+    ? validateMezzaninePolicy(plan.productionProfile?.mezzanine)
+    : [];
+  if (mediaPolicyErrors.length) {
+    throw new Error(`frozen media policy is invalid:\n${mediaPolicyErrors.join('\n')}`);
+  }
+  let visualLock = null;
+  let visualLockValidation = null;
+  if (plan.schemaVersion === '3.0.0') {
+    if (!visualLockFile || !productionRoot) {
+      throw new Error('runtime plan v3 frozen media validation requires visualLockFile and productionRoot');
+    }
+    try {
+      visualLock = JSON.parse(await readFile(path.resolve(visualLockFile), 'utf8'));
+    } catch {
+      throw new Error('runtime plan v3 visual lock is missing or invalid JSON');
+    }
+    visualLockValidation = await validateVisualLock(visualLock, {
+      plan,
+      productionRoot: path.resolve(productionRoot),
+    });
+    if (!['approved', 'skipped'].includes(visualLockValidation.gate)) {
+      throw new Error(`runtime plan v3 frozen media is blocked by visual-lock status ${visualLockValidation.gate}`);
+    }
   }
   const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
   const records = [];
@@ -253,22 +296,26 @@ export async function validateFrozenBlocks(plan, contractFiles, sharedArtifactFi
           try {
             const [mediaFacts, source] = await Promise.all([
               inspectMedia(mediaCanonical, { ffmpeg, ffprobe, runner, cwd: contractDirectory }),
-              plan.schemaVersion === '2.0.0' ? verifySourceClosure(contract, contractDirectory) : Promise.resolve(null),
+              modernPlan ? verifySourceClosure(contract, contractDirectory) : Promise.resolve(null),
             ]);
             verified = { mediaPath: mediaCanonical, mediaSha256, mediaFacts, source };
           } catch (error) { errors.push(`${file}: ${error.message}`); }
         }
       } catch { errors.push(`${file}: media file is missing or unreadable`); }
     }
-    if (plan.schemaVersion === '2.0.0' && contract.productionProfileIdentity !== plan.productionProfile.identity) {
+    if (modernPlan && contract.productionProfileIdentity !== plan.productionProfile.identity) {
       errors.push(`${file}: production profile identity differs from the runtime plan`);
+    }
+    if (plan.schemaVersion === '3.0.0') {
+      errors.push(...validateFrozenV3IdentityBinding(plan, contract, visualLock)
+        .map((error) => `${file}: ${error}`));
     }
     records.push({
       file: path.resolve(file), contract, verified,
       contractSha256: await hashFile(path.resolve(file)),
     });
   }
-  const targets = plan.schemaVersion === '2.0.0' ? plan.authoringUnits : plan.blocks;
+  const targets = modernPlan ? plan.authoringUnits : plan.blocks;
   const ordered = [];
   const unused = new Set(records.map((_, index) => index));
   if (records.length !== targets.length) errors.push('frozen media count does not match runtime plan');
@@ -302,7 +349,7 @@ export async function validateFrozenBlocks(plan, contractFiles, sharedArtifactFi
     if (contract.audioPolicy === 'silent' && contract.media.audioStreams !== 0) errors.push(`${label}: silent block contains audio streams`);
     if (contract.media.startTimeMs !== 0) errors.push(`${label}: frozen media must start at zero`);
     if (record.verified) compareMedia(contract, record.verified.mediaFacts, plan.productionProfile, errors, label);
-    if (plan.schemaVersion === '2.0.0') {
+    if (modernPlan) {
       const expected = plan.productionProfile.mezzanine;
       if (contract.media.container !== expected.container || contract.media.codec !== expected.codec
         || contract.audioPolicy !== expected.audio.policy || contract.media.audioStreams !== expected.audio.streams) {
@@ -328,6 +375,9 @@ export async function validateFrozenBlocks(plan, contractFiles, sharedArtifactFi
     status: 'valid', blocks: ordered.length,
     startMs: ordered[0].contract.window.startMs, endMs: ordered.at(-1).contract.window.endMs,
     aggregateIdentity,
+    ...(plan.schemaVersion === '3.0.0'
+      ? { visualLockIdentity: visualLockValidation.identity }
+      : {}),
   };
   Object.defineProperty(result, 'verifiedRecords', { value: ordered, enumerable: false });
   return result;
@@ -335,15 +385,19 @@ export async function validateFrozenBlocks(plan, contractFiles, sharedArtifactFi
 
 async function main() {
   const [planFile, ...argumentsAfterPlan] = process.argv.slice(2);
-  if (!planFile) throw new Error('usage: node scripts/validate-frozen-blocks.mjs <runtime-plan.json> [--narrative-envelope <file> --visual-system <file>] <block-media.json>...');
+  if (!planFile) throw new Error('usage: node scripts/validate-frozen-blocks.mjs <runtime-plan.json> [--narrative-envelope <file> --visual-system <file> --representative-scenes <file> --visual-lock <file>] <block-media.json>...');
   const sharedArtifactFiles = {};
   const contractFiles = [];
   for (let index = 0; index < argumentsAfterPlan.length; index += 1) {
     const value = argumentsAfterPlan[index];
-    if (value === '--narrative-envelope' || value === '--visual-system') {
+    if (value === '--narrative-envelope' || value === '--visual-system'
+      || value === '--representative-scenes' || value === '--visual-lock') {
       const file = argumentsAfterPlan[index + 1];
       if (!file) throw new Error(`${value} requires a file`);
-      const key = value === '--narrative-envelope' ? 'narrativeEnvelopeFile' : 'visualSystemFile';
+      const key = value === '--narrative-envelope'
+        ? 'narrativeEnvelopeFile'
+        : value === '--visual-system' ? 'visualSystemFile'
+          : value === '--representative-scenes' ? 'representativeScenesFile' : 'visualLockFile';
       if (sharedArtifactFiles[key]) throw new Error(`duplicate ${value}`);
       sharedArtifactFiles[key] = path.resolve(file);
       index += 1;
@@ -353,6 +407,7 @@ async function main() {
   }
   if (contractFiles.length === 0) throw new Error('at least one block-media.json is required');
   const plan = JSON.parse(await readFile(path.resolve(planFile), 'utf8'));
+  sharedArtifactFiles.productionRoot = path.dirname(path.dirname(path.resolve(planFile)));
   const result = await validateFrozenBlocks(plan, contractFiles, sharedArtifactFiles);
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }

@@ -6,17 +6,25 @@ import { realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalJson, validateSchemaValue } from './runtime-schema-validator.mjs';
+import { validateMezzaninePolicy } from './frozen-media-policy.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const schemaPaths = new Map([
   ['1.0.0', path.join(skillRoot, 'references', 'runtime', 'runtime-plan-v1.schema.json')],
   ['2.0.0', path.join(skillRoot, 'references', 'runtime', 'runtime-plan.schema.json')],
+  ['3.0.0', path.join(skillRoot, 'references', 'runtime', 'runtime-plan.schema.json')],
 ]);
 const narrativeSchemaPath = path.join(skillRoot, 'references', 'runtime', 'narrative-envelope.schema.json');
 const visualSchemaPath = path.join(skillRoot, 'references', 'runtime', 'visual-system.schema.json');
+const representativeSchemaPath = path.join(skillRoot, 'references', 'runtime', 'representative-scenes.schema.json');
 
 export function computeRuntimePlanIdentity(plan) {
   const { identity: _identity, ...identityInput } = plan;
+  return createHash('sha256').update(canonicalJson(identityInput)).digest('hex');
+}
+
+export function computeRepresentativeScenesIdentity(value) {
+  const { identity: _identity, ...identityInput } = value;
   return createHash('sha256').update(canonicalJson(identityInput)).digest('hex');
 }
 
@@ -48,6 +56,10 @@ async function readSharedArtifact(file, schemaPath, label, expectedLocator) {
   const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
   const schemaErrors = validateSchemaValue(value, schema, schema);
   if (schemaErrors.length) throw new Error(`${label} schema validation failed:\n${schemaErrors.join('\n')}`);
+  if (label === 'representative scenes'
+    && computeRepresentativeScenesIdentity(value) !== value.identity) {
+    throw new Error('representative scenes identity does not match its contents');
+  }
   return {
     value,
     binding: {
@@ -82,13 +94,33 @@ export async function bindSharedArtifacts({ narrativeEnvelopeFile, visualSystemF
   return { narrativeEnvelope, visualSystem };
 }
 
+export async function bindRepresentativeScenes(representativeScenesFile) {
+  const representativeScenes = await readSharedArtifact(
+    representativeScenesFile,
+    representativeSchemaPath,
+    'representative scenes',
+    'representative-scenes.json',
+  );
+  const shotIds = representativeScenes.value.scenes.map(({ shotId }) => shotId);
+  const coverage = representativeScenes.value.scenes.map(({ coverage }) => coverage).toSorted();
+  const concerns = new Set(representativeScenes.value.scenes.flatMap(({ concerns: values }) => values));
+  if (new Set(shotIds).size !== 3) throw new Error('representative scenes must name three different shots');
+  if (JSON.stringify(coverage) !== JSON.stringify(['information-dense', 'late', 'opening'])) {
+    throw new Error('representative scenes must cover opening, information-dense, and late');
+  }
+  for (const concern of ['composition', 'text', 'material', 'motion']) {
+    if (!concerns.has(concern)) throw new Error(`representative scenes must collectively cover ${concern}`);
+  }
+  return representativeScenes;
+}
+
 export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
   const schemaPath = schemaPaths.get(plan?.schemaVersion);
   if (!schemaPath) throw new Error(`runtime plan validation failed:\n#/schemaVersion: unsupported runtime plan schema version ${JSON.stringify(plan?.schemaVersion)}`);
   const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
   const errors = validateSchemaValue(plan, schema, schema);
   let shared;
-  if (plan?.schemaVersion === '2.0.0') {
+  if (['2.0.0', '3.0.0'].includes(plan?.schemaVersion)) {
     if (plan.productionProfile?.identity
       && computeProductionProfileIdentity(plan.productionProfile) !== plan.productionProfile.identity) {
       errors.push('#/productionProfile/identity: does not match the immutable production profile');
@@ -98,11 +130,20 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
       || plan.productionProfile?.mezzanine?.audio?.policy !== plan.productionProfile?.master?.audio?.policy) {
       errors.push('#/productionProfile: audio policy must be internally complete and identical for mezzanine and master');
     }
+    for (const error of validateMezzaninePolicy(plan.productionProfile?.mezzanine)) {
+      errors.push(`#/productionProfile/mezzanine: ${error}`);
+    }
     try {
       shared = await bindSharedArtifacts(sharedArtifactFiles);
       for (const [key, artifact] of Object.entries(shared)) {
         if (JSON.stringify(plan.sharedArtifacts?.[key]) !== JSON.stringify(artifact.binding)) {
           errors.push(`#/sharedArtifacts/${key}: locator, schema version, or content hash does not match the verified file`);
+        }
+      }
+      if (plan.schemaVersion === '3.0.0') {
+        const representativeScenes = await bindRepresentativeScenes(sharedArtifactFiles.representativeScenesFile);
+        if (JSON.stringify(plan.sharedArtifacts?.representativeScenes) !== JSON.stringify(representativeScenes.binding)) {
+          errors.push('#/sharedArtifacts/representativeScenes: locator, schema version, or content hash does not match the verified file');
         }
       }
     } catch (error) {
@@ -112,8 +153,8 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
   if (plan?.identity && computeRuntimePlanIdentity(plan) !== plan.identity) errors.push('#/identity: aggregate does not match plan contents');
   if (plan?.status === 'planned') {
     if (!plan.resultingRoute || !plan.integrationMode || plan.shots.length === 0 || plan.blocks.length === 0) errors.push('#: a planned route requires shots, blocks, and integration mode');
-    if (plan.schemaVersion === '2.0.0' && plan.integrationMode !== 'frozen-block-media') errors.push('#/integrationMode: runtime plan v2 requires frozen authoring-unit media');
-    if (plan.schemaVersion === '2.0.0' && plan.frozenMediaContractVersion !== '1.0.0') errors.push('#/frozenMediaContractVersion: runtime plan v2 requires the frozen media contract');
+    if (['2.0.0', '3.0.0'].includes(plan.schemaVersion) && plan.integrationMode !== 'frozen-block-media') errors.push('#/integrationMode: runtime plan v2/v3 requires frozen authoring-unit media');
+    if (['2.0.0', '3.0.0'].includes(plan.schemaVersion) && plan.frozenMediaContractVersion !== '1.0.0') errors.push('#/frozenMediaContractVersion: runtime plan v2/v3 requires the frozen media contract');
     if (plan.schemaVersion === '1.0.0' && plan.resultingRoute === 'hybrid' && plan.integrationMode !== 'frozen-block-media') errors.push('#/integrationMode: hybrid requires frozen-block-media');
     if (plan.schemaVersion === '1.0.0' && plan.resultingRoute !== 'hybrid' && plan.integrationMode !== 'single-runtime-source') errors.push('#/integrationMode: legacy single runtime route requires single-runtime-source');
     const expectedBackends = [...new Set(plan.shots.map(({ runtime }) => runtime))].sort();
@@ -134,7 +175,7 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
         || block.window.startMs !== assigned[0].window.startMs
         || block.window.endMs !== assigned.at(-1).window.endMs) errors.push(`#/blocks/${index}: runtime or window does not match its shots`);
     }
-    if (plan.schemaVersion === '2.0.0') {
+    if (['2.0.0', '3.0.0'].includes(plan.schemaVersion)) {
       const authoringUnits = Array.isArray(plan.authoringUnits) ? plan.authoringUnits : [];
       const unitShotIds = authoringUnits.flatMap(({ shotIds }) => Array.isArray(shotIds) ? shotIds : []);
       const expectedShotIds = shots.map(({ shotId }) => shotId);
@@ -161,7 +202,8 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
         if (assigned.some((item) => !item)) errors.push(`#/authoringUnits/${index}: unknown shot`);
         else {
           const duration = unit.window.endMs - unit.window.startMs;
-          if (duration > 40_000) errors.push(`#/authoringUnits/${index}/window: authoring unit exceeds 40000ms; return to Director to split the semantic shot`);
+          if (plan.schemaVersion === '2.0.0' && duration > 40_000) errors.push(`#/authoringUnits/${index}/window: authoring unit exceeds 40000ms; return to Director to split the semantic shot`);
+          if (plan.schemaVersion === '2.0.0' && unitShotIdsForEntry.length > 3) errors.push(`#/authoringUnits/${index}/shotIds: legacy runtime plan v2 authoring units contain at most three shots`);
           if (unit.runtime !== block?.runtime
             || assigned.some(({ runtime }) => runtime !== unit.runtime)
             || unit.window.startMs !== assigned[0].window.startMs
@@ -179,25 +221,53 @@ export async function validateRuntimePlan(plan, sharedArtifactFiles = {}) {
           }
         }
       }
+      if (plan.schemaVersion === '3.0.0') {
+        const representatives = plan.visualLock?.representativeScenes ?? [];
+        const expectedRepresentatives = sharedArtifactFiles.representativeScenesFile
+          ? (await bindRepresentativeScenes(sharedArtifactFiles.representativeScenesFile)).value.scenes
+          : [];
+        if (plan.visualLock?.required !== true
+          || plan.visualLock?.contractLocator !== '04-visual-lock/visual-lock.json'
+          || plan.visualLock?.sourceIsolation !== 'per-runtime') {
+          errors.push('#/visualLock: v3 requires the default visual-lock gate and per-runtime source isolation');
+        }
+        if (JSON.stringify(representatives.map(({ shotId, coverage, reason, concerns }) => ({ shotId, coverage, reason, concerns })))
+          !== JSON.stringify(expectedRepresentatives)) {
+          errors.push('#/visualLock/representativeScenes: must preserve the Director selection exactly');
+        }
+        for (const representative of representatives) {
+          const planned = shots.find(({ shotId }) => shotId === representative.shotId);
+          if (!planned || planned.runtime !== representative.runtime) {
+            errors.push(`#/visualLock/representativeScenes: ${representative.shotId} runtime does not match the plan`);
+          }
+        }
+        const representativeBackends = [...new Set(representatives.map(({ runtime }) => runtime))].toSorted();
+        if (JSON.stringify(representativeBackends) !== JSON.stringify([...plan.requiredBackends].toSorted())) {
+          errors.push('#/visualLock/representativeScenes: Hybrid selections must include every planned backend');
+        }
+        if (plan.visualLock?.leadAssignmentLocators?.length !== plan.requiredBackends.length) {
+          errors.push('#/visualLock/leadAssignmentLocators: requires one Lead Builder assignment per backend');
+        }
+      }
     }
   } else if (plan?.resultingRoute !== null || plan?.requiredBackends?.length || plan?.blocks?.length
-    || (plan?.schemaVersion === '2.0.0' && plan?.authoringUnits?.length) || plan?.integrationMode !== null) {
+    || (['2.0.0', '3.0.0'].includes(plan?.schemaVersion) && plan?.authoringUnits?.length) || plan?.integrationMode !== null) {
     errors.push('#: action-required plan must not dispatch backends or integration');
   }
   if (errors.length) throw new Error(`runtime plan validation failed:\n${errors.join('\n')}`);
   return {
     status: 'valid', shots: plan.shots.length, blocks: plan.blocks.length,
-    ...(plan.schemaVersion === '2.0.0' ? { authoringUnits: plan.authoringUnits.length } : {}),
+    ...(['2.0.0', '3.0.0'].includes(plan.schemaVersion) ? { authoringUnits: plan.authoringUnits.length } : {}),
     route: plan.resultingRoute,
   };
 }
 
 async function main() {
-  const [file, narrativeEnvelopeFile, visualSystemFile] = process.argv.slice(2);
-  if (!file) throw new Error('usage: node scripts/validate-runtime-plan.mjs <runtime-plan.json> [narrative-envelope.json visual-system.json]');
+  const [file, narrativeEnvelopeFile, visualSystemFile, representativeScenesFile] = process.argv.slice(2);
+  if (!file) throw new Error('usage: node scripts/validate-runtime-plan.mjs <runtime-plan.json> [narrative-envelope.json visual-system.json representative-scenes.json]');
   const plan = JSON.parse(await readFile(path.resolve(file), 'utf8'));
   process.stdout.write(`${JSON.stringify(await validateRuntimePlan(plan, {
-    narrativeEnvelopeFile, visualSystemFile,
+    narrativeEnvelopeFile, visualSystemFile, representativeScenesFile,
   }))}\n`);
 }
 

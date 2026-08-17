@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { createRequire } from 'node:module';
 import { execFile } from 'node:child_process';
-import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -14,7 +14,7 @@ const fixtureProject = path.resolve('scripts/fixtures/remotion-dom-trace');
 const project = process.env.REMOTION_TRACE_E2E_PROJECT || fixtureProject;
 const execFileAsync = promisify(execFile);
 
-test('real Remotion Player seeks every frame and captures DOM geometry before lint', async (t) => {
+test('real Remotion Player samples Recipe boundaries and escalates only a bounded window', async (t) => {
   try {
     await access(path.join(project, 'node_modules', '@remotion', 'renderer', 'package.json'));
   } catch {
@@ -30,6 +30,16 @@ test('real Remotion Player seeks every frame and captures DOM geometry before li
   const bundle = path.join(directory, 'bundle.js');
   const html = path.join(directory, 'index.html');
   const output = path.join(directory, 'trace.json');
+  const escalatedOutput = path.join(directory, 'trace-escalated.json');
+  const recipeDirectory = path.join(directory, 'recipes');
+  await mkdir(recipeDirectory);
+  await writeFile(path.join(recipeDirectory, 'S01.json'), `${JSON.stringify({
+    schemaVersion: '3.0.0', shotId: 'S01', window: { startMs: 0, endMs: 1000 },
+    microBeats: [
+      { beatId: 'b1', startMs: 0, endMs: 500, change: 'relationship' },
+      { beatId: 'b2', startMs: 500, endMs: 1000, change: 'deliberate-stillness' },
+    ],
+  })}\n`);
   await writeFile(entry, `
 import React, {forwardRef, useImperativeHandle, useRef} from 'react';
 import {createRoot} from 'react-dom/client';
@@ -72,11 +82,24 @@ createRoot(document.getElementById('root')).render(<App/>);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise((resolve) => server.close(resolve)));
   const address = server.address();
-  const trace = await captureRemotionDomTrace({ project, url: `http://127.0.0.1:${address.port}/`, output, identity: 'b'.repeat(64) });
-  assert.equal(trace.shots[0].elements[0].samples.length, 30);
+  const trace = await captureRemotionDomTrace({ project, url: `http://127.0.0.1:${address.port}/`, output, identity: 'b'.repeat(64), recipeDirectory });
+  assert.equal(trace.sampling.mode, 'sampled');
+  assert.deepEqual(trace.sampling.frames, [0, 7, 14, 15, 22, 29]);
+  assert.equal(trace.shots[0].elements[0].samples.length, 6);
   assert.equal(trace.shots[0].elements[0].samples[0].frame, 0);
   assert.equal(trace.shots[0].elements[0].samples.at(-1).frame, 29);
-  assert.ok(trace.shots[0].elements[0].samples[10].x > trace.shots[0].elements[0].samples[0].x);
+  assert.ok(trace.shots[0].elements[0].samples.find(({ frame }) => frame === 14).x > trace.shots[0].elements[0].samples[0].x);
   const result = analyzeMotionLayoutTrace(trace);
   assert.equal(result.status, 'pass', JSON.stringify(result.findings));
+  assert.equal((await readdir(directory)).some((name) => name.endsWith('.png')), false);
+
+  const escalated = await captureRemotionDomTrace({
+    project, url: `http://127.0.0.1:${address.port}/`, output: escalatedOutput,
+    identity: 'b'.repeat(64), recipeDirectory,
+    denseWindows: [{ startFrame: 7, endFrame: 11 }],
+  });
+  assert.equal(escalated.sampling.mode, 'escalated');
+  assert.deepEqual(escalated.sampling.denseWindows, [{ startFrame: 7, endFrame: 11 }]);
+  assert.ok([7, 8, 9, 10].every((frame) => escalated.sampling.frames.includes(frame)));
+  assert.equal(escalated.sampling.frames.length < 30, true);
 });
