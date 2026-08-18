@@ -1,10 +1,17 @@
 # Remotion production backend
 
-Read this reference only after the deterministic runtime plan assigns an
-authoring unit to `remotion`. It defines the current Remotion Builder contract;
-the Parent still owns scripted preview assembly and delivery. It does not
-change the HyperFrames route and does not authorize a new Integrator or Render
-Agent.
+This is the Parent/tooling reference for an assignment routed to `remotion`.
+It is not a default Builder reread: the generated assignment carries exact
+runtime facts, commands, and at most two selected references. Parent owns
+dependency preparation, typecheck, bundle reuse, direct shot rendering,
+six-frame checks, media contracts, preview assembly, and optional Master
+delivery. No Integrator or Render Agent is authorized.
+
+The v1.0.1 Remotion route is a release-candidate existing-project adapter. A
+real Composition canary covers typecheck, CLI render, FFprobe/full decode, shot
+contract, and preview assembly. The same `179.866` second SRT forced entirely
+through Remotion has not completed, so this document does not claim equal
+production evidence, performance, or stability with HyperFrames.
 
 ## Provenance and scope
 
@@ -37,10 +44,10 @@ production component.
 
 ## Project-resolved runtime version
 
-Create a self-contained source/manifest project inside the production
-directory. Do not install packages into the Skill repository or a global
-prefix. Use Node.js 22 or newer. This release deliberately does not pin one
-global Remotion version.
+Use an existing project-local exact package/lock closure or the release-candidate
+baseline prepared by Parent inside the production directory. Do not install
+packages into the Skill repository or a global prefix. Use Node.js 22 or newer.
+This release deliberately does not pin one global Remotion version.
 
 Every production project still has to be reproducible:
 
@@ -80,14 +87,15 @@ must invoke the local Node entry points directly.
 
 ## Shared dependency toolchain
 
-Source isolation does not require dependency duplication. Run the bundled
-preparer from the parent Skill root for every Remotion unit:
+Source isolation does not require dependency duplication. Parent runs the
+bundled preparer once for each distinct dependency identity, before creative
+work calls the assignment's standard command:
 
 ```text
 node scripts/remotion-toolchain.mjs prepare \
   --project <unit-project> \
   --production-root <broll-production> \
-  --receipt <unit-evidence/toolchain.json>
+  --receipt <parent-evidence/toolchain.json>
 ```
 
 The script derives an identity from the exact dependency declarations, full
@@ -99,8 +107,8 @@ delete an existing private dependency tree automatically; stop and migrate it
 explicitly. The dependency link is the only permitted project symlink and the
 verifier continues to exclude dependency bytes from production identity.
 
-Wrap every install, typecheck, browser geometry trace, diagnostic render, and
-frozen-unit render:
+Parent wraps every install, typecheck, browser geometry trace, diagnostic
+render, and direct-shot render:
 
 ```text
 node scripts/remotion-toolchain.mjs run-heavy \
@@ -113,7 +121,7 @@ The fixed two-slot queue prevents an arbitrary number of Builders from running
 heavy local processes together. Source authoring does not use this queue. Do
 not add automatic CPU/memory tuning; the bounded queue is the complete resource
 rule. A shared npm cache may reduce downloads, but it is not dependency reuse
-and never substitutes for the shared toolchain receipt.
+and never substitutes for the Parent-generated shared toolchain receipt.
 
 Every command follows [shared command execution](safe-execution.md) and consumes
 only its compact result.
@@ -231,8 +239,9 @@ node scripts/remotion-verify.mjs \
   --json
 ```
 
-The Builder binds the manifest and every production file recorded in it to the
-unit source identity and frozen-media contract.
+Parent binds the source manifest and every recorded production file to the
+unit source identity before direct shot rendering. Builder does not hand-write
+the manifest, identity, receipt, or media contract.
 The verifier ignores only root `.git/` and root `node_modules/`; every other
 file under `project/` must appear in the manifest and identity. Put caches,
 stills, logs, and rendered outputs in sibling evidence directories
@@ -264,50 +273,47 @@ binding can be inspected.
 
 ## Executable gates
 
-The Builder runs, in order:
+The Builder authors only its assigned source and runs the exact standard check
+from its assignment. The Parent owns shared-toolchain preparation, one
+project-local TypeScript check, one bundle, direct rendering of every assigned
+Composition ID, Recipe-bound geometry samples, bounded diagnostic windows,
+FFprobe, complete decode, source identity, SHA-256, and one schema-valid
+`shot-media.json` per Recipe. A stable resolved hold is legal and never needs
+invented movement merely to satisfy the lint.
 
-1. the bundled verifier with `--expect block`;
-2. shared-toolchain preparation, which performs `npm ci` only for a new
-   dependency identity;
-3. the project-local TypeScript check through the two-slot wrapper and
-   `node node_modules/typescript/bin/tsc --noEmit`;
-4. runtime capture of meaningful DOM/scene geometry at Recipe boundaries,
-   holds, cuts, and required mechanism samples through the same wrapper, with
-   dense/per-frame escalation only for bounded findings or exact path evidence;
-5. `scripts/motion-layout-lint.mjs` against that trace, with rendered
-   diagnostics only for returned finding windows;
-6. one continuous frozen-unit render in the runtime plan's immutable common
-   profile;
-7. FFprobe, full decode, duration/frame/audio checks, source identity, media
-   SHA-256, and schema-valid `block-media.json` closure.
+The standard command samples opening, preparation, action-a, action-b, result,
+and settle/tail from Recipe beats and holds. Only a concrete jump, collision,
+occlusion, boundary, unsettled result, or complex path/connector may add a
+bounded diagnostic window. A normal shot never receives a full-frame scan.
+Parent returns only `shotId + time/window + defect + evidence locator`; a pass
+returns one compact summary. Builder does not create or hand-write capture,
+trace, lint, render, hash, probe, decode, manifest, receipt, contract, or proof
+tooling/artifacts.
 
-After all Builder units pass, the Parent runs
-`scripts/assemble-frozen-production.mjs preview` with the plan, shared Director
-artifacts, validated visual lock, and every unit contract. For plan v3 it
-rechecks the lock and each Remotion contract's shared-source identity before it resolves contracts and assembles
-them in plan order, creates the one bounded moving preview, fully decodes it,
-and freezes the approval identity. After user approval, the Parent runs
-`deliver` with the same evidence and encodes a new full-spec master. No
-Integrator or Render Agent is dispatched, and the preview is never copied as
-the master.
+After every shot passes, the Parent runs `scripts/assemble-shot-preview.mjs`
+with the runtime plan, Recipe directory, verified source manifests, production
+root, and a new output path. `delivery-index.json` is the only assembly-order
+truth. The complete preview is built only from those verified shot files; the
+ordered shot directory is the default formal delivery and a full-length master
+is optional. No Integrator or Render Agent is dispatched.
 
-Read `references/motion-layout-lint.md` for the shared trace contract and
-limits. Static source regex cannot establish geometry or easing quality. A
+Parent tooling follows `references/motion-layout-lint.md` for the shared trace
+contract and limits; it is not a default Builder reread. Static source regex cannot establish geometry or easing quality. A
 passing trace suppresses AI frame inspection; findings alone trigger bounded
 diagnostic renders. Code cannot prove perceived weight, meaningful arcs,
 exaggeration, appeal, or story clarity. Representative moving scenes provide
 the early visual-lock decision and the complete moving preview provides the
-final aesthetic decision.
+final aesthetic decision. There is no default full-film Director video witness.
 
 Invoke `node node_modules/@remotion/cli/remotion-cli.js` with the manifest's
-entry point and Composition ID explicitly for diagnostic stills and the
-frozen-unit render.
+entry point and each shot Composition ID explicitly for diagnostic stills and each
+direct shot render.
 Never infer a composition ID from file names, use
 `latest`, overwrite an output, treat an exit code alone as evidence, or claim
 visual parity with HyperFrames.
 
 For a faceless or otherwise silent audio policy, pass `--muted` explicitly to
-every diagnostic clip and frozen-unit render. Do not infer silence from the absence of an
+every diagnostic clip and direct shot render. Do not infer silence from the absence of an
 `Audio` component: Remotion may otherwise emit a near-silent audio stream and
 extend the container beyond the exact frame duration. Verify zero audio
 streams and `durationInFrames / fps` container duration with FFprobe.
@@ -317,10 +323,11 @@ streams and `durationInFrames / fps` container duration with FFprobe.
 Remotion and HyperFrames share the Director Recipe, selected pattern intent,
 and frozen Assets handoff. They do not share runtime source. A production run
 uses a validated post-Director runtime plan before build, and every later
-handoff preserves its authoring-unit and block binding. Every route exchanges
-only schema-valid frozen unit media at the Parent's assembly boundary. Do not
-convert a failed unit to the other runtime or pre-render it merely to disguise
-a reroute.
+handoff preserves its authoring-unit and shot bindings. The authoring unit is a
+work packet, not a media boundary. Every route exchanges only schema-valid shot
+media at the Parent's assembly boundary. A selected-backend failure returns to
+that backend for repair; do not silently convert it to the other runtime or
+pre-render it merely to disguise a reroute.
 
 Legacy Integrator, Studio-approval, and Render records remain readable only for
 explicit pre-v0.9 recovery. Their stage Skills return read-only recovery

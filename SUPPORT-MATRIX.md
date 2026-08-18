@@ -7,8 +7,8 @@
 | macOS + Codex | supported core / v1 technical witness | [v1.0.0 公开基准](docs/V1.0.0-BENCHMARK.md)已完成 `179.866` 秒同 SRT 生产、完整 preview/Master 解码和 80 帧 Director 技术/语义抽检；用户未观看，visual lock 为 `skipped`，不构成审美批准 |
 | macOS + Claude Code | experimental | 安装目标和 v1 契约受测试覆盖，尚缺与 Codex 同输入的 v1 端到端对照 |
 | macOS 首次安装 | supported installer | 安装器、离线 mock 与安全边界受自动化测试覆盖；硬件、网络和宿主差异仍可能要求人工处理 |
-| HyperFrames runtime | supported production backend | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；可由 auto 或显式单后端计划选择 |
-| Remotion runtime | project-local supported workflow | 具备前置识别、独立 Builder 制作和失败关闭验证；每个单元交付源码与已验证片段，相同精确依赖身份在本次生产内只安装一次，不承诺与 HyperFrames 视觉一致 |
+| HyperFrames runtime | v1.0.1 production default / canary approved | CLI 固定为 `0.7.104`，8 个官方核心 Skill 固定为 commit `c96b30c7174984e684620556ce871a285381ec60`；同输入 5 镜头 Chapter Builder canary 已完成技术闭环并获用户认可，未执行完整长片 |
+| Remotion runtime | explicit opt-in / canary / technical witness only | 旧 `179.866` 秒 run 的 20/20 H.264、合同与 full decode 是技术事实，但视觉结果失败并触发本次 reset；新 production 不默认选择 Remotion，也不能称为与 HyperFrames 同等验证 |
 | Hybrid frozen-media route | contract + validator supported | 逐镜证据规划、连续区块聚合、冻结媒体 schema/hash validator 和 FFmpeg 集成已进入公开契约；FFprobe/完整解码由阶段实跑留证；尚不构成双后端成片或视觉一致性 witness |
 | Windows | unverified | 保留路径和配置兼容设计；没有真实 Windows 运行证据 |
 | 剪映/CapCut 桌面 GUI | unverified | 输出以常见 MP4/MOV 交付为目标；尚未完成当前版本 GUI 实机导入认证 |
@@ -16,6 +16,23 @@
 稳定版本只冻结公开契约，不会把未完成的环境验证自动提升为 `verified`。Windows 与剪映 GUI 必须保持本表声明，直到取得对应实机证据。
 
 官方 doctor 可能因为 npm 上已有更新版本而把顶层 `ok` 置为 false。只在 doctor 的 `_meta.version` 精确等于本发行包锁定的 `0.7.104`、失败项只是“newer version available”，且 Node、FFmpeg、FFprobe、Chrome 等选中本地渲染事实全部通过时，本项目把它记录为非阻断更新提示；版本不明、版本不符或任何渲染事实失败仍会关闭发布/生产门。
+
+## v1.0.1 Creative Loop Reset
+
+| 项目 | 当前状态 | 证据边界 |
+| --- | --- | --- |
+| 三层边界 | contract + tests + canary witness | 语义/媒体/检查边界为一 shot；创作边界为通常 `5–8` 个连续 shots 的 chapter。新 run 规划为 `7/7/6`，旧 20-shot→20-unit 行为被判定为失败 |
+| 原始输入直达 | assignment contract + forward witness | Director、Lead、Chapter Builder 直接读取同一份完整原始 SRT/design 及 identity，未用摘要替代 |
+| Truth / proposal | Recipe v4 contract + forward witness | `truth` 不可修改；Builder 用一句理由修改 `creativeProposal`，无需 Director 再审批；真实返修未改变 truth |
+| Shared Assets | shared freeze + open shot routes | 只冻结已知共享物；每镜保留 `native|provided|search|generate|mixed`。全局关闭必须是用户、能力、授权或费用事实 |
+| Lead 能力 | three final samples + capability index + forward witness | 原生图形/文字、素材融合、信息密集三类样片均真实直出并完整解码；Lead 查看六格图/关键帧后记录 `revised` |
+| Chapter Builder 观看闭环 | `accepted|revised` contract + forward witness | 5 个 canary shot 的原 Builder 均查看六格图和 chapter preview，修复裁切、安全区、空容器等实际问题并写回观看回执 |
+| 检查瘦身 | no-proof source contract | production source 不再需要 inspection/DOM trace/motion-window/通过态 diagnostics；Parent 保留 render、probe、decode、hash、合同和六格图 |
+| Runtime 策略 | HyperFrames default; Remotion explicit; auto experimental | Remotion/auto 均不会在空白生产中自动接管全片；重新开放 auto 需要同输入视觉 canary 与用户选择 |
+| Canary gate | technical passed; user approved release | 5/5 直出与完整解码、Builder 观看、三种构图、至少两镜素材融合、两种 signature motion 与时间门均通过。用户整体认可本版并要求直接发布，但未提交逐镜 3/5 结构化决定，因此 full-production gate 仍保持关闭 |
+| 默认交付 | ordered shot directory | 每镜仍从自己的 runtime source 直出独立 H.264；完整 preview 只用已验证 shot，Master 可选，`broll-shot-export` 仅兼容旧任务 |
+
+v1.0.1 已用相同 `179.866` 秒、`124` cue 输入完成全新 HyperFrames Lead + 5-shot creative canary。技术 gate 身份为 `sha256:777fe22ff4f95b20edf0faa858d7187b3135d9198fdf181a03b34e460189fb20`；用户观看后明确认可效果，并要求停止剩余镜头和完整 preview、直接发布。因未形成逐镜 3/5 结构化决定，代码中的 full-production gate 没有被绕过，发布也不声称完整长片或 Remotion 等价支持。旧 Remotion 技术 run 的 `203m13s / 54m17s / 63m13s` 与视觉失败只作为修正依据。
 
 ## v1.0 Production Loop 合同
 
@@ -85,7 +102,7 @@
 
 ## Runtime adapter 与 Shotcraft 知识层
 
-运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由 Parent 直接运行确定性 `plan-runtime.mjs`，按 capability 与 exact pattern/backend evidence 逐镜选择后端、聚合连续区块并生成聚焦 authoring units。用户可强制整片单后端；空白新项目默认 auto。脚本不读语义关键词。
+运行时无关 Shot Recipe 先冻结语义、时间、素材和适配边界，再由 Parent 直接运行确定性 `plan-runtime.mjs`。v1.0.1 RC 的空白 production 默认 HyperFrames；Remotion 必须由用户明确选择或用于 canary，`auto` 也必须显式选择且仍属实验路线。脚本不读语义关键词。
 
 能力状态必须按镜头机制逐项判断：
 

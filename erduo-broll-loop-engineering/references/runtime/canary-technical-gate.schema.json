@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/canary-technical-gate.schema.json",
+  "title": "Five-shot creative canary technical gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "planIdentity", "shotIds", "canaryPreview", "checks", "contractBindings", "viewReceiptBindings", "identity"],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "status": {"const": "passed"},
+    "planIdentity": {"$ref": "#/$defs/sha256"},
+    "shotIds": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "canaryPreview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["locator", "sha256", "fullDecode"],
+      "properties": {
+        "locator": {"const": "05-delivery/canary-preview.mp4"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "fullDecode": {"const": "passed"}
+      }
+    },
+    "checks": {
+      "type": "object", "additionalProperties": false,
+      "required": ["directRuntimeRender", "fullDecode", "sixFrameSheets", "builderViews"],
+      "properties": {
+        "directRuntimeRender": {"const": "passed"}, "fullDecode": {"const": "passed"},
+        "sixFrameSheets": {"const": "passed"}, "builderViews": {"const": "passed"}
+      }
+    },
+    "contractBindings": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/contractBinding"}},
+    "viewReceiptBindings": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/viewReceiptBinding"}},
+    "identity": {"$ref": "#/$defs/prefixedSha256"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "unitId": {"type": "string", "pattern": "^[LU][0-9]{3}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "prefixedSha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "contractBinding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["shotId", "contractLocator", "contractSha256", "mediaSha256", "semanticCheckSha256", "sourceIdentity"],
+      "properties": {
+        "shotId": {"$ref": "#/$defs/id"}, "contractLocator": {"type": "string", "minLength": 1},
+        "contractSha256": {"$ref": "#/$defs/sha256"}, "mediaSha256": {"$ref": "#/$defs/sha256"},
+        "semanticCheckSha256": {"$ref": "#/$defs/sha256"}, "sourceIdentity": {"$ref": "#/$defs/prefixedSha256"}
+      }
+    },
+    "viewReceiptBinding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["assignmentId", "locator", "sha256"],
+      "properties": {
+        "assignmentId": {"$ref": "#/$defs/unitId"}, "locator": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

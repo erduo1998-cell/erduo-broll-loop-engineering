@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "2.0.0",
+  "status": "planned",
+  "planningMode": "auto",
+  "selection": {
+    "schemaVersion": "2.0.0",
+    "selectedRuntime": "auto",
+    "selectionSource": "default"
+  },
+  "sharedArtifacts": {
+    "narrativeEnvelope": {
+      "locator": "narrative-envelope.json",
+      "schemaVersion": "1.0.0",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "visualSystem": {
+      "locator": "visual-system.json",
+      "schemaVersion": "1.0.0",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  },
+  "productionProfile": {
+    "schemaVersion": "1.0.0",
+    "raster": { "width": 1920, "height": 1080 },
+    "fps": { "numerator": 30, "denominator": 1 },
+    "mezzanine": {
+      "container": "mp4", "codec": "h264", "encoder": "libx264", "pixelFormat": "yuv420p",
+      "class": "visually-lossless", "preset": "medium", "crf": 12, "gopFrames": 60,
+      "keyframeScenecut": false, "upgradeReason": null,
+      "color": { "space": "bt709", "transfer": "bt709", "primaries": "bt709", "range": "tv" },
+      "audio": { "policy": "silent", "streams": 0, "codec": null, "sampleRate": null, "channels": null }
+    },
+    "master": {
+      "container": "mp4", "codec": "h264", "encoder": "libx264", "pixelFormat": "yuv420p",
+      "preset": "medium", "crf": 16, "fastStart": true,
+      "color": { "space": "bt709", "transfer": "bt709", "primaries": "bt709", "range": "tv" },
+      "audio": { "policy": "silent", "streams": 0, "codec": null, "sampleRate": null, "channels": null }
+    },
+    "identity": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resultingRoute": "hyperframes",
+  "requiredBackends": ["hyperframes"],
+  "integrationMode": "frozen-block-media",
+  "frozenMediaContractVersion": "1.0.0",
+  "shots": [{
+    "shotId": "S01",
+    "window": { "startMs": 0, "endMs": 1000 },
+    "runtime": "hyperframes",
+    "decision": "portable-default",
+    "evidence": [{
+      "kind": "portable-default", "id": "portable-default", "runtime": "hyperframes",
+      "priority": 0, "verification": "contract-only", "locator": "capability-matrix.json"
+    }],
+    "unverifiedPreferences": []
+  }],
+  "blocks": [{
+    "blockId": "B001", "runtime": "hyperframes", "window": { "startMs": 0, "endMs": 1000 }, "shotIds": ["S01"]
+  }],
+  "authoringUnits": [{
+    "unitId": "U001", "blockId": "B001", "runtime": "hyperframes",
+    "window": { "startMs": 0, "endMs": 1000 }, "shotIds": ["S01"],
+    "context": {
+      "narrativeEnvelope": "narrative-envelope.json", "visualSystem": "visual-system.json",
+      "recipes": ["shot-recipes/S01.json"], "previousSeam": null, "nextSeam": null
+    }
+  }],
+  "warnings": [],
+  "identity": "4444444444444444444444444444444444444444444444444444444444444444"
+}

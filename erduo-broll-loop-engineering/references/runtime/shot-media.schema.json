@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-media.schema.json",
+  "title": "One directly rendered semantic shot media contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "order", "shotId", "unitId", "srtWindowMs", "localTimeline", "backend", "renderTarget", "sourceIdentity", "recipeIdentity", "profileIdentity", "media", "semanticCheck"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "order": { "type": "integer", "minimum": 1 },
+    "shotId": { "$ref": "#/$defs/id" },
+    "unitId": { "type": "string", "pattern": "^U[0-9]{3}$" },
+    "srtWindowMs": { "$ref": "#/$defs/window" },
+    "localTimeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startFrame", "frameCount"],
+      "properties": {
+        "startFrame": { "const": 0 },
+        "frameCount": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "backend": { "enum": ["hyperframes", "remotion"] },
+    "renderTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "mode"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "mode": { "const": "direct-runtime-render" }
+      }
+    },
+    "sourceIdentity": { "$ref": "#/$defs/prefixedSha256" },
+    "recipeIdentity": { "$ref": "#/$defs/prefixedSha256" },
+    "profileIdentity": { "$ref": "#/$defs/prefixedSha256" },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "durationMs", "width", "height", "fps", "codec", "sha256", "fullDecode"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^shots/[0-9]{3}-[A-Za-z0-9][A-Za-z0-9._-]*\\.mp4$" },
+        "durationMs": { "type": "integer", "minimum": 1 },
+        "width": { "type": "integer", "minimum": 2 },
+        "height": { "type": "integer", "minimum": 2 },
+        "fps": { "type": "number", "exclusiveMinimum": 0 },
+        "codec": { "const": "h264" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "fullDecode": { "const": "passed" }
+      }
+    },
+    "semanticCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceMedia", "contactSheet", "sha256", "samples"],
+      "properties": {
+        "sourceMedia": { "type": "string", "pattern": "^shots/[0-9]{3}-[A-Za-z0-9][A-Za-z0-9._-]*\\.mp4$" },
+        "contactSheet": { "type": "string", "pattern": "^checks/[0-9]{3}-[A-Za-z0-9][A-Za-z0-9._-]*\\.semantic-check\\.png$" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "samples": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "localTimeMs", "frame"],
+            "properties": {
+              "role": { "enum": ["opening", "preparation", "action-a", "action-b", "result", "settle-tail"] },
+              "localTimeMs": { "type": "integer", "minimum": 0 },
+              "frame": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "prefixedSha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

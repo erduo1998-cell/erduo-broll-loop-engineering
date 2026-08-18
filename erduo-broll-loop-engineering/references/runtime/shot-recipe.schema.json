@@ -1,56 +1,67 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-recipe.schema.json",
-  "title": "Compact runtime-neutral shot recipe v3",
-  "description": "A shot-local delta contract. Shared visual, narrative, font, palette, and global prohibition facts belong in the shared artifacts, not here.",
+  "title": "Creative-loop shot recipe v4",
+  "description": "Separates immutable shot truth from a revisable creative proposal. Director-authored solo decisions are forbidden.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "shotId", "window", "cueIds", "audienceUnderstanding", "visualJob", "focus", "compositionFamily", "heroFrame", "microBeats", "materialNeeds", "requiredCapabilities", "readableHold", "neighborHandoff"],
+  "required": ["schemaVersion", "shotId", "truth", "creativeProposal", "craftIntent"],
   "properties": {
-    "schemaVersion": { "const": "3.0.0" },
+    "schemaVersion": { "const": "4.0.0" },
     "shotId": { "$ref": "#/$defs/id" },
-    "window": { "$ref": "#/$defs/window" },
-    "cueIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
-    "audienceUnderstanding": { "$ref": "#/$defs/nonEmpty" },
-    "visualJob": { "$ref": "#/$defs/nonEmpty" },
-    "focus": { "$ref": "#/$defs/nonEmpty" },
-    "compositionFamily": { "$ref": "#/$defs/compositionFamily" },
-    "heroFrame": {
+    "truth": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["relationship", "layers"],
+      "required": ["chapterId", "srtWindowMs", "sourceCues", "spokenFacts", "audienceOutcome", "requiredReadableResult", "incomingSeam", "outgoingSeam"],
       "properties": {
-        "relationship": { "$ref": "#/$defs/nonEmpty" },
-        "layers": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["background", "midground", "foreground"],
-          "properties": {
-            "background": { "$ref": "#/$defs/nonEmpty" },
-            "midground": { "$ref": "#/$defs/nonEmpty" },
-            "foreground": { "$ref": "#/$defs/nonEmpty" }
-          }
-        }
+        "chapterId": { "$ref": "#/$defs/id" },
+        "srtWindowMs": { "$ref": "#/$defs/window" },
+        "sourceCues": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "spokenFacts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+        "audienceOutcome": { "$ref": "#/$defs/nonEmpty" },
+        "requiredReadableResult": { "$ref": "#/$defs/nonEmpty" },
+        "incomingSeam": { "$ref": "#/$defs/seam" },
+        "outgoingSeam": { "$ref": "#/$defs/seam" }
       }
     },
-    "microBeats": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/microBeat" } },
-    "materialNeeds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/materialNeed" } },
+    "creativeProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metaphor", "objects", "composition", "motionIdea", "materialRoute", "keyStates", "whyThisCouldWork"],
+      "properties": {
+        "metaphor": { "$ref": "#/$defs/nonEmpty" },
+        "objects": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+        "composition": { "$ref": "#/$defs/nonEmpty" },
+        "motionIdea": { "$ref": "#/$defs/nonEmpty" },
+        "materialRoute": { "enum": ["native", "provided", "search", "generate", "mixed"] },
+        "keyStates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+        "whyThisCouldWork": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "craftIntent": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["staging", "anticipation", "pose-to-pose", "follow-through-overlap", "slow-in-slow-out", "arcs", "secondary-action", "timing", "exaggeration", "spatial-coherence", "appeal", "squash-and-stretch"]
+      }
+    },
+    "technicalRisks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "enum": ["exclusive-3d-webgl-gpu", "external-project-toolchain"] }
+    },
     "requiredCapabilities": {
       "type": "array",
-      "minItems": 1,
       "uniqueItems": true,
       "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" }
     },
-    "readableHold": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["startMs", "endMs", "items"],
-      "properties": {
-        "startMs": { "type": "integer", "minimum": 0 },
-        "endMs": { "type": "integer", "minimum": 1 },
-        "items": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } }
-      }
+    "capabilityReasons": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/capabilityReason" }
     },
+    "durationRationale": { "$ref": "#/$defs/nonEmpty" },
     "craft": {
       "type": "object",
       "additionalProperties": false,
@@ -60,26 +71,6 @@
       }
     },
     "patternRef": { "$ref": "#/$defs/patternRef" },
-    "durationRationale": { "$ref": "#/$defs/nonEmpty" },
-    "neighborHandoff": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["incoming", "outgoing"],
-      "properties": {
-        "incoming": { "$ref": "#/$defs/nonEmpty" },
-        "outgoing": { "$ref": "#/$defs/nonEmpty" }
-      }
-    },
-    "authoring": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["solo", "reason"],
-      "properties": {
-        "solo": { "type": "boolean" },
-        "reason": { "$ref": "#/$defs/nonEmpty" },
-        "continuityGroup": { "$ref": "#/$defs/id" }
-      }
-    },
     "notes": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" } }
   },
   "$defs": {
@@ -94,33 +85,14 @@
         "endMs": { "type": "integer", "minimum": 1 }
       }
     },
-    "compositionFamily": {
-      "enum": ["full-bleed-material", "spatial-path-workflow", "object-kinetic-type", "comparison-selection", "desktop-instrument-board", "data-diagram-evidence", "camera-depth-environment", "sparse-hold-chapter-outro"]
-    },
-    "microBeat": {
+    "seam": { "enum": ["cut", "match", "handoff"] },
+    "capabilityReason": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["beatId", "startMs", "endMs", "visibleState", "change", "development"],
+      "required": ["capabilityId", "contentReason"],
       "properties": {
-        "beatId": { "$ref": "#/$defs/id" },
-        "startMs": { "type": "integer", "minimum": 0 },
-        "endMs": { "type": "integer", "minimum": 1 },
-        "visibleState": { "$ref": "#/$defs/nonEmpty" },
-        "change": { "enum": ["subject", "topology", "framing", "depth", "material-state", "relationship", "attention", "deliberate-stillness"] },
-        "development": { "$ref": "#/$defs/nonEmpty" }
-      }
-    },
-    "materialNeed": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "role", "kind", "required", "sourceRoute", "fusion"],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "role": { "$ref": "#/$defs/nonEmpty" },
-        "kind": { "enum": ["image", "video", "logo", "screenshot", "data", "font", "native-structure"] },
-        "required": { "type": "boolean" },
-        "sourceRoute": { "enum": ["user", "controlled-generation", "pexels", "fact-source", "native-support"] },
-        "fusion": { "$ref": "#/$defs/nonEmpty" }
+        "capabilityId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+        "contentReason": { "$ref": "#/$defs/nonEmpty" }
       }
     },
     "craftRef": {
@@ -141,17 +113,16 @@
         "styleKey": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
         "sourceRevision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
         "semanticReason": { "$ref": "#/$defs/nonEmpty" },
-        "fallback": { "$ref": "#/$defs/fallback" }
-      }
-    },
-    "fallback": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["when", "strategy"],
-      "properties": {
-        "when": { "$ref": "#/$defs/nonEmpty" },
-        "strategy": { "enum": ["simplify-motion", "use-stable-state", "substitute-material", "return-to-director", "stop-unsupported"] },
-        "preserve": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" } }
+        "fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["when", "strategy"],
+          "properties": {
+            "when": { "$ref": "#/$defs/nonEmpty" },
+            "strategy": { "enum": ["simplify-motion", "use-stable-state", "substitute-material", "return-to-director", "stop-unsupported"] },
+            "preserve": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" } }
+          }
+        }
       }
     }
   }

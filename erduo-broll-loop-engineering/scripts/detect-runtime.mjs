@@ -271,7 +271,7 @@ export async function detectRuntime({
   env = process.env,
 } = {}) {
   if (explicitRuntime !== null && !RUNTIMES.has(explicitRuntime)) {
-    throw runtimeError('invalid-runtime', 'Runtime must be hyperframes or remotion.');
+    throw runtimeError('invalid-runtime', 'Runtime must be auto, hyperframes, hybrid, or remotion.');
   }
 
   const canonicalRoot = await realpath(path.resolve(projectRoot)).catch(() => {
@@ -351,9 +351,9 @@ export async function detectRuntime({
     selectionSource = 'detected';
     reasonCodes.push('hyperframes-evidence-detected');
   } else if (projectKind === 'new') {
-    selectedRuntime = 'auto';
+    selectedRuntime = 'hyperframes';
     selectionSource = 'default';
-    reasonCodes.push('new-project-default-auto');
+    reasonCodes.push('new-project-default-hyperframes');
   } else {
     status = 'action-required';
     reasonCodes.push('runtime-evidence-missing');

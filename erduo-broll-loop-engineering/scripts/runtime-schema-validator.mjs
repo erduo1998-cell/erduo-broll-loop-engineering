@@ -55,6 +55,15 @@ export function validateSchemaValue(value, rule, rootSchema, pointer = '#', erro
       if (key in properties) validateSchemaValue(child, properties[key], rootSchema, `${pointer}/${key}`, errors);
     }
   }
+  for (const branch of resolved.allOf ?? []) {
+    if (branch.if) {
+      const conditionErrors = validateSchemaValue(value, branch.if, rootSchema, pointer, []);
+      const selected = conditionErrors.length === 0 ? branch.then : branch.else;
+      if (selected) validateSchemaValue(value, selected, rootSchema, pointer, errors);
+    } else {
+      validateSchemaValue(value, branch, rootSchema, pointer, errors);
+    }
+  }
   return errors;
 }
 

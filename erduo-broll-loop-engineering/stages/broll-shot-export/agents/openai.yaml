@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Shot Export"
-  short_description: "Cut requested shots from the verified master."
-  default_prompt: "Use $broll-shot-export to cut only explicitly requested shot windows from the verified final master without rerendering."
+  display_name: "B-roll Shot Export (Legacy)"
+  short_description: "Cut requested windows from an older verified master."
+  default_prompt: "Use $broll-shot-export only for an explicitly requested compatibility export from a verified pre-v1.0.1 master."

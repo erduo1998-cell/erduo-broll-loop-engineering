@@ -10,11 +10,14 @@
 - When the user does not specify a delivery location, create one new
   timestamped directory beside the SRT using its basename plus
   `-broll-YYYYMMDD-HHMMSS`, with a unique suffix when needed.
-- Default delivery is `master.mp4`: H.264 MP4, 3840×2160, 30 fps, official high
-  quality.
-- Never overwrite an existing directory, attempt target, or master path.
-- Shot files are created only after an explicit request and are cut from the
-  verified master.
+- Default delivery is an ordered `05-delivery/shots/` directory: one directly
+  rendered H.264 MP4 per Recipe, 3840×2160, 30 fps, plus `shot-media.json`,
+  six-frame semantic check sheets, and `delivery-index.json`.
+- The complete preview is assembled only from those verified shot files. A
+  full-length `master.mp4` is optional.
+- Never overwrite an existing directory, shot, contract, preview, attempt, or
+  master path. `broll-shot-export` is legacy compatibility for pre-v1.0.1
+  master-based runs, not the default shot path.
 
 ## Runtime contract
 
@@ -22,13 +25,15 @@ Default runtime intent to `auto`. Read the runtime contract, validate Director
 recipes, then run the deterministic post-Director planner and validator.
 HyperFrames and Remotion are independent production routes; missing targeted
 local readiness is `action-required`. Auto may resolve to one backend or
-hybrid. Hybrid exchanges only schema-valid frozen block media and never nests
-or translates runtime source.
+hybrid. HyperFrames and Remotion keep separate source; the Parent exchanges
+only independently verified shot files and never nests or translates runtime
+source.
 
 The Director authors one runtime-neutral Shot Recipe per shot. The Assets
 stage preserves runtime-neutral material roles and objective media facts. Each
-Builder owns its planned backend source and one verified frozen unit. The
-Parent script validates and assembles those units for every route. Normal v0.9
+Builder owns its planned backend source and one direct render target per
+assigned shot. Parent scripts render, validate, contract, and assemble those
+shots for every route. Normal v1
 production never dispatches a Runtime Planner, Integrator, or Render Agent.
 Describing a recipe is not backend evidence.
 
@@ -77,12 +82,14 @@ inspection; Skills update remains an authorized repair.
 
 ## Shared film logic
 
-Director and both backend Builders read `animation-craft.md`. The twelve
-animation principles operate there as prompt-time generation order, not as a
-schema, routing taxonomy, per-shot checklist, or static review rubric. Motion
-is generated from meaning through attention, physical character, causal
-action, key states or continuous motion, one expressive peak, and settled
-readability before a runtime mechanism is chosen.
+Director, Lead, and Builder receive their short animation charter through
+generated `AGENTS.md`, `CLAUDE.md`, and an injected role prompt. They do not
+reopen the parent Skill, other stage Skills, generic craft references, schemas,
+validators, or catalogs to relearn it. The injected source-authoring anchor and
+compression recovery fields remain fixed. Motion is generated from meaning
+through attention, physical character, causal action, key states, element
+lifecycle, one primary focus, and settled readability before a runtime
+mechanism is chosen.
 
 Use parsed SRT integer milliseconds as the only time truth. Cover continuously
 from zero through the final cue end. Group cues into semantic shots when they
@@ -139,6 +146,8 @@ whole film, and writes:
 - `film-plan.md`
 - `shot-plan.md`
 - one schema-valid JSON object per shot under `shot-recipes/<shot-id>.json`
+- `motion-map.json`
+- `representative-scenes.json`
 - `material-requests.md`
 - `handoff.md`
 
@@ -148,6 +157,12 @@ resolvable card ID, style key, pinned upstream Git commit, semantic reason and
 fallback. No query and no `patternRef` is a complete valid result; do not write
 per-shot no-pattern decisions. Pattern selection never replaces the shot's
 content-specific visual logic.
+
+Every Recipe v3 records a primary focus for each beat, start/turn/result/hold
+states, each element group's destination, and one content-related reason for
+every required capability. `motion-map.json` maps every Recipe exactly once and
+contains only the compact relation/action/composition/entry/rhythm/settle facts
+Lead needs to detect repetition.
 
 The visual direction arises from the current content, audience, goal, and
 optional material. It is not selected from a bundled theme. The shot plan must
@@ -212,6 +227,8 @@ node scripts/plan-runtime.mjs \
   --selection <runtime-selection.json> \
   --narrative-envelope <broll-production/01-director/narrative-envelope.json> \
   --visual-system <broll-production/01-director/visual-system.json> \
+  --representative-scenes <broll-production/01-director/representative-scenes.json> \
+  --motion-map <broll-production/01-director/motion-map.json> \
   --production-profile <broll-production/production-profile.json> \
   --production-root <broll-production>
 ```
@@ -227,68 +244,79 @@ preflight reports a missing or changed backend fact.
 ## 4. Unit building
 
 Dispatch each generated assignment packet to its named backend Builder.
-HyperFrames Builders load official pinned Skills; Remotion Builders keep source
-isolated but reuse the verified production-root toolchain for an identical
-dependency identity. Each reads only its unit inputs and selected pattern
-evidence. Every Builder returns editable source plus one verified continuous
-unit video and schema-valid `block-media.json`; this intermediate is not the
-master.
+The assignment already injects the matching role prompt, a source-authoring
+anchor of at most eight lines, compression recovery fields, exact paths, and one
+standard command. A Lead also receives the whole-film compact motion map but
+only the three representative Recipes; a production Builder receives only its
+unit Recipes and seams.
 
-## 5. Preview assembly
+HyperFrames Builders use the release-pinned runtime. Remotion Builders keep
+source isolated but reuse the production-root toolchain for an identical
+dependency identity. Each Builder returns editable source and one direct
+runtime target per assigned `shotId`, plus a minimal exception-led handoff. It
+does not create capture, trace, lint, screenshot, frame-scan, render, hash,
+probe, decode, manifest, receipt, contract, or proof tooling and does not write
+those machine artifacts by hand.
 
-After every unit passes, the Parent runs:
+## 5. Parent direct shot render and checks
 
-```text
-node scripts/assemble-frozen-production.mjs preview \
-  --plan <01-runtime-plan/runtime-plan.json> \
-  --narrative-envelope <01-director/narrative-envelope.json> \
-  --visual-system <01-director/visual-system.json> \
-  --representative-scenes <01-director/representative-scenes.json> \
-  --visual-lock <04-visual-lock/visual-lock.json> \
-  --contract <unit-1/block-media.json> \
-  --contract <unit-2/block-media.json> \
-  --output <05-delivery/preview.mp4> \
-  --identity <05-delivery/composition-identity.json>
-```
-
-The script matches contracts to units and assembles them in plan order, even
-when `--contract` arguments arrive in another order. Missing, duplicate,
-unplanned, or changed contracts fail closed. Runtime plan v3 also revalidates
-the visual lock and every unit's bound backend shared-source identity. It verifies actual hashes and
-media facts, fully decodes one bounded preview, and freezes its identity. It
-never live-nests or translates runtime source.
-
-## 6. Delivery
-
-Unattended execution ends at the final preview. Formal delivery waits for user
-approval. After approval, the Parent runs:
+After each assignment's source is ready, Parent runs the standard command for
+that assignment:
 
 ```text
-node scripts/assemble-frozen-production.mjs deliver \
+node scripts/render-assigned-shots.mjs \
   --plan <01-runtime-plan/runtime-plan.json> \
-  --narrative-envelope <01-director/narrative-envelope.json> \
-  --visual-system <01-director/visual-system.json> \
-  --representative-scenes <01-director/representative-scenes.json> \
-  --visual-lock <04-visual-lock/visual-lock.json> \
-  --contract <unit-1/block-media.json> \
-  --contract <unit-2/block-media.json> \
-  --identity <05-delivery/composition-identity.json> \
-  --preview <05-delivery/preview.mp4> \
-  --output <unused-master.mp4>
+  --assignment <01-runtime-plan/assignments/U001.json> \
+  --recipes <01-director/shot-recipes> \
+  --source-root <03-build/U001/source> \
+  --production-root <broll-production>
 ```
 
-The script revalidates the unchanged visual lock, backend shared-source
-identities, plan, shared artifacts, contracts, frozen media, and approved preview identity, then encodes and fully decodes a new
-full-spec master. It does not copy the preview or dispatch an Integrator or
-Render Agent. A changed input requires a new preview and approval. A failed
-attempt uses a new unused output path; no preview, identity, attempt, or final
-target is overwritten.
+The script validates the plan, assignment, source closure, profile, Recipe, and
+runtime target; directly renders each assigned shot; runs FFprobe and complete
+decode; writes one `shot-media.json` per shot; and produces the semantic
+six-frame sheet at Recipe-derived opening, preparation, action-a, action-b,
+result, and settle/tail times. Only a concrete jump, occlusion, boundary,
+unsettled result, complex path/connector, or user requirement may add a short
+continuous diagnostic window. A normal shot never escalates to a full-frame
+sequence. Parent returns only `shotId + time/window + defect + evidence locator`
+for repair; a passing shot needs only a compact summary.
 
-Technical verification proves media behavior, not visual taste. The user
-decides aesthetic acceptance by watching the master.
+Before assembly, Parent runs the bundled `validate-shot-media.mjs` contract on
+every generated shot record. Missing, duplicate, undecodable, identity-drifted,
+or out-of-order shot media closes the gate instead of being silently repaired by
+cutting a unit or Master.
 
-## 7. Optional shot export
+## 6. Preview and default delivery
 
-Only after an explicit request, dispatch a fresh Shot Export Agent. It cuts the
-requested integer-millisecond windows from the verified master without
-rerendering, then uses FFprobe and complete decode on every exported file.
+Once every shot contract passes, Parent assembles the complete low-cost preview
+only from those verified shot files:
+
+```text
+node scripts/assemble-shot-preview.mjs \
+  --plan <01-runtime-plan/runtime-plan.json> \
+  --recipes <01-director/shot-recipes> \
+  --source-manifest <03-build/U001/source-manifest.json> \
+  --source-manifest <03-build/U002/source-manifest.json> \
+  --production-root <broll-production> \
+  --output <05-delivery/preview.mp4>
+```
+
+`delivery-index.json` is the order truth. Shot count, Recipe count, integer
+millisecond windows, local frame mapping, source/Recipe/profile identities,
+codec, decode, and continuous SRT coverage must close before preview assembly.
+The Director does not watch the complete dynamic preview or write a full-film
+witness. The user judges aesthetics using the three representative scenes,
+per-shot six-frame sheets, and complete preview.
+
+After approval, the ordered high-quality shot directory is the default formal
+delivery. A full-length master is optional and must be assembled from the same
+unchanged verified shots to a new path. Technical verification proves media
+behavior, not visual taste.
+
+## 7. Legacy shot export
+
+`broll-shot-export` is not part of new production. Use it only after an explicit
+request to recover shot files from a verified master created by a legacy run.
+Its outputs are labeled master-derived and must never be presented as
+`direct-runtime-render` shot-native delivery.

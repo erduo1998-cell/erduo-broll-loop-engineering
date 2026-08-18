@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll HyperFrames Unit Builder"
-  short_description: "Author one focused unit in HyperFrames."
-  default_prompt: "Use $broll-master-build to load the release-pinned official HyperFrames Skills and author this focused Recipe v2 unit reuse-first and hero-frame-first."
+  display_name: "B-roll HyperFrames Chapter Builder"
+  short_description: "Own one chapter from design through viewing and revision."
+  default_prompt: "Use $broll-master-build with the complete original SRT/design and assignment-selected role prompt to build Lead samples or one 5–8-shot HyperFrames chapter, view its real outputs, and return accepted or revised."

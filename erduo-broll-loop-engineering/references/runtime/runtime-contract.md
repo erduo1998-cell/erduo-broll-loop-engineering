@@ -2,14 +2,15 @@
 
 ## Production boundary
 
-- New projects default to runtime intent `auto`, not an animation backend.
+- New projects default to HyperFrames. Remotion is explicit opt-in or canary;
+  `auto` and `hybrid` are experimental explicit routes in v1.0.1.
 - Director finishes runtime-neutral Recipes before deterministic backend
   planning.
 - Explicit/detected HyperFrames or Remotion forces the whole film and remains
   compatible with existing single-backend runs.
-- Auto may result in HyperFrames, Remotion, or hybrid. Explicit hybrid permits
-  both but never forces an evidence-free split.
-- Hybrid means backend-native block construction followed by frozen-media
+- Explicit experimental auto may result in HyperFrames, Remotion, or hybrid.
+  Explicit hybrid permits both but never forces an evidence-free split.
+- Legacy hybrid means backend-native block construction followed by frozen-media
   exchange. Never translate generated source, import one runtime into the
   other, or nest live previews/renderers.
 - Remotion selection/planning is not readiness. Require exact matching local

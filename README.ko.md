@@ -2,7 +2,7 @@
 
 # Erduo B-roll Loop Engineering
 
-**SRT와 선택적인 편집 완료 토킹헤드 영상을 Codex 또는 Claude Code로 편집·검토 가능한 B-roll Master로 만듭니다.**
+**완전한 original SRT와 design, 선택적인 편집 완료 토킹헤드 영상으로 편집 가능한 source, 직접 렌더링한 shot, 검토용 preview를 만듭니다.**
 
 [简体中文](README.md) · [English](README.en.md) · [日本語](README.ja.md) · **한국어** · [繁體中文](README.zh-TW.md)
 
@@ -22,9 +22,21 @@
 
 - SRT의 정수 밀리초 시간을 기준으로 자막 한 줄이 아닌 의미 단위의 샷을 설계합니다.
 - 구현 전에 공통 비주얼 시스템과 간결한 Shot Recipe를 고정합니다.
-- 프로젝트 증거에 따라 완전한 샷 구간을 HyperFrames, Remotion 또는 동결 미디어 hybrid 방식으로 배정합니다.
+- production 기본값은 HyperFrames이며 Remotion은 명시적 선택/canary만, `auto`는 실험적 opt-in만 허용합니다.
 - 사용자가 제공한 미디어를 우선 사용하고, 필요한 샷에만 추가 소재를 확보합니다.
-- 대량 제작 전에 대표 동영상 3개로 visual lock을 하고, 전체 프리뷰에서 다시 납품 승인을 받은 뒤 Master를 기술 검증합니다.
+- 대량 제작 전에 Lead의 세 가지 최종 sample과 사용자가 선택하는 5-shot canary를 보여 주고, 각 shot을 직접 렌더링하여 6-frame 이미지와 전체 preview를 만듭니다.
+
+## v1.0.1: Chapter Builder 창작 루프 복원
+
+v1.0.1은 정식 공개 버전입니다. 의미 shot은 계속 독립 H.264 미디어 경계이지만, 보통 5–8개의 연속 shot을 한 Chapter Builder가 맡습니다. 완전한 original SRT/design을 직접 읽고 `truth`는 바꾸지 않으며, `creativeProposal`은 짧은 이유와 함께 수정할 수 있고 chapter 전체의 구도, 소재, 리듬, 연결을 책임집니다.
+
+Assets는 알려진 공유 소재/폰트만 고정하고 shot별 `search`, `generate`, `mixed` 경로를 닫지 않습니다. Lead는 native graphic/type, 실제 또는 생성 소재 fusion, 정보 밀도가 높은 interface/process/data의 세 가지 최종 sample과 signature motion, 소재 융합 능력, 짧은 capability index를 만듭니다. Builder는 실제 6-frame sheet와 chapter preview를 열고 결함을 고친 뒤 `accepted` 또는 `revised`를 반환합니다.
+
+production source에서 `inspection.tsx`, DOM trace marker, 수동 motion window, 성공 상태 dense diagnostics를 제거합니다. Parent는 render/decode/hash/contract/sheet/preview의 기계적 작업만 담당합니다. 12원칙은 짧은 긍정 anchor이며 각 shot은 관련된 2–4개 `craftIntent`만 선택하고 점수나 proof를 만들지 않습니다.
+
+production 기본값은 HyperFrames입니다. Remotion은 명시적 opt-in/canary만, `auto`는 실험적 opt-in만 허용합니다. 5-shot canary가 direct delivery, Builder 실제 시청, 구도/소재/signature motion 다양성, 사용자 선택 3/5 이상, 첫 preview ≤45분을 통과하기 전에는 전체 영상을 시작하지 않습니다.
+
+2026-08-18의 179.866초 Remotion run은 실패 근거로 남깁니다. 20/20 media contract/decode는 통과했지만 20 creative units, original design 미전달, 소재 부족, 기술 inspection 통과에도 시각 품질은 불합격이었습니다. 203m13s / 54m17s / 63m13s도 목표를 넘었으며 이번 수정이나 backend 동등성을 증명하지 않습니다.
 
 ## v1.0.0 대량 제작 전 Visual Lock
 
@@ -62,10 +74,10 @@ v0.9.2는 배포 형식과 설치 진입점만 변경합니다. Director, Assets
 
 ### 표준 Skill 설치
 
-고정 HyperFrames 환경이 이미 준비된 컴퓨터용입니다. v1.0.0 Release에서 `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz`를 내려받아 압축을 푼 뒤 실행합니다.
+고정 HyperFrames 환경이 이미 준비된 컴퓨터용입니다. v1.0.1 Release에서 `erduo-broll-loop-engineering-skills-v1.0.1.tar.gz`를 내려받아 압축을 푼 뒤 실행합니다.
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.1 --skill '*' --agent codex --global --full-depth
 # Claude Code는 codex를 claude-code로 변경
 ```
 
@@ -85,11 +97,11 @@ cd erduo-broll-loop-engineering
 
 ## 첫 실행
 
-SRT를 첨부하고 다음과 같이 요청하세요.
+완전한 original SRT와 design을 첨부하고 다음과 같이 요청하세요.
 
 ```text
-erduo-broll-loop-engineering을 사용해 이 SRT를 인물이 나오지 않는 B-roll Master로 만들어 주세요.
-대표 장면 3개의 visual lock과 전체 preview의 납품 승인에서 각각 멈춰 주세요.
+erduo-broll-loop-engineering을 사용해 이 original SRT와 design을 편집 가능한 B-roll shot 파일과 전체 preview로 만들어 주세요. 전체 Master는 제가 명시적으로 요청할 때만 만들어 주세요.
+5-shot canary까지 자동 실행한 뒤 shot별 선택을 위해 멈추고, 5개 중 3개 이상에서 이 버전을 선택하기 전에는 전체 production을 시작하지 마세요. 최종 preview 납품 승인에서도 다시 멈춰 주세요.
 ```
 
 토킹헤드 모드에는 자막과 일치하는 편집 완료 영상도 필요합니다. 이미지, 영상, 로고, 스크린샷이 있다면 처음에 함께 제공하세요.
@@ -101,8 +113,8 @@ UTF-8 SRT 입력은 중국어로 제한되지 않습니다. 실제 언어 품질
 ## 검증 범위
 
 - macOS의 Codex에서 v1.0.0 production benchmark를 완료했습니다. Claude Code 설치/계약은 검증했지만 동일 입력 v1 production 비교는 pending입니다.
-- 기본 결과물: H.264 MP4, 3840 × 2160, 30 fps.
-- 기본 unit media: 고품질 H.264 MP4. FFV1은 이유가 있는 명시적 upgrade만 허용하며 Hybrid는 backend 전용 source를 공유하지 않습니다.
+- v1.0.1 기본 결과물: runtime source에서 직접 렌더링한 순서형 H.264 shot, 3840 × 2160, 30 fps. 전체 Master는 선택 사항입니다.
+- 동일 입력의 새 5-shot HyperFrames canary는 직접 render, full decode, 시청 receipt, 구성·소재·signature motion gate를 통과했습니다. 사용자는 결과를 승인하고 나머지 shot과 전체 preview를 만들지 않고 공개하도록 명시했습니다. 따라서 전체 production이나 두 backend의 동등 지원은 주장하지 않습니다.
 - 출력 정책은 직접 JSON으로 작성하지 않고 `create-production-profile.mjs`로 생성합니다. Parent는 이 파일을 항상 `plan-runtime.mjs --production-profile`에 전달하며 너비, 높이, fps, 오디오, H.264 MP4 조건을 계획, 각 Builder 작업, 납품 검증에 동일한 해시로 고정합니다. 예를 들어 `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4`는 기본값으로 되돌아가지 않는 세로형 25 fps 프로필을 만듭니다.
 - HyperFrames와 Remotion은 독립 백엔드이며 시각적 동일성을 보장하지 않습니다.
 - Windows, 데스크톱 CapCut/Jianying 가져오기, 임의의 기존 프로젝트 자동 복구는 검증되지 않았습니다.

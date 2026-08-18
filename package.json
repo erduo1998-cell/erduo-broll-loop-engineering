@@ -1,8 +1,8 @@
 {
   "name": "erduo-broll-loop-engineering",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "Prompt-first SRT-anchored auto-routed hybrid B-roll parent/child Agent Skills.",
+  "description": "SRT-anchored creative-loop B-roll Skills with HyperFrames-first Chapter Builders.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -29,6 +29,7 @@
     "measure:context": "node scripts/measure-context.mjs",
     "test:motion-layout": "node --test scripts/motion-layout-lint.test.mjs",
     "test:remotion-trace": "node --test scripts/remotion-dom-trace.e2e.test.mjs",
-    "test": "node --test scripts/test.mjs scripts/metrics-media.test.mjs scripts/motion-layout-lint.test.mjs scripts/remotion-dom-trace.e2e.test.mjs scripts/v1-planner-visual-lock.test.mjs"
+    "test:remotion-canary": "node --test scripts/remotion-canary.e2e.test.mjs",
+    "test": "node --test scripts/test.mjs scripts/creative-loop-delivery.test.mjs scripts/creative-loop-planner.test.mjs scripts/creative-loop-roles.test.mjs scripts/metrics-media.test.mjs scripts/motion-layout-lint.test.mjs scripts/remotion-dom-trace.e2e.test.mjs scripts/remotion-canary.e2e.test.mjs scripts/role-motion-map.test.mjs scripts/shot-native-delivery.test.mjs scripts/v1-planner-visual-lock.test.mjs"
   }
 }

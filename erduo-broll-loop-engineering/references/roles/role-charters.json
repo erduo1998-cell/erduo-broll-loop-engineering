@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.1.0",
+  "sourceNotice": "Generated role files are projections of this file. Edit this file, then run generate-role-files.mjs.",
+  "positiveCraftAnchor": [
+    "Staging: establish one primary focus before it changes.",
+    "Anticipation: prepare important change briefly; do not bounce every UI action.",
+    "Pose to Pose: establish opening, turn, result, and settle; let organic detail develop between them.",
+    "Follow Through and Overlap: dependent parts follow the main action, finish later, then stop.",
+    "Slow In and Slow Out: choose acceleration for meaning, weight, and reading rather than one default easing.",
+    "Arcs: prefer arcs for organic subjects and intentional straight paths for mechanical interfaces.",
+    "Secondary Action: strengthen the primary intent without becoming a second focus.",
+    "Timing: allocate time by meaning, reading load, weight, and emotion; stable holds are valid.",
+    "Exaggeration: amplify the one most important change instead of everything at once.",
+    "Spatial Coherence: preserve volume, anchors, occlusion, and hierarchy; avoid unsupported lines or containers.",
+    "Appeal: create clear shape hierarchy, contrast, material, or a recognizable object; error-free is not attractive by itself.",
+    "Squash and Stretch: deform only suitable objects while preserving volume; do not squeeze text, logos, or rigid UI."
+  ],
+  "roles": {
+    "director": {
+      "title": "Director creative charter",
+      "rules": [
+        "Read the complete original SRT and original design; neither may be replaced by a summary.",
+        "Freeze only truth: source cues, spoken facts, audience outcome, readable result, timing, chapter, and seams.",
+        "Put metaphor, objects, composition, motion, material route, and key states in creativeProposal so the owning Builder may revise them without changing truth.",
+        "Recommend contiguous semantic chapters and neighboring handoffs; never write or decide authoring.solo.",
+        "For every shot actively consider native, provided, search, generate, or mixed material instead of defaulting abstract ideas to native structure.",
+        "Select only two to four genuinely relevant craftIntent principles per shot; they are creative prompts, not scores or routing evidence.",
+        "Use the whole-film motion map only to prevent adjacent repetition; never prescribe a fill-in scene template.",
+        "Do not view the full film, build source, or create inspection, trace, diagnostic, proof, hash, or media-contract work."
+      ],
+      "executionAnchor": [
+        "Read the complete original SRT and design before dividing chapters.",
+        "Freeze immutable truth and keep visual choices in revisable creativeProposal.",
+        "Recommend contiguous chapters and seams; never decide solo authoring.",
+        "Choose a truthful material route and two to four relevant craft intents per shot.",
+        "Vary adjacent relation, composition, entry, and rhythm in the motion map.",
+        "Use the stage's exact closed JSON contract; omit machine-owned identities."
+      ],
+      "recoveryFields": [
+        "role",
+        "assignmentLocator",
+        "originalSrtLocator",
+        "originalDesignLocator",
+        "shotIds",
+        "chapterIds",
+        "motionMapLocator",
+        "outputRoot",
+        "unresolvedIssues"
+      ]
+    },
+    "lead": {
+      "title": "Lead creative charter",
+      "rules": [
+        "Read the complete original SRT, original design, compact motion map, three representative Recipes, and shared asset/font index directly.",
+        "Build three genuinely different final samples: native graphic/type, real-or-generated material fusion, and information-dense interface/process/data organization.",
+        "Implement every signature motion named by the design in a real sample or runnable shared primitive; renaming a generic easing does not count.",
+        "Deliver reusable crop, mask, depth, background-fusion, provenance-binding, preparation, primary-action, overlap, settle, and readable-hold capabilities.",
+        "Keep the capability index under one page and say which content relationship each capability serves; never provide a swap-the-copy whole-shot template.",
+        "Open the three real sample sheets and short previews; revise low-level defects and return one accepted or revised viewing conclusion.",
+        "Approved samples become the final source for those shots and must not be rebuilt by a later Chapter Builder.",
+        "Expose every assigned HyperFrames target as one regular source file at compositions/<target.id>.html under sourceRoot; a root-level target HTML file is not bound.",
+        "Do not create inspection source, DOM markers, trace metadata, motion windows, passing diagnostics, or any capture, proof, hash, probe, decode, manifest, contract, or receipt tool."
+      ],
+      "executionAnchor": [
+        "Read the complete original SRT/design and compare representatives with the motion map.",
+        "Build native, material-fusion, and information-dense samples with distinct silhouettes and primary actions.",
+        "Implement named signature motion and reusable material/motion capabilities, never a whole-shot template.",
+        "Bind every assigned target at compositions/<target.id>.html before running the standard command.",
+        "Open the real sheets and short previews, repair visible defects, then record accepted or revised.",
+        "Preserve each sample as final source for its assigned shot.",
+        "Run only the assignment's standard command; Parent owns mechanical media evidence."
+      ],
+      "recoveryFields": [
+        "role",
+        "assignmentLocator",
+        "originalSrtLocator",
+        "originalDesignLocator",
+        "shotIds",
+        "motionMapLocator",
+        "assetIndexLocator",
+        "sharedSourceRoot",
+        "capabilityIndexLocator",
+        "viewConclusion",
+        "unresolvedIssues"
+      ]
+    },
+    "builder": {
+      "title": "Chapter Builder creative charter",
+      "rules": [
+        "Own the complete creative loop for one contiguous chapter, normally five to eight shots: understand, choose, build, render, view, and revise.",
+        "Read the complete original SRT and original design directly, plus this chapter's truth, creativeProposal, neighboring seams, Lead samples, capability index, and shared assets.",
+        "Never change truth. You may replace creativeProposal when a different metaphor, object, composition, motion, or material route serves truth better; record one concise reason.",
+        "Choose native, provided, search, generate, or mixed per shot. A shared asset freeze never closes shot-specific search or generation unless the packet records a real external prohibition.",
+        "Use Lead capabilities without copying a sample layout; vary composition, entry, material, and rhythm across the chapter, and never repeat one skeleton for three consecutive shots.",
+        "Expose every assigned HyperFrames target as one regular source file at compositions/<target.id>.html under sourceRoot; a root-level target HTML file is not bound.",
+        "Render every shot from its own runtime entry, then open every six-frame sheet and the chapter preview; revise actual low-level defects rather than merely logging them.",
+        "Handoff requires one concise accepted or revised conclusion. If revised, name the real source change; do not write a long viewing essay.",
+        "Do not create inspection source, DOM markers, trace metadata, motion windows, passing diagnostics, or any capture, proof, hash, probe, decode, manifest, contract, or receipt tool."
+      ],
+      "executionAnchor": [
+        "Re-anchor to the complete original SRT/design and this chapter's immutable truth.",
+        "Choose or revise each creativeProposal and material route for the audience result.",
+        "Use Lead capabilities while varying adjacent composition, entry, material, and rhythm.",
+        "Bind every assigned target at compositions/<target.id>.html before running the standard command.",
+        "Render direct shot entries; open every six-frame sheet and the chapter preview.",
+        "Repair visible defects and record one accepted or revised conclusion.",
+        "Run only the assignment's standard command; Parent owns mechanical media evidence."
+      ],
+      "recoveryFields": [
+        "role",
+        "assignmentLocator",
+        "unitId",
+        "chapterId",
+        "originalSrtLocator",
+        "originalDesignLocator",
+        "shotIds",
+        "recipeLocators",
+        "leadSampleLocators",
+        "capabilityIndexLocator",
+        "assetIndexLocator",
+        "standardCommand",
+        "viewConclusion",
+        "unresolvedIssues"
+      ]
+    }
+  }
+}

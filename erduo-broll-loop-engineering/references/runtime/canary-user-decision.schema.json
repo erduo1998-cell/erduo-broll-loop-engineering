@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/canary-user-decision.schema.json",
+  "title": "Parent-recorded five-shot canary user decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "planIdentity", "technicalGateIdentity", "canaryPreviewIdentity", "shotIds", "decisions", "oursPreferred", "identity"],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"}, "status": {"const": "passed"},
+    "planIdentity": {"$ref": "#/$defs/sha256"}, "technicalGateIdentity": {"$ref": "#/$defs/prefixedSha256"},
+    "canaryPreviewIdentity": {"$ref": "#/$defs/sha256"},
+    "shotIds": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "decisions": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/decision"}},
+    "oursPreferred": {"type": "integer", "minimum": 3, "maximum": 5},
+    "identity": {"$ref": "#/$defs/prefixedSha256"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "prefixedSha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["shotId", "choice", "accepted", "issue"],
+      "properties": {
+        "shotId": {"$ref": "#/$defs/id"}, "choice": {"enum": ["ours", "comparison"]},
+        "accepted": {"type": "boolean"}, "issue": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

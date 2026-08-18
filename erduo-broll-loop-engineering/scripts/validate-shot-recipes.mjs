@@ -1,15 +1,59 @@
 #!/usr/bin/env node
 
+import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
-import { realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateCraftCatalog } from './craft-catalog.mjs';
+import { canonicalJson } from './runtime-schema-validator.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeRoot = path.join(skillRoot, 'references', 'runtime');
 const shotcraftRoot = path.join(skillRoot, 'references', 'shotcraft');
 const craftRoot = path.join(skillRoot, 'references', 'craft');
+const recipeV4Schema = JSON.parse(readFileSync(path.join(runtimeRoot, 'shot-recipe.schema.json'), 'utf8'));
+
+export function recipeWindow(recipe) {
+  return recipe?.schemaVersion === '4.0.0' ? recipe.truth?.srtWindowMs : recipe?.window;
+}
+
+export function computeRecipeTruthIdentity(recipe) {
+  if (!recipe?.shotId || !recipe?.truth) throw new Error('Recipe truth identity requires shotId and truth');
+  return createHash('sha256').update(canonicalJson({ shotId: recipe.shotId, truth: recipe.truth })).digest('hex');
+}
+
+export function computeRecipeIdentity(recipe) {
+  return createHash('sha256').update(canonicalJson(recipe)).digest('hex');
+}
+
+export function validateCreativeRevision(original, revised) {
+  if (original?.schemaVersion !== '4.0.0' || revised?.schemaVersion !== '4.0.0'
+    || original.shotId !== revised.shotId) {
+    throw new Error('creative revision requires the same Recipe v4 shot');
+  }
+  if (computeRecipeTruthIdentity(original) !== computeRecipeTruthIdentity(revised)) {
+    throw new Error(`${original.shotId}: truth is immutable`);
+  }
+  const withoutProposal = (value) => {
+    const clone = structuredClone(value);
+    delete clone.creativeProposal;
+    return clone;
+  };
+  if (canonicalJson(withoutProposal(original)) !== canonicalJson(withoutProposal(revised))) {
+    throw new Error(`${original.shotId}: only creativeProposal may change during Builder revision`);
+  }
+  const schemaErrors = [];
+  validateSchema(revised, recipeV4Schema, recipeV4Schema, '#', schemaErrors);
+  if (schemaErrors.length > 0) {
+    throw new Error(`${original.shotId}: revised Recipe is invalid:\n${schemaErrors.join('\n')}`);
+  }
+  return {
+    status: 'valid', shotId: revised.shotId,
+    truthIdentity: computeRecipeTruthIdentity(revised),
+    recipeIdentity: computeRecipeIdentity(revised),
+  };
+}
 
 function resolveLocalRef(rootSchema, reference) {
   if (!reference.startsWith('#/')) throw new Error(`unsupported schema reference: ${reference}`);
@@ -107,7 +151,7 @@ function validateSemanticInvariants(
   fileName,
   errors,
 ) {
-  const { startMs, endMs } = recipe.window ?? {};
+  const { startMs, endMs } = recipeWindow(recipe) ?? {};
   if (Number.isInteger(startMs) && Number.isInteger(endMs) && endMs <= startMs) {
     errors.push('#/window: endMs must be greater than startMs');
   }
@@ -172,9 +216,9 @@ function validateSemanticInvariants(
     }
   }
 
-  if (recipe.schemaVersion === '3.0.0'
-    && recipe.authoring?.solo === true && recipe.authoring?.continuityGroup) {
-    errors.push('#/authoring: a solo shot cannot also belong to a continuity group');
+  if (recipe && typeof recipe === 'object'
+    && (Object.hasOwn(recipe, 'authoring') || recipe.authoring?.solo !== undefined)) {
+    errors.push('#/authoring: authoring.solo is forbidden; only Planner may create a closed-enum solo unit');
   }
 
   if (recipe.shotId && `${recipe.shotId}.json` !== fileName) {
@@ -185,6 +229,21 @@ function validateSemanticInvariants(
       errors.push(`#/requiredCapabilities: unknown capability ${capabilityId}`);
     } else if (unsupportedIds.has(capabilityId)) {
       errors.push(`#/requiredCapabilities: unsupported capability ${capabilityId}`);
+    }
+  }
+  if (['3.0.0', '4.0.0'].includes(recipe.schemaVersion)) {
+    const required = recipe.requiredCapabilities ?? [];
+    const explained = (recipe.capabilityReasons ?? []).map(({ capabilityId }) => capabilityId);
+    const duplicateReasons = explained.filter((id, index) => explained.indexOf(id) !== index);
+    if (duplicateReasons.length > 0) {
+      errors.push('#/capabilityReasons: each capability may have only one content-related reason');
+    }
+    if (JSON.stringify([...explained].toSorted()) !== JSON.stringify([...required].toSorted())) {
+      errors.push('#/capabilityReasons: must explain every required capability exactly once and no others');
+    }
+    const lifecycleIds = (recipe.elementLifecycles ?? []).map(({ elementId }) => elementId);
+    if (new Set(lifecycleIds).size !== lifecycleIds.length) {
+      errors.push('#/elementLifecycles: elementId values must be unique');
     }
   }
 
@@ -224,7 +283,8 @@ export async function validateRecipeDirectory(directory) {
     Promise.all([
       ['1.0.0', 'shot-recipe-v1.schema.json'],
       ['2.0.0', 'shot-recipe-v2.schema.json'],
-      ['3.0.0', 'shot-recipe.schema.json'],
+      ['3.0.0', 'shot-recipe-v3.schema.json'],
+      ['4.0.0', 'shot-recipe.schema.json'],
     ].map(async ([version, file]) => [version, JSON.parse(await readFile(path.join(runtimeRoot, file), 'utf8'))])).then((entries) => new Map(entries)),
     readFile(path.join(runtimeRoot, 'capability-matrix.json'), 'utf8').then(JSON.parse),
     readFile(path.join(shotcraftRoot, 'catalog.json'), 'utf8').then(JSON.parse),

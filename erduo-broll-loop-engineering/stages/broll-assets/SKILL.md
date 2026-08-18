@@ -1,51 +1,58 @@
 ---
 name: broll-assets
-description: Close user media, conditional external material, provenance, asset fusion, and project-local fonts for validated Shot Recipes.
+description: Freeze known shared media, fonts, provenance, licenses, and reusable derivatives while keeping shot-specific provided, search, generation, and mixed material routes open for Chapter Builders.
 ---
 # B-roll Assets
 
-Own material only. Always run, but do not change film structure, runtime,
-Recipes, source, integration, or delivery.
+Use [safe execution](../../references/safe-execution.md) for every external or
+bundled command.
 
-Require Director artifacts, validated Recipes/material requests, optional user
-media, the three-shot representative set, ready preflight/runtime plan, and
-production root. Resolve only selected
-Shotcraft cards to learn their material prerequisites and failure modes. Do not
-load catalogs or copy upstream demo media/source. All commands follow
-`safe-execution.md`; only an exact Pexels request receives its credential.
+Own shared material facts only. Do not change the SRT, design, shot truth,
+creative proposals, chapters, runtime, source, or delivery.
 
-Inspect supplied user material and close every font role, license and existing
-file provenance. For an empty need, record one compact no-external-material
-decision and do not invoke generation, Pexels, or candidate review.
+Read the original design, user-provided media, validated Recipes, representative
+set, production plan, and ready environment facts. Inventory supplied files,
+identify genuinely cross-shot material, close project-local fonts and licenses,
+make reusable derivatives, and mark real gaps. Do not load full catalogs or
+copy demo media/source.
 
-For each real need, route only as far as necessary:
+## Shared freeze is not a creative veto
 
-`user material → controllable generation → suitable Pexels → runtime-native structure`
+Freeze only what is already known and shared. For every shot keep one live
+route from this closed set:
 
-Do not use Pexels for factual, brand, logo, webpage, or real-interface needs.
-Do not test generation when it is not needed. Download selected external items
-to project-local files. If a pattern requires UI states, data, layers, masks,
-alpha, depth, or before/after states, verify those exact inputs or use the
-Recipe fallback; never substitute unrelated stock.
+`native | provided | search | generate | mixed`
 
-For every selection record source/creator/usage, local path, bound shots,
-semantic role, dimensions/duration/codec/alpha facts, focal point/crop, safe
-overlay area, palette/depth/movement, and why it beat alternatives. Specify how
-it drives crop, mask, path, annotation, palette, depth, geometry, or state. A
-generic thumbnail/card/title background is not asset fusion.
+A Chapter Builder may change a proposal from `native` to `search`, `generate`,
+or `mixed` while building. Record its concise reason and provenance; do not
+send it back to Director merely for changing a creative proposal. The shared
+freeze must never create an irreversible `no-external-material` decision from
+the Director's first proposal.
 
-Source licensed project-local title/interface/body font files and verify needed
-glyphs. Do not rely on system or remote fonts.
+Globally close search or generation only when one of these external facts is
+true: the user prohibited it, the capability is unavailable, or authorization/
+cost policy forbids it. Record the exact fact and affected route. “The design
+does not need material” is not a valid global closure reason.
 
-Deliver selected media, fonts/licenses, user-material review, generation review,
-conditional Pexels search record, material-plan.md, font-plan.md, and minimal
-handoff under `broll-production/02-assets/`. Complete when every real need has
-a lawful local selection or declared fallback, every file binds to a Recipe and
-composition use, and fonts close. Stop rather than inventing an unavailable
-material, license, font, factual source, or pattern prerequisite.
+Use user material first when it fits. For shot-specific needs allow controlled
+generation, suitable Pexels search, or a mixed route without forcing a global
+search during this stage. Do not use stock for factual, brand, logo, webpage,
+or real-interface evidence. Every selected file records source, creator/usage,
+license, local path, bound shots, semantic role, media facts, crop/focal point,
+safe overlay, and how it affects mask, palette, depth, geometry, annotation, or
+state. A generic framed thumbnail is not material fusion.
 
-This stage runs once before Lead work and closes material for the complete plan,
-not only the representative scenes. Mark the exact representative-scene media
-and font subset so each Lead receives only what it needs. The visual-lock
-identity binds those files; changing a bound font, asset, license record, or
-fusion decision invalidates the lock and returns to the same Assets owner.
+Source fonts locally, record license and origin, and verify required glyphs. Do
+not rely on system or remote fonts.
+
+## Deliver
+
+Write the shared asset/font index, licenses, user-material review, reusable
+derivatives, representative subset, explicit external-route restrictions, and
+minimal handoff under `02-assets/`. Do not pre-run or close every future
+shot-specific search/generation choice.
+
+Complete when every known shared file and font is lawful and indexed, every
+shot retains an allowed material route, and any global restriction cites a
+real user, capability, authorization, or cost boundary. A later shot-specific
+asset changes only that shot's provenance entry unless it becomes shared.

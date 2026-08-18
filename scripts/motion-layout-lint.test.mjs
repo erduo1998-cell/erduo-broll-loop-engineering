@@ -76,6 +76,21 @@ test('sample-first trace escalates only a suspicious transition interval', () =>
   assert.ok(result.diagnosticWindows[0].endFrame - result.diagnosticWindows[0].startFrame < trace.endFrame);
 });
 
+test('diagnostic padding stays inside a sparse representative shot', () => {
+  const trace = sampledTrace([100, 104, 109]);
+  trace.startFrame = 0;
+  trace.endFrame = 200;
+  trace.shots[0].startFrame = 100;
+  trace.shots[0].endFrame = 110;
+  trace.shots[0].readableHolds = [{ startFrame: 105, endFrame: 110 }];
+  const hero = trace.shots[0].elements[0];
+  hero.motions = [{ startFrame: 100, endFrame: 110, kind: 'transition', expectsSettle: true }];
+  hero.samples = [sample(100, 180, 180), sample(104, 180, 180), sample(109, 900, 180)];
+  const result = analyzeMotionLayoutTrace(trace);
+  assert.ok(result.diagnosticWindows.length > 0);
+  assert.ok(result.diagnosticWindows.every(({ startFrame, endFrame }) => startFrame >= 100 && endFrame <= 110));
+});
+
 test('bounded dense escalation resolves suspicion and locates the original jump', () => {
   const frames = [0, 7, 8, 9, 10, 14, 15, 22, 29];
   const trace = sampledTrace(frames);
@@ -240,69 +255,14 @@ test('motion-layout lint accepts beat-bound progressive continuous subject devel
   assert.equal(result.findings.some(({ code }) => code.startsWith('rhythm.')), false);
 });
 
-test('motion-layout lint rejects a 30-second beat that moves only for the first 0.6 seconds', () => {
+test('motion-layout lint accepts a resolved state that moves briefly then holds still for reading', () => {
   const trace = longBeatTrace();
   const hero = trace.shots[0].elements[0];
   hero.motions = [{ startFrame: 0, endFrame: 18, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
   hero.samples = Array.from({ length: 900 }, (_, frame) => sample(frame, 180 + Math.min(frame, 18) * 10, 180));
   const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
-  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'));
-});
-
-test('motion-layout lint rejects early movement that returns to the original state before a long still tail', () => {
-  const trace = longBeatTrace();
-  const hero = trace.shots[0].elements[0];
-  hero.motions = [{ startFrame: 0, endFrame: 36, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
-  hero.samples = Array.from({ length: 900 }, (_, frame) => {
-    const offset = frame <= 18 ? frame * 10 : Math.max(0, 360 - frame * 10);
-    return sample(frame, 180 + offset, 180);
-  });
-  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
-  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'));
-});
-
-test('motion-layout lint rejects a 30-second beat that is static for 15 seconds, moves briefly, then stays static', () => {
-  const trace = longBeatTrace();
-  const hero = trace.shots[0].elements[0];
-  hero.motions = [{ startFrame: 450, endFrame: 469, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
-  hero.samples = Array.from({ length: 900 }, (_, frame) => {
-    const progress = Math.max(0, Math.min(18, frame - 450));
-    return sample(frame, 180 + progress * 10, 180);
-  });
-  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
-  const finding = result.findings.find(({ code }) => code === 'rhythm.beat-development-gap');
-  assert.ok(finding);
-  assert.ok(finding.frames[1] - finding.frames[0] + 1 >= 225);
-});
-
-test('motion-layout lint rejects a 22.5-23.1 second burst after a long undeclared leading wait', () => {
-  const trace = longBeatTrace();
-  const hero = trace.shots[0].elements[0];
-  hero.motions = [{ startFrame: 675, endFrame: 694, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] }];
-  hero.samples = Array.from({ length: 900 }, (_, frame) => {
-    const progress = Math.max(0, Math.min(18, frame - 675));
-    return sample(frame, 180 + progress * 10, 180);
-  });
-  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
-  assert.ok(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'));
-});
-
-test('motion-layout lint rejects two brief developments separated by a long undeclared internal wait', () => {
-  const trace = longBeatTrace();
-  const hero = trace.shots[0].elements[0];
-  hero.motions = [
-    { startFrame: 0, endFrame: 19, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] },
-    { startFrame: 675, endFrame: 694, kind: 'transition', expectsSettle: true, beatIds: ['long-beat'] },
-  ];
-  hero.samples = Array.from({ length: 900 }, (_, frame) => {
-    const first = Math.min(18, frame) * 10;
-    const second = Math.max(0, Math.min(18, frame - 675)) * 10;
-    return sample(frame, 180 + first + second, 180);
-  });
-  const result = analyzeMotionLayoutTrace(trace, longBeatRecipes());
-  const finding = result.findings.find(({ code }) => code === 'rhythm.beat-development-gap');
-  assert.ok(finding);
-  assert.ok(finding.frames[0] > 0 && finding.frames[1] < 899);
+  assert.equal(result.findings.some(({ code }) => code === 'rhythm.beat-development-gap'), false);
+  assert.equal(result.findings.some(({ message }) => /add|more|continuous|keep moving/iu.test(message)), false);
 });
 
 test('motion-layout lint permits a long developing beat with a bounded final settle', () => {

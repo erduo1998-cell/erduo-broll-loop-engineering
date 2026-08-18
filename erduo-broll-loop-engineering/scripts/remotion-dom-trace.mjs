@@ -92,7 +92,7 @@ function captureFrames(metadata, recipes, denseWindows) {
   for (const shot of metadata.shots) {
     addWindowSamples(frames, shot.startFrame, shot.endFrame, metadata.startFrame, metadata.endFrame);
     for (const hold of shot.readableHolds ?? []) {
-      addFrame(frames, hold.startFrame - 1, metadata.startFrame, metadata.endFrame);
+      addFrame(frames, hold.startFrame - 1, shot.startFrame, shot.endFrame);
       addWindowSamples(frames, hold.startFrame, hold.endFrame, metadata.startFrame, metadata.endFrame);
     }
     const recipe = recipes.get(shot.shotId);
@@ -106,7 +106,10 @@ function captureFrames(metadata, recipes, denseWindows) {
       const startFrame = Math.max(shot.startFrame, toFrame(beat.startMs));
       const endFrame = Math.min(shot.endFrame, toFrame(beat.endMs));
       addWindowSamples(frames, startFrame, endFrame, metadata.startFrame, metadata.endFrame);
-      addFrame(frames, startFrame - 1, metadata.startFrame, metadata.endFrame);
+      // A representative assignment can contain non-contiguous shots. The
+      // pre-beat sample is useful only when it still belongs to this shot;
+      // sampling a gap would make the trace claim ownership that does not exist.
+      addFrame(frames, startFrame - 1, shot.startFrame, shot.endFrame);
     }
   }
   for (const window of denseWindows) {
@@ -197,6 +200,16 @@ export async function captureRemotionDomTrace({ project, url, output, identity, 
       }, frame);
       const shotId = shotByFrame.get(frame);
       if (!shotId) throw new Error(`No shot owns frame ${frame}`);
+      const shotMetadata = metadata.shots.find((shot) => shot.shotId === shotId);
+      if (metadata.motionFramesAreLocal === true) {
+        for (const record of records) {
+          record.motions = record.motions.map((motion) => ({
+            ...motion,
+            startFrame: motion.startFrame + shotMetadata.startFrame,
+            endFrame: motion.endFrame + shotMetadata.startFrame,
+          }));
+        }
+      }
       const shotElements = elementsByShot.get(shotId);
       for (const record of records) {
         if (!record.id || !record.role || !record.focusGroup || !Number.isInteger(record.layer) || !Number.isFinite(record.visualWeight)) throw new Error(`Frame ${frame} has incomplete trace metadata`);

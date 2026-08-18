@@ -1,4 +1,4 @@
 interface:
   display_name: "B-roll Assets"
-  short_description: "Freeze only material the shots actually need."
-  default_prompt: "Use $broll-assets to inspect user media and shot-specific material needs, then conditionally freeze sourced or generated media and fonts with provenance and fusion geometry."
+  short_description: "Freeze shared assets while keeping shot choices open."
+  default_prompt: "Use $broll-assets to freeze known shared media, fonts, licenses, and provenance while preserving native, provided, search, generate, and mixed routes for each Chapter Builder."

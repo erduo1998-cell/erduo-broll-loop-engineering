@@ -211,7 +211,6 @@ async function writeV09PlanningFixture(base) {
       materialNeeds: [], requiredCapabilities: common,
       readableHold: { startMs, endMs, items: [] },
       neighborHandoff: { incoming: 'Enter.', outgoing: 'Leave.' },
-      ...(index === 1 ? { authoring: { solo: true, reason: 'Independent hero unit.' } } : {}),
     };
     await writeFile(path.join(recipesDirectory, `${shotId}.json`), `${JSON.stringify(recipe)}\n`);
   }
@@ -1073,8 +1072,9 @@ test('public runtime claims expose independent Builder backends and deterministi
   const readme = await readFile(path.join(root, 'README.md'), 'utf8');
   const support = await readFile(path.join(root, 'SUPPORT-MATRIX.md'), 'utf8');
   const checklist = await readFile(path.join(root, 'RELEASE-CHECKLIST.md'), 'utf8');
-  assert.match(readme, /默认 `auto`/u);
-  assert.match(readme, /HyperFrames 与 Remotion Builder 分别完成自己的镜头源码和已验证视频片段/u);
+  assert.match(readme, /生产默认使用 HyperFrames/u);
+  assert.match(readme, /`auto` 为实验模式，必须显式选择/u);
+  assert.match(readme, /HyperFrames Chapter Builder 负责每章 5–8 镜的完整创作与交付/u);
   assert.match(readme, /最终脚本只拼接统一规格/u);
   assert.match(readme, /不再启动 Runtime Planner、Integrator 或 Render Agent/u);
   assert.match(readme, /最高 1080p[^。\n]*veryfast \/ CRF 22/u);
@@ -1085,11 +1085,12 @@ test('public runtime claims expose independent Builder backends and deterministi
   assert.match(readme, /现有项目按真实特征判断/u);
   assert.match(readme, /hybrid[^。\n]*冻结区块媒体/u);
   assert.match(readme, /152 张卡片不等于 152 个已经渲染验证的 HyperFrames 组件/u);
-  assert.match(support, /Remotion runtime \| project-local supported workflow/u);
+  assert.match(support, /Remotion runtime \| explicit opt-in \/ canary \/ technical witness only/u);
+  assert.match(support, /新 production 不默认选择 Remotion[^\n]*不能称为与 HyperFrames 同等验证/u);
   assert.match(support, /不全局安装 Remotion/u);
   assert.match(support, /最高 1080p[^\n]*veryfast \/ CRF 22/u);
   assert.match(support, /deliver[^\n]*--plan[^\n]*--narrative-envelope[^\n]*--visual-system[^\n]*--contract/u);
-  assert.match(checklist, /preview identity[^\n]*runtime plan[^\n]*shot contracts[^\n]*hashes/u);
+  assert.match(checklist, /preview identity[\s\S]{0,500}Runtime Plan v4[\s\S]{0,500}shot contracts[\s\S]{0,200}hashes/u);
   assert.match(checklist, /没有复制、重命名或复用 preview 文件作为 Master/u);
   assert.match(checklist, /缺失、重复、不属于 plan、内容漂移或片段 hash 漂移/u);
   assert.match(checklist, /CLI 输入顺序不作为身份[^\n]*按 plan 的实际顺序装配/u);
@@ -1126,13 +1127,16 @@ test('v1 workflow documents use the real Parent script contract and isolate lega
   assert.match(documents.selection, /--recipes[\s\S]*--selection[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--production-profile[\s\S]*--production-root/u);
   assert.match(documents.workflow, /create-production-profile\.mjs[\s\S]*1080[\s\S]*1920[\s\S]*25/u);
   assert.match(documents.orchestration, /create-production-profile\.mjs[\s\S]*--production-profile/u);
-  assert.match(documents.workflow, /assemble-frozen-production\.mjs preview[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--representative-scenes[\s\S]*--visual-lock[\s\S]*--contract[\s\S]*--output[\s\S]*--identity/u);
-  assert.match(documents.workflow, /assemble-frozen-production\.mjs deliver[\s\S]*--plan[\s\S]*--narrative-envelope[\s\S]*--visual-system[\s\S]*--representative-scenes[\s\S]*--visual-lock[\s\S]*--contract[\s\S]*--identity[\s\S]*--preview[\s\S]*--output/u);
+  assert.match(documents.workflow, /render-assigned-shots\.mjs[\s\S]*--plan[\s\S]*--assignment[\s\S]*--recipes[\s\S]*--source-root[\s\S]*--production-root/u);
+  assert.match(documents.workflow, /validate-shot-media\.mjs/u);
+  assert.match(documents.workflow, /assemble-shot-preview\.mjs[\s\S]*--plan[\s\S]*--recipes[\s\S]*--source-manifest[\s\S]*--production-root[\s\S]*--output/u);
+  assert.match(documents.workflow, /full-length `master\.mp4` is optional/u);
+  assert.match(documents.workflow, /`broll-shot-export` is legacy compatibility/u);
   assert.match(documents.contract, /CLI contract arguments may be supplied in any order/u);
   assert.match(documents.contract, /assembles in\s+plan order/u);
   assert.match(documents.review, /No Runtime Planner\s+Agent was dispatched/u);
-  assert.match(documents.review, /No Integrator or Render Agent was dispatched/u);
-  assert.match(documents.director, /Return the validated artifacts to\s+the Parent so it can run `scripts\/plan-runtime\.mjs` directly/u);
+  assert.match(documents.review, /No Integrator or Render Agent was\s+dispatched/u);
+  assert.match(documents.director, /Return the validated artifacts to\s+the Parent\. The Parent finalizes identities first, then runs\s+`scripts\/plan-runtime\.mjs` directly/u);
   assert.doesNotMatch(documents.director, /Route next to Runtime Planner/u);
   assert.match(documents.onboarding, /After the deterministic runtime plan is written/u);
   assert.doesNotMatch(documents.onboarding, /After Runtime Planner/u);
@@ -1140,8 +1144,10 @@ test('v1 workflow documents use the real Parent script contract and isolate lega
   assert.match(documents.handoff, /Parent preview\/delivery script/u);
   assert.match(documents.handoff, /Legacy Planner\/Integrator\/Render/u);
   assert.doesNotMatch(documents.handoff, /^- \*\*(?:Runtime Planner|Integrator|Render):/mu);
-  assert.match(documents.remotion, /current Remotion Builder contract/u);
-  assert.match(documents.remotion, /assemble-frozen-production\.mjs preview[\s\S]*No\s+Integrator or Render Agent is dispatched/u);
+  assert.match(documents.remotion, /v1\.0\.1 Remotion route is a release-candidate existing-project adapter/u);
+  assert.match(documents.remotion, /assemble-shot-preview\.mjs[\s\S]*No Integrator or Render Agent is dispatched/u);
+  assert.match(documents.remotion, /authoring unit is a\s+work packet, not a media boundary/u);
+  assert.match(documents.remotion, /selected-backend failure returns to\s+that backend for repair/u);
   assert.match(documents.remotion, /Legacy Integrator, Studio-approval, and Render records/u);
   assert.match(documents.motionLint, /Use this reference only in a backend Builder\./u);
   assert.doesNotMatch(documents.motionLint, /full-composition lint once after integration/u);
@@ -1168,11 +1174,24 @@ test('runtime router chooses explicit/default routes and stops on mixed project 
   assert.deepEqual(validateSchemaValue(defaultRoute, selectionSchema, selectionSchema), []);
   assert.equal(defaultRoute.status, 'selected');
   assert.equal(defaultRoute.schemaVersion, '2.0.0');
-  assert.equal(defaultRoute.selectedRuntime, 'auto');
+  assert.equal(defaultRoute.selectedRuntime, 'hyperframes');
   assert.equal(defaultRoute.selectionSource, 'default');
   assert.equal(defaultRoute.projectKind, 'new');
-  assert.equal(defaultRoute.readiness, 'planning-required');
-  assert.equal(defaultRoute.planningRequired, true);
+  assert.equal(defaultRoute.readiness, 'ready');
+  assert.equal(defaultRoute.planningRequired, false);
+  assert.ok(defaultRoute.reasonCodes.includes('new-project-default-hyperframes'));
+
+  const explicitAuto = await detectRuntime({
+    projectRoot: blank,
+    explicitRuntime: 'auto',
+    probeCli: false,
+    env: state.env,
+  });
+  assert.deepEqual(validateSchemaValue(explicitAuto, selectionSchema, selectionSchema), []);
+  assert.equal(explicitAuto.selectedRuntime, 'auto');
+  assert.equal(explicitAuto.selectionSource, 'explicit');
+  assert.equal(explicitAuto.readiness, 'planning-required');
+  assert.equal(explicitAuto.planningRequired, true);
 
   const explicitRoute = await detectRuntime({
     projectRoot: blank,
@@ -1524,7 +1543,7 @@ test('Shotcraft is a problem-triggered reference, never a per-shot creativity ga
   }))));
   const combined = prompts.map(({ body }) => body).join('\n');
 
-  assert.match(combined, /A complete film may use zero Shotcraft cards/u);
+  assert.match(combined, /A complete film\s+may use zero Shotcraft cards/u);
   assert.match(combined, /do not manufacture a question to justify/u);
   assert.match(combined, /No query and no `patternRef` is a complete valid result/u);
   assert.match(combined, /never as a per-shot gate/u);
@@ -1653,53 +1672,41 @@ test('Shotcraft sync refuses destination symlinks and rebuilds a dirty output as
   ].toSorted());
 });
 
-test('runtime recipe schemas preserve v1/v2 while v3 owns new production fields', async () => {
-  const [schema, v2, legacy] = await Promise.all([
+test('runtime recipe schemas preserve v1/v2/v3 while v4 owns the creative loop contract', async () => {
+  const [schema, v3, v2, legacy] = await Promise.all([
     readFile(path.join(runtimeReferenceRoot, 'shot-recipe.schema.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(runtimeReferenceRoot, 'shot-recipe-v3.schema.json'), 'utf8').then(JSON.parse),
     readFile(path.join(runtimeReferenceRoot, 'shot-recipe-v2.schema.json'), 'utf8').then(JSON.parse),
     readFile(path.join(runtimeReferenceRoot, 'shot-recipe-v1.schema.json'), 'utf8').then(JSON.parse),
   ]);
   assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
   assert.equal(schema.type, 'object');
   assert.equal(schema.additionalProperties, false);
-  assert.equal(schema.properties.schemaVersion.const, '3.0.0');
+  assert.equal(schema.properties.schemaVersion.const, '4.0.0');
+  assert.equal(v3.properties.schemaVersion.const, '3.0.0');
   assert.equal(v2.properties.schemaVersion.const, '2.0.0');
   assert.equal('durationRationale' in v2.properties, false);
   assert.equal('continuityGroup' in v2.properties.authoring.properties, false);
-  assert.ok('durationRationale' in schema.properties);
-  assert.ok('continuityGroup' in schema.properties.authoring.properties);
+  assert.ok('durationRationale' in v3.properties);
+  assert.equal(v3.properties.authoring, undefined);
   assert.equal(legacy.properties.schemaVersion.const, '1.0.0');
   assert.deepEqual(
     [...schema.required].toSorted(),
-    [
-      'audienceUnderstanding',
-      'compositionFamily',
-      'cueIds',
-      'focus',
-      'heroFrame',
-      'materialNeeds',
-      'microBeats',
-      'neighborHandoff',
-      'readableHold',
-      'requiredCapabilities',
-      'schemaVersion',
-      'shotId',
-      'visualJob',
-      'window',
-    ],
+    ['craftIntent', 'creativeProposal', 'schemaVersion', 'shotId', 'truth'],
   );
   assert.equal(schema.properties.runtime, undefined);
   assert.equal(schema.properties.fps, undefined);
   assert.equal(schema.properties.frames, undefined);
-  assert.equal(schema.properties.requiredCapabilities.minItems, 1);
-  assert.equal(schema.properties.requiredCapabilities.uniqueItems, true);
+  assert.equal(schema.properties.craftIntent.minItems, 2);
+  assert.equal(schema.properties.craftIntent.maxItems, 4);
+  assert.equal(schema.properties.craftIntent.uniqueItems, true);
 
   const integerMillisecondFields = [];
   function collectIntegerMillisecondFields(value, pointer = '#') {
     if (!value || typeof value !== 'object') return;
     for (const [key, child] of Object.entries(value)) {
       const childPointer = `${pointer}/${key}`;
-      if (/Ms$/u.test(key)) {
+      if (/Ms$/u.test(key) && child.type === 'integer') {
         integerMillisecondFields.push(childPointer);
         assert.equal(child.type, 'integer', childPointer);
         assert.equal(Number.isInteger(child.minimum), true, childPointer);
@@ -1709,18 +1716,40 @@ test('runtime recipe schemas preserve v1/v2 while v3 owns new production fields'
   }
   collectIntegerMillisecondFields(schema);
   assert.deepEqual(integerMillisecondFields.toSorted(), [
-    '#/$defs/microBeat/properties/endMs',
-    '#/$defs/microBeat/properties/startMs',
     '#/$defs/window/properties/endMs',
     '#/$defs/window/properties/startMs',
-    '#/properties/readableHold/properties/endMs',
-    '#/properties/readableHold/properties/startMs',
   ]);
   assert.deepEqual(schema.$defs.window.required.toSorted(), ['endMs', 'startMs']);
-  assert.deepEqual(
-    schema.$defs.microBeat.required.toSorted(),
-    ['beatId', 'change', 'development', 'endMs', 'startMs', 'visibleState'],
-  );
+  assert.deepEqual(schema.properties.truth.required.toSorted(), [
+    'audienceOutcome', 'chapterId', 'incomingSeam', 'outgoingSeam',
+    'requiredReadableResult', 'sourceCues', 'spokenFacts', 'srtWindowMs',
+  ]);
+});
+
+test('runtime plan schemas preserve historical v2/v3 while v4 owns creative-loop production', async () => {
+  const [schema, v3Schema] = await Promise.all([
+    readFile(path.join(runtimeReferenceRoot, 'runtime-plan.schema.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(runtimeReferenceRoot, 'runtime-plan-v3.schema.json'), 'utf8').then(JSON.parse),
+  ]);
+  const historical = JSON.parse(await readFile(
+    path.join(root, 'scripts/fixtures/runtime-plan-v2/history.json'),
+    'utf8',
+  ));
+  assert.deepEqual(validateSchemaValue(historical, v3Schema, v3Schema), []);
+  const v3Branch = v3Schema.allOf.find(({ if: condition }) => (
+    condition?.properties?.schemaVersion?.const === '3.0.0'
+  ));
+  assert.ok(v3Branch);
+  for (const field of ['backendFailurePolicy', 'mediaBoundary', 'shotMediaContractVersion', 'visualLock']) {
+    assert.equal(v3Branch.then.required.includes(field), true, field);
+  }
+  const invalidV3 = structuredClone(historical);
+  invalidV3.schemaVersion = '3.0.0';
+  assert.match(validateSchemaValue(invalidV3, v3Schema, v3Schema).join('\n'), /backendFailurePolicy/u);
+  assert.equal(schema.properties.schemaVersion.const, '4.0.0');
+  for (const field of ['sourceContext', 'canaryGate', 'authoringUnits', 'shots']) {
+    assert.equal(schema.required.includes(field), true, field);
+  }
 });
 
 test('shared narrative and visual contracts are strict and craft query is progressively bounded', async () => {
@@ -1917,10 +1946,22 @@ test('shot recipe validator accepts a valid recipe and rejects semantic or capab
   await assert.rejects(validateRecipeDirectory(recipeDirectory), /durationRationale: additional property is not allowed/u);
   await writeFile(recipePath, `${JSON.stringify({
     ...compactRecipe, schemaVersion: '3.0.0',
+    keyStates: {
+      start: 'The baseline is visible.', turn: 'The value moves to the result.',
+      result: 'The result is complete.', hold: 'The result remains readable.',
+    },
+    elementLifecycles: [{
+      elementId: 'result-value', enter: 'Moves from the baseline.', hold: 'Carries the result.',
+      destination: 'retain', reason: 'Remains for the readable hold.',
+    }],
+    microBeats: compactRecipe.microBeats.map((beat) => ({ ...beat, primaryFocus: 'Primary value' })),
+    capabilityReasons: compactRecipe.requiredCapabilities.map((capabilityId) => ({
+      capabilityId, contentReason: 'The visible value transition needs this capability.',
+    })),
     durationRationale: 'One uninterrupted causal transformation needs this continuous span.',
   }, null, 2)}\n`);
   assert.deepEqual(await validateRecipeDirectory(recipeDirectory), { status: 'valid', recipes: 1 });
-  await writeFile(recipePath, `${JSON.stringify({ ...compactRecipe, schemaVersion: '4.0.0' }, null, 2)}\n`);
+  await writeFile(recipePath, `${JSON.stringify({ ...compactRecipe, schemaVersion: '9.0.0' }, null, 2)}\n`);
   await assert.rejects(validateRecipeDirectory(recipeDirectory), /unsupported recipe schema version/u);
 
   await writeFile(recipePath, `${JSON.stringify({
@@ -2009,13 +2050,27 @@ test('post-Director runtime planner is deterministic, evidence-based, contiguous
   )));
   const selectionFile = path.join(state.base, 'selection.json');
   await writeFile(selectionFile, `${JSON.stringify({
-    schemaVersion: '2.0.0', status: 'selected', selectedRuntime: 'auto', selectionSource: 'default',
+    schemaVersion: '2.0.0', status: 'selected', selectedRuntime: 'auto', selectionSource: 'explicit',
   })}\n`);
   const sharedArtifactFiles = await writeSharedDirectorArtifacts(state.base);
   const first = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
   const second = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
   assert.deepEqual(first, second);
   assert.deepEqual(await validateRuntimePlan(first, sharedArtifactFiles), { status: 'valid', shots: 3, blocks: 2, authoringUnits: 2, route: 'hybrid' });
+  const historicalV2 = structuredClone(first);
+  delete historicalV2.backendFailurePolicy;
+  delete historicalV2.mediaBoundary;
+  delete historicalV2.shotMediaContractVersion;
+  for (const shot of historicalV2.shots) {
+    delete shot.forced;
+    delete shot.selectionReason;
+    delete shot.rejectedBackends;
+  }
+  const { computeRuntimePlanIdentity } = await import('../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs');
+  historicalV2.identity = computeRuntimePlanIdentity(historicalV2);
+  assert.deepEqual(await validateRuntimePlan(historicalV2, sharedArtifactFiles), {
+    status: 'valid', shots: 3, blocks: 2, authoringUnits: 2, route: 'hybrid',
+  });
   assert.match(first.sharedArtifacts.narrativeEnvelope.sha256, /^[0-9a-f]{64}$/u);
   await assert.rejects(validateRuntimePlan(first), /narrative envelope file is required/u);
   const originalNarrative = await readFile(sharedArtifactFiles.narrativeEnvelopeFile, 'utf8');
@@ -2066,7 +2121,6 @@ test('runtime planner partitions focused units deterministically at shot, count,
       microBeats: [{ beatId: 'b1', startMs, endMs, visibleState: 'Complete state.', change: 'relationship', development: 'The evidence relationship becomes visible.' }],
       materialNeeds: [], requiredCapabilities: common,
       readableHold: { startMs, endMs, items: [] }, neighborHandoff: { incoming: 'In.', outgoing: 'Out.' },
-      ...(index === 2 ? { authoring: { solo: true, reason: 'Hero shot.' } } : {}),
     };
     await writeFile(path.join(recipes, `${shotId}.json`), `${JSON.stringify(recipe)}\n`);
   }
@@ -2075,20 +2129,19 @@ test('runtime planner partitions focused units deterministically at shot, count,
   const sharedArtifactFiles = await writeSharedDirectorArtifacts(state.base, 85000);
   const plan = await planRuntime({ recipesDirectory: recipes, selectionFile, ...sharedArtifactFiles });
   assert.deepEqual(plan.authoringUnits.map(({ window, shotIds }) => ({ window, shotIds })), [
-    { window: { startMs: 0, endMs: 20000 }, shotIds: ['S01', 'S02'] },
-    { window: { startMs: 20000, endMs: 30000 }, shotIds: ['S03'] },
+    { window: { startMs: 0, endMs: 30000 }, shotIds: ['S01', 'S02', 'S03'] },
     { window: { startMs: 30000, endMs: 45000 }, shotIds: ['S04'] },
     { window: { startMs: 45000, endMs: 85000 }, shotIds: ['S05'] },
   ]);
-  assert.deepEqual(await validateRuntimePlan(plan, sharedArtifactFiles), { status: 'valid', shots: 5, blocks: 1, authoringUnits: 4, route: 'hyperframes' });
+  assert.deepEqual(await validateRuntimePlan(plan, sharedArtifactFiles), { status: 'valid', shots: 5, blocks: 1, authoringUnits: 3, route: 'hyperframes' });
 
   const broken = structuredClone(plan);
-  broken.authoringUnits[0].shotIds.push('S03');
-  broken.authoringUnits[0].window.endMs = 30000;
-  broken.authoringUnits[0].context.recipes.push('shot-recipes/S03.json');
-  broken.authoringUnits[1].shotIds = ['S04'];
-  broken.authoringUnits[1].window = { startMs: 30000, endMs: 45000 };
-  broken.authoringUnits[1].context.recipes = ['shot-recipes/S04.json'];
+  broken.authoringUnits[0].shotIds.push('S04');
+  broken.authoringUnits[0].window.endMs = 45000;
+  broken.authoringUnits[0].context.recipes.push('shot-recipes/S04.json');
+  broken.authoringUnits[1].shotIds = ['S05'];
+  broken.authoringUnits[1].window = { startMs: 45000, endMs: 85000 };
+  broken.authoringUnits[1].context.recipes = ['shot-recipes/S05.json'];
   const { computeRuntimePlanIdentity } = await import('../erduo-broll-loop-engineering/scripts/validate-runtime-plan.mjs');
   broken.identity = computeRuntimePlanIdentity(broken);
   await assert.rejects(validateRuntimePlan(broken, sharedArtifactFiles), /units must close over every shot exactly once/u);
@@ -2335,8 +2388,9 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(runtimeReferenceRoot, 'remotion-hyperframes-map.md'),
     'utf8',
   );
-  assert.match(contract, /New projects default to runtime intent `auto`/u);
-  assert.match(contract, /Hybrid means backend-native block construction followed by frozen-media/u);
+  assert.match(contract, /New projects default to HyperFrames/u);
+  assert.match(contract, /`auto` and `hybrid` are experimental explicit routes/u);
+  assert.match(contract, /Legacy hybrid means backend-native block construction followed by frozen-media/u);
   assert.match(contract, /No semantic keyword, directory name, agent taste, or signal count participates/u);
   assert.match(contract, /reference-source-unverified/u);
   assert.match(contract, /Never translate generated source, import one runtime into the\s+other, or nest live previews\/renderers/u);
@@ -2354,15 +2408,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
     'erduo-broll-loop-engineering/stages/broll-hybrid-integrate/SKILL.md': [
       '../../references/runtime/frozen-block.schema.json',
     ],
-    'erduo-broll-loop-engineering/stages/broll-director/SKILL.md': [
-      'animation-craft.md',
-      'visual-craft.md',
-    ],
     'erduo-broll-loop-engineering/stages/broll-assets/SKILL.md': ['safe-execution.md'],
-    'erduo-broll-loop-engineering/stages/broll-master-build/SKILL.md': [
-      'animation-craft.md',
-      'motion-layout-lint.md',
-    ],
     'erduo-broll-loop-engineering/stages/broll-master-integrate/SKILL.md': [
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
@@ -2371,14 +2417,14 @@ test('runtime references and production Skills preserve the adapter evidence gat
       '../../references/runtime/runtime-contract.md',
       '../../references/runtime/capability-matrix.json',
     ],
-    'erduo-broll-loop-engineering/stages/broll-remotion-build/SKILL.md': [
-      'animation-craft.md',
-      'motion-layout-lint.md',
-    ],
   };
   for (const [file, references] of Object.entries(requiredReferences)) {
     const text = await readFile(path.join(root, file), 'utf8');
     for (const reference of references) assert.ok(text.includes(reference), `${file}: ${reference}`);
+  }
+  for (const stage of ['broll-director', 'broll-master-build', 'broll-remotion-build']) {
+    const text = await readFile(path.join(root, 'erduo-broll-loop-engineering', 'stages', stage, 'SKILL.md'), 'utf8');
+    assert.doesNotMatch(text, /animation-craft\.md|visual-craft\.md|motion-layout-lint\.md/u, stage);
   }
 
   const onboardingReference = await readFile(
@@ -2390,7 +2436,7 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-director', 'SKILL.md'),
     'utf8',
   );
-  assert.match(directorSkill, /`validate-shot-recipes\.mjs`/u);
+  assert.match(directorSkill, /assignment's validation and\s+official finalize commands/u);
   const legacyStages = [
     'broll-runtime-plan',
     'broll-master-integrate',
@@ -2419,10 +2465,11 @@ test('runtime references and production Skills preserve the adapter evidence gat
     path.join(root, 'erduo-broll-loop-engineering', 'stages', 'broll-master-build', 'SKILL.md'),
     'utf8',
   );
-  assert.match(hyperframesBuilderSkill, /Load the pinned official `hyperframes` Skill/u);
-  assert.match(hyperframesBuilderSkill, /bounds first at Recipe beat boundaries, readable holds, scene cuts/u);
-  assert.match(hyperframesBuilderSkill, /A\s+pass produces no all-frame PNG sequence, still, clip, preview, or AI frame\s+inspection/u);
-  assert.match(hyperframesBuilderSkill, /Only findings render (?:their )?bounded diagnostic windows/u);
+  assert.match(hyperframesBuilderSkill, /exact HyperFrames runtime/u);
+  assert.match(hyperframesBuilderSkill, /Keep stable holds valid and motion finite/u);
+  assert.match(hyperframesBuilderSkill, /Build the\s+maximum visible result first/u);
+  assert.match(hyperframesBuilderSkill, /Run only the exact standard command/u);
+  assert.match(hyperframesBuilderSkill, /Open every shot's six-frame sheet and the\s+chapter preview/u);
 });
 
 test('animation craft is prompt-time generation guidance, not a review schema', async () => {
@@ -2482,21 +2529,17 @@ test('Remotion production contracts close silent-audio and local-font evidence',
     path.join(root, 'erduo-broll-loop-engineering', 'scripts', 'remotion-verify.mjs'),
     'utf8',
   );
-  for (const [name, text] of [
-    ['backend', backend],
-    ['build', build],
-  ]) {
-    assert.match(text, /--muted/u, name);
-    assert.match(text, /zero\s+audio\s+streams|no\s+audio\s+stream/u, name);
-    assert.match(text, /durationInFrames\s*\/\s*fps|exact\s+frame\s+duration/u, name);
-  }
+  assert.match(backend, /--muted/u);
+  assert.match(backend, /zero\s+audio\s+streams|no\s+audio\s+stream/u);
+  assert.match(backend, /durationInFrames\s*\/\s*fps|exact\s+frame\s+duration/u);
   for (const [name, text] of [['integrate', integrate], ['render', render]]) {
     assert.match(text, /read-only compatibility/u, name);
     assert.match(text, /Do not dispatch it in a new production/u, name);
     assert.match(text, /compact recovery report/u, name);
   }
   assert.match(backend, /Generic or host\s+system fallbacks/u);
-  assert.match(build, /Fonts must be project-local\s+and explicitly loaded/u);
+  assert.match(build, /project-local font loading/u);
+  assert.match(build, /Parent\s+owns\s+dependency preparation, typecheck, bundle reuse, direct shot rendering/u);
   assert.match(verifier, /manifest lists no project-local font/u);
   assert.match(verifier, /Generic or host-system font fallback is forbidden/u);
   assert.match(verifier, /no explicit project-local font loader/u);
@@ -2673,8 +2716,8 @@ test('Remotion production contracts isolate source without duplicating dependenc
     'references/stage-orchestration.md',
   ].map((file) => readFile(path.join(skillRoot, file), 'utf8')));
   const joined = files.join('\n');
-  assert.match(joined, /one dependency identity installs once per\s+production root/u);
-  assert.match(joined, /Never run a private per-unit `npm ci`/u);
+  assert.match(joined, /one dependency identity\s+installs once per\s+production root/u);
+  assert.match(joined, /Do not run a private per-unit dependency install/u);
   assert.match(joined, /fixed two-slot/u);
   assert.match(joined, /remotion-toolchain\.mjs prepare/u);
   assert.match(joined, /remotion-toolchain\.mjs run-heavy/u);
@@ -3940,8 +3983,8 @@ test('runInstall rejects both duplicate doctor fact orders before installing Ski
 async function listPublicReleaseFiles(directory = root) {
   const files = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (entry.name === '.git') continue;
     if (entry.isDirectory() && [
-      '.git',
       'node_modules',
       '.cache',
       'cache',
@@ -3950,7 +3993,11 @@ async function listPublicReleaseFiles(directory = root) {
       'artifacts',
     ].includes(entry.name)) continue;
     const absolute = path.join(directory, entry.name);
-    if (path.relative(root, absolute) === 'docs/V1.0.0-IMPLEMENTATION-PR.md') continue;
+    if ([
+      'docs/V1.0.0-IMPLEMENTATION-PR.md',
+      'docs/V1.0.1-PR-SPEC.md',
+      'docs/V1.0.1-CREATIVE-LOOP-RESET-PR-SPEC.md',
+    ].includes(path.relative(root, absolute))) continue;
     if (entry.isDirectory()) files.push(...await listPublicReleaseFiles(absolute));
     else if (entry.isSymbolicLink()) {
       assert.fail(`public release tree contains a symbolic link: ${absolute}`);
@@ -4761,12 +4808,12 @@ test('runtime lock pins the complete HyperFrames and Skills CLI graph with integ
       .map((name) => readFile(path.join(root, name), 'utf8')),
   );
   assert.doesNotThrow(() => validateRuntimeLock(packageJson, lock));
-  assert.equal(RELEASE_VERSION, '1.0.0');
+  assert.equal(RELEASE_VERSION, '1.0.1');
   assert.equal(publicPackage.version, RELEASE_VERSION);
   assert.equal(packageJson.version, RELEASE_VERSION);
   assert.equal(lock.version, RELEASE_VERSION);
   assert.equal(lock.packages[''].version, RELEASE_VERSION);
-  assert.match(readme, /version-1\.0\.0-/u);
+  assert.match(readme, /version-1\.0\.1-/u);
   assert.match(changelog, /## 0\.9\.2 —/u);
   assert.match(support, /`0\.9\.2`/u);
   assert.match(checklist, /`1\.0\.0`/u);
@@ -5230,7 +5277,7 @@ test('production profile CLI creates default and vertical policies and planning 
   const assignments = await Promise.all(result.assignments.map(async (file) => (
     JSON.parse(await readFile(path.join(fixture.productionRoot, file), 'utf8'))
   )));
-  assert.equal(assignments.length, 2);
+  assert.equal(assignments.length, 1);
   for (const assignment of assignments) {
     assert.deepEqual(assignment.productionProfile, customProfile);
     assert.equal(assignment.productionProfileIdentity, customProfile.identity);
@@ -5257,7 +5304,7 @@ test('production profile CLI creates default and vertical policies and planning 
     await writeFile(mediaFile, media);
     factsByFile.set(path.resolve(mediaFile), frozenFacts({
       container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
-      width: 1080, height: 1920, fps: '25/1', frameCount: 25,
+      width: 1080, height: 1920, fps: '25/1', durationSeconds: 2, frameCount: 50,
     }));
     const sourceClosure = await writeEditableSourceClosure(unitRoot, assignment.unitId);
     const contract = {
@@ -5271,7 +5318,7 @@ test('production profile CLI creates default and vertical policies and planning 
       audioPolicy: 'silent',
       media: {
         path: 'unit.mock-media', sha256: createHash('sha256').update(media).digest('hex'),
-        container: 'mp4', codec: 'h264', durationMs: 1000, frameCount: 25,
+        container: 'mp4', codec: 'h264', durationMs: 2000, frameCount: 50,
         audioStreams: 0, startTimeMs: 0,
       },
       productionProfileIdentity: customProfile.identity,
@@ -5325,16 +5372,15 @@ test('v1 planning writes one immutable plan and minimal Builder task per authori
   assert.equal(result.plan.integrationMode, 'frozen-block-media');
   assert.equal(result.plan.frozenMediaContractVersion, '1.0.0');
   assert.deepEqual(result.plan.productionProfile, bindProductionProfile(DEFAULT_PRODUCTION_PROFILE));
-  assert.deepEqual(result.assignments, [
-    '01-runtime-plan/assignments/U001.json',
-    '01-runtime-plan/assignments/U002.json',
-  ]);
+  assert.deepEqual(result.assignments, ['01-runtime-plan/assignments/U001.json']);
   const assignments = await Promise.all(result.assignments.map(async (file) => (
     JSON.parse(await readFile(path.join(fixture.productionRoot, file), 'utf8'))
   )));
-  assert.deepEqual(assignments[0].shotIds, ['S01']);
-  assert.deepEqual(assignments[0].contextFiles.recipes, ['01-director/shot-recipes/S01.json']);
-  assert.deepEqual(assignments[1].contextFiles.recipes, ['01-director/shot-recipes/S02.json']);
+  assert.deepEqual(assignments[0].shotIds, ['S01', 'S02']);
+  assert.deepEqual(assignments[0].contextFiles.recipes, [
+    '01-director/shot-recipes/S01.json',
+    '01-director/shot-recipes/S02.json',
+  ]);
   for (const assignment of assignments) {
     assert.equal(assignment.output.editableSourceRequired, true);
     assert.equal(assignment.output.frozenMediaRequired, true);
@@ -5375,6 +5421,7 @@ test('v1 lightweight frozen unit media makes a low-cost preview and revalidates 
     await writeFile(mediaFile, media);
     factsByFile.set(path.resolve(mediaFile), frozenFacts({
       container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
+      durationSeconds: 2, frameCount: 60,
     }));
     const durationMs = assignment.window.endMs - assignment.window.startMs;
     const sourceClosure = await writeEditableSourceClosure(unitRoot, assignment.unitId);
@@ -5389,7 +5436,7 @@ test('v1 lightweight frozen unit media makes a low-cost preview and revalidates 
       audioPolicy: 'silent',
       media: {
         path: 'unit.mock-media', sha256: createHash('sha256').update(media).digest('hex'),
-        container: 'mp4', codec: 'h264', durationMs, frameCount: 30,
+        container: 'mp4', codec: 'h264', durationMs, frameCount: 60,
         audioStreams: 0, startTimeMs: 0,
       },
       productionProfileIdentity: assignment.productionProfileIdentity,
@@ -5405,23 +5452,23 @@ test('v1 lightweight frozen unit media makes a low-cost preview and revalidates 
     contractFiles.push(contractFile);
   }
   assert.equal(plan.blocks.length, 1);
-  assert.equal(plan.authoringUnits.length, 2);
+  assert.equal(plan.authoringUnits.length, 1);
   assert.deepEqual(
     await validateFrozenBlocks(plan, contractFiles, { ...fixture, runner }),
     {
-      status: 'valid', blocks: 2, startMs: 0, endMs: 2000,
+      status: 'valid', blocks: 1, startMs: 0, endMs: 2000,
       aggregateIdentity: (await validateFrozenBlocks(plan, contractFiles, { ...fixture, runner })).aggregateIdentity,
     },
   );
   const editableSource = path.join(
-    fixture.productionRoot, assignments[1].output.workDirectory, 'source', 'entry.txt',
+    fixture.productionRoot, assignments[0].output.workDirectory, 'source', 'entry.txt',
   );
   await writeFile(editableSource, 'tampered editable source');
   await assert.rejects(
     validateFrozenBlocks(plan, contractFiles, { ...fixture, runner }),
     /differs from its editable closure/u,
   );
-  await writeFile(editableSource, `editable-${assignments[1].unitId}`);
+  await writeFile(editableSource, `editable-${assignments[0].unitId}`);
   const preview = path.join(fixture.productionRoot, '05-delivery', 'preview.mp4');
   const identity = path.join(fixture.productionRoot, '05-delivery', 'composition-identity.json');
   const previewResult = await assembleFrozenPreview({
@@ -5434,7 +5481,7 @@ test('v1 lightweight frozen unit media makes a low-cost preview and revalidates 
     runner,
   });
   assert.equal(previewResult.status, 'preview-ready');
-  assert.equal(previewResult.units, 2);
+  assert.equal(previewResult.units, 1);
   factsByFile.set(path.resolve(preview), frozenFacts({
     container: 'mov,mp4,m4a,3gp,3g2,mj2', codec: 'h264', pixelFormat: 'yuv420p',
     width: 1920, height: 1080, durationSeconds: 2, frameCount: 60,
@@ -5508,7 +5555,12 @@ test('public release source contains the parent plus thirteen prompt stage Skill
     const files = (await listPublicReleaseFiles(stageDirectory))
       .map((file) => path.relative(stageDirectory, file))
       .toSorted();
-    assert.deepEqual(files, ['SKILL.md', 'agents/openai.yaml'], stage);
+    const roleFiles = stage === 'broll-director'
+      ? ['AGENTS.md', 'CLAUDE.md', 'role-prompt.md']
+      : ['broll-master-build', 'broll-remotion-build'].includes(stage)
+        ? ['AGENTS.md', 'CLAUDE.md', 'role-prompts/builder.md', 'role-prompts/lead.md']
+        : [];
+    assert.deepEqual(files, ['SKILL.md', 'agents/openai.yaml', ...roleFiles].toSorted(), stage);
   }
   const promptSurface = (await listPublicReleaseFiles(skillRoot))
     .map((file) => path.relative(skillRoot, file))

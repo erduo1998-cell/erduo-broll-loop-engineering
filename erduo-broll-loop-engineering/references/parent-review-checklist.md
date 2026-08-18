@@ -3,12 +3,14 @@
 Start from the compact receipt/handoff. Inspect an actual artifact only to
 answer a concrete contract or technical question. The Parent does not perform
 an independent aesthetic review, commission a review Agent, assign craft
-scores, or require extra screenshot evidence. Visual taste has one default
-gate: the user's decision on the final identity-bound composition preview.
+scores, or require extra screenshot evidence. Visual taste has two user gates:
+the three representative scenes for direction and the complete shot-assembled
+preview for the film as a whole.
 
 ## Goal and environment
 
-- Output directory and attempt/master targets are new and non-overwriting.
+- Output directory and shot/preview/optional-master targets are new and
+  non-overwriting.
 - Runtime selection is validated; new projects default to `auto` and ambiguous
   existing evidence stops.
 - Cached installation readiness matches this release and host; the lightweight
@@ -31,10 +33,12 @@ gate: the user's decision on the final identity-bound composition preview.
   roles, materials/depth, motif semantics, rhythm, safe-area policy, lazy
   defaults to avoid, and at least three content-appropriate composition
   families once.
-- Recipe v2 files are schema-valid compact shot deltas: focus, composition
+- Recipe v3 files are schema-valid compact shot deltas: beat-level primary
+  focus, start/turn/result/hold key states, element lifecycles, composition
   family, hero-frame relationship, visible `microBeats[]`, shot-specific
-  material need, optional craft/pattern locators, neighbor handoff, and
-  readable hold. They do not repeat global rules or contain runtime APIs.
+  material need, one content-related reason for every required capability,
+  optional locators, neighbor handoff, and readable hold. They do not repeat
+  global rules or contain runtime APIs.
 - A micro-beat changes subject, topology, scale, depth, material state,
   relationship, or attention; deliberate stillness is explicit. Beat-count
   heuristics are not a pass/fail score.
@@ -44,6 +48,10 @@ gate: the user's decision on the final identity-bound composition preview.
 - `representative-scenes.json` names exactly three distinct Recipe shots with
   `opening`, `information-dense`, and `late` coverage and concerns that
   collectively test composition, text, material, and motion.
+- `motion-map.json` maps every Recipe once and keeps only content relation,
+  primary action, composition family, entry family, rhythm, and settle time.
+  The three representative shots cover three distinct relations, compositions,
+  and rhythms rather than one template with changed copy.
 - Shotcraft may be unused across the whole film. When a named technique
   question justified a query, that shot has at most one pattern and its locator
   resolves progressively; no per-shot no-pattern record is required. Craft
@@ -57,6 +65,7 @@ gate: the user's decision on the final identity-bound composition preview.
   `create-production-profile.mjs`; it did not hand-write output policy JSON.
 - The Parent ran `plan-runtime.mjs` directly with Recipes, selection, narrative
   envelope, visual system, the three-shot `--representative-scenes` artifact,
+  `--motion-map`,
   `--production-profile`, and an unused production
   root. No Runtime Planner Agent was dispatched.
 - The plan and every Builder assignment carry the generated profile's same hash
@@ -96,24 +105,24 @@ gate: the user's decision on the final identity-bound composition preview.
   built only its assigned representative Recipes, and returned moving scenes
   plus directly importable runtime-native shared source and identity.
 - `04-visual-lock/visual-lock.json` binds the three scenes, representative
-  reasons, source identities, assets/fonts, concrete Director witness, and the
-  user's approved or explicit skipped decision. Every production packet passed
-  the gate against that unchanged contract.
+  reasons, source identities, assets/fonts, and the user's approved or explicit
+  skipped decision. Every production packet passed the gate against that
+  unchanged contract; no full-film Director witness is required.
 - Hybrid shares only runtime-neutral visual tokens. HyperFrames and Remotion
   have separate source locators and identities.
 
+- The assignment injects the matching generated role charter, a source-authoring
+  anchor of at most eight lines, and fixed compression recovery fields. The
+  Agent did not reread parent/other stage Skills, generic craft references,
+  schemas, validators, or catalogs.
 - The fresh Agent owns one validated authoring unit only and read only its unit
   Recipes, immediate seam summaries, shared narrative/visual-system locators,
   frozen assets/fonts, and 0–2 selected references.
 - It did not load all film Recipes, full catalogs, or unrelated references.
-- HyperFrames loaded official core, creative, and animation guidance and
-  queried registry/presets/blueprints before hand-writing; reused mechanisms
-  were reskinned for this content. Remotion reused only real-witness local
-  primitives or implemented the craft natively without parity claims.
-- HyperFrames resolved the selected motion mechanism to the current local
-  project before full authoring. When no same-environment witness existed, one
-  disposable seek canary passed official check and produced two nonblank,
-  meaningfully different time snapshots inside the owning Builder stage.
+- The Agent did not create capture, trace, lint, screenshot, frame-scan,
+  render, hash, probe, decode, manifest, contract, receipt, or proof tooling.
+  It ran only the assignment's standard command and repaired only its concrete
+  shot/window findings.
 - The maximum visible hero frame was authored first, then attention, causal
   action, dependent follow-through, settle, and readable hold. This created no
   approval artifact or aesthetic checklist.
@@ -122,37 +131,41 @@ gate: the user's decision on the final identity-bound composition preview.
   decisions and faithful variances.
 - Ordinary media drives geometry, crop, mask, path, annotation, palette,
   depth, or state; it is not a generic thumbnail/card/title background.
-- Source, fonts, dependencies, checks, unit seams, and any hybrid frozen media
-  close technically. Receipt/handoff is compact and exception-led.
+- Every assigned `shotId` has editable source and its own direct runtime render
+  target. Source, fonts, dependencies, and unit seams close technically; the
+  Agent handoff is locator-only and exception-led.
 - Remotion source directories remain isolated, while identical dependency
   identities name one shared toolchain receipt. No unit contains a private
   dependency copy, and every install/typecheck/browser/render command used the
   fixed two-slot heavy queue.
 
-## Scripted assembly and delivery
+## Scripted shot rendering, preview, and delivery
 
-- Every planned unit is present once. Contract CLI arguments may arrive in any
-  order because the script resolves and assembles them in plan order; missing,
-  duplicate, unplanned, or changed contracts fail closed.
-- Recipe-to-runtime traceability, resources, fonts, time coverage, seams, and
-  composition identity close.
-- Hybrid crosses runtimes only through validated frozen media; no live nesting
-  or generated-source interchange occurs.
-- The Parent ran `assemble-frozen-production.mjs preview`; it validated unit
-  media plus v3 visual-lock/shared-source identities, assembled the one bounded moving preview, fully decoded it, and froze
-  the approval identity. No Integrator or Render Agent was dispatched.
-- After approval, the Parent ran `assemble-frozen-production.mjs deliver` with
-  the same visual lock, plan, shared artifacts, contracts, preview, and identity. It
-  revalidated unchanged inputs and encoded a new full-spec master to an unused
-  path rather than copying the preview.
+- Parent ran `render-assigned-shots.mjs` for each assignment. Every planned
+  Recipe appears exactly once as an independently probed and fully decoded
+  H.264 file with `renderTarget.mode: direct-runtime-render`; no shot was cut
+  from a unit or Master.
+- Every shot has a schema-valid `shot-media.json`, source/Recipe/profile
+  identity, and an opening/preparation/action-a/action-b/result/settle-tail
+  six-frame semantic sheet. Only concrete risk windows added bounded frames;
+  normal shots produced no full-frame sequence.
+- `delivery-index.json` closes shot count, Recipe order, absolute SRT windows,
+  local frame mapping, neighbors, seams, and continuous coverage.
+- Parent ran `assemble-shot-preview.mjs` only from the verified shot files and
+  fully decoded the complete preview. No Integrator or Render Agent was
+  dispatched.
+- After approval, the ordered high-quality shot directory is the default
+  delivery. Any requested Master is newly assembled from those same unchanged
+  shots to an unused path; it is optional and never copied from preview.
 - The representative scenes are the user's early visual-direction stop and the
-  complete composition preview is the final aesthetic stop. Script checks and
-  both bounded original-Director witnesses do not claim aesthetic approval.
-- Exactly one verified master passes FFprobe and complete decode. Technical
-  facts are not presented as aesthetic approval.
+  complete composition preview is the final aesthetic stop. There is no default
+  full-film Director witness, and script checks do not claim aesthetic approval.
+- Every delivered shot passes FFprobe and complete decode. An optional Master,
+  when requested, also passes them. Technical facts are not aesthetic approval.
 
 ## Final report
 
-Report master locator, objective media facts, continuous coverage, material
-and font sources, optional requested exports, and honest limitations. Do not
-add a post-render aesthetic review or ask the user to approve a second time.
+Report ordered shot and index locators, preview locator, objective media facts,
+continuous coverage, material/font sources, optional Master or legacy-export
+locators, and honest limitations. Do not add a post-render aesthetic review or
+ask the user to approve a second time.

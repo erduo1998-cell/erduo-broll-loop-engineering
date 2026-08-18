@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/runtime-plan-v3.schema.json",
+  "title": "Post-Director runtime plan v2/v3 with focused authoring units and visual lock (legacy)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "planningMode", "selection", "sharedArtifacts", "productionProfile", "resultingRoute", "requiredBackends", "integrationMode", "frozenMediaContractVersion", "shots", "blocks", "authoringUnits", "warnings", "identity"],
+  "properties": {
+    "schemaVersion": { "enum": ["2.0.0", "3.0.0"] },
+    "status": { "enum": ["planned", "action-required"] },
+    "planningMode": { "enum": ["auto", "forced-single", "forced-hybrid"] },
+    "selection": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "selectedRuntime", "selectionSource"], "properties": { "schemaVersion": { "type": "string", "minLength": 1 }, "selectedRuntime": { "enum": ["auto", "hyperframes", "hybrid", "remotion"] }, "selectionSource": { "enum": ["explicit", "detected", "default"] } } },
+    "sharedArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["narrativeEnvelope", "visualSystem"],
+      "properties": {
+        "narrativeEnvelope": { "$ref": "#/$defs/sharedArtifact" },
+        "visualSystem": { "$ref": "#/$defs/sharedArtifact" },
+        "representativeScenes": { "$ref": "#/$defs/sharedArtifact" }
+        ,"motionMap": { "$ref": "#/$defs/sharedArtifact" }
+      }
+    },
+    "productionProfile": { "$ref": "#/$defs/productionProfile" },
+    "backendFailurePolicy": { "const": "return-to-selected-backend" },
+    "mediaBoundary": { "enum": ["authoring-unit", "shot"] },
+    "resultingRoute": { "type": ["string", "null"], "enum": ["hyperframes", "hybrid", "remotion", null] },
+    "requiredBackends": { "type": "array", "uniqueItems": true, "items": { "enum": ["hyperframes", "remotion"] } },
+    "integrationMode": { "type": ["string", "null"], "enum": ["single-runtime-source", "frozen-block-media", "shot-media", null] },
+    "frozenMediaContractVersion": { "type": ["string", "null"], "enum": ["1.0.0", null] },
+    "shotMediaContractVersion": { "type": ["string", "null"], "enum": ["1.0.0", null] },
+    "shots": { "type": "array", "items": { "$ref": "#/$defs/shotV2" } },
+    "blocks": { "type": "array", "items": { "$ref": "#/$defs/block" } },
+    "authoringUnits": { "type": "array", "items": { "$ref": "#/$defs/authoringUnit" } },
+    "visualLock": { "$ref": "#/$defs/visualLockPlan" },
+    "warnings": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "$defs": {
+    "color": { "type": "object", "additionalProperties": false, "required": ["space", "transfer", "primaries", "range"], "properties": { "space": { "type": "string", "minLength": 1 }, "transfer": { "type": "string", "minLength": 1 }, "primaries": { "type": "string", "minLength": 1 }, "range": { "enum": ["tv", "pc"] } } },
+    "audio": { "type": "object", "additionalProperties": false, "required": ["policy", "streams", "codec", "sampleRate", "channels"], "properties": { "policy": { "enum": ["silent", "preserve-source"] }, "streams": { "type": "integer", "minimum": 0, "maximum": 1 }, "codec": { "type": ["string", "null"] }, "sampleRate": { "type": ["integer", "null"], "minimum": 1 }, "channels": { "type": ["integer", "null"], "minimum": 1 } } },
+    "productionProfile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "raster", "fps", "mezzanine", "master", "identity"],
+      "properties": {
+        "schemaVersion": { "const": "1.0.0" },
+        "raster": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 2 }, "height": { "type": "integer", "minimum": 2 } } },
+        "fps": { "type": "object", "additionalProperties": false, "required": ["numerator", "denominator"], "properties": { "numerator": { "type": "integer", "minimum": 1 }, "denominator": { "type": "integer", "minimum": 1 } } },
+        "mezzanine": { "type": "object", "additionalProperties": false, "required": ["container", "codec", "pixelFormat", "class", "color", "audio"], "properties": { "container": { "type": "string", "minLength": 1 }, "codec": { "type": "string", "minLength": 1 }, "encoder": { "type": "string", "minLength": 1 }, "pixelFormat": { "type": "string", "minLength": 1 }, "class": { "enum": ["lossless", "visually-lossless"] }, "preset": { "type": ["string", "null"] }, "crf": { "type": ["integer", "null"], "minimum": 0, "maximum": 51 }, "gopFrames": { "type": "integer", "minimum": 1 }, "keyframeScenecut": { "type": "boolean" }, "upgradeReason": { "type": ["string", "null"], "minLength": 1 }, "color": { "$ref": "#/$defs/color" }, "audio": { "$ref": "#/$defs/audio" } } },
+        "master": { "type": "object", "additionalProperties": false, "required": ["container", "codec", "encoder", "pixelFormat", "preset", "crf", "fastStart", "color", "audio"], "properties": { "container": { "const": "mp4" }, "codec": { "const": "h264" }, "encoder": { "const": "libx264" }, "pixelFormat": { "type": "string", "minLength": 1 }, "preset": { "type": "string", "minLength": 1 }, "crf": { "type": "integer", "minimum": 0, "maximum": 51 }, "fastStart": { "type": "boolean" }, "color": { "$ref": "#/$defs/color" }, "audio": { "$ref": "#/$defs/audio" } } },
+        "identity": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "window": { "type": "object", "additionalProperties": false, "required": ["startMs", "endMs"], "properties": { "startMs": { "type": "integer", "minimum": 0 }, "endMs": { "type": "integer", "minimum": 1 } } },
+    "sharedArtifact": { "type": "object", "additionalProperties": false, "required": ["locator", "schemaVersion", "sha256"], "properties": { "locator": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" }, "schemaVersion": { "const": "1.0.0" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } } },
+    "evidence": { "type": "object", "additionalProperties": false, "required": ["kind", "id", "runtime", "priority", "verification", "locator"], "properties": { "kind": { "enum": ["forced", "native-capability", "capability-preference", "pattern-reference", "portable-default"] }, "id": { "type": "string", "minLength": 1 }, "runtime": { "enum": ["hyperframes", "remotion"] }, "priority": { "type": "integer", "minimum": 0, "maximum": 1000 }, "verification": { "type": "string", "minLength": 1 }, "locator": { "type": "string", "minLength": 1 } } },
+    "rejectedBackend": { "type": "object", "additionalProperties": false, "required": ["runtime", "reason"], "properties": { "runtime": { "enum": ["hyperframes", "remotion"] }, "reason": { "type": "string", "minLength": 1 } } },
+    "shotV2": { "type": "object", "additionalProperties": false, "required": ["shotId", "window", "runtime", "decision", "evidence", "unverifiedPreferences"], "properties": { "shotId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" }, "window": { "$ref": "#/$defs/window" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "decision": { "enum": ["forced", "native-required", "capability-preference", "pattern-reference", "portable-default"] }, "forced": { "type": "boolean" }, "selectionReason": { "type": "string", "minLength": 1 }, "rejectedBackends": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "$ref": "#/$defs/rejectedBackend" } }, "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }, "unverifiedPreferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "shotV3": { "type": "object", "additionalProperties": false, "required": ["shotId", "window", "runtime", "decision", "forced", "selectionReason", "rejectedBackends", "evidence", "unverifiedPreferences"], "properties": { "shotId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" }, "window": { "$ref": "#/$defs/window" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "decision": { "enum": ["forced", "native-required", "capability-preference", "pattern-reference", "portable-default"] }, "forced": { "type": "boolean" }, "selectionReason": { "type": "string", "minLength": 1 }, "rejectedBackends": { "type": "array", "minItems": 1, "maxItems": 1, "items": { "$ref": "#/$defs/rejectedBackend" } }, "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }, "unverifiedPreferences": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "block": { "type": "object", "additionalProperties": false, "required": ["blockId", "runtime", "window", "shotIds"], "properties": { "blockId": { "type": "string", "pattern": "^B[0-9]{3}$" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "window": { "$ref": "#/$defs/window" }, "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } } } },
+    "authoringUnit": { "type": "object", "additionalProperties": false, "required": ["unitId", "blockId", "runtime", "window", "shotIds", "context"], "properties": { "unitId": { "type": "string", "pattern": "^U[0-9]{3}$" }, "blockId": { "type": "string", "pattern": "^B[0-9]{3}$" }, "runtime": { "enum": ["hyperframes", "remotion"] }, "window": { "$ref": "#/$defs/window" }, "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }, "context": { "type": "object", "additionalProperties": false, "required": ["narrativeEnvelope", "visualSystem", "recipes", "previousSeam", "nextSeam"], "properties": { "narrativeEnvelope": { "type": "string", "minLength": 1 }, "visualSystem": { "type": "string", "minLength": 1 }, "recipes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }, "previousSeam": { "type": ["string", "null"] }, "nextSeam": { "type": ["string", "null"] } } } } },
+    "representativeScene": { "type": "object", "additionalProperties": false, "required": ["shotId", "coverage", "reason", "concerns", "runtime"], "properties": { "shotId": { "type": "string", "minLength": 1 }, "coverage": { "enum": ["opening", "information-dense", "late"] }, "reason": { "type": "string", "minLength": 1 }, "concerns": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["composition", "text", "material", "motion"] } }, "runtime": { "enum": ["hyperframes", "remotion"] } } },
+    "visualLockPlan": { "type": "object", "additionalProperties": false, "required": ["required", "contractLocator", "sourceIsolation", "representativeScenes", "leadAssignmentLocators"], "properties": { "required": { "const": true }, "contractLocator": { "const": "04-visual-lock/visual-lock.json" }, "sourceIsolation": { "const": "per-runtime" }, "representativeScenes": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "$ref": "#/$defs/representativeScene" } }, "leadAssignmentLocators": { "type": "array", "minItems": 1, "maxItems": 2, "uniqueItems": true, "items": { "type": "string", "pattern": "^01-runtime-plan/assignments/L[0-9]{3}\\.json$" } } } }
+  },
+  "allOf": [{
+    "if": {
+      "properties": {
+        "schemaVersion": { "const": "3.0.0" },
+        "status": { "const": "planned" }
+      },
+      "required": ["schemaVersion", "status"]
+    },
+    "then": {
+      "required": ["backendFailurePolicy", "mediaBoundary", "shotMediaContractVersion", "visualLock"],
+      "properties": {
+        "sharedArtifacts": { "required": ["narrativeEnvelope", "visualSystem", "representativeScenes", "motionMap"] },
+        "shots": { "items": { "$ref": "#/$defs/shotV3" } }
+      }
+    }
+  }]
+}

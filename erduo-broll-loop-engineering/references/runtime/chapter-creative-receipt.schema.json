@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/chapter-creative-receipt.schema.json",
+  "title": "Lead or Chapter Builder creative view receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "planIdentity", "assignmentId", "unitId", "shotIds", "recipeBindings", "decision", "viewedArtifact", "viewedSha256", "creativeProposalChanges"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "planIdentity": { "$ref": "#/$defs/sha256" },
+    "assignmentId": { "$ref": "#/$defs/unitId" },
+    "unitId": { "$ref": "#/$defs/unitId" },
+    "shotIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "recipeBindings": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/recipeBinding" } },
+    "decision": { "enum": ["accepted", "revised"] },
+    "viewedArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "locator"],
+      "properties": {
+        "kind": { "enum": ["six-frame-sheets", "chapter-preview", "both"] },
+        "locator": { "type": "string", "minLength": 1 }
+      }
+    },
+    "viewedSha256": { "$ref": "#/$defs/sha256" },
+    "creativeProposalChanges": { "type": "array", "items": { "$ref": "#/$defs/change" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "decision": { "const": "accepted" } }, "required": ["decision"] },
+      "then": { "properties": { "creativeProposalChanges": { "maxItems": 0 } } }
+    },
+    {
+      "if": { "properties": { "decision": { "const": "revised" } }, "required": ["decision"] },
+      "then": { "properties": { "creativeProposalChanges": { "minItems": 1 } } }
+    }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "unitId": { "type": "string", "pattern": "^[LU][0-9]{3}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "recipeBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shotId", "recipeIdentity", "truthIdentity"],
+      "properties": {
+        "shotId": { "$ref": "#/$defs/id" },
+        "recipeIdentity": { "$ref": "#/$defs/sha256" },
+        "truthIdentity": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shotId", "change"],
+      "properties": {
+        "shotId": { "$ref": "#/$defs/id" },
+        "change": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

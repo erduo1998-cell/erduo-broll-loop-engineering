@@ -73,15 +73,11 @@ continuous subject action may fulfill a beat when its end state advances;
 ambient, looping, unbound, or decorative motion cannot. An explicit
 `deliberate-stillness` beat needs no fabricated movement.
 
-For a non-still beat lasting at least four seconds, first sample its beginning,
-declared development points, result, and end. If those samples cannot exclude a
-long undeclared still tail, escalate only that beat window to dense capture and
-measure the longest continuous interval with no new rendered subject state.
-Flag the beat when any such interval reaches 25% of its full window. This does
-not require motion every four seconds, continuous motion, a fixed beat count, or
-any particular animation style. If waiting or stability is meaningful, the
-Director describes that window as its own `deliberate-stillness` or separate
-beat.
+Once a non-still beat produces its bound, non-decorative state change, the
+resolved state may remain still for settling or reading. Unchanged duration is
+not a defect and must never trigger dense capture or a request for more motion.
+The lint checks whether the declared change happened, not whether the screen
+keeps changing.
 
 For Remotion, capture DOM geometry from the project-local rendered
 Composition. `getBoundingClientRect()` is acceptable only after the exact
@@ -117,11 +113,10 @@ an unchanged passing unit trace during Parent assembly or delivery; source and
 media identity comparison is enough. Cross-unit rhythm and seams remain visible
 in the one complete moving preview rather than being claimed by a source lint.
 
-No passing path generates an all-frame PNG sequence. This check rejects a paper plan whose rendered subject does not develop and the
-specific long-beat risk where short actions leave a long undeclared interval
-with no measurable development. The four-second activation threshold and
-proportional longest-gap check are technical risk filters, not a cadence
-prescription or aesthetic score. It does not prove that a metaphor is
+No passing path generates an all-frame PNG sequence. This check rejects a paper
+plan whose declared non-still beat produces no rendered subject change. It does
+not punish a stable result, readable hold, or settled tail, and it never asks a
+Builder to add ambient or continuous movement. It does not prove that a metaphor is
 understandable, a diagram is the right explanation, a rhythm feels right, or
 an animation is beautiful; those remain creative judgments in the final moving
 preview.

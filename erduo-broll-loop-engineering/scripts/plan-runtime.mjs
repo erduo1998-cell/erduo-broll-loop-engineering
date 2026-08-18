@@ -2,6 +2,7 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 import {
+  access,
   lstat,
   mkdir,
   readFile,
@@ -10,10 +11,15 @@ import {
   rm,
   writeFile,
 } from 'node:fs/promises';
-import { realpathSync } from 'node:fs';
+import { constants as fsConstants, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateRecipeDirectory } from './validate-shot-recipes.mjs';
+import {
+  computeRecipeIdentity,
+  computeRecipeTruthIdentity,
+  recipeWindow,
+  validateRecipeDirectory,
+} from './validate-shot-recipes.mjs';
 import {
   bindRepresentativeScenes,
   bindSharedArtifacts,
@@ -21,11 +27,20 @@ import {
   validateRuntimePlan,
 } from './validate-runtime-plan.mjs';
 import { canonicalJson } from './runtime-schema-validator.mjs';
+import { roleInjection } from './generate-role-files.mjs';
+import { validateMotionMap } from './validate-motion-map.mjs';
 
 const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeRoot = path.join(skillRoot, 'references', 'runtime');
 const defaultMatrix = path.join(runtimeRoot, 'capability-matrix.json');
 const defaultRemotionIndex = path.join(skillRoot, 'references', 'shotcraft', 'remotion-sources', 'index.json');
+const SOLO_REASONS = new Set([
+  'exclusive-3d-webgl-gpu',
+  'external-project-toolchain',
+  'long-complete-chapter',
+  'resource-dependency-conflict',
+]);
+const CANARY_SHOT_PREFERENCES = ['S01', 'S05', 'S07', 'S09', 'S15'];
 
 export const DEFAULT_PRODUCTION_PROFILE = Object.freeze({
   schemaVersion: '1.0.0',
@@ -71,6 +86,36 @@ function evidence(kind, id, runtime, priority, verification, locator) {
   return { kind, id, runtime, priority, verification, locator };
 }
 
+function explainRouting({ mode, runtime, decision, candidates }) {
+  const rejectedRuntime = runtime === 'remotion' ? 'hyperframes' : 'remotion';
+  if (mode === 'forced-single') {
+    return {
+      forced: true,
+      selectionReason: `Selected ${runtime} because explicit runtime selection forces every compatible shot to that backend.`,
+      rejectedBackends: [{
+        runtime: rejectedRuntime,
+        reason: `Rejected for this shot because explicit runtime selection forces ${runtime}; backend failure must return to ${runtime} for repair.`,
+      }],
+    };
+  }
+  const selectedEvidence = candidates.filter((item) => item.runtime === runtime);
+  const rejectedEvidence = candidates.filter((item) => item.runtime === rejectedRuntime);
+  const selectedPriority = Math.max(0, ...selectedEvidence.map(({ priority }) => priority));
+  const rejectedPriority = Math.max(0, ...rejectedEvidence.map(({ priority }) => priority));
+  const selectedIds = selectedEvidence.filter(({ priority }) => priority === selectedPriority).map(({ id }) => id).sort();
+  const reason = selectedIds.length > 0
+    ? `${decision} selected ${runtime} from strongest evidence ${selectedIds.join(', ')} at priority ${selectedPriority}.`
+    : `${decision} selected ${runtime} from the portable backend default.`;
+  const rejectedReason = rejectedEvidence.length === 0
+    ? `Rejected for this shot because it has no stronger routing evidence than selected ${runtime}.`
+    : `Rejected for this shot because its strongest evidence priority ${rejectedPriority} is below selected ${runtime} priority ${selectedPriority}.`;
+  return {
+    forced: false,
+    selectionReason: reason,
+    rejectedBackends: [{ runtime: rejectedRuntime, reason: rejectedReason }],
+  };
+}
+
 function buildBlocks(shots) {
   const blocks = [];
   for (const shot of shots) {
@@ -94,11 +139,15 @@ function makeUnitFactory(shots, recipes, sharedArtifactBindings) {
   const recipeById = new Map(recipes.map((recipe) => [recipe.shotId, recipe]));
   const shotById = new Map(shots.map((shot) => [shot.shotId, shot]));
   const shotIndexById = new Map(shots.map((shot, index) => [shot.shotId, index]));
-  const incoming = (recipe) => ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
-    ? recipe.neighborHandoff.incoming : recipe.semantics.neighborConnection;
-  const outgoing = (recipe) => ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
-    ? recipe.neighborHandoff.outgoing : recipe.semantics.neighborConnection;
-  return (units, block, pending) => {
+  const incoming = (recipe) => recipe.schemaVersion === '4.0.0'
+    ? recipe.truth.incomingSeam
+    : ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
+      ? recipe.neighborHandoff.incoming : recipe.semantics.neighborConnection;
+  const outgoing = (recipe) => recipe.schemaVersion === '4.0.0'
+    ? recipe.truth.outgoingSeam
+    : ['2.0.0', '3.0.0'].includes(recipe.schemaVersion)
+      ? recipe.neighborHandoff.outgoing : recipe.semantics.neighborConnection;
+  return (units, block, pending, metadata = {}) => {
     if (!pending.length) return;
     const first = shotById.get(pending[0]);
     const last = shotById.get(pending.at(-1));
@@ -108,20 +157,35 @@ function makeUnitFactory(shots, recipes, sharedArtifactBindings) {
     const nextRecipe = lastIndex < shots.length - 1 ? recipeById.get(shots[lastIndex + 1].shotId) : null;
     const firstRecipe = recipeById.get(first.shotId);
     const lastRecipe = recipeById.get(last.shotId);
+    const v4 = firstRecipe.schemaVersion === '4.0.0';
     units.push({
       unitId: `U${String(units.length + 1).padStart(3, '0')}`,
       blockId: block.blockId,
       runtime: block.runtime,
       window: { startMs: first.window.startMs, endMs: last.window.endMs },
       shotIds: [...pending],
+      ...(v4 ? {
+        chapterIds: [...new Set(pending.map((shotId) => recipeById.get(shotId).truth.chapterId))],
+        groupingReason: metadata.groupingReason,
+        soloReason: metadata.soloReason ?? null,
+      } : {}),
       context: {
         narrativeEnvelope: sharedArtifactBindings.narrativeEnvelope.locator,
         visualSystem: sharedArtifactBindings.visualSystem.locator,
         recipes: pending.map((shotId) => `shot-recipes/${shotId}.json`),
-        previousSeam: previousRecipe
-          ? `${outgoing(previousRecipe)} | ${incoming(firstRecipe)}` : null,
-        nextSeam: nextRecipe
-          ? `${outgoing(lastRecipe)} | ${incoming(nextRecipe)}` : null,
+        ...(v4 ? {
+          recipeBindings: pending.map((shotId) => {
+            const recipe = recipeById.get(shotId);
+            return {
+              shotId,
+              locator: `shot-recipes/${shotId}.json`,
+              recipeIdentity: computeRecipeIdentity(recipe),
+              truthIdentity: computeRecipeTruthIdentity(recipe),
+            };
+          }),
+        } : {}),
+        previousSeam: previousRecipe ? incoming(firstRecipe) : null,
+        nextSeam: nextRecipe ? outgoing(lastRecipe) : null,
       },
     });
   };
@@ -156,14 +220,7 @@ function buildLegacyAuthoringUnits(blocks, shots, recipes, sharedArtifactBinding
 const TARGET_MAX_SHOTS_PER_UNIT = 8;
 
 function continuityAtoms(shotIds, recipeById) {
-  const atoms = [];
-  for (const shotId of shotIds) {
-    const recipe = recipeById.get(shotId);
-    const group = recipe.schemaVersion === '3.0.0' ? recipe.authoring?.continuityGroup : null;
-    if (group && atoms.at(-1)?.continuityGroup === group) atoms.at(-1).shotIds.push(shotId);
-    else atoms.push({ shotIds: [shotId], continuityGroup: group ?? null, solo: recipe.authoring?.solo === true });
-  }
-  return atoms;
+  return shotIds.map((shotId) => ({ shotIds: [shotId], continuityGroup: null, solo: false }));
 }
 
 function balancedChunks(atoms) {
@@ -214,6 +271,143 @@ function buildV3AuthoringUnits(blocks, shots, recipes, sharedArtifactBindings) {
   return units;
 }
 
+function splitBalancedShots(shotIds, shotById) {
+  const buildChunks = (unitCount) => {
+    const chunks = [];
+    let cursor = 0;
+    for (let index = 0; index < unitCount; index += 1) {
+      const remaining = shotIds.length - cursor;
+      const size = Math.ceil(remaining / (unitCount - index));
+      chunks.push(shotIds.slice(cursor, cursor + size));
+      cursor += size;
+    }
+    return chunks;
+  };
+  const durationOf = (chunk) => shotById.get(chunk.at(-1)).window.endMs
+    - shotById.get(chunk[0]).window.startMs;
+  const minimumUnits = Math.max(1, Math.ceil(shotIds.length / 8));
+  let relaxed = null;
+  for (let unitCount = minimumUnits; unitCount <= shotIds.length; unitCount += 1) {
+    const chunks = buildChunks(unitCount);
+    if (chunks.some((chunk) => chunk.length > 8 || durationOf(chunk) > 70_000)) continue;
+    relaxed ??= chunks;
+    if (shotIds.length < 5 || chunks.every((chunk) => chunk.length >= 5)) return chunks;
+  }
+  return relaxed ?? buildChunks(shotIds.length);
+}
+
+function buildV4AuthoringUnits(
+  blocks,
+  shots,
+  recipes,
+  sharedArtifactBindings,
+  chapters,
+  parentSoloReasons = {},
+) {
+  const recipeById = new Map(recipes.map((recipe) => [recipe.shotId, recipe]));
+  const shotById = new Map(shots.map((shot) => [shot.shotId, shot]));
+  const chapterById = new Map(chapters.map((chapter) => [chapter.chapterId, chapter]));
+  const appendUnit = makeUnitFactory(shots, recipes, sharedArtifactBindings);
+  for (const [shotId, reason] of Object.entries(parentSoloReasons)) {
+    if (!recipeById.has(shotId)) throw new Error(`unknown solo shot ${shotId}`);
+    if (!SOLO_REASONS.has(reason)) throw new Error(`${shotId}: unsupported solo reason ${JSON.stringify(reason)}`);
+  }
+  const soloReasonFor = (shotId) => {
+    if (parentSoloReasons[shotId]) return parentSoloReasons[shotId];
+    const recipe = recipeById.get(shotId);
+    if ((recipe.technicalRisks ?? []).length > 1) {
+      throw new Error(`${shotId}: multiple isolation risks require an explicit Parent solo reason`);
+    }
+    if (recipe.technicalRisks?.length === 1) return recipe.technicalRisks[0];
+    const chapter = chapterById.get(recipe.truth.chapterId);
+    const shot = shotById.get(shotId);
+    if (shot.window.endMs - shot.window.startMs > 35_000
+      && chapter?.window.startMs === shot.window.startMs
+      && chapter?.window.endMs === shot.window.endMs) return 'long-complete-chapter';
+    return null;
+  };
+  const units = [];
+  for (const block of blocks) {
+    const atoms = [];
+    let chapterRun = null;
+    const flushChapter = () => {
+      if (chapterRun) atoms.push(chapterRun);
+      chapterRun = null;
+    };
+    for (const shotId of block.shotIds) {
+      const soloReason = soloReasonFor(shotId);
+      if (soloReason) {
+        flushChapter();
+        atoms.push({ shotIds: [shotId], chapterIds: [recipeById.get(shotId).truth.chapterId], soloReason });
+        continue;
+      }
+      const chapterId = recipeById.get(shotId).truth.chapterId;
+      if (chapterRun?.chapterIds[0] === chapterId) chapterRun.shotIds.push(shotId);
+      else {
+        flushChapter();
+        chapterRun = { shotIds: [shotId], chapterIds: [chapterId], soloReason: null };
+      }
+    }
+    flushChapter();
+
+    for (let index = 0; index < atoms.length; index += 1) {
+      const atom = atoms[index];
+      const atomDuration = shotById.get(atom.shotIds.at(-1)).window.endMs
+        - shotById.get(atom.shotIds[0]).window.startMs;
+      if (atom.soloReason || (atom.shotIds.length >= 3 && atomDuration >= 35_000)) continue;
+      const previous = atoms[index - 1];
+      const next = atoms[index + 1];
+      const mergeTarget = previous && !previous.soloReason
+        ? previous
+        : next && !next.soloReason ? next : null;
+      if (!mergeTarget) continue;
+      const combined = mergeTarget === previous
+        ? [...previous.shotIds, ...atom.shotIds]
+        : [...atom.shotIds, ...next.shotIds];
+      const combinedDuration = shotById.get(combined.at(-1)).window.endMs - shotById.get(combined[0]).window.startMs;
+      if (combined.length > 8 || combinedDuration > 70_000) continue;
+      mergeTarget.shotIds = combined;
+      mergeTarget.chapterIds = mergeTarget === previous
+        ? [...previous.chapterIds, ...atom.chapterIds]
+        : [...atom.chapterIds, ...next.chapterIds];
+      atoms.splice(index, 1);
+      index -= 1;
+    }
+
+    let ordinaryShotIds = [];
+    const flushOrdinary = () => {
+      if (!ordinaryShotIds.length) return;
+      const chunks = splitBalancedShots(ordinaryShotIds, shotById);
+      const chapterChunkCounts = new Map();
+      for (const chunk of chunks) {
+        for (const chapterId of new Set(chunk.map((shotId) => recipeById.get(shotId).truth.chapterId))) {
+          chapterChunkCounts.set(chapterId, (chapterChunkCounts.get(chapterId) ?? 0) + 1);
+        }
+      }
+      for (const chunk of chunks) {
+        const chapterIds = [...new Set(chunk.map((shotId) => recipeById.get(shotId).truth.chapterId))];
+        appendUnit(units, block, chunk, {
+          groupingReason: chapterIds.length > 1
+            ? 'chapter-merge'
+            : chapterChunkCounts.get(chapterIds[0]) > 1 ? 'chapter-split' : 'semantic-chapter',
+          soloReason: null,
+        });
+      }
+      ordinaryShotIds = [];
+    };
+    for (const atom of atoms) {
+      if (!atom.soloReason) {
+        ordinaryShotIds.push(...atom.shotIds);
+        continue;
+      }
+      flushOrdinary();
+      appendUnit(units, block, atom.shotIds, { groupingReason: 'planner-solo', soloReason: atom.soloReason });
+    }
+    flushOrdinary();
+  }
+  return units;
+}
+
 async function readRecipes(directory) {
   await validateRecipeDirectory(directory);
   const entries = (await readdir(directory, { withFileTypes: true }))
@@ -221,10 +415,20 @@ async function readRecipes(directory) {
   const recipes = await Promise.all(entries.map(async (entry) => (
     JSON.parse(await readFile(path.join(directory, entry.name), 'utf8'))
   )));
-  return recipes.sort((left, right) => left.window.startMs - right.window.startMs || left.shotId.localeCompare(right.shotId));
+  return recipes.sort((left, right) => (
+    recipeWindow(left).startMs - recipeWindow(right).startMs || left.shotId.localeCompare(right.shotId)
+  ));
 }
 
-function actionPlan(selection, mode, warnings, sharedArtifacts, productionProfile, schemaVersion = '2.0.0') {
+function actionPlan(
+  selection,
+  mode,
+  warnings,
+  sharedArtifacts,
+  productionProfile,
+  schemaVersion = '2.0.0',
+  extras = {},
+) {
   const plan = {
     schemaVersion, status: 'action-required', planningMode: mode,
     selection: {
@@ -234,12 +438,75 @@ function actionPlan(selection, mode, warnings, sharedArtifacts, productionProfil
     },
     sharedArtifacts,
     productionProfile,
+    backendFailurePolicy: 'return-to-selected-backend',
+    mediaBoundary: ['3.0.0', '4.0.0'].includes(schemaVersion) ? 'shot' : 'authoring-unit',
     resultingRoute: null, requiredBackends: [], integrationMode: null,
-    frozenMediaContractVersion: null, shots: [], blocks: [], authoringUnits: [], warnings: [...new Set(warnings)].sort(),
+    frozenMediaContractVersion: null, shotMediaContractVersion: null,
+    shots: [], blocks: [], authoringUnits: [], warnings: [...new Set(warnings)].sort(),
+    ...(schemaVersion === '4.0.0' ? {
+      sourceContext: extras.sourceContext,
+      runtimeExecutables: extras.runtimeExecutables,
+      leadProduction: extras.leadProduction,
+      canaryGate: extras.canaryGate,
+    } : {}),
     identity: '',
   };
   plan.identity = computeRuntimePlanIdentity(plan);
   return plan;
+}
+
+async function bindOriginalInput(file, productionRoot, label) {
+  if (!file) throw new Error(`${label} is required for creative-loop planning`);
+  const absolute = path.resolve(file);
+  if (!inside(productionRoot, absolute)) throw new Error(`${label} must be inside the production root`);
+  const info = await lstat(absolute);
+  if (!info.isFile() || info.isSymbolicLink()) throw new Error(`${label} must be a readable real file`);
+  const body = await readFile(absolute);
+  return {
+    locator: path.relative(productionRoot, absolute).split(path.sep).join('/'),
+    sha256: createHash('sha256').update(body).digest('hex'),
+    readable: true,
+  };
+}
+
+async function bindRuntimeExecutable(file, runtime) {
+  if (!file) throw new Error(`${runtime} requires an explicitly verified executable locator`);
+  const canonical = realpathSync(path.resolve(file));
+  const info = await lstat(canonical);
+  if (!info.isFile() || info.isSymbolicLink()) throw new Error(`${runtime} executable must resolve to a real file`);
+  await access(canonical, fsConstants.X_OK);
+  const body = await readFile(canonical);
+  return {
+    locator: canonical,
+    sha256: createHash('sha256').update(body).digest('hex'),
+    verified: true,
+  };
+}
+
+function selectedExecutableLocator(selection, runtime, explicitFiles) {
+  const evidence = selection.evidence?.[runtime]?.cliEvidence;
+  if (evidence?.passed === true && typeof evidence.locator === 'string' && evidence.locator.length > 0) {
+    return evidence.locator;
+  }
+  return explicitFiles?.[runtime] ?? null;
+}
+
+function selectCanaryShotIds(shots) {
+  const available = new Set(shots.map(({ shotId }) => shotId));
+  const preferred = CANARY_SHOT_PREFERENCES.filter((shotId) => available.has(shotId));
+  if (preferred.length === 5) return preferred;
+  const selected = [...preferred];
+  const candidates = shots.map(({ shotId }) => shotId).filter((shotId) => !selected.includes(shotId));
+  while (selected.length < 5 && candidates.length > 0) {
+    const index = selected.length === 0
+      ? 0
+      : Math.round((candidates.length - 1) * selected.length / Math.max(1, 5 - preferred.length));
+    selected.push(candidates.splice(Math.min(index, candidates.length - 1), 1)[0]);
+  }
+  if (selected.length !== 5) throw new Error('creative-loop planning requires five canary shots');
+  return selected.sort((left, right) => (
+    shots.findIndex(({ shotId }) => shotId === left) - shots.findIndex(({ shotId }) => shotId === right)
+  ));
 }
 
 export async function planRuntime({
@@ -248,6 +515,11 @@ export async function planRuntime({
   narrativeEnvelopeFile,
   visualSystemFile,
   representativeScenesFile,
+  motionMapFile,
+  originalSrtFile,
+  originalDesignFile,
+  runtimeExecutableFiles = {},
+  parentSoloReasons = {},
   matrixFile = defaultMatrix,
   remotionIndexFile = defaultRemotionIndex,
   productionProfile: requestedProductionProfile = DEFAULT_PRODUCTION_PROFILE,
@@ -260,38 +532,72 @@ export async function planRuntime({
     bindSharedArtifacts({ narrativeEnvelopeFile, visualSystemFile }),
     representativeScenesFile ? bindRepresentativeScenes(representativeScenesFile) : null,
   ]);
+  const recipeSchemaVersion = recipes[0]?.schemaVersion;
+  const planSchemaVersion = representativeSceneData
+    ? recipeSchemaVersion === '4.0.0' ? '4.0.0' : '3.0.0'
+    : '2.0.0';
   const sharedArtifacts = {
     narrativeEnvelope: sharedArtifactData.narrativeEnvelope.binding,
     visualSystem: sharedArtifactData.visualSystem.binding,
     ...(representativeSceneData ? { representativeScenes: representativeSceneData.binding } : {}),
   };
-  const planSchemaVersion = representativeSceneData ? '3.0.0' : '2.0.0';
+  const inferredProductionRoot = path.dirname(path.dirname(path.resolve(narrativeEnvelopeFile)));
+  const sourceContext = planSchemaVersion === '4.0.0' ? {
+    originalSrt: await bindOriginalInput(originalSrtFile, inferredProductionRoot, 'original SRT'),
+    originalDesign: await bindOriginalInput(originalDesignFile, inferredProductionRoot, 'original design'),
+  } : null;
   const productionProfile = bindProductionProfile(requestedProductionProfile);
+  if (['3.0.0', '4.0.0'].includes(planSchemaVersion)) {
+    if (!motionMapFile) throw new Error('runtime plan v3 requires motion-map.json');
+    if (planSchemaVersion === '3.0.0') {
+      await validateMotionMap({ motionMapFile, recipesDirectory, representativeScenesFile });
+    }
+    const motionMapBody = await readFile(motionMapFile);
+    const motionMap = JSON.parse(motionMapBody.toString('utf8'));
+    sharedArtifacts.motionMap = {
+      locator: 'motion-map.json',
+      schemaVersion: motionMap.schemaVersion,
+      sha256: createHash('sha256').update(motionMapBody).digest('hex'),
+    };
+  }
   if (selection.status !== 'selected' || !['auto', 'hyperframes', 'hybrid', 'remotion'].includes(selection.selectedRuntime)) {
     throw new Error('runtime selection must be selected and name auto, hyperframes, hybrid, or remotion');
   }
   if (!['1.0.0', '2.0.0'].includes(selection.schemaVersion)) throw new Error('unsupported runtime selection schema version');
+  if (selection.selectionSource !== 'explicit' && selection.selectedRuntime !== 'hyperframes') {
+    throw new Error('auto, remotion, and hybrid require explicit runtime selection; implicit/default production uses hyperframes');
+  }
   const mode = planningMode(selection);
   const capabilityById = new Map(matrix.capabilities.map((item) => [item.id, item]));
   const remotionCards = new Map(remotionIndex.cards.map((item) => [item.name, item]));
   const warnings = [];
   const conflicts = [];
   const shots = [];
+  const chapterById = new Map(sharedArtifactData.narrativeEnvelope.value.chapters.map(
+    (chapter) => [chapter.chapterId, chapter],
+  ));
 
-  const recipeSchemaVersion = recipes[0]?.schemaVersion;
-  if (representativeSceneData && recipeSchemaVersion !== '3.0.0') {
+  if (representativeSceneData && !['3.0.0', '4.0.0'].includes(recipeSchemaVersion)) {
     conflicts.push('visual-lock production requires shot recipe schema v3; legacy v1/v2 Recipes remain read-only compatible');
   }
-  if (!representativeSceneData && recipeSchemaVersion === '3.0.0') {
+  if (!representativeSceneData && ['3.0.0', '4.0.0'].includes(recipeSchemaVersion)) {
     conflicts.push('shot recipe schema v3 requires representative-scenes.json and runtime plan v3');
   }
 
   for (const recipe of recipes) {
-    if (planSchemaVersion === '2.0.0' && recipe.window.endMs - recipe.window.startMs > 40_000) {
+    const window = recipeWindow(recipe);
+    if (recipe.schemaVersion === '4.0.0') {
+      const chapter = chapterById.get(recipe.truth.chapterId);
+      if (!chapter) conflicts.push(`${recipe.shotId}: truth.chapterId does not name a narrative chapter`);
+      else if (window.startMs < chapter.window.startMs || window.endMs > chapter.window.endMs) {
+        conflicts.push(`${recipe.shotId}: truth window must stay inside its narrative chapter`);
+      }
+    }
+    if (planSchemaVersion === '2.0.0' && window.endMs - window.startMs > 40_000) {
       conflicts.push(`${recipe.shotId}: semantic shot exceeds 40000ms; return to Director to split it`);
     }
     if (planSchemaVersion === '3.0.0'
-      && recipe.window.endMs - recipe.window.startMs > 15_000
+      && window.endMs - window.startMs > 15_000
       && !recipe.durationRationale) {
       conflicts.push(`${recipe.shotId}: semantic shot exceeds 15000ms without durationRationale`);
     }
@@ -301,7 +607,7 @@ export async function planRuntime({
     }
     const candidates = [];
     const native = new Set();
-    for (const capabilityId of recipe.requiredCapabilities) {
+    for (const capabilityId of recipe.requiredCapabilities ?? []) {
       const capability = capabilityById.get(capabilityId);
       if (!capability) throw new Error(`unknown capability ${capabilityId}`);
       const required = nativeRuntime(capability.classification);
@@ -358,8 +664,10 @@ export async function planRuntime({
       .filter((item) => item.runtime === runtime && item.verification === 'reference-source-unverified')
       .map((item) => `${item.id}: reference source is not a render witness`);
     if (chosenUnverified.length) warnings.push(`${recipe.shotId}: Remotion preference uses unverified reference source`);
+    const routing = explainRouting({ mode, runtime, decision, candidates });
     shots.push({
-      shotId: recipe.shotId, window: { ...recipe.window }, runtime, decision,
+      shotId: recipe.shotId, window: { ...window }, runtime, decision,
+      ...routing,
       evidence: candidates.sort((a, b) => b.priority - a.priority || a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id)),
       unverifiedPreferences: chosenUnverified.sort(),
     });
@@ -369,29 +677,20 @@ export async function planRuntime({
     if (index === 0 && shots[index].window.startMs !== 0) conflicts.push('shot coverage must begin at 0');
     if (index > 0 && shots[index].window.startMs !== shots[index - 1].window.endMs) conflicts.push(`${shots[index].shotId}: shot coverage has a gap or overlap`);
   }
-  if (planSchemaVersion === '3.0.0') {
+  if (['3.0.0', '4.0.0'].includes(planSchemaVersion)) {
     const shotIds = new Set(shots.map(({ shotId }) => shotId));
     for (const scene of representativeSceneData.value.scenes) {
       if (!shotIds.has(scene.shotId)) conflicts.push(`${scene.shotId}: representative scene does not name a planned shot`);
     }
-    const continuityLocations = new Map();
-    for (const [index, recipe] of recipes.entries()) {
-      const group = recipe.authoring?.continuityGroup;
-      if (!group) continue;
-      const values = continuityLocations.get(group) ?? [];
-      values.push(index);
-      continuityLocations.set(group, values);
-    }
-    for (const [group, indexes] of continuityLocations) {
-      if (indexes.some((value, index) => index > 0 && value !== indexes[index - 1] + 1)) {
-        conflicts.push(`continuity group ${group} must be contiguous`);
-      }
-      const runtimes = new Set(indexes.map((index) => shots[index]?.runtime));
-      if (runtimes.size > 1) conflicts.push(`continuity group ${group} cannot cross backends`);
-    }
   }
   const backends = [...new Set(shots.map(({ runtime }) => runtime))].sort();
-  if (planSchemaVersion === '3.0.0') {
+  const runtimeExecutables = planSchemaVersion === '4.0.0'
+    ? Object.fromEntries(await Promise.all(backends.map(async (runtime) => [
+      runtime,
+      await bindRuntimeExecutable(selectedExecutableLocator(selection, runtime, runtimeExecutableFiles), runtime),
+    ])))
+    : null;
+  if (['3.0.0', '4.0.0'].includes(planSchemaVersion)) {
     const representativeBackends = new Set(representativeSceneData.value.scenes.map(
       ({ shotId }) => shots.find((shot) => shot.shotId === shotId)?.runtime,
     ));
@@ -401,15 +700,51 @@ export async function planRuntime({
   }
   if (mode === 'forced-hybrid' && backends.length !== 2) conflicts.push('explicit hybrid requires evidence-backed assignments to both backends; do not force an artificial split');
   if (conflicts.length) {
-    const plan = actionPlan(selection, mode, [...warnings, ...conflicts], sharedArtifacts, productionProfile, planSchemaVersion);
-    await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile, representativeScenesFile });
+    const plan = actionPlan(
+      selection,
+      mode,
+      [...warnings, ...conflicts],
+      sharedArtifacts,
+      productionProfile,
+      planSchemaVersion,
+      planSchemaVersion === '4.0.0' ? {
+        sourceContext,
+        runtimeExecutables,
+        leadProduction: {
+          representativeScenes: representativeSceneData.value.scenes.map((scene) => ({
+            ...scene,
+            runtime: shots.find(({ shotId }) => shotId === scene.shotId)?.runtime ?? 'hyperframes',
+          })),
+          leadAssignmentLocators: backends.map((_, index) => (
+            `01-runtime-plan/assignments/L${String(index + 1).padStart(3, '0')}.json`
+          )),
+        },
+        canaryGate: {
+          required: true,
+          technicalLocator: '05-delivery/canary-technical-gate.json',
+          userDecisionLocator: '05-delivery/canary-user-decision.json',
+          shotIds: selectCanaryShotIds(shots),
+          fullProductionBlockedUntil: 'technical-and-user-passed',
+        },
+      } : {},
+    );
+    await validateRuntimePlan(plan, {
+      narrativeEnvelopeFile, visualSystemFile, representativeScenesFile, motionMapFile, recipesDirectory,
+      originalSrtFile, originalDesignFile, productionRoot: inferredProductionRoot,
+    });
     return plan;
   }
   const resultingRoute = backends.length === 2 ? 'hybrid' : backends[0];
   const blocks = buildBlocks(shots);
-  const authoringUnits = planSchemaVersion === '3.0.0'
-    ? buildV3AuthoringUnits(blocks, shots, recipes, sharedArtifacts)
-    : buildLegacyAuthoringUnits(blocks, shots, recipes, sharedArtifacts);
+  const authoringUnits = planSchemaVersion === '4.0.0'
+    ? buildV4AuthoringUnits(
+      blocks, shots, recipes, sharedArtifacts,
+      sharedArtifactData.narrativeEnvelope.value.chapters,
+      parentSoloReasons,
+    )
+    : planSchemaVersion === '3.0.0'
+      ? buildV3AuthoringUnits(blocks, shots, recipes, sharedArtifacts)
+      : buildLegacyAuthoringUnits(blocks, shots, recipes, sharedArtifacts);
   const representativeScenes = representativeSceneData?.value.scenes.map((scene) => ({
     ...scene,
     runtime: shots.find(({ shotId }) => shotId === scene.shotId).runtime,
@@ -426,23 +761,43 @@ export async function planRuntime({
     },
     sharedArtifacts,
     productionProfile,
+    backendFailurePolicy: 'return-to-selected-backend',
+    ...(planSchemaVersion === '4.0.0' ? { sourceContext } : {}),
+    ...(planSchemaVersion === '4.0.0' ? { runtimeExecutables } : {}),
+    mediaBoundary: ['3.0.0', '4.0.0'].includes(planSchemaVersion) ? 'shot' : 'authoring-unit',
     resultingRoute, requiredBackends: backends,
-    integrationMode: 'frozen-block-media',
-    frozenMediaContractVersion: '1.0.0',
+    integrationMode: ['3.0.0', '4.0.0'].includes(planSchemaVersion) ? 'shot-media' : 'frozen-block-media',
+    frozenMediaContractVersion: ['3.0.0', '4.0.0'].includes(planSchemaVersion) ? null : '1.0.0',
+    shotMediaContractVersion: ['3.0.0', '4.0.0'].includes(planSchemaVersion) ? '1.0.0' : null,
     shots, blocks, authoringUnits,
-    ...(planSchemaVersion === '3.0.0' ? {
-      visualLock: {
+    ...(['3.0.0', '4.0.0'].includes(planSchemaVersion) ? {
+      ...(planSchemaVersion === '4.0.0' ? { leadProduction: {
+        representativeScenes,
+        leadAssignmentLocators,
+      } } : { visualLock: {
         required: true,
         contractLocator: '04-visual-lock/visual-lock.json',
         sourceIsolation: 'per-runtime',
         representativeScenes,
         leadAssignmentLocators,
+      } }),
+    } : {}),
+    ...(planSchemaVersion === '4.0.0' ? {
+      canaryGate: {
+        required: true,
+        technicalLocator: '05-delivery/canary-technical-gate.json',
+        userDecisionLocator: '05-delivery/canary-user-decision.json',
+        shotIds: selectCanaryShotIds(shots),
+        fullProductionBlockedUntil: 'technical-and-user-passed',
       },
     } : {}),
     warnings: [...new Set(warnings)].sort(), identity: '',
   };
   plan.identity = computeRuntimePlanIdentity(plan);
-  await validateRuntimePlan(plan, { narrativeEnvelopeFile, visualSystemFile, representativeScenesFile });
+  await validateRuntimePlan(plan, {
+    narrativeEnvelopeFile, visualSystemFile, representativeScenesFile, motionMapFile, recipesDirectory,
+    originalSrtFile, originalDesignFile, productionRoot: inferredProductionRoot,
+  });
   return plan;
 }
 
@@ -458,10 +813,80 @@ function locator(root, file) {
   return path.relative(root, absolute).split(path.sep).join('/');
 }
 
+function shellArgument(value) {
+  return `'${String(value).replaceAll("'", "'\\''")}'`;
+}
+
+export function standardRenderCommand({ root, assignmentId, sourceRoot, runtime, runtimeExecutable }) {
+  const renderScript = path.join(path.dirname(fileURLToPath(import.meta.url)), 'render-assigned-shots.mjs');
+  const values = [
+    '--plan', path.join(root, '01-runtime-plan/runtime-plan.json'),
+    '--assignment', path.join(root, `01-runtime-plan/assignments/${assignmentId}.json`),
+    '--recipes', path.join(root, '01-director/shot-recipes'),
+    '--source-root', path.join(root, sourceRoot),
+    '--production-root', root,
+    ...(runtimeExecutable ? [`--${runtime}`, runtimeExecutable] : []),
+  ];
+  return `node ${shellArgument(renderScript)} ${values.map((value, index) => (
+    index % 2 === 0 ? value : shellArgument(value)
+  )).join(' ')}`;
+}
+
+export function runtimeInspectionContract(runtime, assignmentId) {
+  const inspectionRoot = `05-delivery/checks/${assignmentId}`;
+  const remotion = runtime === 'remotion';
+  return {
+    mode: 'parent-runtime-inspection',
+    adapter: remotion ? 'remotion-dom-trace' : 'hyperframes-check',
+    resultLocator: `${inspectionRoot}.runtime-inspection.json`,
+    traceLocator: remotion ? `${inspectionRoot}.motion-layout-trace.json` : null,
+    metadataLocator: remotion ? `${inspectionRoot}.motion-layout-metadata.json` : null,
+    diagnosticRoot: `${inspectionRoot}-diagnostics`,
+    escalation: 'bounded-dense-only',
+  };
+}
+
 function unitDirectory(unit) {
   return unit.runtime === 'remotion'
     ? `03-remotion-build/${unit.unitId}`
     : `03-build/${unit.unitId}`;
+}
+
+function plannedLeadSamples(plan) {
+  const leadPlan = plan.schemaVersion === '4.0.0' ? plan.leadProduction : plan.visualLock;
+  return leadPlan.representativeScenes.map(({ shotId, runtime }) => ({
+    shotId,
+    runtime,
+    mediaLocator: `04-visual-lock/${runtime}/scenes/${shotId}.mp4`,
+    capabilityIndex: `04-visual-lock/${runtime}/capability-index.md`,
+  }));
+}
+
+function canaryPhase(plan, shotIds) {
+  const canaryShotIds = shotIds.filter((shotId) => plan.canaryGate.shotIds.includes(shotId));
+  const deferredShotIds = shotIds.filter((shotId) => !plan.canaryGate.shotIds.includes(shotId));
+  return {
+    gateLocator: plan.canaryGate.technicalLocator,
+    userDecisionLocator: plan.canaryGate.userDecisionLocator,
+    mode: canaryShotIds.length > 0 ? 'canary-first' : 'full-production-after-gate',
+    shotIds: canaryShotIds,
+    deferredShotIds,
+  };
+}
+
+function creativeContext(plan) {
+  return {
+    originalInputs: {
+      srt: plan.sourceContext.originalSrt,
+      design: plan.sourceContext.originalDesign,
+    },
+    leadSamples: plannedLeadSamples(plan),
+    materialAccess: {
+      sharedAssetsRoot: '02-assets',
+      assetIndex: '02-assets/asset-index.json',
+      shotSpecificRoutes: ['native', 'provided', 'search', 'generate', 'mixed'],
+    },
+  };
 }
 
 export function buildBuilderAssignments(plan, {
@@ -470,19 +895,34 @@ export function buildBuilderAssignments(plan, {
   narrativeEnvelopeFile,
   visualSystemFile,
   representativeScenesFile,
+  motionMapFile,
 } = {}) {
-  if (!['2.0.0', '3.0.0'].includes(plan?.schemaVersion) || plan.status !== 'planned') {
-    throw new Error('Builder assignments require one planned runtime plan v2 or v3');
+  if (!['2.0.0', '3.0.0', '4.0.0'].includes(plan?.schemaVersion) || plan.status !== 'planned') {
+    throw new Error('Builder assignments require one planned runtime plan v2, v3, or v4');
   }
   const root = path.resolve(productionRoot);
   const recipeRoot = path.resolve(recipesDirectory);
   const narrativeEnvelope = locator(root, narrativeEnvelopeFile);
   const visualSystem = locator(root, visualSystemFile);
-  const productionAssignments = plan.authoringUnits.map((unit) => {
+  const motionMap = motionMapFile ? locator(root, motionMapFile) : null;
+  const representativeShotIds = new Set(
+    ['3.0.0', '4.0.0'].includes(plan.schemaVersion)
+      ? (plan.schemaVersion === '4.0.0' ? plan.leadProduction : plan.visualLock)
+        .representativeScenes.map(({ shotId }) => shotId)
+      : [],
+  );
+  const productionAssignments = plan.authoringUnits.flatMap((unit) => {
+    const leadFinalShotIds = unit.shotIds.filter((shotId) => representativeShotIds.has(shotId));
+    const fullProductionShotIds = unit.shotIds.filter((shotId) => !representativeShotIds.has(shotId));
+    if (['3.0.0', '4.0.0'].includes(plan.schemaVersion) && fullProductionShotIds.length === 0) return [];
+    const phasePlan = plan.schemaVersion === '4.0.0' ? canaryPhase(plan, fullProductionShotIds) : null;
+    const assignedShotIds = phasePlan?.shotIds.length > 0 ? phasePlan.shotIds : fullProductionShotIds;
     const workDirectory = unitDirectory(unit);
-    return {
-      schemaVersion: plan.schemaVersion === '3.0.0' ? '2.0.0' : '1.0.0',
-      ...(plan.schemaVersion === '3.0.0' ? {
+    const sourceRoot = `${workDirectory}/source`;
+    const injection = roleInjection('builder');
+    return [{
+      schemaVersion: plan.schemaVersion === '4.0.0' ? '3.0.0' : plan.schemaVersion === '3.0.0' ? '2.0.0' : '1.0.0',
+      ...(['3.0.0', '4.0.0'].includes(plan.schemaVersion) ? {
         assignmentId: unit.unitId,
         role: 'builder',
         phase: 'production',
@@ -491,18 +931,58 @@ export function buildBuilderAssignments(plan, {
       unitId: unit.unitId,
       blockId: unit.blockId,
       runtime: unit.runtime,
+      ...(plan.schemaVersion === '4.0.0' ? { runtimeExecutable: plan.runtimeExecutables[unit.runtime] } : {}),
       window: unit.window,
-      shotIds: unit.shotIds,
+      shotIds: assignedShotIds,
+      backendFailurePolicy: plan.backendFailurePolicy,
+      mediaBoundary: plan.mediaBoundary,
+      renderTargets: assignedShotIds.map((shotId) => ({ shotId, mode: 'direct-runtime-render' })),
+      ...injection,
+      ...(['3.0.0', '4.0.0'].includes(plan.schemaVersion) ? {
+        leadFinalShotIds,
+        sourceRoot,
+        standardCommand: standardRenderCommand({
+          root,
+          assignmentId: unit.unitId,
+          sourceRoot,
+          runtime: unit.runtime,
+          runtimeExecutable: plan.schemaVersion === '4.0.0'
+            ? plan.runtimeExecutables[unit.runtime].locator
+            : null,
+        }),
+        ...(plan.schemaVersion === '3.0.0'
+          ? { runtimeInspection: runtimeInspectionContract(unit.runtime, unit.unitId) }
+          : {}),
+      } : {}),
       stageSkill: unit.runtime === 'remotion' ? 'broll-remotion-build' : 'broll-master-build',
       contextFiles: {
         assignment: `01-runtime-plan/assignments/${unit.unitId}.json`,
         runtimePlan: '01-runtime-plan/runtime-plan.json',
         narrativeEnvelope,
         visualSystem,
-        recipes: unit.shotIds.map((shotId) => locator(root, path.join(recipeRoot, `${shotId}.json`))),
+        recipes: (plan.schemaVersion === '4.0.0' ? unit.shotIds : assignedShotIds)
+          .map((shotId) => locator(root, path.join(recipeRoot, `${shotId}.json`))),
         materialPlan: '02-assets/material-plan.md',
         fontPlan: '02-assets/font-plan.md',
+        ...(plan.schemaVersion === '4.0.0' ? {
+          originalSrt: plan.sourceContext.originalSrt.locator,
+          originalDesign: plan.sourceContext.originalDesign.locator,
+          assetIndex: '02-assets/asset-index.json',
+          leadCapabilityIndexes: [...new Set(plannedLeadSamples(plan).map(({ capabilityIndex }) => capabilityIndex))],
+        } : {}),
       },
+      ...(plan.schemaVersion === '4.0.0' ? {
+        ...creativeContext(plan),
+        recipeBindings: unit.context.recipeBindings,
+        chapter: {
+          chapterIds: unit.chapterIds,
+          groupingReason: unit.groupingReason,
+          window: unit.window,
+          shotIds: unit.shotIds,
+          leadFinalShotIds,
+        },
+        canaryPhase: phasePlan,
+      } : {}),
       productionProfile: plan.productionProfile,
       productionProfileIdentity: plan.productionProfile.identity,
       seams: {
@@ -514,8 +994,15 @@ export function buildBuilderAssignments(plan, {
         editableSourceRequired: true,
         receipt: `${workDirectory}/receipt.json`,
         handoff: `${workDirectory}/handoff.md`,
-        frozenMediaRequired: true,
-        frozenMediaContract: `${workDirectory}/block-media.json`,
+        ...(['3.0.0', '4.0.0'].includes(plan.schemaVersion)
+          ? {
+            shotMediaRequired: true,
+            ...(plan.schemaVersion === '4.0.0' ? { viewReceipt: `${workDirectory}/view-receipt.json` } : {}),
+          }
+          : {
+            frozenMediaRequired: true,
+            frozenMediaContract: `${workDirectory}/block-media.json`,
+          }),
       },
       shared: {
         assetsRoot: '02-assets',
@@ -533,23 +1020,52 @@ export function buildBuilderAssignments(plan, {
           sourceRoot: `04-visual-lock/${unit.runtime}/shared-source`,
           sourceIsolation: 'same-runtime-only',
         },
+      } : plan.schemaVersion === '4.0.0' ? {
+        leadProduction: {
+          sourceRoot: `04-visual-lock/${unit.runtime}/shared-source`,
+          sourceIsolation: 'same-runtime-only',
+        },
       } : {}),
-      contextPolicy: 'Load only the listed files, selected references named by the assigned Recipes, and files named by the shared asset plans. Do not inherit the parent transcript or read unrelated Recipes.',
+      contextPolicy: plan.schemaVersion === '4.0.0'
+        ? 'Read the complete original SRT and original design, this chapter packet, its Recipes, declared seams, Lead samples/capability indexes, and shared asset plans. Do not read parent transcripts, other chapters, generic schemas, validators, or unrelated references.'
+        : 'Load only the listed files, selected references named by the assigned Recipes, and files named by the shared asset plans. Do not inherit the parent transcript or read unrelated Recipes.',
       seamLimit: 'A live transition cannot cross independently rendered units. Keep a live shared-element transition inside one unit; otherwise close this unit on the planned readable state and use the declared matched seam.',
-    };
+    }];
   });
-  if (plan.schemaVersion !== '3.0.0') return productionAssignments;
+  if (!['3.0.0', '4.0.0'].includes(plan.schemaVersion)) return productionAssignments;
   const leadAssignments = plan.requiredBackends.map((runtime, index) => {
     const assignmentId = `L${String(index + 1).padStart(3, '0')}`;
-    const scenes = plan.visualLock.representativeScenes.filter((scene) => scene.runtime === runtime);
+    const leadPlan = plan.schemaVersion === '4.0.0' ? plan.leadProduction : plan.visualLock;
+    const scenes = leadPlan.representativeScenes.filter((scene) => scene.runtime === runtime);
     const workDirectory = `04-visual-lock/${runtime}`;
+    const sourceRoot = `${workDirectory}/shared-source`;
+    const injection = roleInjection('lead');
     return {
-      schemaVersion: '2.0.0',
+      schemaVersion: plan.schemaVersion === '4.0.0' ? '3.0.0' : '2.0.0',
       assignmentId,
       planIdentity: plan.identity,
       role: 'lead',
-      phase: 'visual-lock',
+      phase: plan.schemaVersion === '4.0.0' ? 'lead-production' : 'visual-lock',
       runtime,
+      ...(plan.schemaVersion === '4.0.0' ? { runtimeExecutable: plan.runtimeExecutables[runtime] } : {}),
+      backendFailurePolicy: plan.backendFailurePolicy,
+      mediaBoundary: plan.mediaBoundary,
+      renderTargets: scenes.map(({ shotId }) => ({ shotId, mode: 'direct-runtime-render' })),
+      ...injection,
+      finalProductionSource: true,
+      sourceRoot,
+      standardCommand: standardRenderCommand({
+        root,
+        assignmentId,
+        sourceRoot,
+        runtime,
+        runtimeExecutable: plan.schemaVersion === '4.0.0'
+          ? plan.runtimeExecutables[runtime].locator
+          : null,
+      }),
+      ...(plan.schemaVersion === '3.0.0'
+        ? { runtimeInspection: runtimeInspectionContract(runtime, assignmentId) }
+        : {}),
       shotIds: scenes.map(({ shotId }) => shotId),
       representativeScenes: scenes,
       stageSkill: runtime === 'remotion' ? 'broll-remotion-build' : 'broll-master-build',
@@ -559,27 +1075,53 @@ export function buildBuilderAssignments(plan, {
         narrativeEnvelope,
         visualSystem,
         representativeScenes: locator(root, representativeScenesFile),
+        motionMap,
         recipes: scenes.map(({ shotId }) => locator(root, path.join(recipeRoot, `${shotId}.json`))),
         materialPlan: '02-assets/material-plan.md',
         fontPlan: '02-assets/font-plan.md',
+        ...(plan.schemaVersion === '4.0.0' ? {
+          originalSrt: plan.sourceContext.originalSrt.locator,
+          originalDesign: plan.sourceContext.originalDesign.locator,
+          assetIndex: '02-assets/asset-index.json',
+        } : {}),
       },
+      ...(plan.schemaVersion === '4.0.0' ? {
+        ...creativeContext(plan),
+        recipeBindings: scenes.map(({ shotId }) => plan.authoringUnits
+          .flatMap(({ context }) => context.recipeBindings)
+          .find((binding) => binding.shotId === shotId)),
+        canaryPhase: canaryPhase(plan, scenes.map(({ shotId }) => shotId)),
+      } : {}),
       productionProfile: plan.productionProfile,
       productionProfileIdentity: plan.productionProfile.identity,
       output: {
         workDirectory,
         representativeMediaRoot: `${workDirectory}/scenes`,
         sharedSourceRoot: `${workDirectory}/shared-source`,
-        visualLockContract: plan.visualLock.contractLocator,
+        ...(plan.schemaVersion === '3.0.0' ? { visualLockContract: plan.visualLock.contractLocator } : {}),
+        ...(plan.schemaVersion === '4.0.0' ? {
+          viewReceipt: `${workDirectory}/view-receipt.json`,
+          handoff: `${workDirectory}/handoff.md`,
+        } : {}),
         editableSourceRequired: true,
         frozenMediaRequired: false,
       },
+      ...(plan.schemaVersion === '4.0.0' ? {
+        viewLoop: {
+          required: true,
+          decision: ['accepted', 'revised'],
+          artifacts: ['six-frame-sheets', 'short-preview'],
+        },
+      } : {}),
       shared: {
         assetsRoot: '02-assets',
         copyAssetsIntoUnit: false,
         sourceIsolation: 'per-runtime',
         mayImportRuntimeSourceFrom: runtime,
       },
-      contextPolicy: 'Load only the listed representative Recipes and shared plans. Do not inherit the parent transcript or read unrelated Recipes.',
+      contextPolicy: plan.schemaVersion === '4.0.0'
+        ? 'Read the complete original SRT and original design, the three representative Recipes, motion map, shared asset plans, and only the explicitly listed creative references. Do not read parent transcripts, unrelated Recipes, schemas, validators, or other stage Skills.'
+        : 'Load only the listed representative Recipes and shared plans. Do not inherit the parent transcript or read unrelated Recipes.',
     };
   });
   return [...leadAssignments, ...productionAssignments];
@@ -628,7 +1170,7 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
     if (name === '--json') continue;
-    if (!['--recipes', '--selection', '--narrative-envelope', '--visual-system', '--representative-scenes', '--matrix', '--remotion-index', '--production-root', '--production-profile'].includes(name)) throw new Error(`unknown argument ${name}`);
+    if (!['--recipes', '--selection', '--narrative-envelope', '--visual-system', '--representative-scenes', '--motion-map', '--original-srt', '--original-design', '--hyperframes-executable', '--remotion-executable', '--solo-reasons', '--matrix', '--remotion-index', '--production-root', '--production-profile'].includes(name)) throw new Error(`unknown argument ${name}`);
     const value = argv[index + 1];
     if (!value) throw new Error(`${name} requires a path`);
     options[name.slice(2)] = path.resolve(value);
@@ -639,6 +1181,14 @@ function parseArgs(argv) {
     recipesDirectory: options.recipes, selectionFile: options.selection,
     narrativeEnvelopeFile: options['narrative-envelope'], visualSystemFile: options['visual-system'],
     representativeScenesFile: options['representative-scenes'],
+    motionMapFile: options['motion-map'],
+    originalSrtFile: options['original-srt'],
+    originalDesignFile: options['original-design'],
+    runtimeExecutableFiles: {
+      ...(options['hyperframes-executable'] ? { hyperframes: options['hyperframes-executable'] } : {}),
+      ...(options['remotion-executable'] ? { remotion: options['remotion-executable'] } : {}),
+    },
+    parentSoloReasonsFile: options['solo-reasons'],
     matrixFile: options.matrix, remotionIndexFile: options['remotion-index'],
     productionProfileFile: options['production-profile'],
   };
@@ -652,6 +1202,10 @@ async function main() {
   if (planOptions.productionProfileFile) {
     planOptions.productionProfile = JSON.parse(await readFile(planOptions.productionProfileFile, 'utf8'));
     delete planOptions.productionProfileFile;
+  }
+  if (planOptions.parentSoloReasonsFile) {
+    planOptions.parentSoloReasons = JSON.parse(await readFile(planOptions.parentSoloReasonsFile, 'utf8'));
+    delete planOptions.parentSoloReasonsFile;
   }
   const result = productionRoot
     ? await writeProductionPlan({ productionRoot, ...planOptions })

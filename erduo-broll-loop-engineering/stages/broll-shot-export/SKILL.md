@@ -1,13 +1,15 @@
 ---
 name: broll-shot-export
-description: Export requested per-shot files from an already verified SRT-anchored B-roll master. Use only after the user explicitly asks for shot files.
+description: Legacy compatibility export for requested windows from a verified pre-v1.0.1 Master. Do not use for new shot-native productions.
 ---
 
-# B-roll Shot Export
+# B-roll Shot Export (Legacy)
 
-Act only as the optional Shot Export owner. Do not run unless the user has
-explicitly requested individual shot files. Do not redesign, rebuild, or
-rerender any shot.
+Act only as the legacy Shot Export owner for an older production whose only
+verified delivery is a Master. New v1.0.1 productions already deliver one
+directly rendered file per semantic shot and must never use this stage. Do not
+run unless the user explicitly requests windows from a verified older Master.
+Do not redesign, rebuild, or rerender any shot.
 
 ## Inputs
 
