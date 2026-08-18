@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/delivery-index.schema.json",
+  "title": "Ordered semantic shot delivery index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "shots"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/shot" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order", "shotId", "file", "contract", "srtWindowMs", "previousShotId", "nextShotId", "seamType"],
+      "properties": {
+        "order": { "type": "integer", "minimum": 1 },
+        "shotId": { "$ref": "#/$defs/id" },
+        "file": { "type": "string", "pattern": "^shots/[0-9]{3}-[A-Za-z0-9][A-Za-z0-9._-]*\\.mp4$" },
+        "contract": { "type": "string", "pattern": "^shots/[0-9]{3}-[A-Za-z0-9][A-Za-z0-9._-]*\\.shot-media\\.json$" },
+        "srtWindowMs": { "$ref": "#/$defs/window" },
+        "previousShotId": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "nextShotId": { "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "seamType": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    }
+  }
+}

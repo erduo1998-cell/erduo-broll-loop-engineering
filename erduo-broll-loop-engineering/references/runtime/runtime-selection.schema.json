@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/runtime-selection.schema.json",
   "title": "B-roll runtime selection intent",
-  "description": "Machine-readable bounded routing before direction. Auto and hybrid defer backend readiness until a validated post-Director runtime plan exists.",
+  "description": "Machine-readable bounded routing before direction. New production defaults to HyperFrames; auto is an explicit experimental mode and hybrid defers backend readiness until a validated post-Director runtime plan exists.",
   "type": "object",
   "additionalProperties": false,
   "required": [

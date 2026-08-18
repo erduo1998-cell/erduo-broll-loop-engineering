@@ -2,7 +2,7 @@
 
 # Erduo B-roll Loop Engineering
 
-**Turn an SRT and an optional edited talking-head video into an editable, reviewable B-roll master with Codex or Claude Code.**
+**Turn a complete original SRT and design, plus an optional edited talking-head video, into editable source, directly rendered shot files, and a reviewable B-roll preview.**
 
 [简体中文](README.md) · **English** · [日本語](README.ja.md) · [한국어](README.ko.md) · [繁體中文](README.zh-TW.md)
 
@@ -22,9 +22,21 @@ This 12-second concept film travels through one continuous world: SRT timing, se
 
 - Converts integer-millisecond SRT timing into semantic shots rather than one shot per subtitle.
 - Freezes a shared visual system and compact shot recipes before implementation.
-- Routes complete shot blocks to HyperFrames, Remotion, or a frozen-media hybrid plan using project evidence.
+- Defaults production to HyperFrames; Remotion is explicit/canary-only and `auto` is experimental opt-in.
 - Uses supplied media first and sources extra material only when a shot requires it.
-- Shows three representative moving scenes for visual lock before bulk production, then stops again at the complete preview before verified delivery.
+- Shows three final Lead samples and a five-shot user-choice canary before full production, directly renders each semantic shot, creates a six-frame sheet per shot, and assembles the preview from verified files.
+
+## v1.0.1: Restore the Chapter Builder Loop
+
+v1.0.1 is released. A semantic shot is still one independently decoded H.264 media boundary, while one Chapter Builder now owns the creative loop for normally 5–8 contiguous shots. It reads the complete original SRT and design, cannot change `truth`, may revise `creativeProposal` with one concise reason, and owns chapter composition, material, pacing, and seams.
+
+Assets freezes known shared media/fonts without closing shot-specific `search`, `generate`, or `mixed` routes. Lead must build three final samples—native graphic/type, real-or-generated material fusion, and information-dense interface/process/data—plus the design's signature motion, fusion capabilities, and a short capability index. Every Chapter Builder must open the real six-frame sheets and chapter preview, repair defects, and return `accepted` or `revised`.
+
+Production source no longer carries `inspection.tsx`, DOM trace markers, manual motion windows, or passing dense diagnostics. Parent owns deterministic render/decode/hash/contracts/sheets/preview. The positive twelve principles are a short role anchor; each shot selects only 2–4 relevant `craftIntent` values, with no score or proof work.
+
+Production defaults to HyperFrames. Remotion is explicit opt-in or canary-only; `auto` is experimental opt-in. A five-shot canary must pass direct delivery, real Builder viewing, composition/material/signature-motion diversity, user preference of at least 3/5, and a ≤45-minute first preview before full production may start.
+
+The 2026-08-18 179.866-second Remotion run remains failure evidence: 20/20 media contracts and decode passed, but it created 20 creative units, withheld the original design, used little material, and passing technical inspection did not produce acceptable visual quality. Its 203m13s / 54m17s / 63m13s timings also missed targets. It does not validate this reset or equal backends.
 
 ## v1.0.0 Visual Lock Before Bulk Production
 
@@ -62,10 +74,10 @@ The checks can flag missing planned development and measurable motion/layout ris
 
 ### Standard Skill install
 
-Use this on a machine that already has the pinned HyperFrames environment and only needs the fourteen project Skills registered in one host. Download `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz` from the [v1.0.0 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v1.0.0), extract it into a permanent directory, then run:
+Use this on a machine that already has the pinned HyperFrames environment and only needs the fourteen project Skills registered in one host. Download `erduo-broll-loop-engineering-skills-v1.0.1.tar.gz` from the [v1.0.1 Release](https://github.com/erduo1998-cell/erduo-broll-loop-engineering/releases/tag/v1.0.1), extract it into a permanent directory, then run:
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.1 --skill '*' --agent codex --global --full-depth
 # replace codex with claude-code for Claude Code
 ```
 
@@ -81,15 +93,15 @@ cd erduo-broll-loop-engineering
 ./Install.command
 ```
 
-Restart your host after installation. The installer provisions the pinned HyperFrames environment and thirteen stage Skills. It does not use `sudo`, edit your shell profile, or install Remotion globally. The same full package is available as `erduo-broll-loop-engineering-v1.0.0.tar.gz` on the v1.0.0 Release.
+Restart your host after installation. The installer provisions the pinned HyperFrames environment and thirteen stage Skills. It does not use `sudo`, edit your shell profile, or install Remotion globally. The same full package is available as `erduo-broll-loop-engineering-v1.0.1.tar.gz` on the v1.0.1 Release.
 
 ## First run
 
-Attach an SRT and ask:
+Attach the complete original SRT and design, then ask:
 
 ```text
-Use erduo-broll-loop-engineering to turn this SRT into a faceless B-roll master.
-Continue unattended, but stop for my visual lock on the three representative scenes and again for final-preview delivery approval.
+Use erduo-broll-loop-engineering to turn this complete original SRT and design into editable faceless B-roll shot files and a complete preview; create a full master only if I request it.
+Continue unattended through the five-shot canary, then stop for my per-shot choice; do not start full production until I choose this version for at least three of five shots. Stop again for final-preview delivery approval.
 ```
 
 Talking-head mode also requires the matching edited video. Your images, clips, logos, and screenshots are optional but should be supplied at the start when available.
@@ -101,8 +113,8 @@ UTF-8 SRT input is not restricted to Chinese. Actual language quality depends on
 ## Verified scope
 
 - Codex completed the v1.0.0 production benchmark on macOS. Claude Code installation/contracts are covered, but its same-input v1 production comparison remains pending.
-- Default delivery: H.264 MP4, 3840 × 2160, 30 fps.
-- Default unit media: high-quality H.264 MP4. Lossless FFV1 requires an explicit reason; Hybrid never shares runtime-specific visual source across backends.
+- v1.0.1 default delivery: ordered H.264 shot files, 3840 × 2160, 30 fps, each rendered directly from runtime source; a full master is optional.
+- A fresh same-input five-shot HyperFrames canary passed direct render, full decode, viewing receipts, composition/material diversity, and signature-motion gates. The user approved the result and explicitly chose to publish without producing the remaining shots or a full preview. Full-film production and equal-backend support are therefore not claimed.
 - Output policy is generated by `create-production-profile.mjs`, never hand-written. The Parent always passes that file to `plan-runtime.mjs --production-profile`; explicit width, height, fps, audio, and H.264 MP4 policy are hash-bound into the plan, every Builder assignment, and delivery checks. For example, `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4` creates a vertical 25 fps profile instead of falling back to the default.
 - HyperFrames and Remotion are independent backends; visual parity is not claimed.
 - Windows, desktop CapCut/Jianying import, and automatic repair of arbitrary existing projects are not verified.

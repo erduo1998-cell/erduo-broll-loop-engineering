@@ -2,7 +2,7 @@
 
 # Erduo B-roll Loop Engineering
 
-**把 SRT 與可選的已剪輯口播影片交給 Codex 或 Claude Code，製作可編輯、可複查的 B-roll Master。**
+**把完整 original SRT、design 與可選的已剪輯口播影片交給 Codex 或 Claude Code，製作可編輯 source、逐鏡直出檔案與完整 preview。**
 
 [简体中文](README.md) · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · **繁體中文**
 
@@ -22,9 +22,21 @@
 
 - 以 SRT 的整數毫秒為時間基準，按語意而不是每行字幕設計鏡頭。
 - 實作前先凍結共用視覺系統與精簡 Shot Recipe。
-- 依專案證據，把完整鏡頭區塊分配給 HyperFrames、Remotion 或凍結媒體 hybrid 路線。
+- production 預設使用 HyperFrames；Remotion 只限明確指定/canary，`auto` 是實驗性 opt-in。
 - 優先使用你提供的媒體，只在鏡頭確實需要時取得額外素材。
-- 批量製作前先用三個代表場景完成 visual lock，完整 preview 再等待一次交付批准，之後才技術驗證 Master。
+- 批量製作前先展示 Lead 三類最終 sample 與讓使用者選擇的 5-shot canary；每鏡直接渲染，產生 6 格圖，再用已驗證 shot 組裝完整 preview。
+
+## v1.0.1：恢復 Chapter Builder 創作閉環
+
+v1.0.1 已正式發布。語義 shot 仍是一鏡一份獨立 H.264 的媒體邊界，但一名 Chapter Builder 現在負責通常 5–8 個連續 shot。它直接閱讀完整 original SRT/design，不可修改 `truth`，可用一句理由修改 `creativeProposal`，並負責整章構圖、素材、節奏與承接。
+
+Assets 只凍結已知共享素材/字型，不關閉逐鏡 `search`、`generate` 或 `mixed`。Lead 必須製作 native graphic/type、真實或生成素材 fusion、資訊密集 interface/process/data 三類最終 sample，以及 signature motion、素材融合能力與短 capability index。Builder 必須打開實際 6 格圖與 chapter preview，修復缺陷後回傳 `accepted` 或 `revised`。
+
+production source 移除 `inspection.tsx`、DOM trace marker、人工 motion window 與通過態 dense diagnostics。Parent 只處理 render/decode/hash/contract/sheet/preview 的確定性工作。十二原則是精簡的正向 anchor，每鏡只選相關的 2–4 個 `craftIntent`，不評分也不造 proof。
+
+production 預設使用 HyperFrames；Remotion 只限明確 opt-in/canary，`auto` 是實驗性 opt-in。5-shot canary 必須通過 direct delivery、Builder 真實看片、構圖/素材/signature motion 多樣性、使用者至少選擇我方 3/5，以及首版 preview ≤45 分鐘，才能開始全片。
+
+2026-08-18 的 179.866 秒 Remotion run 保留為失敗證據：20/20 media contract/decode 雖通過，但產生 20 creative units、original design 未直達、素材不足，技術 inspection 通過也沒有帶來合格視覺。203m13s / 54m17s / 63m13s 同樣未達目標，不能證明本次修正或 backend 等價。
 
 ## v1.0.0 批量製作前先鎖定視覺
 
@@ -62,10 +74,10 @@ v0.9.2 只調整發行格式與安裝入口。Director、Assets、多 Builder、
 
 ### 標準 Skill 安裝
 
-適合已經準備好固定 HyperFrames 環境的電腦。從 v1.0.0 Release 下載 `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz`，解壓到長期保留的目錄後執行：
+適合已經準備好固定 HyperFrames 環境的電腦。從 v1.0.1 Release 下載 `erduo-broll-loop-engineering-skills-v1.0.1.tar.gz`，解壓到長期保留的目錄後執行：
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.1 --skill '*' --agent codex --global --full-depth
 # Claude Code 請把 codex 改成 claude-code
 ```
 
@@ -85,11 +97,11 @@ cd erduo-broll-loop-engineering
 
 ## 第一次使用
 
-附上 SRT，然後輸入：
+附上完整的 original SRT 與 design，然後輸入：
 
 ```text
-使用 erduo-broll-loop-engineering，把這份 SRT 做成無人出鏡 B-roll Master。
-持續自動執行；三個代表場景的 visual lock 與完整 preview 的交付批准都要停下。
+使用 erduo-broll-loop-engineering，把這份 original SRT 與 design 做成可編輯的無人出鏡 B-roll shot 檔案與完整 preview；只有我明確要求時才產生整條 Master。
+持續執行到 5-shot canary，之後停下讓我逐鏡選擇；我未在至少 3/5 鏡選擇本版前不得開始全片，完整 preview 的交付批准也要再次停下。
 ```
 
 口播模式還需要與字幕匹配的已剪輯影片。若有圖片、影片、Logo 或螢幕截圖，請在開始時一併提供。
@@ -101,8 +113,8 @@ UTF-8 SRT 輸入不限定中文。實際語言品質取決於宿主模型對該�
 ## 已驗證範圍
 
 - macOS Codex 已完成 v1.0.0 production benchmark。Claude Code 的安裝/契約已驗證，但同輸入 v1 production 比較仍為 pending。
-- 預設交付：H.264 MP4、3840 × 2160、30 fps。
-- 預設 unit media：高品質 H.264 MP4。FFV1 只允許有理由的明確 upgrade；Hybrid 不跨 backend 共用執行環境 source。
+- v1.0.1 預設交付：由 runtime source 直接渲染的有序 H.264 shot，3840 × 2160、30 fps；整條 Master 可選。
+- 同輸入的新 5-shot HyperFrames canary 已通過直接 render、full decode、觀看 receipt、構圖、素材與 signature motion gate。使用者認可結果，並明確要求不製作剩餘 shot 與完整 preview，直接公開。因此不宣稱全片 production 或兩個 backend 已同等驗證。
 - 輸出規格不手寫 JSON，而由 `create-production-profile.mjs` 生成。Parent 一律將該檔案傳給 `plan-runtime.mjs --production-profile`，把寬、高、fps、音訊與 H.264 MP4 規格以同一雜湊綁定到計畫、每個 Builder 任務與交付驗證。例如 `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4` 會建立直式 25 fps 規格，不會退回預設值。
 - HyperFrames 與 Remotion 是獨立後端，不承諾視覺一致。
 - Windows、桌面版 CapCut/Jianying 匯入，以及任意現有專案的自動修復尚未驗證。

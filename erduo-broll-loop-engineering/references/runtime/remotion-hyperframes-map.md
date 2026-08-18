@@ -16,8 +16,9 @@ validated semantic recipe
 └── HyperFrames adapter      -> HyperFrames-owned source and evidence
 ```
 
-New projects default to auto planning, not a runtime. Both branches are
-independent production concerns. The Parent's deterministic planning script
+New production projects default to HyperFrames. Remotion is explicit opt-in or
+canary, and auto planning is experimental until both runtimes have the same
+creative viewing-and-revision loop. Both branches are independent production concerns. The Parent's deterministic planning script
 assigns a shot only from exact capability or pattern/backend evidence;
 targeted readiness then verifies the required dependencies, licenses, source
 path, and witnesses.

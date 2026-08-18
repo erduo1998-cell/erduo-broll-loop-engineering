@@ -1,159 +1,102 @@
 ---
 name: broll-remotion-build
-description: Build assigned Remotion representative scenes and shared visual source as Lead, or one production authoring unit with editable source and verified frozen media.
+description: Build explicit Remotion canary representative samples as Lead, or own one explicitly assigned contiguous chapter through design, deterministic Composition authoring, viewing, and revision.
 ---
 
-# Remotion Builder
+# Remotion Lead / Chapter Builder
 
-Own only one assignment in one Remotion block. `role: lead` with
-`phase: visual-lock` builds only the assigned representative scenes and shared
-visual source; `role: builder` with `phase: production` builds one authoring
-unit. Do not change
-Direction, routing, assets, other units, or final delivery. In hybrid
-`block-freeze` mode, only join verified unit projects in plan order and freeze
-the block; never revise unit creativity.
+Remotion is explicit opt-in or canary in v1.0.1, not the production default.
+Own only the assignment-selected role and source tree. Never change SRT timing,
+Recipe `truth`, another chapter, runtime selection, or Parent-generated media
+contracts. A failure never silently switches backend.
 
-## Inputs and references
+## Complete creative context
 
-Require the validated unit assignment, shared narrative/visual locators,
-assigned Recipes, immediate seams, frozen assets/fonts, output/audio policy,
-targeted project preflight, license confirmation, and 0–2 selected references.
-A production assignment additionally requires a validated
-approved-or-explicitly-skipped `04-visual-lock/visual-lock.json` and the matching
-Remotion shared-source locator and identity. Run the Recipe validator. Use only exact project-local Remotion packages and
-CLI; never global packages, download-style `npx`, HyperFrames execution, or
-runtime switching.
+Read the complete original SRT and original design directly; a summary cannot
+replace either. Use the assignment-selected role prompt, this assignment, its
+Recipes, chapter/seam context, shared asset/font index, Lead samples and
+capability index, exact project-local Remotion toolchain, and at most two
+selected references. Do not reopen Parent/other stage Skills, schemas,
+validators, generic craft references, backend guides, full catalogs, or command
+source.
 
-Verify the immutable `assignment.productionProfile` against both its assignment
-identity and the runtime plan. Use its exact raster, fps rational, mezzanine
-container/codec/pixel/color/audio, and final-master policy. Never guess or
-substitute an output profile.
+`truth` is immutable. `creativeProposal` is revisable: change its metaphor,
+objects, composition, motion, material route, or key states when a better
+answer preserves the audience outcome and required readable result. Record one
+concise reason, not a new approval workflow.
 
-Read `animation-craft.md`, `visual-craft.md`, `remotion-backend.md`, and
-`motion-layout-lint.md`. Query only selected craft/card entries and their
-manifest-pinned reference imports. Treat reference TSX as Apache-2.0 knowledge,
-not a ready component: replace fixture content and excluded media, fonts,
-textures, sounds, coordinates, and styling with frozen project inputs. Prefer a
-project-local primitive only when it has a matching real render witness.
+Do not create `src/inspection.tsx`, inspection Compositions, DOM trace markers,
+motion windows, dense diagnostics, capture/trace/lint/screenshot/frame-scan/
+hash/probe/decode/manifest/contract/receipt/proof tools, or passing proof
+artifacts. Parent owns deterministic rendering and media evidence.
 
-All commands follow `../../references/safe-execution.md`.
+Use only the assignment's exact local packages, CLI, profile, and prepared
+dependency identity. Never use global packages, download-style `npx`, a private
+per-unit install, HyperFrames execution, or a substituted profile. All visible
+motion derives from current frame/fps, deterministic math, or fixed seeds; no
+CSS time animation, timers, ambient state, network-at-render, wall clock, or
+unseeded randomness.
 
-## Author
+Use project-local font loading for every visible typeface named by the
+assignment; generic or host-system fallback is forbidden. Parent owns
+dependency preparation, typecheck, bundle reuse, direct shot rendering, and
+the fixed two-slot heavy-work queue. Parent ensures one dependency identity
+installs once per production root through `remotion-toolchain.mjs prepare`.
+Do not run a private per-unit dependency install. Parent invokes heavy commands through
+`remotion-toolchain.mjs run-heavy`.
 
-For a Lead assignment, write the moving representative scenes only under
-`broll-production/04-visual-lock/remotion/scenes/` and importable source only
-under `broll-production/04-visual-lock/remotion/shared-source/`. Bind exact
-dependencies and an editable-source manifest/identity. The source includes
-project-local font loading, type hierarchy, palette, grid, safe areas, spacing,
-background/material/depth baseline, common content-relationship primitives,
-and enter/emphasize/change/exit/readable-hold frame-driven tokens. It is not a
-layout template; the representative scenes must still use different
-content-appropriate compositions.
+## Lead mode
 
-For a production assignment, write an isolated source project only under
-`broll-production/03-remotion-build/<authoring-unit-id>/project/`, import the
-identity-bound shared source, and register one
-block Composition and assemble assigned semantic shots with deterministic
-`Sequence` offsets using the backend reference's absolute millisecond/frame
-mapping. Preserve Recipe meaning, visual job, focus, material roles, beat
-boundaries, readable holds, and seams.
+Read the complete original inputs, compact motion map, exactly three
+representative Recipes, and shared assets/fonts. Build three final, directly
+renderable Compositions with clearly different silhouettes, compositions, and
+main actions:
 
-Every shot begins with the Recipe's concrete first-read anchor, makes the
-declared action happen visibly, and settles into its readable result. Do not let
-abstract material, energy lines, giant type, or English filler replace an
-immediately understandable object, relationship, state, or spatial change.
-Use shared primitives without reskinning one layout across the film.
+1. native graphic and type;
+2. real or generated material fusion;
+3. information-dense interface, process, or data organization.
 
-Build the maximum visible hero state first: focus, depth, edge anchors, media
-geometry, support structure, and readable result. Then author attention,
-primary causal action, dependent overlap/follow-through, one expressive peak,
-settle, and hold. Use `spring` only when physical character needs it. Media
-must drive crop, mask, path, annotation, palette, depth, or state—not a generic
-frame.
+Implement every signature motion named by the design in a real sample or
+runnable primitive. Provide reusable crop, mask, depth, background fusion,
+source binding, preparation, main action, overlap, settle, and readable-hold
+capabilities. The capability index stays under one page and explains which
+content relationship each capability serves. Shared source may contain tokens,
+visual/motion primitives, and base components, never a swap-the-copy whole-shot
+template.
 
-Implement every non-still Recipe beat as a beat-bound development of a meaningful
-primary, secondary, text, or structural element. Finite action may transform and
-settle; progressive continuous subject action may fulfill a beat when it advances
-to a new visible state. Background loops, particles, decorative lines, unbound
-continuous motion, or unchanged motion declarations cannot fulfill a beat. Do
-not add or compress beats by a fixed duration or count; realize the Director's
-content-derived progression.
+Run only the exact standard command, open all three six-frame sheets and short
+previews, repair low-level defects, then record `accepted` or `revised`. A
+revised conclusion names the actual source change. These samples become final
+source for their shots; Chapter Builders do not rebuild them.
 
-All visible motion must derive from current frame/fps, deterministic math, or a
-fixed seed. No CSS time animation, timers, ambient effects/state, render-time
-network, wall clock, or unseeded randomness. For HTML-in-canvas, require its
-capability canary, smallest non-nested subtree, deterministic Canvas/GL state,
-cleanup, and identity-bound GL backend; never silent fallback.
+## Chapter Builder mode
 
-Create the exact package/lock and manifest closure required by
-`remotion-backend.md`; freeze and hash source, config, assets, fonts, Recipes,
-capabilities, attribution, and fallback decisions. Fonts must be project-local
-and explicitly loaded. Never run a private per-unit `npm ci`. Call the bundled
-`remotion-toolchain.mjs prepare`; identical dependency identities reuse one
-production-root toolchain through the unit's `node_modules` link.
+Own one contiguous chapter, normally 5–8 shots. Control its composition
+variation, material choices, pacing, and neighboring handoffs. Use Lead
+capabilities without copying Lead layouts. Never let three consecutive shots
+share the same layout skeleton, entry, and rhythm.
 
-Run verifier, identity-bound shared-toolchain preparation, the assignment typecheck,
-truthful runtime geometry capture first at Recipe beat boundaries, readable
-holds, scene cuts, and the smallest mechanism-specific samples, then motion/layout lint with
-`--recipes` pointing to this unit's assigned Recipe directory. Capture runtime
-styling hashes when a planned material-state or attention change is not expressed
-by geometry; never hash text content as a substitute for development. Beat
-delivery cannot claim a pass when its principal development is unmeasured. Route
-only a finding or unproven principal development to dense or per-frame capture
-for its affected window. Connector geometry, complex paths, Canvas/WebGL, and
-an explicit user requirement may demand exact evidence from the start. Route
-install, typecheck, browser trace, diagnostic render, and block freeze render
-through `remotion-toolchain.mjs run-heavy`; its fixed limit is two. A pass produces no all-frame PNG sequence, routine still,
-unit preview, or AI frame inspection. Findings alone render bounded diagnostic
-windows; fix owning source and rerun only affected gates. Canvas/WebGL content
-must expose semantic bounds, not merely its canvas rectangle.
+Choose `native`, `provided`, `search`, `generate`, or `mixed` separately for
+each shot. The shared freeze does not close shot-specific search/generation
+unless the packet records a real user, capability, authorization, or cost
+restriction. Add selected material to the provenance index and fuse it into
+crop, mask, path, palette, depth, annotation, or state.
 
-For a selected `diagram-*` craft entry, also capture actual rendered diagram
-geometry at every declared readable hold: node rectangles, connector
-polylines, and connector-label rectangles in canvas coordinates. Store it in
-the shot's `diagramFrames` trace field. The shared lint rejects missing diagram
-evidence, a connector crossing an unrelated node, a label touching a connector
-or node, and two connectors sharing a visible path segment. Do not hand-author
-or infer this evidence from JSX or SVG source.
+Register one final, deterministic Composition/direct render entry per assigned
+`shotId`. Build the maximum visible result first, then staging, necessary
+anticipation, primary causal action, weaker follow-through, settle, and readable
+hold. Apply only the Recipe's 2–4 `craftIntent` principles; do not score or
+mechanically force all twelve. Keep stable holds valid and motion finite.
 
-## Deliver
+Run only the exact standard command. Open every shot's six-frame sheet and the
+chapter preview. Fix coverage, overlap, accumulated states, unsupported lines,
+empty containers, unreadable results, unfinished action, design-energy
+mismatch, and repeated chapter structure. Rerender only affected shots. Handoff
+requires one concise `accepted` or `revised` conclusion; a revision names what
+actually changed.
 
-A Lead delivers its assigned moving representative scenes, importable shared
-visual source, compact receipt, source manifest/identity, objective check
-locators, and the minimal facts needed by the Director and visual-lock
-contract. It does not author unassigned Recipes or claim that the user approved
-the direction.
-
-For a production assignment, deliver editable project source, compact `receipt.json`, shared-toolchain
-receipt, one continuous lossless/visually-lossless frozen unit, schema-valid
-`block-media.json`, and minimal `handoff.md` with Composition ID, dependency
-identity, manifest/QA locators, coverage, seams, exceptions, and next owner.
-This frozen delivery is required for every normal authoring unit, not only
-hybrid work. Match the production output policy's single width, height, fps,
-codec, pixel format, color, and audio contract so a later script can concatenate
-units without interpreting their source. Render it only after Recipe-bound lint passes. A silent policy
-passes `--muted`, requires zero audio streams, and verifies exact frame duration
-as `durationInFrames / fps`; FFprobe and fully decode the result and validate the
-existing frozen-block contract. Visual lock is the early direction decision;
-the final integrated moving preview remains the final aesthetic review.
-Write a compact source manifest for the editable source closure only: list every
-source-owned file and hash plus its entrypoints; exclude dependencies, caches,
-renders, and generated media. Bind `sourceIdentity` to that manifest so the
-validator checks the declared closure without scanning the whole unit tree.
-For a runtime plan v3 production unit, also write the assignment gate's exact
-`visualLockIdentity` and matching Remotion `runtimeSourceIdentity` into
-`block-media.json`; never recompute or substitute either value.
-
-For multi-unit `block-freeze` mode, consume only passing project receipts, add
-minimum Composition/Sequence glue, bind an aggregate source identity, run block
-gates, and freeze one verified mezzanine. Return unit defects to their owner.
-
-Complete a Lead assignment only when every assigned representative scene moves,
-the importable shared source and manifest close, checks pass, and identities are
-ready for Director witness and visual-lock validation. Complete a production
-assignment only with deterministic runnable editable TSX, continuous coverage,
-closed assets/fonts/licenses, passing verifier/typecheck, Recipe-bound beat
-delivery and runtime-captured lint, and a verified continuous frozen unit with
-manifest. Stop for missing facts, unsupported capability, unavailable exact
-dependencies, false trace evidence, unmeasured principal beat development, or a
-real failed gate.
+Complete only when every assigned shot has editable direct Composition source,
+Parent's technical command passes, the real sheets/chapter preview were viewed,
+truth is preserved, required results are readable, low-level defects are
+repaired, and material provenance closes. Technical success alone is not
+aesthetic approval.

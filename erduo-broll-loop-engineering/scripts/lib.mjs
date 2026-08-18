@@ -21,7 +21,7 @@ const execFileAsync = promisify(execFile);
 
 export const APP_NAME = 'erduo-broll-loop-engineering';
 export const LEGACY_APP_NAME = 'erduo-hyperframes-broll';
-export const RELEASE_VERSION = '1.0.0';
+export const RELEASE_VERSION = '1.0.1';
 export const HYPERFRAMES_VERSION = '0.7.104';
 export const SKILLS_CLI_VERSION = '1.5.22';
 export const HYPERFRAMES_SKILLS_COMMIT = 'c96b30c7174984e684620556ce871a285381ec60';

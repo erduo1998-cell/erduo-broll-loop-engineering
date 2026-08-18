@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/erduo1998-cell/erduo-broll-loop-engineering/blob/main/erduo-broll-loop-engineering/references/runtime/shot-recipe-v3.schema.json",
+  "title": "Compact runtime-neutral shot recipe v3 (legacy)",
+  "description": "A shot-local delta contract. Shared visual, narrative, font, palette, and global prohibition facts belong in the shared artifacts, not here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "shotId", "window", "cueIds", "audienceUnderstanding", "visualJob", "focus", "keyStates", "elementLifecycles", "compositionFamily", "heroFrame", "microBeats", "materialNeeds", "requiredCapabilities", "capabilityReasons", "readableHold", "neighborHandoff"],
+  "properties": {
+    "schemaVersion": { "const": "3.0.0" },
+    "shotId": { "$ref": "#/$defs/id" },
+    "window": { "$ref": "#/$defs/window" },
+    "cueIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "audienceUnderstanding": { "$ref": "#/$defs/nonEmpty" },
+    "visualJob": { "$ref": "#/$defs/nonEmpty" },
+    "focus": { "$ref": "#/$defs/nonEmpty" },
+    "keyStates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "turn", "result", "hold"],
+      "properties": {
+        "start": { "$ref": "#/$defs/nonEmpty" },
+        "turn": { "$ref": "#/$defs/nonEmpty" },
+        "result": { "$ref": "#/$defs/nonEmpty" },
+        "hold": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "elementLifecycles": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/elementLifecycle" }
+    },
+    "compositionFamily": { "$ref": "#/$defs/compositionFamily" },
+    "heroFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relationship", "layers"],
+      "properties": {
+        "relationship": { "$ref": "#/$defs/nonEmpty" },
+        "layers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["background", "midground", "foreground"],
+          "properties": {
+            "background": { "$ref": "#/$defs/nonEmpty" },
+            "midground": { "$ref": "#/$defs/nonEmpty" },
+            "foreground": { "$ref": "#/$defs/nonEmpty" }
+          }
+        }
+      }
+    },
+    "microBeats": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/microBeat" } },
+    "materialNeeds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/materialNeed" } },
+    "requiredCapabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" }
+    },
+    "capabilityReasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/capabilityReason" }
+    },
+    "readableHold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startMs", "endMs", "items"],
+      "properties": {
+        "startMs": { "type": "integer", "minimum": 0 },
+        "endMs": { "type": "integer", "minimum": 1 },
+        "items": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } }
+      }
+    },
+    "craft": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primary": { "$ref": "#/$defs/craftRef" },
+        "transition": { "$ref": "#/$defs/craftRef" }
+      }
+    },
+    "patternRef": { "$ref": "#/$defs/patternRef" },
+    "durationRationale": { "$ref": "#/$defs/nonEmpty" },
+    "neighborHandoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["incoming", "outgoing"],
+      "properties": {
+        "incoming": { "$ref": "#/$defs/nonEmpty" },
+        "outgoing": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "notes": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startMs", "endMs"],
+      "properties": {
+        "startMs": { "type": "integer", "minimum": 0 },
+        "endMs": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "compositionFamily": {
+      "enum": ["full-bleed-material", "spatial-path-workflow", "object-kinetic-type", "comparison-selection", "desktop-instrument-board", "data-diagram-evidence", "camera-depth-environment", "sparse-hold-chapter-outro"]
+    },
+    "microBeat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["beatId", "startMs", "endMs", "primaryFocus", "visibleState", "change", "development"],
+      "properties": {
+        "beatId": { "$ref": "#/$defs/id" },
+        "startMs": { "type": "integer", "minimum": 0 },
+        "endMs": { "type": "integer", "minimum": 1 },
+        "primaryFocus": { "$ref": "#/$defs/nonEmpty" },
+        "visibleState": { "$ref": "#/$defs/nonEmpty" },
+        "change": { "enum": ["subject", "topology", "framing", "depth", "material-state", "relationship", "attention", "deliberate-stillness"] },
+        "development": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "elementLifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elementId", "enter", "hold", "destination", "reason"],
+      "properties": {
+        "elementId": { "$ref": "#/$defs/id" },
+        "enter": { "$ref": "#/$defs/nonEmpty" },
+        "hold": { "$ref": "#/$defs/nonEmpty" },
+        "destination": { "enum": ["exit", "replace", "retain", "deemphasize"] },
+        "reason": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "capabilityReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capabilityId", "contentReason"],
+      "properties": {
+        "capabilityId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+        "contentReason": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "materialNeed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "kind", "required", "sourceRoute", "fusion"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "role": { "$ref": "#/$defs/nonEmpty" },
+        "kind": { "enum": ["image", "video", "logo", "screenshot", "data", "font", "native-structure"] },
+        "required": { "type": "boolean" },
+        "sourceRoute": { "enum": ["user", "controlled-generation", "pexels", "fact-source", "native-support"] },
+        "fusion": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "craftRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entryId", "semanticReason"],
+      "properties": {
+        "entryId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+        "semanticReason": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "patternRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cardId", "styleKey", "sourceRevision", "semanticReason", "fallback"],
+      "properties": {
+        "cardId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "styleKey": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "sourceRevision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "semanticReason": { "$ref": "#/$defs/nonEmpty" },
+        "fallback": { "$ref": "#/$defs/fallback" }
+      }
+    },
+    "fallback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["when", "strategy"],
+      "properties": {
+        "when": { "$ref": "#/$defs/nonEmpty" },
+        "strategy": { "enum": ["simplify-motion", "use-stable-state", "substitute-material", "return-to-director", "stop-unsupported"] },
+        "preserve": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" } }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@
   "title": "v1 visual lock and executable visual source contract",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "planIdentity", "representativeScenesIdentity", "status", "tokens", "representativeScenes", "runtimeSources", "directorWitness", "userDecision", "identity"],
+  "required": ["schemaVersion", "planIdentity", "representativeScenesIdentity", "status", "tokens", "representativeScenes", "runtimeSources", "userDecision", "identity"],
   "properties": {
     "schemaVersion": { "const": "1.0.0" },
     "planIdentity": { "$ref": "#/$defs/hash" },

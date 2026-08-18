@@ -2,7 +2,7 @@
 
 # Erduo B-roll Loop Engineering
 
-**SRT と任意の編集済みトーキングヘッド動画から、編集・確認可能な B-roll Master を Codex / Claude Code で制作します。**
+**完全な original SRT と design、および任意の編集済みトーキングヘッド動画から、編集可能な source、直接レンダリングした shot、確認用 preview を制作します。**
 
 [简体中文](README.md) · [English](README.en.md) · **日本語** · [한국어](README.ko.md) · [繁體中文](README.zh-TW.md)
 
@@ -22,9 +22,21 @@
 
 - SRT の整数ミリ秒を基準に、字幕 1 行ごとではなく意味単位でショットを設計。
 - 実装前に共通ビジュアルシステムとコンパクトな Shot Recipe を固定。
-- プロジェクトの実証情報に基づき、HyperFrames、Remotion、または凍結メディアによる hybrid へショット区間を割り当て。
+- production は HyperFrames が標準。Remotion は明示指定/canary のみ、`auto` は実験的 opt-in。
 - 提供素材を優先し、必要なショットだけ追加素材を取得。
-- 量産前に 3 つの代表シーンで visual lock を行い、全体 preview でもう一度納品承認を待ってから Master を技術検証。
+- 量産前に Lead の三種類の最終 sample と、ユーザーが選ぶ 5-shot canary を提示。各 shot を直接レンダリングし、6 コマ画像と全体 preview を生成。
+
+## v1.0.1：Chapter Builder の創作ループを復元
+
+v1.0.1 は正式公開済みです。意味 shot は引き続き独立 H.264 のメディア境界ですが、通常 5–8 個の連続 shot を一人の Chapter Builder が担当します。完全な original SRT/design を直接読み、`truth` は変更せず、`creativeProposal` は短い理由付きで変更でき、章全体の構図・素材・テンポ・接続を所有します。
+
+Assets は既知の共有素材/フォントだけを凍結し、shot 固有の `search`、`generate`、`mixed` を閉じません。Lead は native graphic/type、実写または生成素材の fusion、情報密度の高い interface/process/data の三種類の最終 sample と、signature motion、素材融合能力、短い能力 index を作ります。Builder は実際の 6 コマ画像と chapter preview を開き、欠陥を修正して `accepted` または `revised` を返します。
+
+production source から `inspection.tsx`、DOM trace marker、手動 motion window、成功時の dense diagnostics を削除します。Parent は render/decode/hash/contract/sheet/preview の機械処理だけを担当します。十二原則は短い正向 anchor とし、shot ごとに関連する 2–4 個の `craftIntent` のみ選び、採点や proof は行いません。
+
+production 標準は HyperFrames。Remotion は明示 opt-in/canary のみ、`auto` は実験的 opt-in です。5-shot canary が direct delivery、Builder の実視聴、構図/素材/signature motion の多様性、ユーザー選択 3/5 以上、初回 preview ≤45 分を満たすまで全編制作を開始しません。
+
+2026-08-18 の 179.866 秒 Remotion run は失敗証拠として残します。20/20 の media contract/decode は通過しましたが、20 creative units、original design 不達、素材不足、技術 inspection 合格でも視覚品質不合格でした。203m13s / 54m17s / 63m13s も目標未達であり、本修正や backend 同等性を証明しません。
 
 ## v1.0.0 量産前の Visual Lock
 
@@ -62,10 +74,10 @@ v0.9.2 は配布形式とインストール入口だけを変更します。Dire
 
 ### 標準 Skill インストール
 
-固定 HyperFrames 環境がすでに準備済みの端末向けです。v1.0.0 Release の `erduo-broll-loop-engineering-skills-v1.0.0.tar.gz` を展開し、次を実行します。
+固定 HyperFrames 環境がすでに準備済みの端末向けです。v1.0.1 Release の `erduo-broll-loop-engineering-skills-v1.0.1.tar.gz` を展開し、次を実行します。
 
 ```bash
-npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.0 --skill '*' --agent codex --global --full-depth
+npx -y skills@1.5.22 add ./erduo-broll-loop-engineering-skills-1.0.1 --skill '*' --agent codex --global --full-depth
 # Claude Code では codex を claude-code に変更
 ```
 
@@ -85,11 +97,11 @@ cd erduo-broll-loop-engineering
 
 ## 最初の実行
 
-SRT を添付して次のように依頼します。
+完全な original SRT と design を添付して次のように依頼します。
 
 ```text
-erduo-broll-loop-engineering を使って、この SRT から人物が映らない B-roll Master を作成してください。
-3 つの代表シーンの visual lock と、全体 preview の納品承認では停止してください。
+erduo-broll-loop-engineering を使って、この original SRT と design から編集可能な B-roll shot ファイルと全体 preview を作成してください。全編 Master は私が明示的に求めた場合だけ作成してください。
+5-shot canary までは自動実行し、その後は shot ごとの選択のため停止してください。5 件中 3 件以上で本版を選ぶまで全編 production を開始せず、最終 preview の納品承認でも停止してください。
 ```
 
 トーキングヘッドモードでは、字幕に対応する編集済み動画も必要です。画像、動画、ロゴ、スクリーンショットがある場合は最初に渡してください。
@@ -101,8 +113,8 @@ UTF-8 SRT は中国語に限定されません。実際の品質はホストモ�
 ## 確認済み範囲
 
 - macOS の Codex で v1.0.0 production benchmark を完了。Claude Code はインストール/契約を確認済みですが、同一入力の v1 production 比較は pending です。
-- 標準出力：H.264 MP4、3840 × 2160、30 fps。
-- 標準 unit media：高品質 H.264 MP4。FFV1 は理由付きの明示的 upgrade のみ。Hybrid は backend 固有 source を共有しません。
+- v1.0.1 の標準出力：runtime source から直接レンダリングした順序付き H.264 shot、3840 × 2160、30 fps。全編 Master は任意です。
+- 同一入力の新しい 5-shot HyperFrames canary は、直接 render、full decode、閲覧 receipt、構図・素材・signature motion の gate を通過しました。ユーザーは結果を承認し、残りの shot と全編 preview を制作せず公開することを明示しました。そのため全編 production や両 backend の同等対応は主張しません。
 - 出力ポリシーは手書きせず、`create-production-profile.mjs` で生成します。Parent はそのファイルを必ず `plan-runtime.mjs --production-profile` に渡し、幅、高さ、fps、音声、H.264 MP4 の条件を計画、各 Builder の割り当て、納品検証へ同じハッシュで固定します。たとえば `--width 1080 --height 1920 --fps 25 --audio silent --master-format h264-mp4` は、標準値へ戻らない縦型 25 fps のプロファイルを生成します。
 - HyperFrames と Remotion は独立したバックエンドで、視覚的一致は保証しません。
 - Windows、デスクトップ版 CapCut/Jianying への取り込み、任意の既存プロジェクトの自動修復は未検証です。

@@ -4,6 +4,22 @@
 
 ## Unreleased
 
+## 1.0.1 — 2026-08-19
+
+- 修正 2026-08-18 技术通过但视觉失败的候选实现：保留逐镜直出和 Parent 机械媒体检查，把创作边界恢复为一名 Chapter Builder 负责通常 `5–8` 个连续镜头的完整“理解—选择—制作—观看—修改”闭环。
+- Shot Recipe v4 拆为不可修改的 `truth` 与可由 Builder 用一句理由重做的 `creativeProposal`；Director 只建议语义章节、seam、素材路线和 2–4 条 `craftIntent`，不再拥有 `authoring.solo` 决策。
+- 完整原始 SRT 与原始 design 连同 identity 直接进入 Director、Lead 和 Chapter Builder packet，不再用中间摘要替代创作事实。
+- Assets 只冻结已知共享素材、字体、授权和衍生物；每镜继续开放 `native|provided|search|generate|mixed`。全局关闭搜索/生成必须来自用户禁止、能力不可用或授权/费用边界。
+- Lead 必须交付原生图形/文字、真实或生成素材融合、信息密集界面/流程/数据三类真样片；落实 design signature motion、裁切/遮罩/纵深/背景融合能力和一页以内内容关系能力索引。样片成为对应镜头最终源码。
+- Chapter Builder 必须运行标准命令并实际打开每镜 6 格图和 chapter preview；修复低级错误后只返回简短 `accepted|revised`，不能以 lint/inspection/diagnostics 通过代替看片。
+- 从 creative source 和通过态输出删除 `inspection.tsx`、DOM trace metadata、人工 motion windows、visual-weight/focus-group/layer 证明及 dense diagnostics；Parent 仍负责 render、FFprobe、完整解码、hash、合同、6 格图和 preview。
+- 单一角色真源新增正向十二原则短锚点；每镜只选真正相关的 2–4 条，不做逐条评分或 trace。
+- v1.0.1 production 默认改为 HyperFrames；Remotion 只限 explicit opt-in/canary，`auto` 为 experimental opt-in。
+- 完整生产前新增 5 镜头 creative canary：5/5 直出解码、Builder 真实观看、构图/素材/signature motion 多样性、用户选择不少于 3/5、首版 `≤45` 分钟。用户未选择前禁止跑完整长片。
+- 使用同一份 `179.866` 秒、`124` 条 cue 的原始 SRT/design 完成全新 HyperFrames forward canary：20 份 Recipe v4 与 3 个 `7/7/6` chapter 已规划，三条 Lead 样片与 5 个 canary shot 已真实直出；5/5 canary 为 4K、30 fps、H.264、完整解码通过，六格图、Lead/Builder 观看回执、三种构图、两类素材融合与两种 signature motion 闭合。用户观看盲测后明确认可本版，并明确要求停止剩余 14 镜、不生成全片预览，直接发布。
+- 旧 `179.866` 秒 Remotion run 仅作为失败依据保留：20/20 技术媒体通过，但产生 20 个创作 unit、原始 design 未直达、素材不足、视觉不合格，且 `203m13s / 54m17s / 63m13s` 未达目标。它不证明本次 reset、正式发布或双后端等价。
+- v1.0.1 正式发布；发布证据只覆盖 Lead 三样片与五镜 creative canary，不把用户明确取消的剩余 14 镜或完整 preview 写成已完成，也不声明双后端视觉等价。
+
 ## 1.0.0 — 2026-08-18
 
 - 从 v0.9.2 原地升级正常生产闭环，不另建 fast pipeline；继续保留 Parent、Director、Assets、多 Builder、HyperFrames、Remotion、Hybrid、可编辑源码、素材来源与冻结装配边界。

@@ -1,194 +1,180 @@
 ---
 name: erduo-broll-loop-engineering
-description: Create editable, SRT-anchored B-roll with short semantic shots, shared Assets, runtime-native visual locking, focused Builders, lightweight frozen-unit assembly, and verified delivery across HyperFrames and Remotion.
+description: Create editable SRT-anchored B-roll through a Director, shared Assets, three Lead samples, and 5–8-shot Chapter Builders that render, view, and revise their own work. Use for original-SRT/design-to-video production with HyperFrames by default, explicit Remotion canaries, direct per-shot H.264 delivery, six-frame sheets, and a complete preview.
 ---
 
 # Erduo B-roll Loop Engineering
 
-Act as Parent Producer. Keep creative decisions with one Director, one Assets
-Agent, and multiple focused Builders. Run deterministic planning, assignment,
-assembly, preview, identity, and delivery directly through bundled scripts. Do
-not dispatch Runtime Planner, Integrator, or Render Agents in the normal v1
-path. Their installed stage Skills remain only for older production records.
+Act as Parent Producer. Keep creative judgment with one Director, one Assets
+Agent, one Lead, and a small number of Chapter Builders. Parent runs bundled
+planning, rendering, media validation, identity, and assembly scripts. Never
+dispatch Runtime Planner, Integrator, Render, Reviewer, inspection, or evidence
+Agents in normal v1.0.1 production.
 
-Do not author production source or choose material in Parent context. Review
-compact receipts and return a concrete defect to its original creative owner.
-Never pass the full parent transcript to a child or create a fresh full-history
-revision Agent.
+Do not author production source, choose a shot's creative proposal, or judge
+aesthetics in Parent context. Return a visible defect to the same creative
+owner. Never send full Parent history or create a fresh full-history revision
+Agent.
 
-## Start
+## Inputs and runtime policy
 
-Require an SRT; talking-head mode also needs its edited video. Ask once for
-optional user media and explicit brand, audio, privacy, output, and runtime
-constraints. Default a new unique directory beside the SRT, `master.mp4`, H.264,
-3840×2160, 30 fps, high quality, silent for faceless work. Never overwrite.
-Turn those choices into `production-profile.json` with
-`scripts/create-production-profile.mjs`; never hand-write profile JSON. The
-verified output format is H.264 MP4. If the user gives no output constraint,
-generate the default 3840×2160, 30 fps, silent profile.
+Require the complete original SRT and original design. Talking-head mode also
+requires the matching edited video. Ask once for optional user media and explicit
+brand, audio, privacy, output, material-service, and runtime constraints. Pass
+the original SRT/design files and identities directly to Director, Lead, and
+every Chapter Builder; no intermediate summary may replace them.
 
-Run the runtime detector, validator, and lightweight production preflight.
-Explicit `auto`, `hybrid`, `hyperframes`, or `remotion` wins; a blank project
-defaults to `auto`; ambiguous existing evidence stops for a choice. Parent
-handles production-input and project-runtime fixes. Dispatch `broll-onboarding`
-only when the cached preflight explicitly returns
-`run-onboarding-diagnostic`. Normal production has no Onboarding Agent.
+Create a fresh production directory beside the SRT. Use
+`create-production-profile.mjs` for all output choices; never hand-write profile
+JSON. Default to one independent H.264 MP4 per semantic shot, 3840×2160,
+30 fps, high quality, and silent for faceless work. A combined `master.mp4` is
+optional. Never overwrite.
 
-## Normal v1 flow
+Runtime policy for v1.0.1:
 
-1. Dispatch `broll-director` with only the SRT, task constraints, optional user
-   media locators, and 0–2 actually selected references. It creates the shared
-   narrative/visual artifacts, compact runtime-neutral Shot Recipes, and a
-   `representative-scenes.json` set with exactly one `opening`, one
-   `information-dense`, and one `late` shot. A semantic shot is normally
-   about 5–12 seconds. A shot over 15 seconds must explain the content-driven
-   development that needs one continuous span; it cannot rely on background
-   activity or held headline text.
-2. Parent generates `<production-root>/production-profile.json` from the user's
-   width, height, fps, audio, and output constraints, then runs
-   `scripts/plan-runtime.mjs` with `--production-profile`, `--production-root`,
-   and `--representative-scenes`. The script validates the Recipes and
-   representative set, binds the complete
-   profile hash, assigns backends, writes one immutable runtime plan, and writes
-   plan-v3 profile hash, and writes minimal schema-v2 Lead and production task
-   packets. Do not dispatch
-   `broll-runtime-plan` or hand-edit generated JSON.
-3. Run targeted lightweight preflight only for the backends named by the plan.
-4. Dispatch `broll-assets` once. It freezes the complete plan's actual media and
-   project-local fonts before Lead work begins and marks the representative
-   subset. All Builders read one shared
-   `02-assets/` store; never copy the full asset library into unit directories.
-5. For each backend actually named by the plan, run
-   `scripts/gate-builder-assignment.mjs` on its `role: lead`,
-   `phase: visual-lock` packet, then dispatch the existing Builder. The Lead builds the backend's assigned
-   representative scenes plus an importable runtime-native visual source under
-   its assigned output tree. It must implement the frozen fonts, type hierarchy,
-   palette, grid, safe areas, spacing, material/depth baseline, common content
-   relationships, and enter/emphasize/change/exit/readable-hold motion tokens.
-   This is shared infrastructure, not a shot template. HyperFrames and Remotion
-   never share runtime source; a hybrid production shares only the Director's
-   runtime-neutral visual tokens, and each backend has its own minimal source.
-6. Assemble the three real moving representative scenes, reactivate the original
-   Director for a concrete `shotId` witness, and write
-   `04-visual-lock/visual-lock.json`. The lock binds the representative reasons,
-   frozen visual tokens, assets/fonts, moving scene media, Director witness,
-   shared source locators and source identities. Show those scenes to the user.
-   Continue fan-out only after the user approves, requests and receives repair,
-   or explicitly skips the lock. A skip records the risk and identity; it is
-   never silent. Any bound source, font, asset, scene, or witness drift invalidates
-   the lock. Validate it with `scripts/validate-visual-lock.mjs`.
-7. Run `scripts/gate-builder-assignment.mjs` with the validated lock for every
-   `role: builder`, `phase: production` packet, then dispatch it to `broll-master-build` or
-   `broll-remotion-build`, including the validated visual-lock and matching
-   backend shared-source locator. Source authoring may run concurrently. Each Builder
-   returns editable source, its compact receipt, and one validated
-   `block-media.json` plus continuous frozen unit media in the common profile.
-   For runtime plan v3, the contract also binds the validated
-   `visualLockIdentity` and that unit backend's `runtimeSourceIdentity`.
-8. Parent runs `scripts/assemble-frozen-production.mjs preview` with the ordered
-   unit contracts and the same `04-visual-lock/visual-lock.json`. The script
-   revalidates the visual lock and shared-source identities, then validates hashes, time coverage, profile and
-   audio closure, assembles one low-cost moving preview, fully decodes it, and
-   freezes its identity. Do not dispatch an Integrator or Render Agent.
-9. Before showing it to the user, reactivate the original Director once with
-   only the low-cost complete preview, SRT, shared plans, and Recipe locators.
-   Ask for a bounded visual witness: concrete `shotId` problems in content
-   correspondence, comprehension burden, long-span development, readable copy,
-   and whole-film coherence. Do not create a Reviewer Agent, score aesthetics,
-   redesign the film, or repeat the script's beat checks. Return each concrete
-   problem to the original Director or Builder and reassemble after repairs pass.
-   If the host cannot inspect moving video, record that capability limit; never
-   claim the witness passed.
-10. The user makes the final aesthetic decision on the identity-bound moving
-   preview. After approval, Parent runs
-   `scripts/assemble-frozen-production.mjs deliver`; it verifies the unchanged
-   visual lock, shared sources, plan, contracts, frozen media, and preview identity, then assembles the full
-   requested raster master to a new `master.mp4` path and fully decodes it.
-11. Run shot export only after an explicit request.
+- production default: `hyperframes`;
+- Remotion: explicit opt-in or canary only;
+- `auto`: experimental and explicit only, never a blank-project default;
+- backend failure never silently reroutes.
 
-An action-required runtime plan returns to Director or runtime selection. A
-failed unit returns to the same Builder with only the compact defect receipt.
-An assembly failure returns to the unit identified by the script. Preserve all
-unaffected units.
+Run lightweight preflight for the selected backend. Dispatch Onboarding only
+when preflight returns `run-onboarding-diagnostic`.
 
-## Minimal Builder context
+## Creative-loop production
 
-Treat each generated assignment JSON as the complete dispatch boundary. Give a
-Builder only its stage Skill, assignment, assigned Recipes, shared narrative and
-visual locators, immediate seams, shared asset/font plan, required backend
-evidence, matching approved visual-lock/shared-source locator when present, and
-0–2 selected references. A Lead receives only its assigned representative
-Recipes and the same compact shared locators—not all film Recipes. Do not include other Recipes, full
-catalogs, unrelated stage references, long logs, or parent conversation
-history.
+1. Dispatch Director with the complete original SRT/design, task constraints,
+   optional media index, and at most two selected references. Director writes
+   semantic chapters, shared direction, Recipe v4 files with immutable `truth`
+   and revisable `creativeProposal`, a compact motion map, and three
+   representative choices. Director never writes `authoring.solo`.
+2. Parent finalizes Director identities, generates the production profile, and
+   runs `plan-runtime.mjs`. Normal authoring units are contiguous chapters of
+   5–8 shots and roughly 35–70 seconds; semantic shot and final media boundaries
+   remain one shot. A normal 15–24-shot film should not become one Agent per
+   shot. Never hand-edit generated plans or assignments.
+3. Dispatch Assets once. It freezes known shared media, fonts, licenses, and
+   reusable derivatives, while keeping each shot's `native`, `provided`,
+   `search`, `generate`, or `mixed` route open. A global external-material ban
+   requires an actual user, capability, authorization, or cost restriction.
+4. Dispatch the Lead with the complete original SRT/design, motion map, exactly
+   three representative Recipes, and shared asset/font index. Lead builds three
+   final samples: native graphic/type, real-or-generated material fusion, and
+   information-dense interface/process/data. Lead also supplies the design's
+   runnable signature motion, reusable material/motion capabilities, and a
+   sub-one-page content-relation capability index. A whole-shot fill-in template
+   is forbidden.
+5. Lead runs the assignment's standard command, opens all three six-frame
+   sheets and short previews, repairs visible defects, and returns `accepted` or
+   `revised`. These sources become the final sources for their shots.
+6. Build only the five-shot creative canary first. Each Chapter Builder receives
+   the complete original SRT/design, its chapter truth/proposals, neighboring
+   seams, Lead samples/capability index, shared assets/fonts, open material
+   routes, exact runtime, output paths, and standard command.
+7. Each Chapter Builder owns understand → choose → build → render → view → revise
+   for its contiguous shots. It may revise `creativeProposal` with one concise
+   reason but cannot change `truth`. It runs only the Parent standard command,
+   opens every six-frame sheet and its chapter preview, repairs real defects,
+   and returns one concise `accepted` or `revised` viewing conclusion.
+8. Parent checks file/media facts, direct-shot coverage, FFprobe, full decode,
+   hashes, source identity, contracts, and order. Success creates compact media
+   facts only. Failure keeps the smallest `shotId + window + issue + image/log`
+   evidence and returns it to the same owner.
+9. Show the five-shot canary and Lead samples to the user without exposing
+   backend implementation. Full production is blocked until the user chooses
+   this version for at least 3/5 shots and all canary gates pass. If it fails,
+   revise the canary; do not run the full film to increase sunk cost.
+10. After canary approval, dispatch one Chapter Builder per remaining chapter,
+    reuse Lead shots, render every semantic shot directly, and assemble the
+    complete preview only from validated shot files. The user makes the final
+    aesthetic decision.
+11. Deliver ordered independent shot files, editable source, provenance, and
+    `delivery-index.json`. Build a full Master only when requested, from the
+    unchanged validated shots. `broll-shot-export` is legacy-only.
 
-Every unit preserves editable source. Frozen media is only the deterministic
-assembly boundary, not a replacement for source. A live shared-element
-transition cannot cross independently rendered units. Keep that transition
-inside one unit; otherwise end on the planned readable state and use the
-declared matched seam. Do not claim seamless live cross-unit motion when the
-contract proves only a cut or matched boundary.
+## Canary hard gate
 
-Remotion units isolate source, not dependencies. Every unit uses
-`remotion-toolchain.mjs`; one dependency identity installs once per
-production root. Install, typecheck, browser trace, and render commands use its
-fixed two-slot queue. HyperFrames Builders use the one release-pinned runtime.
+Before full production, require all of the following:
 
-## Film and motion
+- 5/5 shots directly render and fully decode;
+- the owning Builder viewed every sheet or short preview and returned
+  `accepted|revised`;
+- zero coverage, accumulation, unsupported-line, empty-container, or unreadable
+  result defects;
+- at least three distinct composition families;
+- at least two shots use real or generated material unless the input genuinely
+  does not need it and the user agrees;
+- design energy, type hierarchy, and at least two signature motions are visible;
+- user prefers this version for at least 3/5 shots;
+- assignment-to-first-canary-preview wall time is at most 45 minutes.
 
-Use SRT integer milliseconds as time truth; cover zero through the final cue
-end and group cues by meaning. Every shot needs a semantic purpose, a concrete
-first-read anchor, the visible action that happens to it, a readable result,
-and connection to its neighbors. Abstract metaphor remains valid, but it must
-be carried by an immediately legible object, relationship, state, or spatial
-change rather than abstract material, energy lines, or giant type alone. Keep one
-coherent visual world while varying composition; do not turn the film into
-repeated cards or subtitle copy.
+No automatic score may replace the user's choice.
 
-Keep screen copy to the few words that truly need reading. Prefer the audience's
-language and large readable type; use English only for a brand, proper name, or
-content-specific need. Shared source must support multiple composition families
-and cannot make every Recipe a reskinned instance of one layout.
+## Role and context boundaries
 
-Direction and Builders load animation/visual craft only inside their own stage.
-Patterns are optional knowledge, not templates, scores, or routing evidence.
-Shotcraft is problem-triggered only, never as a per-shot gate. A complete film may use zero Shotcraft cards.
-Do not restrict visual invention to the fewest mechanisms, prefer an old answer
-merely because it exists, limit abstraction, or require complex motion to
-justify itself with a mechanical score.
+Follow [safe execution](references/safe-execution.md) for every bundled command.
+Shotcraft is problem-triggered guidance, never as a per-shot gate. A complete film
+may use zero Shotcraft cards; do not manufacture a question to justify a query.
+No query and no `patternRef` is a complete valid result.
 
-Build the maximum visible hero state first, then attention, causal action,
-dependent follow-through, settle, and readable hold. Implement the Recipe's
-semantic micro-beats as real changes in subject, space, scale, depth, material,
-relationship, or visual focus. Decorative lines, particles, or background loops
-do not by themselves prove that a long shot develops. Media must shape crop,
-mask, path, annotation, palette, depth, or state—not sit in a generic frame.
+Treat each assignment plus its injected role charter as the dispatch boundary.
+Original SRT/design are task facts and must not be removed as “duplicate rules.”
+Do not send Parent/other stage Skills, common craft references, schemas,
+validator/lint source, full catalogs, unrelated Recipes, long logs, or Parent
+conversation history.
 
-Builders start motion/layout evidence at Recipe beat boundaries, readable holds,
-scene cuts, and the smallest additional samples required by the actual mechanism.
-Only a discontinuity, collision, boundary exit, unsettled result, unreadable
-hold, or unproven principal development escalates the affected window to dense
-or per-frame capture and bounded diagnostic media. Connector geometry, complex
-paths, Canvas/WebGL, and an explicit user requirement may need exact evidence
-from the start. A passing unit produces no all-frame PNG sequence. Do not add a
-review Agent, aesthetic score, or routine screenshot set. Visual lock is the
-early direction decision; the complete moving preview is the final aesthetic
-decision.
+The role prompt includes a short positive twelve-principle anchor. Each Recipe
+selects only 2–4 relevant `craftIntent` values; Builders implement them in the
+real image without scores or trace. Re-anchor from the packet after context
+compression.
+
+Lead and Builder source must not contain `inspection.tsx`, diagnostic
+Compositions, `data-erduo-trace*`, visual-weight/focus-group/layer proof fields,
+hand-authored motion windows, passing diagnostics, or self-built capture,
+trace, lint, screenshot, hash, probe, decode, manifest, contract, receipt, or
+proof tools.
+
+## Creative ownership
+
+`truth` contains timing, source cues, spoken facts, audience outcome, required
+readable result, chapter, and seams. It is immutable. `creativeProposal`
+contains metaphor, objects, composition, motion idea, material route, key
+states, and rationale. The owning Builder may replace it when the new solution
+serves truth better and records one concise reason.
+
+One Chapter Builder controls composition change, pacing, material choice, and
+adjacent handoffs across normally 5–8 shots. It uses Lead capabilities without
+copying Lead layouts. Three consecutive shots may not reuse the same layout
+skeleton, entry, and rhythm.
+
+Media must affect crop, mask, path, annotation, palette, depth, geometry, or
+state. It cannot sit in a generic frame. Build the strongest readable result,
+then staging, necessary anticipation, causal main action, weaker overlap,
+settle, and hold. Stable stillness is valid; decorative loops do not prove
+development.
+
+## Mechanical checks and revisions
+
+Parent owns deterministic rendering, FFprobe, full decode, hash, source
+identity, shot contract, six-frame-sheet generation, chapter-preview generation,
+and final assembly. These checks may reject missing files, wrong media facts,
+black/near-empty frames, safe-area escape, obvious occlusion, or missing fonts.
+They must not claim appeal, metaphor quality, weight, craft-principle success,
+or user approval.
+
+The creative owner must open actual sheets/previews and repair low-level errors:
+premature answers, coverage, accumulating old/new states, floating connectors,
+empty containers, unreadable type/results, unsettled actions, design energy or
+density mismatch, and repeated chapter structure. Rerender only affected shots.
 
 ## Execution and report
 
-All commands follow [shared command execution](references/safe-execution.md).
-Use bundled validators instead of re-reading schemas. Stop only for a real
-missing input, authorization, capability, irreconcilable constraint, or repeated
-blocker without progress. Never overwrite an existing plan, preview, identity,
-attempt, or master.
+Use bundled scripts and safe execution. Stop only for missing input,
+authorization, capability, irreconcilable constraint, a failed user canary
+choice, or repeated blocker without progress. Never overwrite a plan, preview,
+identity, attempt, or Master.
 
-The v1 frozen-media assembler delivers H.264 MP4. If the user explicitly
-requires another master codec or container, stop as unsupported instead of
-silently substituting H.264 or claiming the requested profile was delivered.
-
-Return the master path, resolution, duration, continuous coverage, material and
-font sources, objective media facts, optional export paths, verified
-limitations, and unresolved risks. Technical success never claims aesthetic
-approval. Report cross-unit transitions honestly as cuts or matched seams unless
-one Builder rendered the complete live transition inside one unit.
+Return canary status and user choice first. After approved full production,
+return the ordered shot directory, delivery index, preview, optional Master,
+resolution, duration, coverage, material/font sources, objective media facts,
+Builder `accepted|revised` conclusions, limitations, and unresolved risks.
+Technical success never claims aesthetic approval.

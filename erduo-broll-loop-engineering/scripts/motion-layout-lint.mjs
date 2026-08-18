@@ -8,8 +8,6 @@ const ROLES = new Set(['primary', 'secondary', 'text', 'structural', 'decorative
 const MOTION_KINDS = new Set(['transition', 'continuous', 'cut']);
 const TRACE_MODES = new Set(['rendered-dom-geometry', 'rendered-scene-geometry']);
 const RENDERED_STATE_DELTA = 0.012;
-const LONG_BEAT_RISK_SECONDS = 4;
-const LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION = 0.25;
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -359,25 +357,6 @@ function renderedDevelopmentEvidence(element, motions, startFrame, endFrame, wid
   return { hasDevelopment, developmentFrames };
 }
 
-function longestUndeclaredDevelopmentGap(developmentFrames, startFrame, endFrame) {
-  const frames = [...new Set(developmentFrames)].sort((left, right) => left - right);
-  if (frames.length === 0) return { startFrame, endFrame: endFrame - 1, frameCount: endFrame - startFrame };
-  const gaps = [];
-  const first = frames[0];
-  if (first > startFrame) gaps.push({ startFrame, endFrame: first - 1, frameCount: first - startFrame });
-  for (let index = 1; index < frames.length; index += 1) {
-    const previous = frames[index - 1];
-    const current = frames[index];
-    if (current > previous + 1) {
-      gaps.push({ startFrame: previous + 1, endFrame: current - 1, frameCount: current - previous - 1 });
-    }
-  }
-  const last = frames.at(-1);
-  if (last < endFrame - 1) gaps.push({ startFrame: last + 1, endFrame: endFrame - 1, frameCount: endFrame - last - 1 });
-  return gaps.sort((left, right) => right.frameCount - left.frameCount || left.startFrame - right.startFrame)[0]
-    ?? { startFrame, endFrame: startFrame, frameCount: 0 };
-}
-
 function analyzeBeatDelivery(trace, recipes) {
   if (!(recipes instanceof Map)) return [];
   const findings = [];
@@ -442,36 +421,6 @@ function analyzeBeatDelivery(trace, recipes) {
           unproven ? [unproven.startFrame, unproven.endFrame - 1] : [startFrame, endFrame - 1],
         ));
         continue;
-      }
-      const beatFrames = endFrame - startFrame;
-      const longBeatRiskFrames = Math.ceil(trace.fps * LONG_BEAT_RISK_SECONDS);
-      const idleRiskFrames = Math.ceil(beatFrames * LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION);
-      if (beatFrames >= longBeatRiskFrames) {
-        if (traceIsDenseForWindow(trace, startFrame, endFrame)) {
-          const developmentGap = longestUndeclaredDevelopmentGap(
-            developed.flatMap(({ evidence }) => evidence.developmentFrames), startFrame, endFrame,
-          );
-          if (developmentGap.frameCount >= idleRiskFrames) {
-            findings.push(finding(
-              'rhythm.beat-development-gap', 'error',
-              `Long non-still beat ${beat.beatId} leaves at least 25% of its window without a new measurable subject state; split meaningful waiting into deliberate-stillness or deliver the planned development.`,
-              shot.shotId, developed.map(({ element }) => element.id).sort(),
-              [developmentGap.startFrame, developmentGap.endFrame],
-            ));
-          }
-        } else {
-          const unproven = largestUnchangedSampleInterval(
-            candidates.map(({ element }) => element), startFrame, endFrame, trace.width, trace.height,
-          );
-          if (unproven && unproven.frameCount >= idleRiskFrames) {
-            findings.push(finding(
-              'evidence.dense-development-required', 'error',
-              `Sampled states leave a long unchanged interval in beat ${beat.beatId}; capture only this bounded window densely before deciding whether development is missing.`,
-              shot.shotId, candidates.map(({ element }) => element.id).sort(),
-              [unproven.startFrame, unproven.endFrame - 1],
-            ));
-          }
-        }
       }
     }
   }
@@ -689,14 +638,19 @@ function occupiedGridRatio(entries, bounds, columns = 24, rows = 14) {
   return occupied / (columns * rows);
 }
 
-function diagnosticWindows(findings, fps, traceStart, traceEnd) {
+function diagnosticWindows(findings, fps, traceStart, traceEnd, shots) {
   const padding = Math.max(2, Math.ceil(fps * 0.2));
-  const windows = findings.map((item) => ({
-    shotId: item.shotId,
-    reasonCodes: [item.code],
-    startFrame: Math.max(traceStart, item.frames[0] - padding),
-    endFrame: Math.min(traceEnd, item.frames.at(-1) + padding + 1),
-  })).sort((left, right) => left.startFrame - right.startFrame);
+  const windows = findings.map((item) => {
+    const shot = shots.find(({ shotId }) => shotId === item.shotId);
+    const startBoundary = shot?.startFrame ?? traceStart;
+    const endBoundary = shot?.endFrame ?? traceEnd;
+    return {
+      shotId: item.shotId,
+      reasonCodes: [item.code],
+      startFrame: Math.max(startBoundary, item.frames[0] - padding),
+      endFrame: Math.min(endBoundary, item.frames.at(-1) + padding + 1),
+    };
+  }).sort((left, right) => left.startFrame - right.startFrame);
   const merged = [];
   for (const item of windows) {
     const previous = merged.at(-1);
@@ -933,10 +887,10 @@ export function analyzeMotionLayoutTrace(trace, recipes = null) {
     schemaVersion: '1.0.0', status: findings.length === 0 ? 'pass' : 'attention',
     runtime: trace.runtime, compositionId: trace.compositionId, compositionIdentity: trace.compositionIdentity,
     findingCount: findings.length, findings,
-    diagnosticWindows: diagnosticWindows(findings, fps, trace.startFrame, trace.endFrame),
+    diagnosticWindows: diagnosticWindows(findings, fps, trace.startFrame, trace.endFrame, trace.shots),
     limitations: [
       recipes instanceof Map
-        ? `Beat delivery checks prove bounded non-decorative rendered state development. For non-still beats at least ${LONG_BEAT_RISK_SECONDS} seconds long, they also flag any leading, internal, or trailing interval of at least ${Math.round(LONG_BEAT_MAX_UNDECLARED_IDLE_FRACTION * 100)}% with no new bound subject state; this does not require motion at fixed intervals or judge rhythm quality.`
+        ? 'Beat delivery checks prove that each non-still beat produces at least one bound, non-decorative rendered state change. A resolved state may then remain still for settling or reading; unchanged duration is not a defect and never creates a request for more motion.'
         : 'No Recipes were supplied, so planned beat delivery was not evaluated.',
       trace.frameStep === 1
         ? 'Dense runtime geometry covers every frame in the declared trace window.'

@@ -359,6 +359,129 @@ export async function runHeavyCommand({ productionRoot, cwd, command, spawn = sp
   });
 }
 
+async function assertNewPath(file, label) {
+  try {
+    await lstat(file);
+    throw new Error(`${label} already exists; use a new output path`);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+}
+
+export async function renderRemotionCompositions({
+  productionRoot,
+  project,
+  publicDirectory,
+  entryPoint = 'src/index.tsx',
+  bundleDirectory,
+  renderTargets,
+  bundleIdentity,
+  onRendered,
+  spawn = spawnSync,
+} = {}) {
+  if (!productionRoot || !project || !bundleDirectory || !Array.isArray(renderTargets) || renderTargets.length === 0) {
+    throw new Error('productionRoot, project, bundleDirectory, and renderTargets are required');
+  }
+  const production = path.resolve(productionRoot);
+  const projectRoot = path.resolve(project);
+  const bundle = path.resolve(bundleDirectory);
+  const publicRoot = publicDirectory ? path.resolve(publicDirectory) : null;
+  if (!isInside(production, projectRoot) || !isInside(production, bundle)) {
+    throw new Error('Remotion project and outputs must stay inside the production root');
+  }
+  if (publicRoot) {
+    const publicInfo = await lstat(publicRoot);
+    if (!isInside(production, publicRoot) || !publicInfo.isDirectory() || publicInfo.isSymbolicLink()) {
+      throw new Error('Remotion public directory must be a real production-local directory');
+    }
+  }
+  const normalizedTargets = renderTargets.map((target) => ({
+    shotId: target?.shotId,
+    id: target?.id ?? target?.shotId,
+    output: path.resolve(target?.output ?? ''),
+  }));
+  if (normalizedTargets.some(({ shotId, id, output }) => (
+    typeof shotId !== 'string' || shotId.length === 0
+      || typeof id !== 'string' || id.length === 0
+      || !isInside(production, output)
+  )) || new Set(normalizedTargets.map(({ shotId }) => shotId)).size !== normalizedTargets.length) {
+    throw new Error('renderTargets require unique shotId, Composition id, and production-local output');
+  }
+  await Promise.all(normalizedTargets.map(({ output }) => assertNewPath(output, 'Remotion shot output')));
+  await mkdir(path.dirname(bundle), { recursive: true });
+  await Promise.all(normalizedTargets.map(({ output }) => mkdir(path.dirname(output), { recursive: true })));
+  const binary = (name) => path.join(projectRoot, 'node_modules', '.bin', process.platform === 'win32' ? `${name}.cmd` : name);
+  const run = (command) => {
+    const status = runSafeSpawn(['--', ...command], { cwd: projectRoot, spawn });
+    if (status !== 0) throw new Error(`Remotion backend command failed with exit code ${status}; repair the selected backend without changing route`);
+  };
+  const bundleReceipt = `${bundle}.receipt.json`;
+  let reusedBundle = false;
+  let staleBundle = false;
+  try {
+    const [bundleInfo, receipt] = await Promise.all([
+      lstat(bundle), readJson(bundleReceipt, 'Remotion bundle receipt'),
+    ]);
+    if (!bundleInfo.isDirectory() || bundleInfo.isSymbolicLink()
+      || !bundleIdentity || receipt.bundleIdentity !== bundleIdentity) {
+      staleBundle = true;
+    } else {
+      reusedBundle = true;
+    }
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+    try {
+      const bundleInfo = await lstat(bundle);
+      if (!bundleInfo.isDirectory() || bundleInfo.isSymbolicLink()) {
+        throw new Error('existing Remotion bundle path is not a real directory');
+      }
+      staleBundle = true;
+    } catch (bundleError) {
+      if (bundleError?.code !== 'ENOENT') throw bundleError;
+    }
+    try {
+      const receiptInfo = await lstat(bundleReceipt);
+      if (!receiptInfo.isFile() || receiptInfo.isSymbolicLink()) {
+        throw new Error('existing Remotion bundle receipt is not a regular file');
+      }
+      staleBundle = true;
+    } catch (receiptError) {
+      if (receiptError?.code !== 'ENOENT') throw receiptError;
+    }
+  }
+  if (staleBundle) {
+    await rm(bundle, { recursive: true, force: true });
+    await rm(bundleReceipt, { force: true });
+  }
+  await withHeavySlot(production, async () => {
+    if (!reusedBundle) {
+      run([binary('tsc'), '--noEmit']);
+      run([
+        binary('remotion'), 'bundle', entryPoint, `--out-dir=${bundle}`, '--log=error',
+        ...(publicRoot ? [`--public-dir=${publicRoot}`] : []),
+      ]);
+      await atomicWriteJson(bundleReceipt, { schemaVersion: '1.0.0', bundleIdentity });
+    }
+    for (const target of normalizedTargets) {
+      run([
+        binary('remotion'), 'render', bundle, target.id, target.output,
+        '--codec=h264', '--crf=23', '--log=error', '--muted', '--overwrite',
+      ]);
+      if (onRendered) await onRendered(target);
+    }
+  });
+  return {
+    status: 'rendered',
+    backend: 'remotion',
+    backendFailurePolicy: 'return-to-selected-backend',
+    typecheckRuns: reusedBundle ? 0 : 1,
+    bundleRuns: reusedBundle ? 0 : 1,
+    renderRuns: normalizedTargets.length,
+    bundleDirectory: bundle,
+    outputs: normalizedTargets,
+  };
+}
+
 function parseOptions(args) {
   const values = {};
   for (let index = 0; index < args.length; index += 1) {

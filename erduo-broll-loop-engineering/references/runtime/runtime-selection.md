@@ -16,7 +16,7 @@ Decision order:
 3. Unambiguous existing-project evidence selects that single backend.
 4. Mixed evidence or an existing package project with no runtime evidence is
    `action-required`; do not infer ownership from counts or names.
-5. A genuinely new project defaults to `auto`.
+5. A genuinely new project defaults to production `hyperframes`.
 
 Run:
 
@@ -30,7 +30,8 @@ Add `--runtime <choice>` only for an explicit choice. Preserve stdout as
 skips symlinks/dependencies/build outputs, never uses a shell, and never runs
 project-local code.
 
-`auto` and `hybrid` have `readiness: planning-required`. They permit cached
+Explicit `auto` and `hybrid` have `readiness: planning-required`. `auto` is an
+experimental canary mode, not the production default. They permit cached
 common preflight and runtime-neutral Direction, not backend installation. Explicit or
 detected `hyperframes`/`remotion` forces the whole film and preserves the 0.4.x
 single-route workflow. Existing schema-1 single-backend artifacts are
@@ -62,16 +63,23 @@ node <skill-root>/scripts/plan-runtime.mjs \
   --narrative-envelope <narrative-envelope.json> \
   --visual-system <visual-system.json> \
   --representative-scenes <representative-scenes.json> \
+  --motion-map <motion-map.json> \
+  --original-srt <complete-original.srt> \
+  --original-design <complete-original-design.md> \
+  --hyperframes-executable <verified-absolute-hyperframes-cli> \
   --production-profile <broll-production/production-profile.json> \
   --production-root <broll-production>
 ```
 
-The normal command atomically writes schema-3
+The normal command atomically writes schema-4
 `broll-production/01-runtime-plan/runtime-plan.json`, minimal Lead packets, and
-minimal production packets under `01-runtime-plan/assignments/`. Omitting the
-representative set preserves only the legacy v2 planning path. The complete
-production profile is hash-bound into both outputs. Never redirect stdout into
-the plan and never edit either output by hand. The script uses only:
+minimal Chapter Builder packets under `01-runtime-plan/assignments/`. Recipe v4
+requires the representative set, motion map, complete original SRT, and complete
+original design and the selected backend's verified executable together; use
+`--remotion-executable` for explicit Remotion. Omitting the representative set
+preserves only the legacy planning path. Original-input, executable, and production-profile identities are
+hash-bound into the plan and packets. Never redirect stdout into the plan and
+never edit either output by hand. The script uses only:
 
 - exact `requiredCapabilities` and their matrix classification/preference;
 - exact selected `patternRef` and the pinned backend source index;
@@ -89,8 +97,8 @@ not a component or render witness. The plan records it under
 preference but do not claim controlled comparison or visual parity.
 
 Planning occurs per shot, then adjacent same-backend shots merge into
-contiguous blocks and bounded authoring units. `auto` may resolve to
-HyperFrames, Remotion, or hybrid.
+contiguous blocks and chapter authoring units. Explicit experimental `auto`
+may resolve to HyperFrames, Remotion, or hybrid.
 Explicit `hybrid` must naturally produce both backends; do not split work
 artificially when evidence resolves to one.
 
@@ -103,15 +111,17 @@ until Assets reaches a real need. Dispatch Onboarding only when preflight
 reports missing or changed stable backend evidence; never prepare both blindly.
 
 The Parent dispatches each generated assignment packet to its named backend
-Builder only after `gate-builder-assignment.mjs` accepts it. Lead packets may
-run before visual lock; production packets require a validated approved or
-explicitly skipped `04-visual-lock/visual-lock.json`. Every production Builder returns editable source plus one verified continuous
-unit video and `block-media.json`. After all units pass, the Parent runs
-`scripts/assemble-frozen-production.mjs preview`, obtains the one moving-preview
-decision, and then runs `deliver` after approval. This path is the same for
-single-backend and hybrid plans; no Integrator or Render Agent is dispatched.
-Generated source is never translated, nested, or executed across the runtime
-boundary.
+Builder only after `gate-builder-assignment.mjs` accepts it. Lead packets create
+the three final samples first. Chapter Builders then render only their assigned
+five-shot canary subset until the identity-bound canary technical gate and the
+user's per-shot choice both pass; no legacy gate state may bypass this
+decision. Every Chapter Builder returns editable source, one direct runtime entry
+per shot, and a bound `accepted|revised` viewing receipt. After canary approval,
+the remaining shots render directly and the Parent assembles the final preview
+only from validated shot files. The user approves that complete moving preview
+before optional Master delivery. No Integrator or Render Agent is dispatched,
+and generated source is never translated, nested, or executed across the
+runtime boundary.
 
 Installed Planner, Integrator, and Render stage Skills are legacy readers for
 older production records only. They are not fallback stages for v1.

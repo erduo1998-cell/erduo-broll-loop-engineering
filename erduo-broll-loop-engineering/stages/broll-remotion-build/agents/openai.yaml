@@ -1,4 +1,4 @@
 interface:
-  display_name: "B-roll Remotion Unit Builder"
-  short_description: "Author one focused deterministic Remotion unit."
-  default_prompt: "Use $broll-remotion-build to turn this focused Recipe v2 authoring unit and frozen assets into a deterministic hero-frame-first Remotion project."
+  display_name: "B-roll Remotion Chapter Builder"
+  short_description: "Build an explicit Remotion canary chapter and review it."
+  default_prompt: "Use $broll-remotion-build only for an explicit Remotion assignment, with the complete original SRT/design, to build Lead samples or one deterministic chapter, view its real outputs, and return accepted or revised."

@@ -15,7 +15,7 @@ const skillRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const schemaPath = path.join(skillRoot, 'references', 'runtime', 'visual-lock.schema.json');
 
 export function computeVisualLockIdentity(lock) {
-  const { identity: _identity, ...identityInput } = lock;
+  const { identity: _identity, directorWitness: _legacyWitness, ...identityInput } = lock;
   return createHash('sha256').update(canonicalJson(identityInput)).digest('hex');
 }
 
@@ -26,7 +26,6 @@ export function computeVisualLockApprovalIdentity(lock) {
     tokens: lock.tokens,
     representativeScenes: lock.representativeScenes,
     runtimeSources: lock.runtimeSources,
-    directorWitness: lock.directorWitness,
   })).digest('hex');
 }
 
@@ -92,21 +91,14 @@ function validateProducedContent(lock, plan, errors) {
     || JSON.stringify(sourceRuntimes) !== JSON.stringify([...plan.requiredBackends].toSorted())) {
     errors.push('#/runtimeSources: requires exactly one isolated shared source per planned backend');
   }
-  if (lock.directorWitness?.status !== 'passed') errors.push('#/directorWitness/status: produced visual-lock content requires a passed Director witness');
-  const criteria = new Set((lock.directorWitness?.items ?? []).map(({ criterion }) => criterion));
-  for (const criterion of ['content-correspondence', 'first-glance-comprehension', 'text-readability', 'motion-result', 'whole-film-applicability']) {
-    if (!criteria.has(criterion)) errors.push(`#/directorWitness/items: missing ${criterion} witness`);
-  }
-  const plannedIds = new Set(plannedScenes.map(({ shotId }) => shotId));
-  for (const item of lock.directorWitness?.items ?? []) {
-    if (!plannedIds.has(item.shotId)) errors.push(`#/directorWitness/items: ${item.shotId} is not a representative scene`);
-  }
 }
 
 export async function validateVisualLock(lock, { plan, productionRoot }) {
   const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
   const errors = validateSchemaValue(lock, schema, schema);
-  if (plan?.schemaVersion !== '3.0.0' || plan.status !== 'planned') errors.push('#/planIdentity: visual lock requires one planned runtime plan v3');
+  if (!['3.0.0', '4.0.0'].includes(plan?.schemaVersion) || plan.status !== 'planned') {
+    errors.push('#/planIdentity: visual lock requires one planned runtime plan v3 or v4');
+  }
   if (plan?.identity && computeRuntimePlanIdentity(plan) !== plan.identity) errors.push('#/planIdentity: runtime plan identity is invalid');
   if (lock?.planIdentity !== plan?.identity) errors.push('#/planIdentity: does not match the runtime plan');
   if (lock?.identity && computeVisualLockIdentity(lock) !== lock.identity) errors.push('#/identity: does not match the visual-lock contents');
@@ -129,14 +121,15 @@ export async function validateVisualLock(lock, { plan, productionRoot }) {
       errors.push('#/userDecision: skipped visual lock requires explicit non-empty risk acknowledgement');
     }
     if (lock.userDecision?.approvedContentIdentity !== null) errors.push('#/userDecision/approvedContentIdentity: skipped lock must not claim content approval');
-    if (hasProducedContent) validateProducedContent(lock, plan, errors);
-    else if (lock.directorWitness?.status !== 'skipped') errors.push('#/directorWitness: early skip without produced content must record a skipped witness');
+    if (!hasProducedContent) {
+      errors.push('#/representativeScenes: skipped review still requires the produced Lead scenes and final source');
+    }
+    validateProducedContent(lock, plan, errors);
   } else if (lock?.status === 'approved') {
     if (lock.userDecision?.status !== 'approved') errors.push('#/userDecision/status: approved lock requires user approval');
     if (lock.userDecision?.approvedContentIdentity !== computeVisualLockApprovalIdentity(lock)) {
       errors.push('#/userDecision/approvedContentIdentity: approved content changed after the user decision');
     }
-    if (lock.directorWitness?.status !== 'passed') errors.push('#/directorWitness/status: approved lock requires a passed Director witness');
     validateProducedContent(lock, plan, errors);
   } else if (['pending', 'ready-for-review', 'revision-required'].includes(lock?.status)) {
     if (lock.userDecision?.status === 'approved' || lock.userDecision?.status === 'skipped') errors.push('#/userDecision/status: does not match the incomplete visual lock');
