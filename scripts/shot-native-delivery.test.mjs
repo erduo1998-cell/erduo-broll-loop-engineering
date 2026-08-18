@@ -22,6 +22,19 @@ function sha(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+async function mediaToolchainAvailable() {
+  try {
+    const results = await Promise.all([
+      runCommand({ executable: 'ffmpeg', args: ['-version'], cwd: root }),
+      runCommand({ executable: 'ffprobe', args: ['-version'], cwd: root }),
+    ]);
+    return results.every(({ code }) => code === 0);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
 function probePayload({ durationMs, frameCount, width = 640, height = 360 }) {
   return JSON.stringify({
     streams: [{
@@ -384,6 +397,10 @@ test('preview validates contracts, then concatenates only indexed shot media', a
 });
 
 test('real FFmpeg fixture decodes every direct shot, creates six-frame sheets, and assembles preview', async (t) => {
+  if (!(await mediaToolchainAvailable())) {
+    t.skip('FFmpeg/FFprobe are not installed');
+    return;
+  }
   const value = await fixture(t);
   const realRunner = async (command) => {
     if (command.executable !== 'hyperframes') return runCommand(command);
@@ -412,6 +429,10 @@ test('real FFmpeg fixture decodes every direct shot, creates six-frame sheets, a
 });
 
 test('real Remotion canary uses production source and the same shot contract/validate/preview chain', { timeout: 180_000 }, async (t) => {
+  if (!(await mediaToolchainAvailable())) {
+    t.skip('FFmpeg/FFprobe are not installed');
+    return;
+  }
   const remotionFixture = path.join(root, 'scripts', 'fixtures', 'remotion-dom-trace');
   try {
     await Promise.all([

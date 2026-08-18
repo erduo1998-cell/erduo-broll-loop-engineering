@@ -10,6 +10,19 @@ import {renderRemotionCompositions} from '../erduo-broll-loop-engineering/script
 const execFileAsync = promisify(execFile);
 const fixtureProject = path.resolve('scripts/fixtures/remotion-dom-trace');
 
+async function mediaToolchainAvailable() {
+  try {
+    await Promise.all([
+      execFileAsync('ffmpeg', ['-version']),
+      execFileAsync('ffprobe', ['-version']),
+    ]);
+    return true;
+  } catch (error) {
+    if (error?.code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
 async function ensureDependencies() {
   try {
     await Promise.all([
@@ -25,6 +38,10 @@ async function ensureDependencies() {
 }
 
 test('Remotion canary typechecks once, bundles once, and directly renders three different Composition relationships', {timeout: 180_000}, async (t) => {
+  if (!(await mediaToolchainAvailable())) {
+    t.skip('FFmpeg/FFprobe are not installed');
+    return;
+  }
   await ensureDependencies();
   const productionRoot = await mkdtemp(path.join(os.tmpdir(), 'erduo-remotion-canary-'));
   t.after(() => rm(productionRoot, {recursive: true, force: true}));
