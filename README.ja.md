@@ -10,6 +10,18 @@
 
 </div>
 
+## 自分のトーク動画にモーションを付けたい方は Agent Motion へ
+
+**紹介動画を見て、自分のトーク動画にモーションを付けたいと思った方には、[Agent Motion](https://github.com/erduo1998-cell/agent-motion/blob/main/README.ja.md#start) をおすすめします。**
+
+本プロジェクトは複数の役割と工程を組み合わせた B-roll 制作フローで、導入・理解・保守に手間がかかります。日常的なトーク動画制作には Agent Motion がより適しています。元動画、完全な SRT、制作要件をコーディングエージェントに渡し、MP4 と編集可能なプロジェクトを制作します。
+
+**[Agent Motion の作例と導入手順を見る →](https://github.com/erduo1998-cell/agent-motion/blob/main/README.ja.md#start)**
+
+ZIP をダウンロードしてインストーラーを起動できますが、Node.js 22+ とコーディングエージェント、初回導入時のインターネット接続が必要です。別のプロジェクトであり、本プロジェクトをそのまま更新するものではありません。本リポジトリのソース、ドキュメント、過去のリリースは、既存ユーザーと技術的な参照のために残します。
+
+ライセンスは異なります。本プロジェクトは MIT、Agent Motion は非商用ライセンスで、商用利用には事前の書面による許可が必要です。[ライセンス全文](https://github.com/erduo1998-cell/agent-motion/blob/main/LICENSE)をご確認ください。
+
 ## 実際の出力例
 
 <p align="center">
@@ -79,6 +91,8 @@ v0.9.2 は配布形式とインストール入口だけを変更します。Dire
 </p>
 
 ## インストール
+
+> 以下は本プロジェクトの導入手順です。自分のトーク動画にモーションを付ける場合は、[Agent Motion の導入手順](https://github.com/erduo1998-cell/agent-motion/blob/main/README.ja.md#start)をおすすめします。
 
 ### 標準 Skill インストール
 

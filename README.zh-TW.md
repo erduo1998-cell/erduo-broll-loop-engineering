@@ -10,6 +10,18 @@
 
 </div>
 
+## 只想替自己的口播影片加動效？建議從 Agent Motion 開始
+
+**如果你是看了介紹影片過來的，想為自己的口播影片製作動效，建議直接使用 [Agent Motion](https://github.com/erduo1998-cell/agent-motion/blob/main/README.zh-CN.md#start)（簡體中文指南）。**
+
+本專案採用多角色接力和多階段 B-roll 工程流程，整體偏重，安裝、理解與維護的門檻也更高。對於日常口播創作，Agent Motion 更貼近這個需求：把原片、完整 SRT 和製作要求交給程式設計智慧體，製作動效影片並交付 MP4 與可編輯工程。
+
+**[前往 Agent Motion，查看效果與安裝步驟 →](https://github.com/erduo1998-cell/agent-motion/blob/main/README.zh-CN.md#start)**
+
+Agent Motion 支援下載 ZIP 後啟動安裝，仍需準備 Node.js 22+ 和一個程式設計智慧體，首次安裝需要連網。它是獨立專案，不是本專案的原地升級；本倉庫的原始碼、文件與歷史版本繼續保留，供既有使用者使用和工程研究。
+
+授權差異：本專案採用 MIT；Agent Motion 採用非商業授權，商用須事先取得書面許可，詳見其[授權條款](https://github.com/erduo1998-cell/agent-motion/blob/main/LICENSE)。
+
 ## 真實成片示範
 
 <p align="center">
@@ -79,6 +91,8 @@ v0.9.2 只調整發行格式與安裝入口。Director、Assets、多 Builder、
 </p>
 
 ## 安裝
+
+> 以下是本專案的安裝方法。只想製作自己的口播動效，請優先依照 [Agent Motion 的入門步驟](https://github.com/erduo1998-cell/agent-motion/blob/main/README.zh-CN.md#start)安裝。
 
 ### 標準 Skill 安裝
 

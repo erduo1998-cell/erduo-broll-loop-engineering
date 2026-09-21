@@ -10,6 +10,18 @@
 
 </div>
 
+## 내 토크 영상에 모션을 넣고 싶다면 Agent Motion부터 시작하세요
+
+**소개 영상을 보고 찾아오셨고 자신의 토크 영상에 모션을 넣고 싶다면, [Agent Motion](https://github.com/erduo1998-cell/agent-motion#start)을 권장합니다(영문 안내).**
+
+이 프로젝트는 여러 역할과 단계로 구성된 B-roll 제작 흐름으로, 설치와 이해, 유지 관리에 더 많은 노력이 필요합니다. 일상적인 토크 영상 제작에는 Agent Motion이 더 적합합니다. 원본 영상, 전체 SRT, 제작 요구 사항을 코딩 에이전트에 전달해 MP4와 편집 가능한 프로젝트를 제작합니다.
+
+**[Agent Motion 결과물과 설치 방법 보기 →](https://github.com/erduo1998-cell/agent-motion#start)**
+
+ZIP을 내려받아 설치 프로그램을 실행할 수 있지만, Node.js 22+와 코딩 에이전트가 필요하며 최초 설치에는 인터넷 연결이 필요합니다. 별도 프로젝트이므로 기존 프로젝트를 그대로 업그레이드하는 방식은 아닙니다. 이 저장소의 소스, 문서, 이전 릴리스는 기존 사용자와 기술 참고를 위해 유지합니다.
+
+라이선스는 다릅니다. 이 프로젝트는 MIT이며, Agent Motion은 비상업적 사용을 위한 라이선스로 상업적 사용에는 사전 서면 허가가 필요합니다. [라이선스](https://github.com/erduo1998-cell/agent-motion/blob/main/LICENSE)를 확인하세요.
+
 ## 실제 출력 예시
 
 <p align="center">
@@ -79,6 +91,8 @@ v0.9.2는 배포 형식과 설치 진입점만 변경합니다. Director, Assets
 </p>
 
 ## 설치
+
+> 아래는 이 프로젝트의 설치 방법입니다. 자신의 토크 영상에 모션을 넣으려면 [Agent Motion 시작 안내](https://github.com/erduo1998-cell/agent-motion#start)를 먼저 따라 주세요.
 
 ### 표준 Skill 설치
 

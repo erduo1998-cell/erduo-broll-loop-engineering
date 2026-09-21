@@ -10,6 +10,18 @@
 
 </div>
 
+## Making motion graphics for your own talking-head videos? Start with Agent Motion
+
+**If the introduction video brought you here and you want motion graphics for your own talking-head videos, we recommend [Agent Motion](https://github.com/erduo1998-cell/agent-motion#start).**
+
+This project's multi-role, multi-stage B-roll workflow is involved and takes more effort to set up, understand, and maintain. Agent Motion is a closer fit for everyday talking-head production: give a coding agent your source video, complete SRT, and creative brief to produce an MP4 and editable project.
+
+**[Go to Agent Motion for demos and setup →](https://github.com/erduo1998-cell/agent-motion#start)**
+
+You can download Agent Motion as a ZIP and launch its installer. You still need Node.js 22+, a coding agent, and internet access for initial setup. It is a separate project, not an in-place upgrade. This repository's source, documentation, and past releases remain available for existing users and engineering reference.
+
+Licenses differ: this project uses MIT; Agent Motion is for noncommercial use and requires prior written authorization for commercial use. See its [license](https://github.com/erduo1998-cell/agent-motion/blob/main/LICENSE).
+
 ## Real output demo
 
 <p align="center">
@@ -80,6 +92,8 @@ The checks can flag missing planned development and measurable motion/layout ris
 </p>
 
 ## Install
+
+> These instructions install this project. For your own talking-head motion graphics, start with [Agent Motion's setup guide](https://github.com/erduo1998-cell/agent-motion#start).
 
 ### Standard Skill install
 

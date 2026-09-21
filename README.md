@@ -15,6 +15,18 @@
 
 </div>
 
+## 只想给自己的口播视频加动效？建议从 Agent Motion 开始
+
+**如果你是看了介绍视频过来的，想为自己的口播视频制作动效，建议直接使用 [Agent Motion](https://github.com/erduo1998-cell/agent-motion/blob/main/README.zh-CN.md#start)。**
+
+本项目采用多角色接力和多阶段 B-roll 工程流程，整体偏重，安装、理解与维护的门槛也更高。对于日常口播创作，Agent Motion 更贴近这个需求：把原片、完整 SRT 和制作要求交给编程智能体，制作动效视频并交付 MP4 与可编辑工程。
+
+**[前往 Agent Motion，查看效果与安装步骤 →](https://github.com/erduo1998-cell/agent-motion/blob/main/README.zh-CN.md#start)**
+
+Agent Motion 支持下载 ZIP 后启动安装，仍需准备 Node.js 22+ 和一个编程智能体，首次安装需要联网。它是独立项目，不是本项目的原地升级；本仓库的源码、文档与历史版本继续保留，供已有用户使用和工程研究。
+
+许可区别：本项目采用 MIT；Agent Motion 采用非商业许可，商用须事先取得书面授权，详见其[使用许可](https://github.com/erduo1998-cell/agent-motion/blob/main/LICENSE)。
+
 ## 40 秒真实成片
 
 <p align="center">
@@ -135,6 +147,8 @@ v0.8.1 已把 Shotcraft 从“逐镜必查菜单”改成真正按需使用的�
 仓库固定收录 152 张上游 Markdown 卡片、209 个 style 和来源哈希，来源为 [`Vincentwei1021/video-shotcraft`](https://github.com/Vincentwei1021/video-shotcraft)。Agent 只渐进读取真正命中的单张卡，不会把整个卡库塞进上下文。
 
 ## 安装
+
+> 以下是本项目的安装方法。只想制作自己的口播动效，请优先按 [Agent Motion 的入门步骤](https://github.com/erduo1998-cell/agent-motion/blob/main/README.zh-CN.md#start)安装。
 
 ### 标准 Skill 安装
 
